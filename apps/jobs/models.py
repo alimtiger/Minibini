@@ -79,7 +79,7 @@ class Step(models.Model):
     end_time = models.DateTimeField(null=True, blank=True)
 
     def __str__(self):
-        return f"Step {self.step_id} for Task {self.task_id}"
+        return f"Step {self.step_id} for Task {self.task_id.task_id}"
 
 
 class TaskMapping(models.Model):

@@ -1,0 +1,389 @@
+[
+  {
+    "model": "contacts.contact",
+    "pk": 1,
+    "fields": {
+      "name": "John Doe",
+      "email": "john.doe@example.com",
+      "address": "123 Main St, Anytown, ST 12345",
+      "phone": "555-123-4567"
+    }
+  },
+  {
+    "model": "contacts.contact",
+    "pk": 2,
+    "fields": {
+      "name": "Jane Smith",
+      "email": "jane.smith@company.com",
+      "address": "456 Business Ave, City, ST 67890",
+      "phone": "555-987-6543"
+    }
+  },
+  {
+    "model": "contacts.contact",
+    "pk": 3,
+    "fields": {
+      "name": "Acme Vendor",
+      "email": "vendor@acme.com",
+      "address": "789 Industrial Blvd, Factory Town, ST 11111",
+      "phone": "555-555-5555"
+    }
+  },
+  {
+    "model": "contacts.paymentterms",
+    "pk": 1,
+    "fields": {}
+  },
+  {
+    "model": "contacts.paymentterms",
+    "pk": 2,
+    "fields": {}
+  },
+  {
+    "model": "contacts.business",
+    "pk": 1,
+    "fields": {
+      "our_reference_code": "CUST001",
+      "business_name": "ABC Corporation",
+      "business_address": "100 Corporate Plaza, Suite 200, Business City, ST 22222",
+      "business_number": "123-456-7890",
+      "tax_exemption_number": "TX123456789",
+      "tax_cloud": "CLOUD001",
+      "term_id": 1
+    }
+  },
+  {
+    "model": "contacts.business",
+    "pk": 2,
+    "fields": {
+      "our_reference_code": "CUST002",
+      "business_name": "XYZ Industries",
+      "business_address": "200 Manufacturing Way, Industrial Park, ST 33333",
+      "business_number": "987-654-3210",
+      "tax_exemption_number": "",
+      "tax_cloud": "",
+      "term_id": 2
+    }
+  },
+  {
+    "model": "core.role",
+    "pk": 1,
+    "fields": {
+      "role_name": "Administrator",
+      "role_description": "Full system access and administrative privileges"
+    }
+  },
+  {
+    "model": "core.role",
+    "pk": 2,
+    "fields": {
+      "role_name": "Manager",
+      "role_description": "Management level access with approval rights"
+    }
+  },
+  {
+    "model": "core.role",
+    "pk": 3,
+    "fields": {
+      "role_name": "Employee",
+      "role_description": "Standard employee access"
+    }
+  },
+  {
+    "model": "core.user",
+    "pk": 1,
+    "fields": {
+      "password": "pbkdf2_sha256$870000$test$hash",
+      "last_login": null,
+      "is_superuser": true,
+      "username": "admin",
+      "first_name": "Admin",
+      "last_name": "User",
+      "email": "admin@minibini.com",
+      "is_staff": true,
+      "is_active": true,
+      "date_joined": "2024-01-01T00:00:00Z",
+      "contact_id": 1,
+      "username_flagged_but_not_required_email": "",
+      "encrypted_password": "encrypted_admin_pass",
+      "role_id": 1,
+      "groups": [],
+      "user_permissions": []
+    }
+  },
+  {
+    "model": "core.user",
+    "pk": 2,
+    "fields": {
+      "password": "pbkdf2_sha256$870000$test$hash",
+      "last_login": null,
+      "is_superuser": false,
+      "username": "manager1",
+      "first_name": "John",
+      "last_name": "Manager",
+      "email": "manager@minibini.com",
+      "is_staff": true,
+      "is_active": true,
+      "date_joined": "2024-01-01T00:00:00Z",
+      "contact_id": 2,
+      "username_flagged_but_not_required_email": "",
+      "encrypted_password": "encrypted_manager_pass",
+      "role_id": 2,
+      "groups": [],
+      "user_permissions": []
+    }
+  },
+  {
+    "model": "core.configuration",
+    "pk": "invoice_settings",
+    "fields": {
+      "field": "invoice_prefix",
+      "invoice_number_sequence": "INV-{year}-{counter:04d}",
+      "estimate_number_sequence": "EST-{year}-{counter:04d}",
+      "job_number_sequence": "JOB-{year}-{counter:04d}",
+      "po_number_sequence": "PO-{year}-{counter:04d}"
+    }
+  },
+  {
+    "model": "core.configuration",
+    "pk": "system_settings",
+    "fields": {
+      "field": "default_currency",
+      "invoice_number_sequence": "",
+      "estimate_number_sequence": "",
+      "job_number_sequence": "",
+      "po_number_sequence": ""
+    }
+  },
+  {
+    "model": "jobs.job",
+    "pk": 1,
+    "fields": {
+      "job_number": "JOB-2024-0001",
+      "created_date": "2024-01-15T09:00:00Z",
+      "completion_date": null,
+      "status": "draft",
+      "contact_id": 1,
+      "description": "Kitchen renovation project for residential client"
+    }
+  },
+  {
+    "model": "jobs.job",
+    "pk": 2,
+    "fields": {
+      "job_number": "JOB-2024-0002",
+      "created_date": "2024-01-20T10:30:00Z",
+      "completion_date": "2024-02-15T16:00:00Z",
+      "status": "complete",
+      "contact_id": 2,
+      "description": "Office electrical upgrade"
+    }
+  },
+  {
+    "model": "jobs.workorder",
+    "pk": 1,
+    "fields": {
+      "job_id": 1,
+      "status": "incomplete",
+      "parent_task_id": null,
+      "estimated_time": "40:00:00"
+    }
+  },
+  {
+    "model": "jobs.workorder",
+    "pk": 2,
+    "fields": {
+      "job_id": 2,
+      "status": "complete",
+      "parent_task_id": null,
+      "estimated_time": "24:00:00"
+    }
+  },
+  {
+    "model": "jobs.task",
+    "pk": 1,
+    "fields": {
+      "pre_submitted_id": "PRE001",
+      "assigned_id": 2,
+      "work_order_id": 1,
+      "name": "Kitchen demolition",
+      "task_type": "demolition"
+    }
+  },
+  {
+    "model": "jobs.task",
+    "pk": 2,
+    "fields": {
+      "pre_submitted_id": "PRE002",
+      "assigned_id": 2,
+      "work_order_id": 1,
+      "name": "Electrical rough-in",
+      "task_type": "electrical"
+    }
+  },
+  {
+    "model": "jobs.estimate",
+    "pk": 1,
+    "fields": {
+      "job_id": 1,
+      "estimate_number": "EST-2024-0001",
+      "revision_number": 1,
+      "status": "draft"
+    }
+  },
+  {
+    "model": "jobs.estimate",
+    "pk": 2,
+    "fields": {
+      "job_id": 2,
+      "estimate_number": "EST-2024-0002",
+      "revision_number": 2,
+      "status": "accepted"
+    }
+  },
+  {
+    "model": "purchasing.purchaseorder",
+    "pk": 1,
+    "fields": {
+      "job_id": 1,
+      "price_list_item_id": "PLI001",
+      "po_number": "PO-2024-0001"
+    }
+  },
+  {
+    "model": "purchasing.purchaseorder",
+    "pk": 2,
+    "fields": {
+      "job_id": 2,
+      "price_list_item_id": "PLI002",
+      "po_number": "PO-2024-0002"
+    }
+  },
+  {
+    "model": "purchasing.bill",
+    "pk": 1,
+    "fields": {
+      "po_id": 1,
+      "contact_id": 3,
+      "vendor_invoice_number": "ACME-INV-001"
+    }
+  },
+  {
+    "model": "purchasing.bill",
+    "pk": 2,
+    "fields": {
+      "po_id": 2,
+      "contact_id": 3,
+      "vendor_invoice_number": "ACME-INV-002"
+    }
+  },
+  {
+    "model": "invoicing.itemtype",
+    "pk": 1,
+    "fields": {
+      "name": "Hardware",
+      "taxability": "taxable",
+      "mapping_to_task": "installation"
+    }
+  },
+  {
+    "model": "invoicing.itemtype",
+    "pk": 2,
+    "fields": {
+      "name": "Labor",
+      "taxability": "taxable",
+      "mapping_to_task": "labor"
+    }
+  },
+  {
+    "model": "invoicing.itemtype",
+    "pk": 3,
+    "fields": {
+      "name": "Materials",
+      "taxability": "non_taxable",
+      "mapping_to_task": "supply"
+    }
+  },
+  {
+    "model": "invoicing.pricelistitem",
+    "pk": 1,
+    "fields": {
+      "item_type_id": 1,
+      "code": "SCREW001",
+      "unit_parts_labor": "each",
+      "description": "Stainless steel screws 2.5 inch",
+      "purchase_price": "0.25",
+      "selling_price": "0.50",
+      "qty_on_hand": "1000.00",
+      "qty_sold": "150.00",
+      "qty_wasted": "5.00"
+    }
+  },
+  {
+    "model": "invoicing.pricelistitem",
+    "pk": 2,
+    "fields": {
+      "item_type_id": 2,
+      "code": "LABOR001",
+      "unit_parts_labor": "hour",
+      "description": "Skilled labor hourly rate",
+      "purchase_price": "0.00",
+      "selling_price": "75.00",
+      "qty_on_hand": "0.00",
+      "qty_sold": "240.00",
+      "qty_wasted": "0.00"
+    }
+  },
+  {
+    "model": "invoicing.invoice",
+    "pk": 1,
+    "fields": {
+      "job_id": 1,
+      "invoice_number": "INV-2024-0001",
+      "status": "active"
+    }
+  },
+  {
+    "model": "invoicing.invoice",
+    "pk": 2,
+    "fields": {
+      "job_id": 2,
+      "invoice_number": "INV-2024-0002",
+      "status": "active"
+    }
+  },
+  {
+    "model": "invoicing.lineitem",
+    "pk": 1,
+    "fields": {
+      "estimate_id": 1,
+      "po_id": null,
+      "bill_id": null,
+      "invoice_id": 1,
+      "task_id": 1,
+      "price_list_item_id": 1,
+      "central_line_item_number": "CLI001",
+      "qty": "50.00",
+      "unit_parts_labor": "each",
+      "description": "Screws for kitchen cabinet installation",
+      "price_currency": "25.00"
+    }
+  },
+  {
+    "model": "invoicing.lineitem",
+    "pk": 2,
+    "fields": {
+      "estimate_id": 1,
+      "po_id": null,
+      "bill_id": null,
+      "invoice_id": 1,
+      "task_id": 2,
+      "price_list_item_id": 2,
+      "central_line_item_number": "CLI002",
+      "qty": "8.00",
+      "unit_parts_labor": "hour",
+      "description": "Electrical rough-in labor",
+      "price_currency": "600.00"
+    }
+  }
+]
