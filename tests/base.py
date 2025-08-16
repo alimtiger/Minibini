@@ -6,7 +6,7 @@ class BaseTestCase(TestCase):
     Base test case class that loads fixture data for all tests.
     This provides a consistent set of test data across all test classes.
     """
-    fixtures = ['test_data.json']
+    fixtures = ['unit_test_data.json']
     
     def setUp(self):
         """

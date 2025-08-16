@@ -6,7 +6,7 @@ from .base import FixtureTestCase
 
 class UserModelFixtureTest(FixtureTestCase):
     """
-    Test User model using fixture data loaded from test_data.json
+    Test User model using fixture data loaded from unit_test_data.json
     """
     
     def test_user_exists_from_fixture(self):

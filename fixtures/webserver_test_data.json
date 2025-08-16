@@ -1,0 +1,148 @@
+[
+{
+  "model": "contacts.contact",
+  "pk": 1,
+  "fields": {
+    "name": "ABC Construction Co.",
+    "email": "contact@abcconstruction.com",
+    "address": "123 Main St, Business District, City, State 12345",
+    "phone": "555-0101"
+  }
+},
+{
+  "model": "contacts.contact",
+  "pk": 2,
+  "fields": {
+    "name": "Smith Residential",
+    "email": "john.smith@email.com",
+    "address": "456 Oak Ave, Residential Area, City, State 12346",
+    "phone": "555-0202"
+  }
+},
+{
+  "model": "contacts.contact",
+  "pk": 3,
+  "fields": {
+    "name": "Metro Office Complex",
+    "email": "facilities@metrooffice.com",
+    "address": "789 Corporate Blvd, Downtown, City, State 12347",
+    "phone": "555-0303"
+  }
+},
+{
+  "model": "contacts.contact",
+  "pk": 4,
+  "fields": {
+    "name": "Green Valley Homes",
+    "email": "info@greenvalley.com",
+    "address": "321 Valley Road, Suburbs, City, State 12348",
+    "phone": "555-0404"
+  }
+},
+{
+  "model": "contacts.contact",
+  "pk": 5,
+  "fields": {
+    "name": "Industrial Solutions Inc.",
+    "email": "projects@industrialsolutions.com",
+    "address": "654 Industrial Pkwy, Industrial Zone, City, State 12349",
+    "phone": "555-0505"
+  }
+},
+{
+  "model": "jobs.job",
+  "pk": 1,
+  "fields": {
+    "job_number": "JOB-2024-001",
+    "created_date": "2025-07-02T21:45:16.554Z",
+    "completion_date": "2025-08-11T21:45:16.554Z",
+    "status": "complete",
+    "contact_id": 1,
+    "description": "Office renovation project - replaced flooring, painted walls, updated lighting"
+  }
+},
+{
+  "model": "jobs.job",
+  "pk": 2,
+  "fields": {
+    "job_number": "JOB-2024-002",
+    "created_date": "2025-07-17T21:45:16.554Z",
+    "completion_date": null,
+    "status": "approved",
+    "contact_id": 2,
+    "description": "Kitchen remodel for residential client - new cabinets, countertops, appliances"
+  }
+},
+{
+  "model": "jobs.job",
+  "pk": 3,
+  "fields": {
+    "job_number": "JOB-2024-003",
+    "created_date": "2025-07-27T21:45:16.554Z",
+    "completion_date": null,
+    "status": "needs_attention",
+    "contact_id": 3,
+    "description": "HVAC system repair and maintenance for office building"
+  }
+},
+{
+  "model": "jobs.job",
+  "pk": 4,
+  "fields": {
+    "job_number": "JOB-2024-004",
+    "created_date": "2025-08-01T21:45:16.554Z",
+    "completion_date": null,
+    "status": "draft",
+    "contact_id": 4,
+    "description": "Bathroom renovation in master suite - tile work, new fixtures, vanity installation"
+  }
+},
+{
+  "model": "jobs.job",
+  "pk": 5,
+  "fields": {
+    "job_number": "JOB-2024-005",
+    "created_date": "2025-08-06T21:45:16.554Z",
+    "completion_date": null,
+    "status": "blocked",
+    "contact_id": 5,
+    "description": "Industrial equipment installation - waiting for permits and electrical inspection"
+  }
+},
+{
+  "model": "jobs.job",
+  "pk": 6,
+  "fields": {
+    "job_number": "JOB-2024-006",
+    "created_date": "2025-08-08T21:45:16.554Z",
+    "completion_date": null,
+    "status": "rejected",
+    "contact_id": 2,
+    "description": "Deck construction project - client decided to postpone until next year"
+  }
+},
+{
+  "model": "jobs.job",
+  "pk": 7,
+  "fields": {
+    "job_number": "JOB-2024-007",
+    "created_date": "2025-08-13T21:45:16.554Z",
+    "completion_date": null,
+    "status": "approved",
+    "contact_id": 1,
+    "description": "Emergency roof repair after storm damage"
+  }
+},
+{
+  "model": "jobs.job",
+  "pk": 8,
+  "fields": {
+    "job_number": "JOB-2024-008",
+    "created_date": "2025-08-15T21:45:16.554Z",
+    "completion_date": null,
+    "status": "draft",
+    "contact_id": 3,
+    "description": "Conference room upgrades - new AV equipment, furniture, lighting"
+  }
+}
+]

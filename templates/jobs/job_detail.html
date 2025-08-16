@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+
+{% block title %}Job {{ job.job_number }} - Minibini{% endblock %}
+
+{% block content %}
+<h2>Job {{ job.job_number }}</h2>
+
+<table border="1">
+    <tr>
+        <th>Field</th>
+        <th>Value</th>
+    </tr>
+    <tr>
+        <td>Job ID</td>
+        <td>{{ job.job_id }}</td>
+    </tr>
+    <tr>
+        <td>Job Number</td>
+        <td>{{ job.job_number }}</td>
+    </tr>
+    <tr>
+        <td>Status</td>
+        <td>{{ job.get_status_display }}</td>
+    </tr>
+    <tr>
+        <td>Created Date</td>
+        <td>{{ job.created_date }}</td>
+    </tr>
+    <tr>
+        <td>Completion Date</td>
+        <td>{{ job.completion_date|default:"Not completed" }}</td>
+    </tr>
+    <tr>
+        <td>Contact</td>
+        <td>{{ job.contact_id }}</td>
+    </tr>
+    <tr>
+        <td>Description</td>
+        <td>{{ job.description|default:"No description" }}</td>
+    </tr>
+</table>
+
+<p><a href="{% url 'jobs:list' %}">Back to Jobs List</a></p>
+{% endblock %}

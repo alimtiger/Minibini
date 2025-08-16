@@ -7,7 +7,7 @@ from .base import FixtureTestCase
 
 class ItemTypeModelFixtureTest(FixtureTestCase):
     """
-    Test ItemType model using fixture data loaded from test_data.json
+    Test ItemType model using fixture data loaded from unit_test_data.json
     """
     
     def test_item_types_exist_from_fixture(self):

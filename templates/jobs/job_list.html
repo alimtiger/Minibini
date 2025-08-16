@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+
+{% block title %}Jobs - Minibini{% endblock %}
+
+{% block content %}
+<h2>All Jobs</h2>
+
+{% if jobs %}
+    <table border="1">
+        <tr>
+            <th>Job Number</th>
+            <th>Status</th>
+            <th>Created Date</th>
+            <th>Description</th>
+            <th>Actions</th>
+        </tr>
+        {% for job in jobs %}
+        <tr>
+            <td>{{ job.job_number }}</td>
+            <td>{{ job.get_status_display }}</td>
+            <td>{{ job.created_date|date:"Y-m-d H:i" }}</td>
+            <td>{{ job.description|truncatewords:10 }}</td>
+            <td><a href="{% url 'jobs:detail' job.job_id %}">View</a></td>
+        </tr>
+        {% endfor %}
+    </table>
+{% else %}
+    <p>No jobs found.</p>
+{% endif %}
+{% endblock %}

@@ -6,7 +6,7 @@ from .base import FixtureTestCase
 
 class ContactModelFixtureTest(FixtureTestCase):
     """
-    Test Contact model using fixture data loaded from test_data.json
+    Test Contact model using fixture data loaded from unit_test_data.json
     """
     
     def test_contacts_exist_from_fixture(self):

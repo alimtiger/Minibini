@@ -7,7 +7,7 @@ from .base import FixtureTestCase
 
 class PurchaseOrderModelFixtureTest(FixtureTestCase):
     """
-    Test PurchaseOrder model using fixture data loaded from test_data.json
+    Test PurchaseOrder model using fixture data loaded from unit_test_data.json
     """
     
     def test_purchase_orders_exist_from_fixture(self):

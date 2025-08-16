@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+
+{% block title %}Minibini - Home{% endblock %}
+
+{% block content %}
+<h2>Dashboard</h2>
+<p>Welcome to Minibini project management system.</p>
+
+<h3>Quick Links</h3>
+<ul>
+    <li><a href="{% url 'jobs:list' %}">View All Jobs</a></li>
+</ul>
+{% endblock %}
