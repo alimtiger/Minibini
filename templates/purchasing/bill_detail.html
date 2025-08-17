@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+
+{% block title %}Bill {{ bill.bill_id }} - Minibini{% endblock %}
+
+{% block content %}
+<h2>Bill: {{ bill.bill_id }}</h2>
+
+<table border="1">
+    <tr>
+        <th>Field</th>
+        <th>Value</th>
+    </tr>
+    <tr>
+        <td>Bill ID</td>
+        <td>{{ bill.bill_id }}</td>
+    </tr>
+    <tr>
+        <td>Purchase Order</td>
+        <td>{{ bill.po_id }}</td>
+    </tr>
+    <tr>
+        <td>Contact</td>
+        <td>{{ bill.contact_id }}</td>
+    </tr>
+    <tr>
+        <td>Vendor Invoice Number</td>
+        <td>{{ bill.vendor_invoice_number }}</td>
+    </tr>
+</table>
+
+<p><a href="{% url 'purchasing:bill_list' %}">Back to Bills List</a></p>
+{% endblock %}

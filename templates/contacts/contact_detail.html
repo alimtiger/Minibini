@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+{% block title %}Contact {{ contact.name }} - Minibini{% endblock %}
+
+{% block content %}
+<h2>Contact: {{ contact.name }}</h2>
+
+<table border="1">
+    <tr>
+        <th>Field</th>
+        <th>Value</th>
+    </tr>
+    <tr>
+        <td>Contact ID</td>
+        <td>{{ contact.contact_id }}</td>
+    </tr>
+    <tr>
+        <td>Name</td>
+        <td>{{ contact.name }}</td>
+    </tr>
+    <tr>
+        <td>Email</td>
+        <td>{{ contact.email|default:"No email" }}</td>
+    </tr>
+    <tr>
+        <td>Phone</td>
+        <td>{{ contact.phone|default:"No phone" }}</td>
+    </tr>
+    <tr>
+        <td>Address</td>
+        <td>{{ contact.address|default:"No address" }}</td>
+    </tr>
+</table>
+
+<p><a href="{% url 'contacts:contact_list' %}">Back to Contacts List</a></p>
+{% endblock %}

@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+
+{% block title %}Estimates - Minibini{% endblock %}
+
+{% block content %}
+<h2>All Estimates</h2>
+
+{% if estimates %}
+    <table border="1">
+        <tr>
+            <th>Estimate Number</th>
+            <th>Job</th>
+            <th>Revision</th>
+            <th>Status</th>
+            <th>Actions</th>
+        </tr>
+        {% for estimate in estimates %}
+        <tr>
+            <td>{{ estimate.estimate_number }}</td>
+            <td>{{ estimate.job_id }}</td>
+            <td>{{ estimate.revision_number }}</td>
+            <td>{{ estimate.get_status_display }}</td>
+            <td><a href="{% url 'jobs:estimate_detail' estimate.estimate_id %}">View</a></td>
+        </tr>
+        {% endfor %}
+    </table>
+{% else %}
+    <p>No estimates found.</p>
+{% endif %}
+{% endblock %}

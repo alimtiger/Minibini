@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+{% block title %}Businesses - Minibini{% endblock %}
+
+{% block content %}
+<h2>All Businesses</h2>
+
+{% if businesses %}
+    <table border="1">
+        <tr>
+            <th>Business Name</th>
+            <th>Business Number</th>
+            <th>Reference Code</th>
+            <th>Actions</th>
+        </tr>
+        {% for business in businesses %}
+        <tr>
+            <td>{{ business.business_name }}</td>
+            <td>{{ business.business_number }}</td>
+            <td>{{ business.our_reference_code }}</td>
+            <td><a href="{% url 'contacts:business_detail' business.business_id %}">View</a></td>
+        </tr>
+        {% endfor %}
+    </table>
+{% else %}
+    <p>No businesses found.</p>
+{% endif %}
+{% endblock %}

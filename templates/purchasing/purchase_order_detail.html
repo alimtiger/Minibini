@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+
+{% block title %}Purchase Order {{ purchase_order.po_number }} - Minibini{% endblock %}
+
+{% block content %}
+<h2>Purchase Order: {{ purchase_order.po_number }}</h2>
+
+<table border="1">
+    <tr>
+        <th>Field</th>
+        <th>Value</th>
+    </tr>
+    <tr>
+        <td>PO ID</td>
+        <td>{{ purchase_order.po_id }}</td>
+    </tr>
+    <tr>
+        <td>PO Number</td>
+        <td>{{ purchase_order.po_number }}</td>
+    </tr>
+    <tr>
+        <td>Job</td>
+        <td>{{ purchase_order.job_id|default:"No job assigned" }}</td>
+    </tr>
+    <tr>
+        <td>Price List Item ID</td>
+        <td>{{ purchase_order.price_list_item_id|default:"No price list item" }}</td>
+    </tr>
+</table>
+
+<p><a href="{% url 'purchasing:purchase_order_list' %}">Back to Purchase Orders List</a></p>
+{% endblock %}

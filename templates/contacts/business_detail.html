@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+
+{% block title %}Business {{ business.business_name }} - Minibini{% endblock %}
+
+{% block content %}
+<h2>Business: {{ business.business_name }}</h2>
+
+<table border="1">
+    <tr>
+        <th>Field</th>
+        <th>Value</th>
+    </tr>
+    <tr>
+        <td>Business ID</td>
+        <td>{{ business.business_id }}</td>
+    </tr>
+    <tr>
+        <td>Business Name</td>
+        <td>{{ business.business_name }}</td>
+    </tr>
+    <tr>
+        <td>Reference Code</td>
+        <td>{{ business.our_reference_code|default:"No reference code" }}</td>
+    </tr>
+    <tr>
+        <td>Business Number</td>
+        <td>{{ business.business_number|default:"No business number" }}</td>
+    </tr>
+    <tr>
+        <td>Address</td>
+        <td>{{ business.business_address|default:"No address" }}</td>
+    </tr>
+    <tr>
+        <td>Tax Exemption Number</td>
+        <td>{{ business.tax_exemption_number|default:"No tax exemption number" }}</td>
+    </tr>
+    <tr>
+        <td>Tax Cloud</td>
+        <td>{{ business.tax_cloud|default:"No tax cloud" }}</td>
+    </tr>
+    <tr>
+        <td>Payment Terms</td>
+        <td>{{ business.term_id|default:"No payment terms" }}</td>
+    </tr>
+</table>
+
+<p><a href="{% url 'contacts:business_list' %}">Back to Businesses List</a></p>
+{% endblock %}

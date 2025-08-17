@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+{% block title %}Contacts - Minibini{% endblock %}
+
+{% block content %}
+<h2>All Contacts</h2>
+
+{% if contacts %}
+    <table border="1">
+        <tr>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Phone</th>
+            <th>Actions</th>
+        </tr>
+        {% for contact in contacts %}
+        <tr>
+            <td>{{ contact.name }}</td>
+            <td>{{ contact.email }}</td>
+            <td>{{ contact.phone }}</td>
+            <td><a href="{% url 'contacts:contact_detail' contact.contact_id %}">View</a></td>
+        </tr>
+        {% endfor %}
+    </table>
+{% else %}
+    <p>No contacts found.</p>
+{% endif %}
+{% endblock %}

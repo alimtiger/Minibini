@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+{% block title %}Estimate {{ estimate.estimate_number }} - Minibini{% endblock %}
+
+{% block content %}
+<h2>Estimate: {{ estimate.estimate_number }}</h2>
+
+<table border="1">
+    <tr>
+        <th>Field</th>
+        <th>Value</th>
+    </tr>
+    <tr>
+        <td>Estimate ID</td>
+        <td>{{ estimate.estimate_id }}</td>
+    </tr>
+    <tr>
+        <td>Estimate Number</td>
+        <td>{{ estimate.estimate_number }}</td>
+    </tr>
+    <tr>
+        <td>Job</td>
+        <td>{{ estimate.job_id }}</td>
+    </tr>
+    <tr>
+        <td>Revision Number</td>
+        <td>{{ estimate.revision_number }}</td>
+    </tr>
+    <tr>
+        <td>Status</td>
+        <td>{{ estimate.get_status_display }}</td>
+    </tr>
+</table>
+
+<p><a href="{% url 'jobs:estimate_list' %}">Back to Estimates List</a></p>
+{% endblock %}

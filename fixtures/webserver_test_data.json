@@ -3,8 +3,8 @@
   "model": "contacts.contact",
   "pk": 1,
   "fields": {
-    "name": "ABC Construction Co.",
-    "email": "contact@abcconstruction.com",
+    "name": "Jane Doe",
+    "email": "jane.doe@abcconstruction.com",
     "address": "123 Main St, Business District, City, State 12345",
     "phone": "555-0101"
   }
@@ -13,7 +13,7 @@
   "model": "contacts.contact",
   "pk": 2,
   "fields": {
-    "name": "Smith Residential",
+    "name": "John Smith",
     "email": "john.smith@email.com",
     "address": "456 Oak Ave, Residential Area, City, State 12346",
     "phone": "555-0202"
@@ -23,7 +23,7 @@
   "model": "contacts.contact",
   "pk": 3,
   "fields": {
-    "name": "Metro Office Complex",
+    "name": "John Q Public",
     "email": "facilities@metrooffice.com",
     "address": "789 Corporate Blvd, Downtown, City, State 12347",
     "phone": "555-0303"
@@ -33,7 +33,7 @@
   "model": "contacts.contact",
   "pk": 4,
   "fields": {
-    "name": "Green Valley Homes",
+    "name": "Laura Ingalls",
     "email": "info@greenvalley.com",
     "address": "321 Valley Road, Suburbs, City, State 12348",
     "phone": "555-0404"
@@ -43,11 +43,91 @@
   "model": "contacts.contact",
   "pk": 5,
   "fields": {
-    "name": "Industrial Solutions Inc.",
+    "name": "Frank Gehry",
     "email": "projects@industrialsolutions.com",
     "address": "654 Industrial Pkwy, Industrial Zone, City, State 12349",
     "phone": "555-0505"
   }
+},
+{
+  "model": "contacts.contact",
+  "pk": 6,
+  "fields": {
+    "name": "Piper Laurie",
+    "email": "orders@housingsupply.com",
+    "address": "888 Supply Drive, Industrial District, City, State 12350",
+    "phone": "555-0606"
+  }
+},
+{
+  "model": "contacts.business",
+  "pk": 1,
+  "fields": {
+    "our_reference_code": "HS001",
+    "business_name": "Housing Supply",
+    "business_address": "888 Supply Drive, Industrial District, City, State 12350",
+    "business_number": "BN-789012",
+    "tax_exemption_number": "TEX-456789",
+    "tax_cloud": "",
+    "term_id": 1
+  }
+},
+{
+  "model": "contacts.business",
+  "pk": 2,
+  "fields": {
+    "our_reference_code": "ABC001",
+    "business_name": "ABC Construction Co.",
+    "business_address": "123 Main St, Business District, City, State 12345",
+    "business_number": "BN-123456",
+    "tax_exemption_number": "TEX-123456",
+    "tax_cloud": "",
+    "term_id": 1
+  }
+},
+{
+  "model": "contacts.business",
+  "pk": 3,
+  "fields": {
+    "our_reference_code": "MOC001",
+    "business_name": "Metro Office Complex",
+    "business_address": "789 Corporate Blvd, Downtown, City, State 12347",
+    "business_number": "BN-345678",
+    "tax_exemption_number": "TEX-345678",
+    "tax_cloud": "",
+    "term_id": 1
+  }
+},
+{
+  "model": "contacts.business",
+  "pk": 4,
+  "fields": {
+    "our_reference_code": "ISI001",
+    "business_name": "Industrial Solutions Inc.",
+    "business_address": "654 Industrial Pkwy, Industrial Zone, City, State 12349",
+    "business_number": "BN-567890",
+    "tax_exemption_number": "TEX-567890",
+    "tax_cloud": "",
+    "term_id": 1
+  }
+},
+{
+  "model": "contacts.business",
+  "pk": 5,
+  "fields": {
+    "our_reference_code": "GRV001",
+    "business_name": "Green Valley Homes",
+    "business_address": "321 Valley Road, Suburbs, City, State 12348",
+    "business_number": "BN-99999",
+    "tax_exemption_number": "TEX-99999",
+    "tax_cloud": "",
+    "term_id": 1
+  }
+},
+{
+  "model": "contacts.paymentterms",
+  "pk": 1,
+  "fields": {}
 },
 {
   "model": "jobs.job",
@@ -143,6 +223,841 @@
     "status": "draft",
     "contact_id": 3,
     "description": "Conference room upgrades - new AV equipment, furniture, lighting"
+  }
+},
+{
+  "model": "jobs.estimate",
+  "pk": 1,
+  "fields": {
+    "job_id": 1,
+    "estimate_number": "EST-2024-001",
+    "revision_number": 1,
+    "status": "open"
+  }
+},
+{
+  "model": "jobs.estimate",
+  "pk": 2,
+  "fields": {
+    "job_id": 1,
+    "estimate_number": "EST-2024-002",
+    "revision_number": 2,
+    "status": "accepted"
+  }
+},
+{
+  "model": "jobs.estimate",
+  "pk": 3,
+  "fields": {
+    "job_id": 2,
+    "estimate_number": "EST-2024-003",
+    "revision_number": 1,
+    "status": "open"
+  }
+},
+{
+  "model": "jobs.estimate",
+  "pk": 4,
+  "fields": {
+    "job_id": 3,
+    "estimate_number": "EST-2024-004",
+    "revision_number": 1,
+    "status": "open"
+  }
+},
+{
+  "model": "jobs.estimate",
+  "pk": 5,
+  "fields": {
+    "job_id": 5,
+    "estimate_number": "EST-2024-005",
+    "revision_number": 1,
+    "status": "open"
+  }
+},
+{
+  "model": "jobs.estimate",
+  "pk": 6,
+  "fields": {
+    "job_id": 6,
+    "estimate_number": "EST-2024-006",
+    "revision_number": 1,
+    "status": "rejected"
+  }
+},
+{
+  "model": "jobs.estimate",
+  "pk": 7,
+  "fields": {
+    "job_id": 7,
+    "estimate_number": "EST-2024-007",
+    "revision_number": 1,
+    "status": "open"
+  }
+},
+{
+  "model": "jobs.workorder",
+  "pk": 1,
+  "fields": {
+    "job_id": 1,
+    "status": "complete",
+    "parent_task_id": null,
+    "estimated_time": "08:00:00"
+  }
+},
+{
+  "model": "jobs.workorder",
+  "pk": 2,
+  "fields": {
+    "job_id": 2,
+    "status": "incomplete",
+    "parent_task_id": null,
+    "estimated_time": "08:00:00"
+  }
+},
+{
+  "model": "jobs.workorder",
+  "pk": 3,
+  "fields": {
+    "job_id": 3,
+    "status": "incomplete",
+    "parent_task_id": null,
+    "estimated_time": "08:00:00"
+  }
+},
+{
+  "model": "jobs.workorder",
+  "pk": 4,
+  "fields": {
+    "job_id": 4,
+    "status": "incomplete",
+    "parent_task_id": null,
+    "estimated_time": "08:00:00"
+  }
+},
+{
+  "model": "jobs.workorder",
+  "pk": 5,
+  "fields": {
+    "job_id": 5,
+    "status": "incomplete",
+    "parent_task_id": null,
+    "estimated_time": "08:00:00"
+  }
+},
+{
+  "model": "jobs.workorder",
+  "pk": 6,
+  "fields": {
+    "job_id": 6,
+    "status": "incomplete",
+    "parent_task_id": null,
+    "estimated_time": "08:00:00"
+  }
+},
+{
+  "model": "jobs.workorder",
+  "pk": 7,
+  "fields": {
+    "job_id": 7,
+    "status": "incomplete",
+    "parent_task_id": null,
+    "estimated_time": "08:00:00"
+  }
+},
+{
+  "model": "jobs.task",
+  "pk": 1,
+  "fields": {
+    "pre_submitted_id": "PSI-001",
+    "assigned_id": null,
+    "work_order_id": 1,
+    "name": "Site preparation and setup",
+    "task_type": "preparation"
+  }
+},
+{
+  "model": "jobs.task",
+  "pk": 2,
+  "fields": {
+    "pre_submitted_id": "PSI-002",
+    "assigned_id": null,
+    "work_order_id": 1,
+    "name": "Material procurement and delivery",
+    "task_type": "preparation"
+  }
+},
+{
+  "model": "jobs.task",
+  "pk": 3,
+  "fields": {
+    "pre_submitted_id": "PSI-003",
+    "assigned_id": null,
+    "work_order_id": 1,
+    "name": "Installation and construction work",
+    "task_type": "installation"
+  }
+},
+{
+  "model": "jobs.task",
+  "pk": 4,
+  "fields": {
+    "pre_submitted_id": "PSI-004",
+    "assigned_id": null,
+    "work_order_id": 2,
+    "name": "Site preparation and setup",
+    "task_type": "preparation"
+  }
+},
+{
+  "model": "jobs.task",
+  "pk": 5,
+  "fields": {
+    "pre_submitted_id": "PSI-005",
+    "assigned_id": null,
+    "work_order_id": 2,
+    "name": "Material procurement and delivery",
+    "task_type": "preparation"
+  }
+},
+{
+  "model": "jobs.task",
+  "pk": 6,
+  "fields": {
+    "pre_submitted_id": "PSI-006",
+    "assigned_id": null,
+    "work_order_id": 2,
+    "name": "Installation and construction work",
+    "task_type": "installation"
+  }
+},
+{
+  "model": "jobs.task",
+  "pk": 7,
+  "fields": {
+    "pre_submitted_id": "PSI-007",
+    "assigned_id": null,
+    "work_order_id": 3,
+    "name": "Site preparation and setup",
+    "task_type": "preparation"
+  }
+},
+{
+  "model": "jobs.task",
+  "pk": 8,
+  "fields": {
+    "pre_submitted_id": "PSI-008",
+    "assigned_id": null,
+    "work_order_id": 3,
+    "name": "Material procurement and delivery",
+    "task_type": "preparation"
+  }
+},
+{
+  "model": "jobs.task",
+  "pk": 9,
+  "fields": {
+    "pre_submitted_id": "PSI-009",
+    "assigned_id": null,
+    "work_order_id": 4,
+    "name": "Site preparation and setup",
+    "task_type": "preparation"
+  }
+},
+{
+  "model": "jobs.task",
+  "pk": 10,
+  "fields": {
+    "pre_submitted_id": "PSI-010",
+    "assigned_id": null,
+    "work_order_id": 4,
+    "name": "Material procurement and delivery",
+    "task_type": "preparation"
+  }
+},
+{
+  "model": "jobs.task",
+  "pk": 11,
+  "fields": {
+    "pre_submitted_id": "PSI-011",
+    "assigned_id": null,
+    "work_order_id": 5,
+    "name": "Site preparation and setup",
+    "task_type": "preparation"
+  }
+},
+{
+  "model": "jobs.task",
+  "pk": 12,
+  "fields": {
+    "pre_submitted_id": "PSI-012",
+    "assigned_id": null,
+    "work_order_id": 5,
+    "name": "Material procurement and delivery",
+    "task_type": "preparation"
+  }
+},
+{
+  "model": "jobs.task",
+  "pk": 13,
+  "fields": {
+    "pre_submitted_id": "PSI-013",
+    "assigned_id": null,
+    "work_order_id": 6,
+    "name": "Site preparation and setup",
+    "task_type": "preparation"
+  }
+},
+{
+  "model": "jobs.task",
+  "pk": 14,
+  "fields": {
+    "pre_submitted_id": "PSI-014",
+    "assigned_id": null,
+    "work_order_id": 6,
+    "name": "Material procurement and delivery",
+    "task_type": "preparation"
+  }
+},
+{
+  "model": "jobs.task",
+  "pk": 15,
+  "fields": {
+    "pre_submitted_id": "PSI-015",
+    "assigned_id": null,
+    "work_order_id": 7,
+    "name": "Site preparation and setup",
+    "task_type": "preparation"
+  }
+},
+{
+  "model": "jobs.task",
+  "pk": 16,
+  "fields": {
+    "pre_submitted_id": "PSI-016",
+    "assigned_id": null,
+    "work_order_id": 7,
+    "name": "Material procurement and delivery",
+    "task_type": "preparation"
+  }
+},
+{
+  "model": "jobs.task",
+  "pk": 17,
+  "fields": {
+    "pre_submitted_id": "PSI-017",
+    "assigned_id": null,
+    "work_order_id": 7,
+    "name": "Installation and construction work",
+    "task_type": "installation"
+  }
+},
+{
+  "model": "invoicing.invoice",
+  "pk": 1,
+  "fields": {
+    "job_id": 1,
+    "invoice_number": "INV-2024-001",
+    "status": "active"
+  }
+},
+{
+  "model": "invoicing.lineitem",
+  "pk": 1,
+  "fields": {
+    "estimate_id": 1,
+    "po_id": null,
+    "bill_id": null,
+    "invoice_id": null,
+    "task_id": null,
+    "price_list_item_id": 1,
+    "central_line_item_number": "LI-EST-001",
+    "qty": "10.00",
+    "unit_parts_labor": "hour",
+    "description": "General Labor - per hour",
+    "price_currency": "45.00"
+  }
+},
+{
+  "model": "invoicing.lineitem",
+  "pk": 2,
+  "fields": {
+    "estimate_id": 1,
+    "po_id": null,
+    "bill_id": null,
+    "invoice_id": null,
+    "task_id": null,
+    "price_list_item_id": 2,
+    "central_line_item_number": "LI-EST-002",
+    "qty": "5.00",
+    "unit_parts_labor": "hour",
+    "description": "Skilled Labor - per hour",
+    "price_currency": "65.00"
+  }
+},
+{
+  "model": "invoicing.lineitem",
+  "pk": 3,
+  "fields": {
+    "estimate_id": 1,
+    "po_id": null,
+    "bill_id": null,
+    "invoice_id": null,
+    "task_id": null,
+    "price_list_item_id": 3,
+    "central_line_item_number": "LI-EST-003",
+    "qty": "5.00",
+    "unit_parts_labor": "sheet",
+    "description": "Drywall - per sheet",
+    "price_currency": "18.00"
+  }
+},
+{
+  "model": "invoicing.lineitem",
+  "pk": 4,
+  "fields": {
+    "estimate_id": 2,
+    "po_id": null,
+    "bill_id": null,
+    "invoice_id": null,
+    "task_id": null,
+    "price_list_item_id": 1,
+    "central_line_item_number": "LI-EST-004",
+    "qty": "10.00",
+    "unit_parts_labor": "hour",
+    "description": "General Labor - per hour",
+    "price_currency": "45.00"
+  }
+},
+{
+  "model": "invoicing.lineitem",
+  "pk": 5,
+  "fields": {
+    "estimate_id": 2,
+    "po_id": null,
+    "bill_id": null,
+    "invoice_id": null,
+    "task_id": null,
+    "price_list_item_id": 2,
+    "central_line_item_number": "LI-EST-005",
+    "qty": "5.00",
+    "unit_parts_labor": "hour",
+    "description": "Skilled Labor - per hour",
+    "price_currency": "65.00"
+  }
+},
+{
+  "model": "invoicing.lineitem",
+  "pk": 6,
+  "fields": {
+    "estimate_id": 2,
+    "po_id": null,
+    "bill_id": null,
+    "invoice_id": null,
+    "task_id": null,
+    "price_list_item_id": 3,
+    "central_line_item_number": "LI-EST-006",
+    "qty": "5.00",
+    "unit_parts_labor": "sheet",
+    "description": "Drywall - per sheet",
+    "price_currency": "18.00"
+  }
+},
+{
+  "model": "invoicing.lineitem",
+  "pk": 7,
+  "fields": {
+    "estimate_id": 3,
+    "po_id": null,
+    "bill_id": null,
+    "invoice_id": null,
+    "task_id": null,
+    "price_list_item_id": 1,
+    "central_line_item_number": "LI-EST-007",
+    "qty": "10.00",
+    "unit_parts_labor": "hour",
+    "description": "General Labor - per hour",
+    "price_currency": "45.00"
+  }
+},
+{
+  "model": "invoicing.lineitem",
+  "pk": 8,
+  "fields": {
+    "estimate_id": 3,
+    "po_id": null,
+    "bill_id": null,
+    "invoice_id": null,
+    "task_id": null,
+    "price_list_item_id": 2,
+    "central_line_item_number": "LI-EST-008",
+    "qty": "5.00",
+    "unit_parts_labor": "hour",
+    "description": "Skilled Labor - per hour",
+    "price_currency": "65.00"
+  }
+},
+{
+  "model": "invoicing.lineitem",
+  "pk": 9,
+  "fields": {
+    "estimate_id": 4,
+    "po_id": null,
+    "bill_id": null,
+    "invoice_id": null,
+    "task_id": null,
+    "price_list_item_id": 1,
+    "central_line_item_number": "LI-EST-009",
+    "qty": "10.00",
+    "unit_parts_labor": "hour",
+    "description": "General Labor - per hour",
+    "price_currency": "45.00"
+  }
+},
+{
+  "model": "invoicing.lineitem",
+  "pk": 10,
+  "fields": {
+    "estimate_id": 4,
+    "po_id": null,
+    "bill_id": null,
+    "invoice_id": null,
+    "task_id": null,
+    "price_list_item_id": 2,
+    "central_line_item_number": "LI-EST-010",
+    "qty": "5.00",
+    "unit_parts_labor": "hour",
+    "description": "Skilled Labor - per hour",
+    "price_currency": "65.00"
+  }
+},
+{
+  "model": "invoicing.lineitem",
+  "pk": 11,
+  "fields": {
+    "estimate_id": 5,
+    "po_id": null,
+    "bill_id": null,
+    "invoice_id": null,
+    "task_id": null,
+    "price_list_item_id": 1,
+    "central_line_item_number": "LI-EST-011",
+    "qty": "10.00",
+    "unit_parts_labor": "hour",
+    "description": "General Labor - per hour",
+    "price_currency": "45.00"
+  }
+},
+{
+  "model": "invoicing.lineitem",
+  "pk": 12,
+  "fields": {
+    "estimate_id": 5,
+    "po_id": null,
+    "bill_id": null,
+    "invoice_id": null,
+    "task_id": null,
+    "price_list_item_id": 2,
+    "central_line_item_number": "LI-EST-012",
+    "qty": "5.00",
+    "unit_parts_labor": "hour",
+    "description": "Skilled Labor - per hour",
+    "price_currency": "65.00"
+  }
+},
+{
+  "model": "invoicing.lineitem",
+  "pk": 13,
+  "fields": {
+    "estimate_id": 6,
+    "po_id": null,
+    "bill_id": null,
+    "invoice_id": null,
+    "task_id": null,
+    "price_list_item_id": 1,
+    "central_line_item_number": "LI-EST-013",
+    "qty": "10.00",
+    "unit_parts_labor": "hour",
+    "description": "General Labor - per hour",
+    "price_currency": "45.00"
+  }
+},
+{
+  "model": "invoicing.lineitem",
+  "pk": 14,
+  "fields": {
+    "estimate_id": 6,
+    "po_id": null,
+    "bill_id": null,
+    "invoice_id": null,
+    "task_id": null,
+    "price_list_item_id": 2,
+    "central_line_item_number": "LI-EST-014",
+    "qty": "5.00",
+    "unit_parts_labor": "hour",
+    "description": "Skilled Labor - per hour",
+    "price_currency": "65.00"
+  }
+},
+{
+  "model": "invoicing.lineitem",
+  "pk": 15,
+  "fields": {
+    "estimate_id": 7,
+    "po_id": null,
+    "bill_id": null,
+    "invoice_id": null,
+    "task_id": null,
+    "price_list_item_id": 1,
+    "central_line_item_number": "LI-EST-015",
+    "qty": "10.00",
+    "unit_parts_labor": "hour",
+    "description": "General Labor - per hour",
+    "price_currency": "45.00"
+  }
+},
+{
+  "model": "invoicing.lineitem",
+  "pk": 16,
+  "fields": {
+    "estimate_id": 7,
+    "po_id": null,
+    "bill_id": null,
+    "invoice_id": null,
+    "task_id": null,
+    "price_list_item_id": 2,
+    "central_line_item_number": "LI-EST-016",
+    "qty": "5.00",
+    "unit_parts_labor": "hour",
+    "description": "Skilled Labor - per hour",
+    "price_currency": "65.00"
+  }
+},
+{
+  "model": "invoicing.lineitem",
+  "pk": 17,
+  "fields": {
+    "estimate_id": null,
+    "po_id": null,
+    "bill_id": null,
+    "invoice_id": 1,
+    "task_id": null,
+    "price_list_item_id": 1,
+    "central_line_item_number": "LI-INV-017",
+    "qty": "8.00",
+    "unit_parts_labor": "hour",
+    "description": "General Labor - per hour",
+    "price_currency": "45.00"
+  }
+},
+{
+  "model": "invoicing.lineitem",
+  "pk": 18,
+  "fields": {
+    "estimate_id": null,
+    "po_id": null,
+    "bill_id": null,
+    "invoice_id": 1,
+    "task_id": null,
+    "price_list_item_id": 2,
+    "central_line_item_number": "LI-INV-018",
+    "qty": "4.00",
+    "unit_parts_labor": "hour",
+    "description": "Skilled Labor - per hour",
+    "price_currency": "65.00"
+  }
+},
+{
+  "model": "invoicing.lineitem",
+  "pk": 19,
+  "fields": {
+    "estimate_id": null,
+    "po_id": null,
+    "bill_id": null,
+    "invoice_id": 1,
+    "task_id": null,
+    "price_list_item_id": 3,
+    "central_line_item_number": "LI-INV-019",
+    "qty": "4.00",
+    "unit_parts_labor": "sheet",
+    "description": "Drywall - per sheet",
+    "price_currency": "18.00"
+  }
+},
+{
+  "model": "invoicing.lineitem",
+  "pk": 20,
+  "fields": {
+    "estimate_id": null,
+    "po_id": null,
+    "bill_id": 1,
+    "invoice_id": null,
+    "task_id": null,
+    "price_list_item_id": 3,
+    "central_line_item_number": "LI-BILL-001",
+    "qty": "50.00",
+    "unit_parts_labor": "sheet",
+    "description": "Drywall sheets for office renovation",
+    "price_currency": "12.00"
+  }
+},
+{
+  "model": "invoicing.pricelistitem",
+  "pk": 1,
+  "fields": {
+    "item_type_id": 1,
+    "code": "LAB001",
+    "unit_parts_labor": "hour",
+    "description": "General Labor - per hour",
+    "purchase_price": "25.00",
+    "selling_price": "45.00",
+    "qty_on_hand": "100.00",
+    "qty_sold": "0.00",
+    "qty_wasted": "0.00"
+  }
+},
+{
+  "model": "invoicing.pricelistitem",
+  "pk": 2,
+  "fields": {
+    "item_type_id": 1,
+    "code": "LAB002",
+    "unit_parts_labor": "hour",
+    "description": "Skilled Labor - per hour",
+    "purchase_price": "35.00",
+    "selling_price": "65.00",
+    "qty_on_hand": "100.00",
+    "qty_sold": "0.00",
+    "qty_wasted": "0.00"
+  }
+},
+{
+  "model": "invoicing.pricelistitem",
+  "pk": 3,
+  "fields": {
+    "item_type_id": 2,
+    "code": "MAT001",
+    "unit_parts_labor": "sheet",
+    "description": "Drywall - per sheet",
+    "purchase_price": "12.00",
+    "selling_price": "18.00",
+    "qty_on_hand": "100.00",
+    "qty_sold": "0.00",
+    "qty_wasted": "0.00"
+  }
+},
+{
+  "model": "invoicing.pricelistitem",
+  "pk": 4,
+  "fields": {
+    "item_type_id": 2,
+    "code": "MAT002",
+    "unit_parts_labor": "gallon",
+    "description": "Paint - per gallon",
+    "purchase_price": "25.00",
+    "selling_price": "40.00",
+    "qty_on_hand": "100.00",
+    "qty_sold": "0.00",
+    "qty_wasted": "0.00"
+  }
+},
+{
+  "model": "invoicing.pricelistitem",
+  "pk": 5,
+  "fields": {
+    "item_type_id": 2,
+    "code": "MAT003",
+    "unit_parts_labor": "sq ft",
+    "description": "Flooring - per sq ft",
+    "purchase_price": "3.50",
+    "selling_price": "6.00",
+    "qty_on_hand": "100.00",
+    "qty_sold": "0.00",
+    "qty_wasted": "0.00"
+  }
+},
+{
+  "model": "invoicing.pricelistitem",
+  "pk": 6,
+  "fields": {
+    "item_type_id": 3,
+    "code": "EQP001",
+    "unit_parts_labor": "day",
+    "description": "Tool Rental - per day",
+    "purchase_price": "15.00",
+    "selling_price": "25.00",
+    "qty_on_hand": "100.00",
+    "qty_sold": "0.00",
+    "qty_wasted": "0.00"
+  }
+},
+{
+  "model": "invoicing.pricelistitem",
+  "pk": 7,
+  "fields": {
+    "item_type_id": 4,
+    "code": "SUP001",
+    "unit_parts_labor": "box",
+    "description": "Screws and Fasteners",
+    "purchase_price": "8.00",
+    "selling_price": "15.00",
+    "qty_on_hand": "100.00",
+    "qty_sold": "0.00",
+    "qty_wasted": "0.00"
+  }
+},
+{
+  "model": "invoicing.itemtype",
+  "pk": 1,
+  "fields": {
+    "name": "Labor",
+    "taxability": "taxable",
+    "mapping_to_task": "labor"
+  }
+},
+{
+  "model": "invoicing.itemtype",
+  "pk": 2,
+  "fields": {
+    "name": "Materials",
+    "taxability": "taxable",
+    "mapping_to_task": "materials"
+  }
+},
+{
+  "model": "invoicing.itemtype",
+  "pk": 3,
+  "fields": {
+    "name": "Equipment",
+    "taxability": "taxable",
+    "mapping_to_task": "equipment"
+  }
+},
+{
+  "model": "invoicing.itemtype",
+  "pk": 4,
+  "fields": {
+    "name": "Supplies",
+    "taxability": "taxable",
+    "mapping_to_task": "supplies"
+  }
+},
+{
+  "model": "purchasing.purchaseorder",
+  "pk": 1,
+  "fields": {
+    "job_id": 1,
+    "price_list_item_id": "MAT001",
+    "po_number": "PO-2024-001"
+  }
+},
+{
+  "model": "purchasing.bill",
+  "pk": 1,
+  "fields": {
+    "po_id": 1,
+    "contact_id": 6,
+    "vendor_invoice_number": "HS-INV-001"
   }
 }
 ]

@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+
+{% block title %}Bills - Minibini{% endblock %}
+
+{% block content %}
+<h2>All Bills</h2>
+
+{% if bills %}
+    <table border="1">
+        <tr>
+            <th>Bill ID</th>
+            <th>Purchase Order</th>
+            <th>Contact</th>
+            <th>Vendor Invoice Number</th>
+            <th>Actions</th>
+        </tr>
+        {% for bill in bills %}
+        <tr>
+            <td>{{ bill.bill_id }}</td>
+            <td>{{ bill.po_id }}</td>
+            <td>{{ bill.contact_id }}</td>
+            <td>{{ bill.vendor_invoice_number }}</td>
+            <td><a href="{% url 'purchasing:bill_detail' bill.bill_id %}">View</a></td>
+        </tr>
+        {% endfor %}
+    </table>
+{% else %}
+    <p>No bills found.</p>
+{% endif %}
+{% endblock %}

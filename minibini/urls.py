@@ -22,4 +22,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', TemplateView.as_view(template_name='home.html'), name='home'),
     path('jobs/', include('apps.jobs.urls')),
+    path('contacts/', include('apps.contacts.urls')),
+    path('core/', include('apps.core.urls')),
+    path('purchasing/', include('apps.purchasing.urls')),
 ]
