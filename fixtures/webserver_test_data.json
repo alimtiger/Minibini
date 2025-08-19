@@ -5,8 +5,17 @@
   "fields": {
     "name": "Jane Doe",
     "email": "jane.doe@abcconstruction.com",
-    "address": "123 Main St, Business District, City, State 12345",
-    "phone": "555-0101"
+    "addr1": "123 Main St",
+    "addr2": "",
+    "addr3": "",
+    "city": "City",
+    "municipality": "Business District",
+    "postal_code": "12345",
+    "country_code": "US",
+    "mobile_number": "555-0101",
+    "work_number": "",
+    "home_number": "",
+    "business": 2
   }
 },
 {
@@ -15,8 +24,17 @@
   "fields": {
     "name": "John Smith",
     "email": "john.smith@email.com",
-    "address": "456 Oak Ave, Residential Area, City, State 12346",
-    "phone": "555-0202"
+    "addr1": "456 Oak Ave",
+    "addr2": "",
+    "addr3": "",
+    "city": "City",
+    "municipality": "Residential Area",
+    "postal_code": "12346",
+    "country_code": "US",
+    "mobile_number": "",
+    "work_number": "",
+    "home_number": "555-0202",
+    "business": null
   }
 },
 {
@@ -25,8 +43,17 @@
   "fields": {
     "name": "John Q Public",
     "email": "facilities@metrooffice.com",
-    "address": "789 Corporate Blvd, Downtown, City, State 12347",
-    "phone": "555-0303"
+    "addr1": "789 Corporate Blvd",
+    "addr2": "",
+    "addr3": "",
+    "city": "City",
+    "municipality": "Downtown",
+    "postal_code": "12347",
+    "country_code": "US",
+    "mobile_number": "",
+    "work_number": "555-0303",
+    "home_number": "",
+    "business": 3
   }
 },
 {
@@ -35,8 +62,17 @@
   "fields": {
     "name": "Laura Ingalls",
     "email": "info@greenvalley.com",
-    "address": "321 Valley Road, Suburbs, City, State 12348",
-    "phone": "555-0404"
+    "addr1": "321 Valley Road",
+    "addr2": "",
+    "addr3": "",
+    "city": "City",
+    "municipality": "Suburbs",
+    "postal_code": "12348",
+    "country_code": "US",
+    "mobile_number": "555-0404",
+    "work_number": "",
+    "home_number": "",
+    "business": 5
   }
 },
 {
@@ -45,8 +81,17 @@
   "fields": {
     "name": "Frank Gehry",
     "email": "projects@industrialsolutions.com",
-    "address": "654 Industrial Pkwy, Industrial Zone, City, State 12349",
-    "phone": "555-0505"
+    "addr1": "654 Industrial Pkwy",
+    "addr2": "",
+    "addr3": "",
+    "city": "City",
+    "municipality": "Industrial Zone",
+    "postal_code": "12349",
+    "country_code": "US",
+    "mobile_number": "",
+    "work_number": "555-0505",
+    "home_number": "",
+    "business": 4
   }
 },
 {
@@ -55,8 +100,17 @@
   "fields": {
     "name": "Piper Laurie",
     "email": "orders@housingsupply.com",
-    "address": "888 Supply Drive, Industrial District, City, State 12350",
-    "phone": "555-0606"
+    "addr1": "888 Supply Drive",
+    "addr2": "",
+    "addr3": "",
+    "city": "City",
+    "municipality": "Industrial District",
+    "postal_code": "12350",
+    "country_code": "US",
+    "mobile_number": "555-0606",
+    "work_number": "",
+    "home_number": "",
+    "business": 1
   }
 },
 {
@@ -138,6 +192,7 @@
     "completion_date": "2025-08-11T21:45:16.554Z",
     "status": "complete",
     "contact_id": 1,
+    "customer_po_number": "ABC-PO-001",
     "description": "Office renovation project - replaced flooring, painted walls, updated lighting"
   }
 },
@@ -150,6 +205,7 @@
     "completion_date": null,
     "status": "approved",
     "contact_id": 2,
+    "customer_po_number": "",
     "description": "Kitchen remodel for residential client - new cabinets, countertops, appliances"
   }
 },
@@ -162,6 +218,7 @@
     "completion_date": null,
     "status": "needs_attention",
     "contact_id": 3,
+    "customer_po_number": "MOC-2024-HVAC",
     "description": "HVAC system repair and maintenance for office building"
   }
 },
@@ -174,6 +231,7 @@
     "completion_date": null,
     "status": "draft",
     "contact_id": 4,
+    "customer_po_number": "",
     "description": "Bathroom renovation in master suite - tile work, new fixtures, vanity installation"
   }
 },
@@ -186,6 +244,7 @@
     "completion_date": null,
     "status": "blocked",
     "contact_id": 5,
+    "customer_po_number": "ISI-EQ-2024-01",
     "description": "Industrial equipment installation - waiting for permits and electrical inspection"
   }
 },
@@ -198,6 +257,7 @@
     "completion_date": null,
     "status": "rejected",
     "contact_id": 2,
+    "customer_po_number": "",
     "description": "Deck construction project - client decided to postpone until next year"
   }
 },
@@ -210,6 +270,7 @@
     "completion_date": null,
     "status": "approved",
     "contact_id": 1,
+    "customer_po_number": "ABC-EMRG-007",
     "description": "Emergency roof repair after storm damage"
   }
 },
@@ -222,6 +283,7 @@
     "completion_date": null,
     "status": "draft",
     "contact_id": 3,
+    "customer_po_number": "",
     "description": "Conference room upgrades - new AV equipment, furniture, lighting"
   }
 },
@@ -232,7 +294,10 @@
     "job_id": 1,
     "estimate_number": "EST-2024-001",
     "revision_number": 1,
-    "status": "open"
+    "status": "superseded",
+    "superseded_by": 2,
+    "created_date": "2025-07-02T21:45:16.554Z",
+    "superseded_date": "2025-07-03T10:30:00Z"
   }
 },
 {
@@ -240,9 +305,12 @@
   "pk": 2,
   "fields": {
     "job_id": 1,
-    "estimate_number": "EST-2024-002",
+    "estimate_number": "EST-2024-001",
     "revision_number": 2,
-    "status": "accepted"
+    "status": "accepted",
+    "superseded_by": null,
+    "created_date": "2025-07-03T10:30:00Z",
+    "superseded_date": null
   }
 },
 {
@@ -250,9 +318,12 @@
   "pk": 3,
   "fields": {
     "job_id": 2,
-    "estimate_number": "EST-2024-003",
+    "estimate_number": "EST-2024-002",
     "revision_number": 1,
-    "status": "open"
+    "status": "open",
+    "superseded_by": null,
+    "created_date": "2025-07-17T21:45:16.554Z",
+    "superseded_date": null
   }
 },
 {
@@ -260,9 +331,12 @@
   "pk": 4,
   "fields": {
     "job_id": 3,
-    "estimate_number": "EST-2024-004",
+    "estimate_number": "EST-2024-003",
     "revision_number": 1,
-    "status": "open"
+    "status": "open",
+    "superseded_by": null,
+    "created_date": "2025-07-27T21:45:16.554Z",
+    "superseded_date": null
   }
 },
 {
@@ -270,9 +344,12 @@
   "pk": 5,
   "fields": {
     "job_id": 5,
-    "estimate_number": "EST-2024-005",
+    "estimate_number": "EST-2024-004",
     "revision_number": 1,
-    "status": "open"
+    "status": "open",
+    "superseded_by": null,
+    "created_date": "2025-08-06T21:45:16.554Z",
+    "superseded_date": null
   }
 },
 {
@@ -280,9 +357,12 @@
   "pk": 6,
   "fields": {
     "job_id": 6,
-    "estimate_number": "EST-2024-006",
+    "estimate_number": "EST-2024-005",
     "revision_number": 1,
-    "status": "rejected"
+    "status": "rejected",
+    "superseded_by": null,
+    "created_date": "2025-08-08T21:45:16.554Z",
+    "superseded_date": null
   }
 },
 {
@@ -290,9 +370,12 @@
   "pk": 7,
   "fields": {
     "job_id": 7,
-    "estimate_number": "EST-2024-007",
+    "estimate_number": "EST-2024-006",
     "revision_number": 1,
-    "status": "open"
+    "status": "open",
+    "superseded_by": null,
+    "created_date": "2025-08-13T21:45:16.554Z",
+    "superseded_date": null
   }
 },
 {
@@ -558,6 +641,7 @@
   "fields": {
     "job_id": 1,
     "invoice_number": "INV-2024-001",
+    "customer_po_number": "ABC-PO-001",
     "status": "active"
   }
 },

@@ -73,7 +73,7 @@ class EstimateModelFixtureTest(FixtureTestCase):
         self.assertEqual(est1.status, "draft")
         self.assertEqual(est1.job_id.job_number, "JOB-2024-0001")
         
-        est2 = Estimate.objects.get(estimate_number="EST-2024-0002")
+        est2 = Estimate.objects.get(estimate_number="EST-2024-0002", revision_number=2)
         self.assertEqual(est2.revision_number, 2)
         self.assertEqual(est2.status, "accepted")
         self.assertEqual(est2.job_id.job_number, "JOB-2024-0002")

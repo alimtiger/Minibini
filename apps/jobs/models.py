@@ -18,6 +18,7 @@ class Job(models.Model):
     completion_date = models.DateTimeField(null=True, blank=True)
     status = models.CharField(max_length=20, choices=JOB_STATUS_CHOICES, default='draft')
     contact_id = models.ForeignKey('contacts.Contact', on_delete=models.CASCADE)
+    customer_po_number = models.CharField(max_length=50, blank=True)
     description = models.TextField(blank=True)
 
     def __str__(self):
@@ -30,16 +31,23 @@ class Estimate(models.Model):
         ('open', 'Open'),
         ('accepted', 'Accepted'),
         ('rejected', 'Rejected'),
+        ('superseded', 'Superseded'),
     ]
 
     estimate_id = models.AutoField(primary_key=True)
     job_id = models.ForeignKey(Job, on_delete=models.CASCADE)
-    estimate_number = models.CharField(max_length=50, unique=True)
+    estimate_number = models.CharField(max_length=50)
     revision_number = models.IntegerField(default=1)
     status = models.CharField(max_length=20, choices=ESTIMATE_STATUS_CHOICES, default='draft')
+    superseded_by = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True, related_name='supersedes')
+    created_date = models.DateTimeField(default=timezone.now)
+    superseded_date = models.DateTimeField(null=True, blank=True)
 
     def __str__(self):
         return f"Estimate {self.estimate_number}"
+    
+    class Meta:
+        unique_together = ['estimate_number', 'revision_number']
 
 
 class WorkOrder(models.Model):
