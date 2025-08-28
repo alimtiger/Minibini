@@ -1,6 +1,7 @@
-from django.test import TestCase
+from django.test import TestCase, TransactionTestCase
 from django.core.exceptions import ValidationError
 from django.utils import timezone
+from django.db import transaction, IntegrityError
 from decimal import Decimal
 from datetime import timedelta
 from apps.contacts.models import Contact, Business, PaymentTerms
@@ -278,21 +279,23 @@ class ComprehensiveModelIntegrationTest(TestCase):
         self.assertEqual(line_item.price_currency, expected_total)
 
     def test_unique_constraints(self):
-        Job.objects.create(job_number="UNIQUE001", contact_id=self.contact)
+        job = Job.objects.create(job_number="UNIQUE001", contact_id=self.contact)
         
-        with self.assertRaises(Exception):
-            Job.objects.create(job_number="UNIQUE001", contact_id=self.contact)
+        with self.assertRaises(IntegrityError):
+            with transaction.atomic():
+                Job.objects.create(job_number="UNIQUE001", contact_id=self.contact)
         
-        Invoice.objects.create(
-            job_id=Job.objects.get(job_number="UNIQUE001"),
+        invoice = Invoice.objects.create(
+            job_id=job,
             invoice_number="INV_UNIQUE001"
         )
         
-        with self.assertRaises(Exception):
-            Invoice.objects.create(
-                job_id=Job.objects.get(job_number="UNIQUE001"),
-                invoice_number="INV_UNIQUE001"
-            )
+        with self.assertRaises(IntegrityError):
+            with transaction.atomic():
+                Invoice.objects.create(
+                    job_id=job,
+                    invoice_number="INV_UNIQUE001"
+                )
 
     def test_model_str_representations(self):
         job = Job.objects.create(job_number="STR_TEST", contact_id=self.contact)
