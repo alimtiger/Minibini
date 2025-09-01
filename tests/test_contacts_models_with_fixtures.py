@@ -34,11 +34,11 @@ class ContactModelFixtureTest(FixtureTestCase):
 
         john_contact = Contact.objects.get(name="John Doe")
         admin_user = User.objects.get(username="admin")
-        self.assertEqual(admin_user.contact_id, john_contact)
+        self.assertEqual(admin_user.contact, john_contact)
 
         jane_contact = Contact.objects.get(name="Jane Smith")
         manager_user = User.objects.get(username="manager1")
-        self.assertEqual(manager_user.contact_id, jane_contact)
+        self.assertEqual(manager_user.contact, jane_contact)
 
     def test_contact_relationships_with_jobs(self):
         """Test that contacts are properly linked to jobs"""
@@ -56,7 +56,7 @@ class ContactModelFixtureTest(FixtureTestCase):
             mobile_number="555-000-0000"
         )
         self.assertEqual(new_contact.name, "New Customer")
-        self.assertEqual(Contact.objects.count(), 4)  # 3 from fixture + 1 new
+        self.assertEqual(Contact.objects.count(), 5)  # 4 from fixture + 1 new
 
 
 class PaymentTermsModelFixtureTest(FixtureTestCase):

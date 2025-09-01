@@ -57,6 +57,25 @@
     }
   },
   {
+    "model": "contacts.contact",
+    "pk": 4,
+    "fields": {
+      "name": "John Q Public",
+      "email": "john.public@example.com",
+      "addr1": "789 Residential Lane",
+      "addr2": "",
+      "addr3": "",
+      "city": "Hometown",
+      "municipality": "ST",
+      "postal_code": "54321",
+      "country_code": "US",
+      "mobile_number": "555-456-7890",
+      "work_number": "",
+      "home_number": "",
+      "business": null
+    }
+  },
+  {
     "model": "contacts.paymentterms",
     "pk": 1,
     "fields": {}
@@ -93,27 +112,27 @@
     }
   },
   {
-    "model": "core.role",
+    "model": "auth.group",
     "pk": 1,
     "fields": {
-      "role_name": "Administrator",
-      "role_description": "Full system access and administrative privileges"
+      "name": "Administrator",
+      "permissions": []
     }
   },
   {
-    "model": "core.role",
+    "model": "auth.group",
     "pk": 2,
     "fields": {
-      "role_name": "Manager",
-      "role_description": "Management level access with approval rights"
+      "name": "Manager",
+      "permissions": []
     }
   },
   {
-    "model": "core.role",
+    "model": "auth.group",
     "pk": 3,
     "fields": {
-      "role_name": "Employee",
-      "role_description": "Standard employee access"
+      "name": "Employee",
+      "permissions": []
     }
   },
   {
@@ -130,11 +149,8 @@
       "is_staff": true,
       "is_active": true,
       "date_joined": "2024-01-01T00:00:00Z",
-      "contact_id": 1,
-      "username_flagged_but_not_required_email": "",
-      "encrypted_password": "encrypted_admin_pass",
-      "role_id": 1,
-      "groups": [],
+      "contact": 1,
+      "groups": [1],
       "user_permissions": []
     }
   },
@@ -152,11 +168,27 @@
       "is_staff": true,
       "is_active": true,
       "date_joined": "2024-01-01T00:00:00Z",
-      "contact_id": 2,
-      "username_flagged_but_not_required_email": "",
-      "encrypted_password": "encrypted_manager_pass",
-      "role_id": 2,
-      "groups": [],
+      "contact": 2,
+      "groups": [2],
+      "user_permissions": []
+    }
+  },
+  {
+    "model": "core.user",
+    "pk": 3,
+    "fields": {
+      "password": "pbkdf2_sha256$870000$test$hash",
+      "last_login": null,
+      "is_superuser": false,
+      "username": "johnq",
+      "first_name": "John Q",
+      "last_name": "Public",
+      "email": "john.public@example.com",
+      "is_staff": false,
+      "is_active": true,
+      "date_joined": "2024-01-01T00:00:00Z",
+      "contact": 4,
+      "groups": [3],
       "user_permissions": []
     }
   },

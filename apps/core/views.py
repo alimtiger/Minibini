@@ -6,5 +6,5 @@ def user_list(request):
     return render(request, 'core/user_list.html', {'users': users})
 
 def user_detail(request, user_id):
-    user = get_object_or_404(User, user_id=user_id)
+    user = get_object_or_404(User, pk=user_id)
     return render(request, 'core/user_detail.html', {'user': user})

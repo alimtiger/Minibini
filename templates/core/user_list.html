@@ -12,7 +12,7 @@
             <th>First Name</th>
             <th>Last Name</th>
             <th>Email</th>
-            <th>Role</th>
+            <th>Groups</th>
             <th>Actions</th>
         </tr>
         {% for user in users %}
@@ -21,8 +21,8 @@
             <td>{{ user.first_name }}</td>
             <td>{{ user.last_name }}</td>
             <td>{{ user.email }}</td>
-            <td>{{ user.role_id|default:"No role" }}</td>
-            <td><a href="{% url 'core:user_detail' user.user_id %}">View</a></td>
+            <td>{{ user.groups.all|join:", "|default:"No groups" }}</td>
+            <td><a href="{% url 'core:user_detail' user.pk %}">View</a></td>
         </tr>
         {% endfor %}
     </table>

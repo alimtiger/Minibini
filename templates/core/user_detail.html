@@ -12,7 +12,7 @@
     </tr>
     <tr>
         <td>User ID</td>
-        <td>{{ user.user_id }}</td>
+        <td>{{ user.pk }}</td>
     </tr>
     <tr>
         <td>Username</td>
@@ -32,11 +32,11 @@
     </tr>
     <tr>
         <td>Contact</td>
-        <td>{{ user.contact_id|default:"No contact" }}</td>
+        <td>{{ user.contact|default:"No contact" }}</td>
     </tr>
     <tr>
-        <td>Role</td>
-        <td>{{ user.role_id|default:"No role" }}</td>
+        <td>Groups</td>
+        <td>{{ user.groups.all|join:", "|default:"No groups" }}</td>
     </tr>
     <tr>
         <td>Is Active</td>

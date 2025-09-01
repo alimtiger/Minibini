@@ -449,190 +449,21 @@
   }
 },
 {
-  "model": "jobs.task",
+  "model": "purchasing.purchaseorder",
   "pk": 1,
   "fields": {
-    "pre_submitted_id": "PSI-001",
-    "assigned_id": null,
-    "work_order_id": 1,
-    "name": "Site preparation and setup",
-    "task_type": "preparation"
+    "job_id": 1,
+    "price_list_item_id": "MAT001",
+    "po_number": "PO-2024-001"
   }
 },
 {
-  "model": "jobs.task",
-  "pk": 2,
+  "model": "purchasing.bill",
+  "pk": 1,
   "fields": {
-    "pre_submitted_id": "PSI-002",
-    "assigned_id": null,
-    "work_order_id": 1,
-    "name": "Material procurement and delivery",
-    "task_type": "preparation"
-  }
-},
-{
-  "model": "jobs.task",
-  "pk": 3,
-  "fields": {
-    "pre_submitted_id": "PSI-003",
-    "assigned_id": null,
-    "work_order_id": 1,
-    "name": "Installation and construction work",
-    "task_type": "installation"
-  }
-},
-{
-  "model": "jobs.task",
-  "pk": 4,
-  "fields": {
-    "pre_submitted_id": "PSI-004",
-    "assigned_id": null,
-    "work_order_id": 2,
-    "name": "Site preparation and setup",
-    "task_type": "preparation"
-  }
-},
-{
-  "model": "jobs.task",
-  "pk": 5,
-  "fields": {
-    "pre_submitted_id": "PSI-005",
-    "assigned_id": null,
-    "work_order_id": 2,
-    "name": "Material procurement and delivery",
-    "task_type": "preparation"
-  }
-},
-{
-  "model": "jobs.task",
-  "pk": 6,
-  "fields": {
-    "pre_submitted_id": "PSI-006",
-    "assigned_id": null,
-    "work_order_id": 2,
-    "name": "Installation and construction work",
-    "task_type": "installation"
-  }
-},
-{
-  "model": "jobs.task",
-  "pk": 7,
-  "fields": {
-    "pre_submitted_id": "PSI-007",
-    "assigned_id": null,
-    "work_order_id": 3,
-    "name": "Site preparation and setup",
-    "task_type": "preparation"
-  }
-},
-{
-  "model": "jobs.task",
-  "pk": 8,
-  "fields": {
-    "pre_submitted_id": "PSI-008",
-    "assigned_id": null,
-    "work_order_id": 3,
-    "name": "Material procurement and delivery",
-    "task_type": "preparation"
-  }
-},
-{
-  "model": "jobs.task",
-  "pk": 9,
-  "fields": {
-    "pre_submitted_id": "PSI-009",
-    "assigned_id": null,
-    "work_order_id": 4,
-    "name": "Site preparation and setup",
-    "task_type": "preparation"
-  }
-},
-{
-  "model": "jobs.task",
-  "pk": 10,
-  "fields": {
-    "pre_submitted_id": "PSI-010",
-    "assigned_id": null,
-    "work_order_id": 4,
-    "name": "Material procurement and delivery",
-    "task_type": "preparation"
-  }
-},
-{
-  "model": "jobs.task",
-  "pk": 11,
-  "fields": {
-    "pre_submitted_id": "PSI-011",
-    "assigned_id": null,
-    "work_order_id": 5,
-    "name": "Site preparation and setup",
-    "task_type": "preparation"
-  }
-},
-{
-  "model": "jobs.task",
-  "pk": 12,
-  "fields": {
-    "pre_submitted_id": "PSI-012",
-    "assigned_id": null,
-    "work_order_id": 5,
-    "name": "Material procurement and delivery",
-    "task_type": "preparation"
-  }
-},
-{
-  "model": "jobs.task",
-  "pk": 13,
-  "fields": {
-    "pre_submitted_id": "PSI-013",
-    "assigned_id": null,
-    "work_order_id": 6,
-    "name": "Site preparation and setup",
-    "task_type": "preparation"
-  }
-},
-{
-  "model": "jobs.task",
-  "pk": 14,
-  "fields": {
-    "pre_submitted_id": "PSI-014",
-    "assigned_id": null,
-    "work_order_id": 6,
-    "name": "Material procurement and delivery",
-    "task_type": "preparation"
-  }
-},
-{
-  "model": "jobs.task",
-  "pk": 15,
-  "fields": {
-    "pre_submitted_id": "PSI-015",
-    "assigned_id": null,
-    "work_order_id": 7,
-    "name": "Site preparation and setup",
-    "task_type": "preparation"
-  }
-},
-{
-  "model": "jobs.task",
-  "pk": 16,
-  "fields": {
-    "pre_submitted_id": "PSI-016",
-    "assigned_id": null,
-    "work_order_id": 7,
-    "name": "Material procurement and delivery",
-    "task_type": "preparation"
-  }
-},
-{
-  "model": "jobs.task",
-  "pk": 17,
-  "fields": {
-    "pre_submitted_id": "PSI-017",
-    "assigned_id": null,
-    "work_order_id": 7,
-    "name": "Installation and construction work",
-    "task_type": "installation"
+    "po_id": 1,
+    "contact_id": 6,
+    "vendor_invoice_number": "HS-INV-001"
   }
 },
 {
@@ -1127,21 +958,934 @@
   }
 },
 {
-  "model": "purchasing.purchaseorder",
-  "pk": 1,
+  "model": "auth.group",
   "fields": {
-    "job_id": 1,
-    "price_list_item_id": "MAT001",
-    "po_number": "PO-2024-001"
+    "name": "Administrator",
+    "permissions": [
+      [
+        "add_logentry",
+        "admin",
+        "logentry"
+      ],
+      [
+        "change_logentry",
+        "admin",
+        "logentry"
+      ],
+      [
+        "delete_logentry",
+        "admin",
+        "logentry"
+      ],
+      [
+        "view_logentry",
+        "admin",
+        "logentry"
+      ],
+      [
+        "add_permission",
+        "auth",
+        "permission"
+      ],
+      [
+        "change_permission",
+        "auth",
+        "permission"
+      ],
+      [
+        "delete_permission",
+        "auth",
+        "permission"
+      ],
+      [
+        "view_permission",
+        "auth",
+        "permission"
+      ],
+      [
+        "add_configuration",
+        "core",
+        "configuration"
+      ],
+      [
+        "change_configuration",
+        "core",
+        "configuration"
+      ],
+      [
+        "delete_configuration",
+        "core",
+        "configuration"
+      ],
+      [
+        "view_configuration",
+        "core",
+        "configuration"
+      ]
+    ]
   }
 },
 {
-  "model": "purchasing.bill",
+  "model": "auth.group",
+  "fields": {
+    "name": "Manager",
+    "permissions": [
+      [
+        "add_business",
+        "contacts",
+        "business"
+      ],
+      [
+        "change_business",
+        "contacts",
+        "business"
+      ],
+      [
+        "delete_business",
+        "contacts",
+        "business"
+      ],
+      [
+        "view_business",
+        "contacts",
+        "business"
+      ],
+      [
+        "add_contact",
+        "contacts",
+        "contact"
+      ],
+      [
+        "change_contact",
+        "contacts",
+        "contact"
+      ],
+      [
+        "delete_contact",
+        "contacts",
+        "contact"
+      ],
+      [
+        "view_contact",
+        "contacts",
+        "contact"
+      ],
+      [
+        "add_paymentterms",
+        "contacts",
+        "paymentterms"
+      ],
+      [
+        "change_paymentterms",
+        "contacts",
+        "paymentterms"
+      ],
+      [
+        "delete_paymentterms",
+        "contacts",
+        "paymentterms"
+      ],
+      [
+        "view_paymentterms",
+        "contacts",
+        "paymentterms"
+      ],
+      [
+        "add_user",
+        "core",
+        "user"
+      ],
+      [
+        "change_user",
+        "core",
+        "user"
+      ],
+      [
+        "delete_user",
+        "core",
+        "user"
+      ],
+      [
+        "view_user",
+        "core",
+        "user"
+      ],
+      [
+        "add_invoice",
+        "invoicing",
+        "invoice"
+      ],
+      [
+        "change_invoice",
+        "invoicing",
+        "invoice"
+      ],
+      [
+        "delete_invoice",
+        "invoicing",
+        "invoice"
+      ],
+      [
+        "view_invoice",
+        "invoicing",
+        "invoice"
+      ],
+      [
+        "add_itemtype",
+        "invoicing",
+        "itemtype"
+      ],
+      [
+        "change_itemtype",
+        "invoicing",
+        "itemtype"
+      ],
+      [
+        "delete_itemtype",
+        "invoicing",
+        "itemtype"
+      ],
+      [
+        "view_itemtype",
+        "invoicing",
+        "itemtype"
+      ],
+      [
+        "add_lineitem",
+        "invoicing",
+        "lineitem"
+      ],
+      [
+        "change_lineitem",
+        "invoicing",
+        "lineitem"
+      ],
+      [
+        "delete_lineitem",
+        "invoicing",
+        "lineitem"
+      ],
+      [
+        "view_lineitem",
+        "invoicing",
+        "lineitem"
+      ],
+      [
+        "add_pricelistitem",
+        "invoicing",
+        "pricelistitem"
+      ],
+      [
+        "change_pricelistitem",
+        "invoicing",
+        "pricelistitem"
+      ],
+      [
+        "delete_pricelistitem",
+        "invoicing",
+        "pricelistitem"
+      ],
+      [
+        "view_pricelistitem",
+        "invoicing",
+        "pricelistitem"
+      ],
+      [
+        "add_estimate",
+        "jobs",
+        "estimate"
+      ],
+      [
+        "change_estimate",
+        "jobs",
+        "estimate"
+      ],
+      [
+        "delete_estimate",
+        "jobs",
+        "estimate"
+      ],
+      [
+        "view_estimate",
+        "jobs",
+        "estimate"
+      ],
+      [
+        "add_job",
+        "jobs",
+        "job"
+      ],
+      [
+        "change_job",
+        "jobs",
+        "job"
+      ],
+      [
+        "delete_job",
+        "jobs",
+        "job"
+      ],
+      [
+        "view_job",
+        "jobs",
+        "job"
+      ],
+      [
+        "add_step",
+        "jobs",
+        "step"
+      ],
+      [
+        "change_step",
+        "jobs",
+        "step"
+      ],
+      [
+        "delete_step",
+        "jobs",
+        "step"
+      ],
+      [
+        "view_step",
+        "jobs",
+        "step"
+      ],
+      [
+        "add_task",
+        "jobs",
+        "task"
+      ],
+      [
+        "change_task",
+        "jobs",
+        "task"
+      ],
+      [
+        "delete_task",
+        "jobs",
+        "task"
+      ],
+      [
+        "view_task",
+        "jobs",
+        "task"
+      ],
+      [
+        "add_taskmapping",
+        "jobs",
+        "taskmapping"
+      ],
+      [
+        "change_taskmapping",
+        "jobs",
+        "taskmapping"
+      ],
+      [
+        "delete_taskmapping",
+        "jobs",
+        "taskmapping"
+      ],
+      [
+        "view_taskmapping",
+        "jobs",
+        "taskmapping"
+      ],
+      [
+        "add_workorder",
+        "jobs",
+        "workorder"
+      ],
+      [
+        "change_workorder",
+        "jobs",
+        "workorder"
+      ],
+      [
+        "delete_workorder",
+        "jobs",
+        "workorder"
+      ],
+      [
+        "view_workorder",
+        "jobs",
+        "workorder"
+      ],
+      [
+        "add_bill",
+        "purchasing",
+        "bill"
+      ],
+      [
+        "change_bill",
+        "purchasing",
+        "bill"
+      ],
+      [
+        "delete_bill",
+        "purchasing",
+        "bill"
+      ],
+      [
+        "view_bill",
+        "purchasing",
+        "bill"
+      ],
+      [
+        "add_purchaseorder",
+        "purchasing",
+        "purchaseorder"
+      ],
+      [
+        "change_purchaseorder",
+        "purchasing",
+        "purchaseorder"
+      ],
+      [
+        "delete_purchaseorder",
+        "purchasing",
+        "purchaseorder"
+      ],
+      [
+        "view_purchaseorder",
+        "purchasing",
+        "purchaseorder"
+      ]
+    ]
+  }
+},
+{
+  "model": "auth.group",
+  "fields": {
+    "name": "Employee",
+    "permissions": [
+      [
+        "add_business",
+        "contacts",
+        "business"
+      ],
+      [
+        "change_business",
+        "contacts",
+        "business"
+      ],
+      [
+        "delete_business",
+        "contacts",
+        "business"
+      ],
+      [
+        "view_business",
+        "contacts",
+        "business"
+      ],
+      [
+        "add_contact",
+        "contacts",
+        "contact"
+      ],
+      [
+        "change_contact",
+        "contacts",
+        "contact"
+      ],
+      [
+        "delete_contact",
+        "contacts",
+        "contact"
+      ],
+      [
+        "view_contact",
+        "contacts",
+        "contact"
+      ],
+      [
+        "add_paymentterms",
+        "contacts",
+        "paymentterms"
+      ],
+      [
+        "change_paymentterms",
+        "contacts",
+        "paymentterms"
+      ],
+      [
+        "delete_paymentterms",
+        "contacts",
+        "paymentterms"
+      ],
+      [
+        "view_paymentterms",
+        "contacts",
+        "paymentterms"
+      ],
+      [
+        "add_invoice",
+        "invoicing",
+        "invoice"
+      ],
+      [
+        "change_invoice",
+        "invoicing",
+        "invoice"
+      ],
+      [
+        "delete_invoice",
+        "invoicing",
+        "invoice"
+      ],
+      [
+        "view_invoice",
+        "invoicing",
+        "invoice"
+      ],
+      [
+        "add_itemtype",
+        "invoicing",
+        "itemtype"
+      ],
+      [
+        "change_itemtype",
+        "invoicing",
+        "itemtype"
+      ],
+      [
+        "delete_itemtype",
+        "invoicing",
+        "itemtype"
+      ],
+      [
+        "view_itemtype",
+        "invoicing",
+        "itemtype"
+      ],
+      [
+        "add_lineitem",
+        "invoicing",
+        "lineitem"
+      ],
+      [
+        "change_lineitem",
+        "invoicing",
+        "lineitem"
+      ],
+      [
+        "delete_lineitem",
+        "invoicing",
+        "lineitem"
+      ],
+      [
+        "view_lineitem",
+        "invoicing",
+        "lineitem"
+      ],
+      [
+        "add_pricelistitem",
+        "invoicing",
+        "pricelistitem"
+      ],
+      [
+        "change_pricelistitem",
+        "invoicing",
+        "pricelistitem"
+      ],
+      [
+        "delete_pricelistitem",
+        "invoicing",
+        "pricelistitem"
+      ],
+      [
+        "view_pricelistitem",
+        "invoicing",
+        "pricelistitem"
+      ],
+      [
+        "add_estimate",
+        "jobs",
+        "estimate"
+      ],
+      [
+        "change_estimate",
+        "jobs",
+        "estimate"
+      ],
+      [
+        "delete_estimate",
+        "jobs",
+        "estimate"
+      ],
+      [
+        "view_estimate",
+        "jobs",
+        "estimate"
+      ],
+      [
+        "add_job",
+        "jobs",
+        "job"
+      ],
+      [
+        "change_job",
+        "jobs",
+        "job"
+      ],
+      [
+        "delete_job",
+        "jobs",
+        "job"
+      ],
+      [
+        "view_job",
+        "jobs",
+        "job"
+      ],
+      [
+        "add_step",
+        "jobs",
+        "step"
+      ],
+      [
+        "change_step",
+        "jobs",
+        "step"
+      ],
+      [
+        "delete_step",
+        "jobs",
+        "step"
+      ],
+      [
+        "view_step",
+        "jobs",
+        "step"
+      ],
+      [
+        "add_task",
+        "jobs",
+        "task"
+      ],
+      [
+        "change_task",
+        "jobs",
+        "task"
+      ],
+      [
+        "delete_task",
+        "jobs",
+        "task"
+      ],
+      [
+        "view_task",
+        "jobs",
+        "task"
+      ],
+      [
+        "add_taskmapping",
+        "jobs",
+        "taskmapping"
+      ],
+      [
+        "change_taskmapping",
+        "jobs",
+        "taskmapping"
+      ],
+      [
+        "delete_taskmapping",
+        "jobs",
+        "taskmapping"
+      ],
+      [
+        "view_taskmapping",
+        "jobs",
+        "taskmapping"
+      ],
+      [
+        "add_workorder",
+        "jobs",
+        "workorder"
+      ],
+      [
+        "change_workorder",
+        "jobs",
+        "workorder"
+      ],
+      [
+        "delete_workorder",
+        "jobs",
+        "workorder"
+      ],
+      [
+        "view_workorder",
+        "jobs",
+        "workorder"
+      ],
+      [
+        "add_bill",
+        "purchasing",
+        "bill"
+      ],
+      [
+        "change_bill",
+        "purchasing",
+        "bill"
+      ],
+      [
+        "delete_bill",
+        "purchasing",
+        "bill"
+      ],
+      [
+        "view_bill",
+        "purchasing",
+        "bill"
+      ],
+      [
+        "add_purchaseorder",
+        "purchasing",
+        "purchaseorder"
+      ],
+      [
+        "change_purchaseorder",
+        "purchasing",
+        "purchaseorder"
+      ],
+      [
+        "delete_purchaseorder",
+        "purchasing",
+        "purchaseorder"
+      ],
+      [
+        "view_purchaseorder",
+        "purchasing",
+        "purchaseorder"
+      ]
+    ]
+  }
+},
+{
+  "model": "core.user",
+  "fields": {
+    "password": "pbkdf2_sha256$600000$fU1Q67TTryqZMFXst0Am34$4nPO2gad6tjKif5Ke3G1PE51yrNfRIg2nd1gTApUuQg=",
+    "last_login": "2025-09-01T21:23:17.316Z",
+    "is_superuser": true,
+    "username": "dev_user",
+    "first_name": "Dev",
+    "last_name": "User",
+    "email": "dev@example.com",
+    "is_staff": true,
+    "is_active": true,
+    "date_joined": "2025-09-01T21:22:06.298Z",
+    "contact": null,
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "core.user",
+  "fields": {
+    "password": "pbkdf2_sha256$870000$test$hash",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "johnq_public",
+    "first_name": "John Q",
+    "last_name": "Public",
+    "email": "facilities@metrooffice.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2024-01-01T00:00:00Z",
+    "contact": 3,
+    "groups": [
+      [
+        "Employee"
+      ]
+    ],
+    "user_permissions": []
+  }
+},
+{
+  "model": "jobs.task",
   "pk": 1,
   "fields": {
-    "po_id": 1,
-    "contact_id": 6,
-    "vendor_invoice_number": "HS-INV-001"
+    "pre_submitted_id": "PSI-001",
+    "assigned_id": null,
+    "work_order_id": 1,
+    "name": "Site preparation and setup",
+    "task_type": "preparation"
+  }
+},
+{
+  "model": "jobs.task",
+  "pk": 2,
+  "fields": {
+    "pre_submitted_id": "PSI-002",
+    "assigned_id": null,
+    "work_order_id": 1,
+    "name": "Material procurement and delivery",
+    "task_type": "preparation"
+  }
+},
+{
+  "model": "jobs.task",
+  "pk": 3,
+  "fields": {
+    "pre_submitted_id": "PSI-003",
+    "assigned_id": null,
+    "work_order_id": 1,
+    "name": "Installation and construction work",
+    "task_type": "installation"
+  }
+},
+{
+  "model": "jobs.task",
+  "pk": 4,
+  "fields": {
+    "pre_submitted_id": "PSI-004",
+    "assigned_id": null,
+    "work_order_id": 2,
+    "name": "Site preparation and setup",
+    "task_type": "preparation"
+  }
+},
+{
+  "model": "jobs.task",
+  "pk": 5,
+  "fields": {
+    "pre_submitted_id": "PSI-005",
+    "assigned_id": null,
+    "work_order_id": 2,
+    "name": "Material procurement and delivery",
+    "task_type": "preparation"
+  }
+},
+{
+  "model": "jobs.task",
+  "pk": 6,
+  "fields": {
+    "pre_submitted_id": "PSI-006",
+    "assigned_id": null,
+    "work_order_id": 2,
+    "name": "Installation and construction work",
+    "task_type": "installation"
+  }
+},
+{
+  "model": "jobs.task",
+  "pk": 7,
+  "fields": {
+    "pre_submitted_id": "PSI-007",
+    "assigned_id": null,
+    "work_order_id": 3,
+    "name": "Site preparation and setup",
+    "task_type": "preparation"
+  }
+},
+{
+  "model": "jobs.task",
+  "pk": 8,
+  "fields": {
+    "pre_submitted_id": "PSI-008",
+    "assigned_id": null,
+    "work_order_id": 3,
+    "name": "Material procurement and delivery",
+    "task_type": "preparation"
+  }
+},
+{
+  "model": "jobs.task",
+  "pk": 9,
+  "fields": {
+    "pre_submitted_id": "PSI-009",
+    "assigned_id": null,
+    "work_order_id": 4,
+    "name": "Site preparation and setup",
+    "task_type": "preparation"
+  }
+},
+{
+  "model": "jobs.task",
+  "pk": 10,
+  "fields": {
+    "pre_submitted_id": "PSI-010",
+    "assigned_id": null,
+    "work_order_id": 4,
+    "name": "Material procurement and delivery",
+    "task_type": "preparation"
+  }
+},
+{
+  "model": "jobs.task",
+  "pk": 11,
+  "fields": {
+    "pre_submitted_id": "PSI-011",
+    "assigned_id": null,
+    "work_order_id": 5,
+    "name": "Site preparation and setup",
+    "task_type": "preparation"
+  }
+},
+{
+  "model": "jobs.task",
+  "pk": 12,
+  "fields": {
+    "pre_submitted_id": "PSI-012",
+    "assigned_id": null,
+    "work_order_id": 5,
+    "name": "Material procurement and delivery",
+    "task_type": "preparation"
+  }
+},
+{
+  "model": "jobs.task",
+  "pk": 13,
+  "fields": {
+    "pre_submitted_id": "PSI-013",
+    "assigned_id": null,
+    "work_order_id": 6,
+    "name": "Site preparation and setup",
+    "task_type": "preparation"
+  }
+},
+{
+  "model": "jobs.task",
+  "pk": 14,
+  "fields": {
+    "pre_submitted_id": "PSI-014",
+    "assigned_id": null,
+    "work_order_id": 6,
+    "name": "Material procurement and delivery",
+    "task_type": "preparation"
+  }
+},
+{
+  "model": "jobs.task",
+  "pk": 15,
+  "fields": {
+    "pre_submitted_id": "PSI-015",
+    "assigned_id": null,
+    "work_order_id": 7,
+    "name": "Site preparation and setup",
+    "task_type": "preparation"
+  }
+},
+{
+  "model": "jobs.task",
+  "pk": 16,
+  "fields": {
+    "pre_submitted_id": "PSI-016",
+    "assigned_id": null,
+    "work_order_id": 7,
+    "name": "Material procurement and delivery",
+    "task_type": "preparation"
+  }
+},
+{
+  "model": "jobs.task",
+  "pk": 17,
+  "fields": {
+    "pre_submitted_id": "PSI-017",
+    "assigned_id": null,
+    "work_order_id": 7,
+    "name": "Installation and construction work",
+    "task_type": "installation"
   }
 }
 ]

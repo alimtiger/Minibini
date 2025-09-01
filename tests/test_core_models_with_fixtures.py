@@ -1,6 +1,7 @@
 from django.test import TestCase
 from django.contrib.auth import get_user_model
-from apps.core.models import User, Role, Configuration
+from django.contrib.auth.models import Group
+from apps.core.models import User, Configuration
 from .base import FixtureTestCase
 
 
@@ -25,71 +26,90 @@ class UserModelFixtureTest(FixtureTestCase):
         self.assertFalse(manager_user.is_superuser)
         self.assertTrue(manager_user.is_staff)
         
-    def test_user_role_relationships(self):
-        """Test that user-role relationships work correctly with fixture data"""
+        # Test new regular user
+        public_user = User.objects.get(username="johnq")
+        self.assertEqual(public_user.first_name, "John Q")
+        self.assertEqual(public_user.last_name, "Public")
+        self.assertEqual(public_user.email, "john.public@example.com")
+        self.assertFalse(public_user.is_superuser)
+        self.assertFalse(public_user.is_staff)
+        self.assertTrue(public_user.is_active)
+        
+    def test_user_group_relationships(self):
+        """Test that user-group relationships work correctly with fixture data"""
         admin_user = User.objects.get(username="admin")
-        admin_role = Role.objects.get(role_name="Administrator")
-        self.assertEqual(admin_user.role_id, admin_role)
+        admin_group = Group.objects.get(name="Administrator")
+        self.assertIn(admin_group, admin_user.groups.all())
         
         manager_user = User.objects.get(username="manager1")
-        manager_role = Role.objects.get(role_name="Manager")
-        self.assertEqual(manager_user.role_id, manager_role)
+        manager_group = Group.objects.get(name="Manager")
+        self.assertIn(manager_group, manager_user.groups.all())
+        
+        # Test new regular user has Employee group
+        public_user = User.objects.get(username="johnq")
+        employee_group = Group.objects.get(name="Employee")
+        self.assertIn(employee_group, public_user.groups.all())
         
     def test_user_contact_relationships(self):
         """Test that user-contact relationships work correctly"""
         admin_user = User.objects.get(username="admin")
-        self.assertIsNotNone(admin_user.contact_id)
-        self.assertEqual(admin_user.contact_id.name, "John Doe")
+        self.assertIsNotNone(admin_user.contact)
+        self.assertEqual(admin_user.contact.name, "John Doe")
         
-    def test_create_new_user_with_existing_role(self):
-        """Test creating a new user and assigning an existing role from fixtures"""
-        employee_role = Role.objects.get(role_name="Employee")
+        # Test new regular user has correct contact
+        public_user = User.objects.get(username="johnq")
+        self.assertIsNotNone(public_user.contact)
+        self.assertEqual(public_user.contact.name, "John Q Public")
+        self.assertEqual(public_user.contact.email, "john.public@example.com")
+        
+    def test_create_new_user_with_existing_group(self):
+        """Test creating a new user and assigning an existing group from fixtures"""
+        employee_group = Group.objects.get(name="Employee")
         new_user = User.objects.create_user(
             username="newemployee",
             email="employee@minibini.com",
-            password="testpass123",
-            role_id=employee_role
+            password="testpass123"
         )
-        self.assertEqual(new_user.role_id, employee_role)
+        new_user.groups.add(employee_group)
+        self.assertIn(employee_group, new_user.groups.all())
         self.assertEqual(new_user.username, "newemployee")
 
 
-class RoleModelFixtureTest(FixtureTestCase):
+class GroupModelFixtureTest(FixtureTestCase):
     """
-    Test Role model using fixture data
+    Test Group model using fixture data
     """
     
-    def test_roles_exist_from_fixture(self):
-        """Test that all roles from fixture exist with correct data"""
-        admin_role = Role.objects.get(role_name="Administrator")
-        self.assertEqual(admin_role.role_description, "Full system access and administrative privileges")
+    def test_groups_exist_from_fixture(self):
+        """Test that all groups from fixture exist"""
+        admin_group = Group.objects.get(name="Administrator")
+        self.assertEqual(admin_group.name, "Administrator")
         
-        manager_role = Role.objects.get(role_name="Manager")
-        self.assertEqual(manager_role.role_description, "Management level access with approval rights")
+        manager_group = Group.objects.get(name="Manager")
+        self.assertEqual(manager_group.name, "Manager")
         
-        employee_role = Role.objects.get(role_name="Employee")
-        self.assertEqual(employee_role.role_description, "Standard employee access")
+        employee_group = Group.objects.get(name="Employee")
+        self.assertEqual(employee_group.name, "Employee")
         
-    def test_role_str_method_with_fixture_data(self):
-        """Test role string representation with fixture data"""
-        admin_role = Role.objects.get(role_name="Administrator")
-        self.assertEqual(str(admin_role), "Administrator")
+    def test_group_str_method_with_fixture_data(self):
+        """Test group string representation with fixture data"""
+        admin_group = Group.objects.get(name="Administrator")
+        self.assertEqual(str(admin_group), "Administrator")
         
-    def test_role_user_relationships(self):
-        """Test that roles have correct user relationships"""
-        admin_role = Role.objects.get(role_name="Administrator")
-        admin_users = User.objects.filter(role_id=admin_role)
+    def test_group_user_relationships(self):
+        """Test that groups have correct user relationships"""
+        admin_group = Group.objects.get(name="Administrator")
+        admin_users = User.objects.filter(groups=admin_group)
         self.assertEqual(admin_users.count(), 1)
         self.assertEqual(admin_users.first().username, "admin")
         
-    def test_create_new_role(self):
-        """Test creating a new role alongside existing fixture data"""
-        new_role = Role.objects.create(
-            role_name="Contractor",
-            role_description="External contractor access"
+    def test_create_new_group(self):
+        """Test creating a new group alongside existing fixture data"""
+        new_group = Group.objects.create(
+            name="Contractor"
         )
-        self.assertEqual(new_role.role_name, "Contractor")
-        self.assertEqual(Role.objects.count(), 4)  # 3 from fixture + 1 new
+        self.assertEqual(new_group.name, "Contractor")
+        self.assertEqual(Group.objects.count(), 4)  # 3 from fixture + 1 new
 
 
 class ConfigurationModelFixtureTest(FixtureTestCase):
