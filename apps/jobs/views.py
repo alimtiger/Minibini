@@ -7,7 +7,8 @@ def job_list(request):
 
 def job_detail(request, job_id):
     job = get_object_or_404(Job, job_id=job_id)
-    return render(request, 'jobs/job_detail.html', {'job': job})
+    estimates = Estimate.objects.filter(job_id=job).order_by('-created_date')
+    return render(request, 'jobs/job_detail.html', {'job': job, 'estimates': estimates})
 
 def estimate_list(request):
     estimates = Estimate.objects.all().order_by('-estimate_id')
@@ -24,3 +25,4 @@ def task_list(request):
 def task_detail(request, task_id):
     task = get_object_or_404(Task, task_id=task_id)
     return render(request, 'jobs/task_detail.html', {'task': task})
+
