@@ -123,12 +123,10 @@ class WorkOrderModelTest(TestCase):
         work_order = WorkOrder.objects.create(
             job_id=self.job,
             status='blocked',
-            parent_task_id=self.task,
             estimated_time=timedelta(hours=8)
         )
         self.assertEqual(work_order.job_id, self.job)
         self.assertEqual(work_order.status, 'blocked')
-        self.assertEqual(work_order.parent_task_id, self.task)
         self.assertEqual(work_order.estimated_time, timedelta(hours=8))
         
     def test_work_order_str_method(self):
@@ -138,7 +136,6 @@ class WorkOrderModelTest(TestCase):
     def test_work_order_defaults(self):
         work_order = WorkOrder.objects.create(job_id=self.job)
         self.assertEqual(work_order.status, 'incomplete')
-        self.assertIsNone(work_order.parent_task_id)
         self.assertIsNone(work_order.estimated_time)
         
     def test_work_order_status_choices(self):

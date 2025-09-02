@@ -2,10 +2,11 @@ from django.test import TestCase, TransactionTestCase
 from django.core.exceptions import ValidationError
 from django.utils import timezone
 from django.db import transaction, IntegrityError
+from django.contrib.auth.models import Group
 from decimal import Decimal
 from datetime import timedelta
 from apps.contacts.models import Contact, Business, PaymentTerms
-from apps.core.models import User, Role, Configuration
+from apps.core.models import User, Configuration
 from apps.jobs.models import Job, Estimate, WorkOrder, Task, Step, TaskMapping
 from apps.invoicing.models import Invoice, LineItem, PriceListItem, ItemType
 from apps.purchasing.models import PurchaseOrder, Bill
@@ -13,8 +14,9 @@ from apps.purchasing.models import PurchaseOrder, Bill
 
 class ComprehensiveModelIntegrationTest(TestCase):
     def setUp(self):
-        self.role = Role.objects.create(role_name="Manager", role_description="Manager role")
-        self.user = User.objects.create_user(username="testuser", email="test@example.com", role_id=self.role)
+        self.group = Group.objects.create(name="Manager")
+        self.user = User.objects.create_user(username="testuser", email="test@example.com")
+        self.user.groups.add(self.group)
         self.contact = Contact.objects.create(
             name="Test Contact",
             email="contact@example.com",
@@ -171,7 +173,7 @@ class ComprehensiveModelIntegrationTest(TestCase):
         self.assertEqual(original_estimate.superseded_by, superseding_estimate)
         self.assertIsNotNone(original_estimate.superseded_date)
 
-    def test_task_hierarchy_workflow(self):
+    def test_task_workflow(self):
         job = Job.objects.create(
             job_number="JOB005",
             contact_id=self.contact
@@ -179,32 +181,21 @@ class ComprehensiveModelIntegrationTest(TestCase):
         
         work_order = WorkOrder.objects.create(job_id=job)
         
-        parent_task = Task.objects.create(
+        task = Task.objects.create(
             work_order_id=work_order,
-            name="Parent Task",
+            name="Planning Task",
             task_type="Planning"
         )
         
-        child_work_order = WorkOrder.objects.create(
-            job_id=job,
-            parent_task_id=parent_task
-        )
-        
-        child_task = Task.objects.create(
-            work_order_id=child_work_order,
-            name="Child Task",
-            task_type="Implementation"
-        )
-        
         task_mapping = TaskMapping.objects.create(
-            task_id=parent_task,
+            task_id=task,
             step_type="Planning",
             task_type_id="PLAN001",
             breakdown_of_task="Break down the planning requirements"
         )
         
-        self.assertEqual(child_work_order.parent_task_id, parent_task)
-        self.assertEqual(task_mapping.task_id, parent_task)
+        self.assertEqual(task.work_order_id, work_order)
+        self.assertEqual(task_mapping.task_id, task)
 
     def test_configuration_number_sequences(self):
         config = Configuration.objects.create(
@@ -240,23 +231,23 @@ class ComprehensiveModelIntegrationTest(TestCase):
         self.assertEqual(Step.objects.count(), initial_step_count - 1)
         self.assertEqual(Task.objects.count(), initial_task_count - 1)
 
-    def test_user_role_relationship(self):
-        role_count_before = Role.objects.count()
+    def test_user_group_relationship(self):
+        group_count_before = Group.objects.count()
         user_count_before = User.objects.count()
         
-        new_role = Role.objects.create(role_name="Developer")
+        new_group = Group.objects.create(name="Developer")
         developer_user = User.objects.create_user(
-            username="developer",
-            role_id=new_role
+            username="developer"
         )
+        developer_user.groups.add(new_group)
         
-        self.assertEqual(Role.objects.count(), role_count_before + 1)
+        self.assertEqual(Group.objects.count(), group_count_before + 1)
         self.assertEqual(User.objects.count(), user_count_before + 1)
-        self.assertEqual(developer_user.role_id, new_role)
+        self.assertIn(new_group, developer_user.groups.all())
         
-        new_role.delete()
+        new_group.delete()
         developer_user.refresh_from_db()
-        self.assertIsNone(developer_user.role_id)
+        self.assertNotIn(new_group, developer_user.groups.all())
 
     def test_price_calculation_accuracy(self):
         item_type = ItemType.objects.create(name="Hardware")
@@ -307,5 +298,5 @@ class ComprehensiveModelIntegrationTest(TestCase):
         self.assertEqual(str(estimate), "Estimate EST_STR")
         self.assertEqual(str(invoice), "Invoice INV_STR")
         self.assertEqual(str(po), "PO PO_STR")
-        self.assertEqual(str(self.role), "Manager")
+        self.assertEqual(str(self.group), "Manager")
         self.assertEqual(str(self.contact), "Test Contact")

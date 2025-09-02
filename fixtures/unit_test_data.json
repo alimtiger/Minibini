@@ -246,7 +246,6 @@
     "fields": {
       "job_id": 1,
       "status": "incomplete",
-      "parent_task_id": null,
       "estimated_time": "40:00:00"
     }
   },
@@ -256,7 +255,6 @@
     "fields": {
       "job_id": 2,
       "status": "complete",
-      "parent_task_id": null,
       "estimated_time": "24:00:00"
     }
   },
