@@ -20,7 +20,7 @@
     </tr>
     <tr>
         <td>Job</td>
-        <td>{{ estimate.job_id }}</td>
+        <td><a href="{% url 'jobs:detail' estimate.job_id.job_id %}">{{ estimate.job_id }}</a></td>
     </tr>
     <tr>
         <td>Revision Number</td>
@@ -32,5 +32,8 @@
     </tr>
 </table>
 
-<p><a href="{% url 'jobs:estimate_list' %}">Back to Estimates List</a></p>
+<p>
+    <a href="{% url 'jobs:detail' estimate.job_id.job_id %}">View Job Details</a> |
+    <a href="{% url 'jobs:estimate_list' %}">Back to Estimates List</a>
+</p>
 {% endblock %}

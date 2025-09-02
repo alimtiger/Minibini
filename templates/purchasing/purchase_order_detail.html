@@ -20,13 +20,47 @@
     </tr>
     <tr>
         <td>Job</td>
-        <td>{{ purchase_order.job_id|default:"No job assigned" }}</td>
+        <td>
+            {% if purchase_order.job_id %}
+                <a href="{% url 'jobs:detail' purchase_order.job_id.job_id %}">{{ purchase_order.job_id }}</a>
+            {% else %}
+                No job assigned
+            {% endif %}
+        </td>
     </tr>
     <tr>
         <td>Price List Item ID</td>
         <td>{{ purchase_order.price_list_item_id|default:"No price list item" }}</td>
     </tr>
 </table>
+
+<h3>Associated Bills</h3>
+{% if bills %}
+    <table border="1" style="border-collapse: collapse; width: 100%; margin-top: 10px;">
+        <thead>
+            <tr>
+                <th>Bill ID</th>
+                <th>Contact</th>
+                <th>Vendor Invoice Number</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for bill in bills %}
+            <tr>
+                <td>{{ bill.bill_id }}</td>
+                <td>{{ bill.contact_id }}</td>
+                <td>{{ bill.vendor_invoice_number }}</td>
+                <td>
+                    <a href="{% url 'purchasing:bill_detail' bill.bill_id %}">View Details</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% else %}
+    <p>No bills found for this purchase order.</p>
+{% endif %}
 
 <p><a href="{% url 'purchasing:purchase_order_list' %}">Back to Purchase Orders List</a></p>
 {% endblock %}
