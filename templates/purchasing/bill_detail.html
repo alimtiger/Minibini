@@ -16,7 +16,13 @@
     </tr>
     <tr>
         <td>Purchase Order</td>
-        <td>{{ bill.po_id }}</td>
+        <td>
+            {% if bill.po_id %}
+                <a href="{% url 'purchasing:purchase_order_detail' bill.po_id.po_id %}">{{ bill.po_id }}</a>
+            {% else %}
+                No purchase order assigned
+            {% endif %}
+        </td>
     </tr>
     <tr>
         <td>Contact</td>
