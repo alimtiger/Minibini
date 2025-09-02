@@ -20,7 +20,13 @@
     </tr>
     <tr>
         <td>Job</td>
-        <td>{{ purchase_order.job_id|default:"No job assigned" }}</td>
+        <td>
+            {% if purchase_order.job_id %}
+                <a href="{% url 'jobs:detail' purchase_order.job_id.job_id %}">{{ purchase_order.job_id }}</a>
+            {% else %}
+                No job assigned
+            {% endif %}
+        </td>
     </tr>
     <tr>
         <td>Price List Item ID</td>
