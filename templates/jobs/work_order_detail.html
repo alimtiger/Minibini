@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+
+{% block title %}Work Order {{ work_order.work_order_id }} - Minibini{% endblock %}
+
+{% block content %}
+<h2>Work Order: {{ work_order.work_order_id }}</h2>
+
+<table border="1">
+    <tr>
+        <th>Field</th>
+        <th>Value</th>
+    </tr>
+    <tr>
+        <td>Work Order ID</td>
+        <td>{{ work_order.work_order_id }}</td>
+    </tr>
+    <tr>
+        <td>Associated Job</td>
+        <td><a href="{% url 'jobs:detail' work_order.job.job_id %}">{{ work_order.job.job_number }} - {{ work_order.job.description }}</a></td>
+    </tr>
+    <tr>
+        <td>Status</td>
+        <td>{{ work_order.get_status_display }}</td>
+    </tr>
+    <tr>
+        <td>Estimated Time</td>
+        <td>{{ work_order.estimated_time|default:"Not specified" }}</td>
+    </tr>
+</table>
+
+<h3>Associated Tasks</h3>
+{% if tasks %}
+    <table border="1">
+        <tr>
+            <th>Task Name</th>
+            <th>Task Type</th>
+            <th>Assigned To</th>
+            <th>Parent Task</th>
+            <th>Actions</th>
+        </tr>
+        {% for task in tasks %}
+        <tr>
+            <td>{{ task.name }}</td>
+            <td>{{ task.task_type }}</td>
+            <td>{{ task.assigned|default:"Unassigned" }}</td>
+            <td>{{ task.parent_task|default:"None" }}</td>
+            <td><a href="{% url 'jobs:task_detail' task.task_id %}">View Task</a></td>
+        </tr>
+        {% endfor %}
+    </table>
+{% else %}
+    <p>No tasks found for this work order.</p>
+{% endif %}
+
+<p>
+    <a href="{% url 'jobs:work_order_list' %}">Back to Work Orders List</a> | 
+    <a href="{% url 'jobs:detail' work_order.job.job_id %}">View Associated Job</a>
+</p>
+{% endblock %}
