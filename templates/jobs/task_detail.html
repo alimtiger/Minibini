@@ -24,15 +24,15 @@
     </tr>
     <tr>
         <td>Work Order</td>
-        <td>{{ task.work_order_id }}</td>
+        <td>{{ task.work_order }}</td>
     </tr>
     <tr>
         <td>Assigned To</td>
-        <td>{{ task.assigned_id|default:"Unassigned" }}</td>
+        <td>{{ task.assigned|default:"Unassigned" }}</td>
     </tr>
     <tr>
-        <td>Pre-submitted ID</td>
-        <td>{{ task.pre_submitted_id|default:"No pre-submitted ID" }}</td>
+        <td>Parent Task</td>
+        <td>{{ task.parent_task|default:"No parent task" }}</td>
     </tr>
 </table>
 

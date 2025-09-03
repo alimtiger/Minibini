@@ -114,7 +114,7 @@ class WorkOrderModelTest(TestCase):
         )
         self.work_order = WorkOrder.objects.create(job_id=self.job)
         self.task = Task.objects.create(
-            work_order_id=self.work_order,
+            work_order=self.work_order,
             name="Parent Task",
             task_type="parent"
         )
@@ -131,7 +131,7 @@ class WorkOrderModelTest(TestCase):
         
     def test_work_order_str_method(self):
         work_order = WorkOrder.objects.create(job_id=self.job)
-        self.assertEqual(str(work_order), f"Work Order {work_order.work_order_id}")
+        self.assertEqual(str(work_order), f"Work Order {work_order.pk}")
         
     def test_work_order_defaults(self):
         work_order = WorkOrder.objects.create(job_id=self.job)
@@ -159,22 +159,27 @@ class TaskModelTest(TestCase):
         self.user = User.objects.create_user(username="testuser")
         
     def test_task_creation(self):
+        parent_task = Task.objects.create(
+            work_order=self.work_order,
+            name="Parent Task",
+            task_type="parent"
+        )
         task = Task.objects.create(
-            pre_submitted_id="PRE001",
-            assigned_id=self.user,
-            work_order_id=self.work_order,
+            parent_task=parent_task,
+            assigned=self.user,
+            work_order=self.work_order,
             name="Installation Task",
             task_type="installation"
         )
-        self.assertEqual(task.pre_submitted_id, "PRE001")
-        self.assertEqual(task.assigned_id, self.user)
-        self.assertEqual(task.work_order_id, self.work_order)
+        self.assertEqual(task.parent_task, parent_task)
+        self.assertEqual(task.assigned, self.user)
+        self.assertEqual(task.work_order, self.work_order)
         self.assertEqual(task.name, "Installation Task")
         self.assertEqual(task.task_type, "installation")
         
     def test_task_str_method(self):
         task = Task.objects.create(
-            work_order_id=self.work_order,
+            work_order=self.work_order,
             name="Test Task",
             task_type="test"
         )
@@ -182,12 +187,12 @@ class TaskModelTest(TestCase):
         
     def test_task_optional_fields(self):
         task = Task.objects.create(
-            work_order_id=self.work_order,
+            work_order=self.work_order,
             name="Basic Task",
             task_type="basic"
         )
-        self.assertEqual(task.pre_submitted_id, "")
-        self.assertIsNone(task.assigned_id)
+        self.assertIsNone(task.parent_task)
+        self.assertIsNone(task.assigned)
 
 
 class StepModelTest(TestCase):
@@ -199,7 +204,7 @@ class StepModelTest(TestCase):
         )
         self.work_order = WorkOrder.objects.create(job_id=self.job)
         self.task = Task.objects.create(
-            work_order_id=self.work_order,
+            work_order=self.work_order,
             name="Test Task",
             task_type="test"
         )
@@ -240,7 +245,7 @@ class TaskMappingModelTest(TestCase):
         )
         self.work_order = WorkOrder.objects.create(job_id=self.job)
         self.task = Task.objects.create(
-            work_order_id=self.work_order,
+            work_order=self.work_order,
             name="Test Task",
             task_type="test"
         )

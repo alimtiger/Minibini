@@ -53,8 +53,8 @@ class ComprehensiveModelIntegrationTest(TestCase):
         )
         
         task = Task.objects.create(
-            assigned_id=self.user,
-            work_order_id=work_order,
+            assigned=self.user,
+            work_order=work_order,
             name="Test Task",
             task_type="Development"
         )
@@ -68,7 +68,7 @@ class ComprehensiveModelIntegrationTest(TestCase):
         self.assertEqual(job.status, 'draft')
         self.assertEqual(estimate.job_id, job)
         self.assertEqual(work_order.job_id, job)
-        self.assertEqual(task.work_order_id, work_order)
+        self.assertEqual(task.work_order, work_order)
         self.assertEqual(step.task_id, task)
 
     def test_invoice_line_item_workflow(self):
@@ -182,7 +182,7 @@ class ComprehensiveModelIntegrationTest(TestCase):
         work_order = WorkOrder.objects.create(job_id=job)
         
         task = Task.objects.create(
-            work_order_id=work_order,
+            work_order=work_order,
             name="Planning Task",
             task_type="Planning"
         )
@@ -194,7 +194,7 @@ class ComprehensiveModelIntegrationTest(TestCase):
             breakdown_of_task="Break down the planning requirements"
         )
         
-        self.assertEqual(task.work_order_id, work_order)
+        self.assertEqual(task.work_order, work_order)
         self.assertEqual(task_mapping.task_id, task)
 
     def test_configuration_number_sequences(self):
@@ -220,7 +220,7 @@ class ComprehensiveModelIntegrationTest(TestCase):
         )
         
         work_order = WorkOrder.objects.create(job_id=job)
-        task = Task.objects.create(work_order_id=work_order, name="Test Task", task_type="Test")
+        task = Task.objects.create(work_order=work_order, name="Test Task", task_type="Test")
         step = Step.objects.create(task_id=task, user_id=self.user)
         
         initial_step_count = Step.objects.count()

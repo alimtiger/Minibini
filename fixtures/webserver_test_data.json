@@ -1698,9 +1698,8 @@
   "model": "jobs.task",
   "pk": 1,
   "fields": {
-    "pre_submitted_id": "PSI-001",
-    "assigned_id": null,
-    "work_order_id": 1,
+    "assigned": null,
+    "work_order": 1,
     "name": "Site preparation and setup",
     "task_type": "preparation"
   }
@@ -1709,9 +1708,8 @@
   "model": "jobs.task",
   "pk": 2,
   "fields": {
-    "pre_submitted_id": "PSI-002",
-    "assigned_id": null,
-    "work_order_id": 1,
+    "assigned": null,
+    "work_order": 1,
     "name": "Material procurement and delivery",
     "task_type": "preparation"
   }
@@ -1720,9 +1718,8 @@
   "model": "jobs.task",
   "pk": 3,
   "fields": {
-    "pre_submitted_id": "PSI-003",
-    "assigned_id": null,
-    "work_order_id": 1,
+    "assigned": null,
+    "work_order": 1,
     "name": "Installation and construction work",
     "task_type": "installation"
   }
@@ -1731,9 +1728,8 @@
   "model": "jobs.task",
   "pk": 4,
   "fields": {
-    "pre_submitted_id": "PSI-004",
-    "assigned_id": null,
-    "work_order_id": 2,
+    "assigned": null,
+    "work_order": 2,
     "name": "Site preparation and setup",
     "task_type": "preparation"
   }
@@ -1742,9 +1738,8 @@
   "model": "jobs.task",
   "pk": 5,
   "fields": {
-    "pre_submitted_id": "PSI-005",
-    "assigned_id": null,
-    "work_order_id": 2,
+    "assigned": null,
+    "work_order": 2,
     "name": "Material procurement and delivery",
     "task_type": "preparation"
   }
@@ -1753,9 +1748,8 @@
   "model": "jobs.task",
   "pk": 6,
   "fields": {
-    "pre_submitted_id": "PSI-006",
-    "assigned_id": null,
-    "work_order_id": 2,
+    "assigned": null,
+    "work_order": 2,
     "name": "Installation and construction work",
     "task_type": "installation"
   }
@@ -1764,9 +1758,8 @@
   "model": "jobs.task",
   "pk": 7,
   "fields": {
-    "pre_submitted_id": "PSI-007",
-    "assigned_id": null,
-    "work_order_id": 3,
+    "assigned": null,
+    "work_order": 3,
     "name": "Site preparation and setup",
     "task_type": "preparation"
   }
@@ -1775,9 +1768,8 @@
   "model": "jobs.task",
   "pk": 8,
   "fields": {
-    "pre_submitted_id": "PSI-008",
-    "assigned_id": null,
-    "work_order_id": 3,
+    "assigned": null,
+    "work_order": 3,
     "name": "Material procurement and delivery",
     "task_type": "preparation"
   }
@@ -1786,9 +1778,8 @@
   "model": "jobs.task",
   "pk": 9,
   "fields": {
-    "pre_submitted_id": "PSI-009",
-    "assigned_id": null,
-    "work_order_id": 4,
+    "assigned": null,
+    "work_order": 4,
     "name": "Site preparation and setup",
     "task_type": "preparation"
   }
@@ -1797,9 +1788,8 @@
   "model": "jobs.task",
   "pk": 10,
   "fields": {
-    "pre_submitted_id": "PSI-010",
-    "assigned_id": null,
-    "work_order_id": 4,
+    "assigned": null,
+    "work_order": 4,
     "name": "Material procurement and delivery",
     "task_type": "preparation"
   }
@@ -1808,9 +1798,8 @@
   "model": "jobs.task",
   "pk": 11,
   "fields": {
-    "pre_submitted_id": "PSI-011",
-    "assigned_id": null,
-    "work_order_id": 5,
+    "assigned": null,
+    "work_order": 5,
     "name": "Site preparation and setup",
     "task_type": "preparation"
   }
@@ -1819,9 +1808,8 @@
   "model": "jobs.task",
   "pk": 12,
   "fields": {
-    "pre_submitted_id": "PSI-012",
-    "assigned_id": null,
-    "work_order_id": 5,
+    "assigned": null,
+    "work_order": 5,
     "name": "Material procurement and delivery",
     "task_type": "preparation"
   }
@@ -1830,9 +1818,8 @@
   "model": "jobs.task",
   "pk": 13,
   "fields": {
-    "pre_submitted_id": "PSI-013",
-    "assigned_id": null,
-    "work_order_id": 6,
+    "assigned": null,
+    "work_order": 6,
     "name": "Site preparation and setup",
     "task_type": "preparation"
   }
@@ -1841,9 +1828,8 @@
   "model": "jobs.task",
   "pk": 14,
   "fields": {
-    "pre_submitted_id": "PSI-014",
-    "assigned_id": null,
-    "work_order_id": 6,
+    "assigned": null,
+    "work_order": 6,
     "name": "Material procurement and delivery",
     "task_type": "preparation"
   }
@@ -1852,9 +1838,8 @@
   "model": "jobs.task",
   "pk": 15,
   "fields": {
-    "pre_submitted_id": "PSI-015",
-    "assigned_id": null,
-    "work_order_id": 7,
+    "assigned": null,
+    "work_order": 7,
     "name": "Site preparation and setup",
     "task_type": "preparation"
   }
@@ -1863,9 +1848,8 @@
   "model": "jobs.task",
   "pk": 16,
   "fields": {
-    "pre_submitted_id": "PSI-016",
-    "assigned_id": null,
-    "work_order_id": 7,
+    "assigned": null,
+    "work_order": 7,
     "name": "Material procurement and delivery",
     "task_type": "preparation"
   }
@@ -1874,9 +1858,8 @@
   "model": "jobs.task",
   "pk": 17,
   "fields": {
-    "pre_submitted_id": "PSI-017",
-    "assigned_id": null,
-    "work_order_id": 7,
+    "assigned": null,
+    "work_order": 7,
     "name": "Installation and construction work",
     "task_type": "installation"
   }

@@ -68,9 +68,9 @@ class WorkOrder(models.Model):
 
 class Task(models.Model):
     task_id = models.AutoField(primary_key=True)
-    pre_submitted_id = models.CharField(max_length=50, blank=True)
-    assigned_id = models.ForeignKey('core.User', on_delete=models.SET_NULL, null=True, blank=True)
-    work_order_id = models.ForeignKey(WorkOrder, on_delete=models.CASCADE)
+    parent_task = models.ForeignKey('self', on_delete=models.CASCADE, null=True, blank=True, related_name='subtasks')
+    assigned = models.ForeignKey('core.User', on_delete=models.SET_NULL, null=True, blank=True)
+    work_order = models.ForeignKey(WorkOrder, on_delete=models.CASCADE)
     name = models.CharField(max_length=255)
     task_type = models.CharField(max_length=100)
 

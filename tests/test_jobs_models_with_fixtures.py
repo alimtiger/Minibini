@@ -127,15 +127,13 @@ class TaskModelFixtureTest(FixtureTestCase):
     def test_tasks_exist_from_fixture(self):
         """Test that tasks from fixture data exist and have correct properties"""
         task1 = Task.objects.get(name="Kitchen demolition")
-        self.assertEqual(task1.pre_submitted_id, "PRE001")
         self.assertEqual(task1.task_type, "demolition")
-        self.assertEqual(task1.assigned_id.username, "manager1")
-        self.assertEqual(task1.work_order_id.pk, 1)
+        self.assertEqual(task1.assigned.username, "manager1")
+        self.assertEqual(task1.work_order.pk, 1)
         
         task2 = Task.objects.get(name="Electrical rough-in")
-        self.assertEqual(task2.pre_submitted_id, "PRE002")
         self.assertEqual(task2.task_type, "electrical")
-        self.assertEqual(task2.assigned_id.username, "manager1")
+        self.assertEqual(task2.assigned.username, "manager1")
         
     def test_task_str_method_with_fixture_data(self):
         """Test task string representation with fixture data"""
@@ -146,13 +144,13 @@ class TaskModelFixtureTest(FixtureTestCase):
         """Test that tasks are properly assigned to users"""
         task = Task.objects.get(name="Kitchen demolition")
         user = User.objects.get(username="manager1")
-        self.assertEqual(task.assigned_id, user)
+        self.assertEqual(task.assigned, user)
         
     def test_task_work_order_relationships(self):
         """Test that tasks are properly linked to work orders"""
         task = Task.objects.get(name="Kitchen demolition")
         work_order = WorkOrder.objects.get(pk=1)
-        self.assertEqual(task.work_order_id, work_order)
+        self.assertEqual(task.work_order, work_order)
         
     def test_create_new_task_for_existing_work_order(self):
         """Test creating a new task for existing work order from fixtures"""
@@ -160,13 +158,12 @@ class TaskModelFixtureTest(FixtureTestCase):
         user = User.objects.get(username="manager1")
         
         new_task = Task.objects.create(
-            pre_submitted_id="PRE003",
-            assigned_id=user,
-            work_order_id=work_order,
+            assigned=user,
+            work_order=work_order,
             name="Cabinet installation",
             task_type="installation"
         )
-        self.assertEqual(new_task.work_order_id, work_order)
+        self.assertEqual(new_task.work_order, work_order)
         self.assertEqual(Task.objects.count(), 3)  # 2 from fixture + 1 new
 
 

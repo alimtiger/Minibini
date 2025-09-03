@@ -134,7 +134,7 @@ class LineItemModelTest(TestCase):
         )
         self.work_order = WorkOrder.objects.create(job_id=self.job)
         self.task = Task.objects.create(
-            work_order_id=self.work_order,
+            work_order=self.work_order,
             name="Test Task",
             task_type="standard"
         )

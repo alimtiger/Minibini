@@ -1,5 +1,5 @@
 from django.shortcuts import render, get_object_or_404
-from .models import Job, Estimate, Task
+from .models import Job, Estimate, Task, WorkOrder
 from apps.purchasing.models import PurchaseOrder
 
 def job_list(request):
@@ -27,4 +27,13 @@ def task_list(request):
 def task_detail(request, task_id):
     task = get_object_or_404(Task, task_id=task_id)
     return render(request, 'jobs/task_detail.html', {'task': task})
+
+def work_order_list(request):
+    work_orders = WorkOrder.objects.all().order_by('-work_order_id')
+    return render(request, 'jobs/work_order_list.html', {'work_orders': work_orders})
+
+def work_order_detail(request, work_order_id):
+    work_order = get_object_or_404(WorkOrder, work_order_id=work_order_id)
+    tasks = Task.objects.filter(work_order=work_order).order_by('task_id')
+    return render(request, 'jobs/work_order_detail.html', {'work_order': work_order, 'tasks': tasks})
 

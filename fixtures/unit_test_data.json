@@ -262,9 +262,8 @@
     "model": "jobs.task",
     "pk": 1,
     "fields": {
-      "pre_submitted_id": "PRE001",
-      "assigned_id": 2,
-      "work_order_id": 1,
+      "assigned": 2,
+      "work_order": 1,
       "name": "Kitchen demolition",
       "task_type": "demolition"
     }
@@ -273,9 +272,8 @@
     "model": "jobs.task",
     "pk": 2,
     "fields": {
-      "pre_submitted_id": "PRE002",
-      "assigned_id": 2,
-      "work_order_id": 1,
+      "assigned": 2,
+      "work_order": 1,
       "name": "Electrical rough-in",
       "task_type": "electrical"
     }

@@ -312,10 +312,9 @@ class Command(BaseCommand):
             for i in range(num_tasks):
                 task, created = Task.objects.get_or_create(
                     name=task_names[i],
-                    work_order_id=work_order,
+                    work_order=work_order,
                     defaults={
-                        'task_type': 'installation' if i == 2 else 'preparation',
-                        'pre_submitted_id': f'PSI-{task_counter:03d}'
+                        'task_type': 'installation' if i == 2 else 'preparation'
                     }
                 )
                 if created:
