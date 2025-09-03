@@ -17,8 +17,8 @@
     <tr>
         <td>Purchase Order</td>
         <td>
-            {% if bill.po_id %}
-                <a href="{% url 'purchasing:purchase_order_detail' bill.po_id.po_id %}">{{ bill.po_id }}</a>
+            {% if bill.purchase_order %}
+                <a href="{% url 'purchasing:purchase_order_detail' bill.purchase_order.po_id %}">{{ bill.purchase_order }}</a>
             {% else %}
                 No purchase order assigned
             {% endif %}
@@ -26,7 +26,7 @@
     </tr>
     <tr>
         <td>Contact</td>
-        <td>{{ bill.contact_id }}</td>
+        <td>{{ bill.contact }}</td>
     </tr>
     <tr>
         <td>Vendor Invoice Number</td>

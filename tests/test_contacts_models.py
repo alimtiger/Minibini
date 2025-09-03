@@ -60,7 +60,7 @@ class BusinessModelTest(TestCase):
             business_number="123-456-7890",
             tax_exemption_number="TAX123456",
             tax_cloud="CLOUD789",
-            term_id=self.payment_terms
+            terms=self.payment_terms
         )
         self.assertEqual(business.our_reference_code, "REF001")
         self.assertEqual(business.business_name, "Acme Corporation")
@@ -68,7 +68,7 @@ class BusinessModelTest(TestCase):
         self.assertEqual(business.business_number, "123-456-7890")
         self.assertEqual(business.tax_exemption_number, "TAX123456")
         self.assertEqual(business.tax_cloud, "CLOUD789")
-        self.assertEqual(business.term_id, self.payment_terms)
+        self.assertEqual(business.terms, self.payment_terms)
 
     def test_business_str_method(self):
         business = Business.objects.create(business_name="Test Business")
@@ -81,13 +81,13 @@ class BusinessModelTest(TestCase):
         self.assertEqual(business.business_number, "")
         self.assertEqual(business.tax_exemption_number, "")
         self.assertEqual(business.tax_cloud, "")
-        self.assertIsNone(business.term_id)
+        self.assertIsNone(business.terms)
 
     def test_business_with_payment_terms_deletion(self):
         business = Business.objects.create(
             business_name="Test Business",
-            term_id=self.payment_terms
+            terms=self.payment_terms
         )
         self.payment_terms.delete()
         business.refresh_from_db()
-        self.assertIsNone(business.term_id)
+        self.assertIsNone(business.terms)

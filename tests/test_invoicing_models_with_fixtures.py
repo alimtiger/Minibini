@@ -54,7 +54,7 @@ class PriceListItemModelFixtureTest(FixtureTestCase):
         self.assertEqual(screw_item.qty_on_hand, Decimal('1000.00'))
         self.assertEqual(screw_item.qty_sold, Decimal('150.00'))
         self.assertEqual(screw_item.qty_wasted, Decimal('5.00'))
-        self.assertEqual(screw_item.item_type_id.name, "Hardware")
+        self.assertEqual(screw_item.item_type.name, "Hardware")
         
         labor_item = PriceListItem.objects.get(code="LABOR001")
         self.assertEqual(labor_item.description, "Skilled labor hourly rate")
@@ -62,7 +62,7 @@ class PriceListItemModelFixtureTest(FixtureTestCase):
         self.assertEqual(labor_item.selling_price, Decimal('75.00'))
         self.assertEqual(labor_item.qty_on_hand, Decimal('0.00'))
         self.assertEqual(labor_item.qty_sold, Decimal('240.00'))
-        self.assertEqual(labor_item.item_type_id.name, "Labor")
+        self.assertEqual(labor_item.item_type.name, "Labor")
         
     def test_price_list_item_str_method_with_fixture_data(self):
         """Test price list item string representation with fixture data"""
@@ -74,13 +74,13 @@ class PriceListItemModelFixtureTest(FixtureTestCase):
         """Test that price list items are properly linked to item types"""
         screw_item = PriceListItem.objects.get(code="SCREW001")
         hardware_type = ItemType.objects.get(name="Hardware")
-        self.assertEqual(screw_item.item_type_id, hardware_type)
+        self.assertEqual(screw_item.item_type, hardware_type)
         
     def test_create_new_price_list_item(self):
         """Test creating a new price list item with existing item type from fixtures"""
         materials_type = ItemType.objects.get(name="Materials")
         new_item = PriceListItem.objects.create(
-            item_type_id=materials_type,
+            item_type=materials_type,
             code="WOOD001",
             unit_parts_labor="board_foot",
             description="Oak lumber 1x6",
@@ -100,11 +100,11 @@ class InvoiceModelFixtureTest(FixtureTestCase):
         """Test that invoices from fixture data exist and have correct properties"""
         invoice1 = Invoice.objects.get(invoice_number="INV-2024-0001")
         self.assertEqual(invoice1.status, "active")
-        self.assertEqual(invoice1.job_id.job_number, "JOB-2024-0001")
+        self.assertEqual(invoice1.job.job_number, "JOB-2024-0001")
         
         invoice2 = Invoice.objects.get(invoice_number="INV-2024-0002")
         self.assertEqual(invoice2.status, "active")
-        self.assertEqual(invoice2.job_id.job_number, "JOB-2024-0002")
+        self.assertEqual(invoice2.job.job_number, "JOB-2024-0002")
         
     def test_invoice_str_method_with_fixture_data(self):
         """Test invoice string representation with fixture data"""
@@ -115,7 +115,7 @@ class InvoiceModelFixtureTest(FixtureTestCase):
         """Test that invoices are properly linked to jobs"""
         invoice = Invoice.objects.get(invoice_number="INV-2024-0001")
         job = Job.objects.get(job_number="JOB-2024-0001")
-        self.assertEqual(invoice.job_id, job)
+        self.assertEqual(invoice.job, job)
         
     def test_invoice_status_update(self):
         """Test updating invoice status using fixture data"""
@@ -132,11 +132,11 @@ class InvoiceModelFixtureTest(FixtureTestCase):
         """Test creating a new invoice for existing job from fixtures"""
         job = Job.objects.get(job_number="JOB-2024-0001")
         new_invoice = Invoice.objects.create(
-            job_id=job,
+            job=job,
             invoice_number="INV-2024-0003",
             status="active"
         )
-        self.assertEqual(new_invoice.job_id, job)
+        self.assertEqual(new_invoice.job, job)
         self.assertEqual(Invoice.objects.count(), 3)  # 2 from fixture + 1 new
 
 
@@ -152,18 +152,18 @@ class LineItemModelFixtureTest(FixtureTestCase):
         self.assertEqual(line_item1.unit_parts_labor, "each")
         self.assertEqual(line_item1.description, "Screws for kitchen cabinet installation")
         self.assertEqual(line_item1.price_currency, Decimal('25.00'))
-        self.assertEqual(line_item1.estimate_id.estimate_number, "EST-2024-0001")
-        self.assertEqual(line_item1.invoice_id.invoice_number, "INV-2024-0001")
-        self.assertEqual(line_item1.task_id.name, "Kitchen demolition")
-        self.assertEqual(line_item1.price_list_item_id.code, "SCREW001")
+        self.assertEqual(line_item1.estimate.estimate_number, "EST-2024-0001")
+        self.assertEqual(line_item1.invoice.invoice_number, "INV-2024-0001")
+        self.assertEqual(line_item1.task.name, "Kitchen demolition")
+        self.assertEqual(line_item1.price_list_item.code, "SCREW001")
         
         line_item2 = LineItem.objects.get(central_line_item_number="CLI002")
         self.assertEqual(line_item2.qty, Decimal('8.00'))
         self.assertEqual(line_item2.unit_parts_labor, "hour")
         self.assertEqual(line_item2.description, "Electrical rough-in labor")
         self.assertEqual(line_item2.price_currency, Decimal('600.00'))
-        self.assertEqual(line_item2.task_id.name, "Electrical rough-in")
-        self.assertEqual(line_item2.price_list_item_id.code, "LABOR001")
+        self.assertEqual(line_item2.task.name, "Electrical rough-in")
+        self.assertEqual(line_item2.price_list_item.code, "LABOR001")
         
     def test_line_item_str_method_with_fixture_data(self):
         """Test line item string representation with fixture data"""
@@ -177,30 +177,30 @@ class LineItemModelFixtureTest(FixtureTestCase):
         
         # Test estimate relationship
         estimate = Estimate.objects.get(estimate_number="EST-2024-0001")
-        self.assertEqual(line_item.estimate_id, estimate)
+        self.assertEqual(line_item.estimate, estimate)
         
         # Test invoice relationship
         invoice = Invoice.objects.get(invoice_number="INV-2024-0001")
-        self.assertEqual(line_item.invoice_id, invoice)
+        self.assertEqual(line_item.invoice, invoice)
         
         # Test task relationship
         task = Task.objects.get(name="Kitchen demolition")
-        self.assertEqual(line_item.task_id, task)
+        self.assertEqual(line_item.task, task)
         
         # Test price list item relationship
         price_item = PriceListItem.objects.get(code="SCREW001")
-        self.assertEqual(line_item.price_list_item_id, price_item)
+        self.assertEqual(line_item.price_list_item, price_item)
         
     def test_line_item_calculations(self):
         """Test line item calculations using fixture data"""
         line_item1 = LineItem.objects.get(central_line_item_number="CLI001")
         # 50 screws at $0.50 each = $25.00 total
-        expected_total = line_item1.qty * line_item1.price_list_item_id.selling_price
+        expected_total = line_item1.qty * line_item1.price_list_item.selling_price
         self.assertEqual(line_item1.price_currency, expected_total)
         
         line_item2 = LineItem.objects.get(central_line_item_number="CLI002")
         # 8 hours at $75.00 per hour = $600.00 total
-        expected_total = line_item2.qty * line_item2.price_list_item_id.selling_price
+        expected_total = line_item2.qty * line_item2.price_list_item.selling_price
         self.assertEqual(line_item2.price_currency, expected_total)
         
     def test_create_new_line_item_with_existing_relationships(self):
@@ -211,10 +211,10 @@ class LineItemModelFixtureTest(FixtureTestCase):
         price_item = PriceListItem.objects.get(code="LABOR001")
         
         new_line_item = LineItem.objects.create(
-            estimate_id=estimate,
-            invoice_id=invoice,
-            task_id=task,
-            price_list_item_id=price_item,
+            estimate=estimate,
+            invoice=invoice,
+            task=task,
+            price_list_item=price_item,
             central_line_item_number="CLI003",
             qty=Decimal('2.00'),
             unit_parts_labor="hour",
@@ -222,6 +222,6 @@ class LineItemModelFixtureTest(FixtureTestCase):
             price_currency=Decimal('150.00')
         )
         
-        self.assertEqual(new_line_item.estimate_id, estimate)
-        self.assertEqual(new_line_item.task_id, task)
+        self.assertEqual(new_line_item.estimate, estimate)
+        self.assertEqual(new_line_item.task, task)
         self.assertEqual(LineItem.objects.count(), 3)  # 2 from fixture + 1 new

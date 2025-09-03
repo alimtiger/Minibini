@@ -28,26 +28,26 @@ class ComprehensiveModelIntegrationTest(TestCase):
         self.payment_terms = PaymentTerms.objects.create()
         self.business = Business.objects.create(
             business_name="Test Business",
-            term_id=self.payment_terms
+            terms=self.payment_terms
         )
 
     def test_complete_job_workflow(self):
         job = Job.objects.create(
             job_number="JOB001",
             status='draft',
-            contact_id=self.contact,
+            contact=self.contact,
             description="Test job description"
         )
         
         estimate = Estimate.objects.create(
-            job_id=job,
+            job=job,
             estimate_number="EST001",
             revision_number=1,
             status='open'
         )
         
         work_order = WorkOrder.objects.create(
-            job_id=job,
+            job=job,
             status='incomplete',
             estimated_time=timedelta(hours=8)
         )
@@ -60,30 +60,30 @@ class ComprehensiveModelIntegrationTest(TestCase):
         )
         
         step = Step.objects.create(
-            user_id=self.user,
-            task_id=task,
+            user=self.user,
+            task=task,
             start_time=timezone.now()
         )
         
         self.assertEqual(job.status, 'draft')
-        self.assertEqual(estimate.job_id, job)
-        self.assertEqual(work_order.job_id, job)
+        self.assertEqual(estimate.job, job)
+        self.assertEqual(work_order.job, job)
         self.assertEqual(task.work_order, work_order)
-        self.assertEqual(step.task_id, task)
+        self.assertEqual(step.task, task)
 
     def test_invoice_line_item_workflow(self):
         job = Job.objects.create(
             job_number="JOB002",
-            contact_id=self.contact
+            contact=self.contact
         )
         
         estimate = Estimate.objects.create(
-            job_id=job,
+            job=job,
             estimate_number="EST002"
         )
         
         invoice = Invoice.objects.create(
-            job_id=job,
+            job=job,
             invoice_number="INV001"
         )
         
@@ -93,7 +93,7 @@ class ComprehensiveModelIntegrationTest(TestCase):
         )
         
         price_list_item = PriceListItem.objects.create(
-            item_type_id=item_type,
+            item_type=item_type,
             code="ITEM001",
             description="Test item",
             purchase_price=Decimal('10.00'),
@@ -101,63 +101,63 @@ class ComprehensiveModelIntegrationTest(TestCase):
         )
         
         line_item = LineItem.objects.create(
-            estimate_id=estimate,
-            invoice_id=invoice,
-            price_list_item_id=price_list_item,
+            estimate=estimate,
+            invoice=invoice,
+            price_list_item=price_list_item,
             qty=Decimal('5.00'),
             description="Test line item",
             price_currency=Decimal('75.00')
         )
         
-        self.assertEqual(line_item.estimate_id, estimate)
-        self.assertEqual(line_item.invoice_id, invoice)
-        self.assertEqual(line_item.price_list_item_id, price_list_item)
+        self.assertEqual(line_item.estimate, estimate)
+        self.assertEqual(line_item.invoice, invoice)
+        self.assertEqual(line_item.price_list_item, price_list_item)
         self.assertEqual(line_item.qty, Decimal('5.00'))
 
     def test_purchase_order_workflow(self):
         job = Job.objects.create(
             job_number="JOB003",
-            contact_id=self.contact
+            contact=self.contact
         )
         
         purchase_order = PurchaseOrder.objects.create(
-            job_id=job,
+            job=job,
             po_number="PO001"
         )
         
         bill = Bill.objects.create(
-            po_id=purchase_order,
-            contact_id=self.contact,
+            purchase_order=purchase_order,
+            contact=self.contact,
             vendor_invoice_number="VENDOR001"
         )
         
         line_item = LineItem.objects.create(
-            po_id=purchase_order,
-            bill_id=bill,
+            purchase_order=purchase_order,
+            bill=bill,
             qty=Decimal('2.00'),
             description="Purchase item",
             price_currency=Decimal('50.00')
         )
         
-        self.assertEqual(bill.po_id, purchase_order)
-        self.assertEqual(line_item.po_id, purchase_order)
-        self.assertEqual(line_item.bill_id, bill)
+        self.assertEqual(bill.purchase_order, purchase_order)
+        self.assertEqual(line_item.purchase_order, purchase_order)
+        self.assertEqual(line_item.bill, bill)
 
     def test_estimate_superseding(self):
         job = Job.objects.create(
             job_number="JOB004",
-            contact_id=self.contact
+            contact=self.contact
         )
         
         original_estimate = Estimate.objects.create(
-            job_id=job,
+            job=job,
             estimate_number="EST003",
             revision_number=1,
             status='open'
         )
         
         superseding_estimate = Estimate.objects.create(
-            job_id=job,
+            job=job,
             estimate_number="EST003",
             revision_number=2,
             status='open',
@@ -176,10 +176,10 @@ class ComprehensiveModelIntegrationTest(TestCase):
     def test_task_workflow(self):
         job = Job.objects.create(
             job_number="JOB005",
-            contact_id=self.contact
+            contact=self.contact
         )
         
-        work_order = WorkOrder.objects.create(job_id=job)
+        work_order = WorkOrder.objects.create(job=job)
         
         task = Task.objects.create(
             work_order=work_order,
@@ -188,14 +188,14 @@ class ComprehensiveModelIntegrationTest(TestCase):
         )
         
         task_mapping = TaskMapping.objects.create(
-            task_id=task,
+            task=task,
             step_type="Planning",
             task_type_id="PLAN001",
             breakdown_of_task="Break down the planning requirements"
         )
         
         self.assertEqual(task.work_order, work_order)
-        self.assertEqual(task_mapping.task_id, task)
+        self.assertEqual(task_mapping.task, task)
 
     def test_configuration_number_sequences(self):
         config = Configuration.objects.create(
@@ -216,12 +216,12 @@ class ComprehensiveModelIntegrationTest(TestCase):
     def test_model_cascade_deletions(self):
         job = Job.objects.create(
             job_number="JOB006",
-            contact_id=self.contact
+            contact=self.contact
         )
         
-        work_order = WorkOrder.objects.create(job_id=job)
+        work_order = WorkOrder.objects.create(job=job)
         task = Task.objects.create(work_order=work_order, name="Test Task", task_type="Test")
-        step = Step.objects.create(task_id=task, user_id=self.user)
+        step = Step.objects.create(task=task, user=self.user)
         
         initial_step_count = Step.objects.count()
         initial_task_count = Task.objects.count()
@@ -253,7 +253,7 @@ class ComprehensiveModelIntegrationTest(TestCase):
         item_type = ItemType.objects.create(name="Hardware")
         
         price_list_item = PriceListItem.objects.create(
-            item_type_id=item_type,
+            item_type=item_type,
             code="BOLT001",
             purchase_price=Decimal('1.50'),
             selling_price=Decimal('2.25'),
@@ -261,7 +261,7 @@ class ComprehensiveModelIntegrationTest(TestCase):
         )
         
         line_item = LineItem.objects.create(
-            price_list_item_id=price_list_item,
+            price_list_item=price_list_item,
             qty=Decimal('10.00'),
             price_currency=Decimal('22.50')
         )
@@ -270,28 +270,28 @@ class ComprehensiveModelIntegrationTest(TestCase):
         self.assertEqual(line_item.price_currency, expected_total)
 
     def test_unique_constraints(self):
-        job = Job.objects.create(job_number="UNIQUE001", contact_id=self.contact)
+        job = Job.objects.create(job_number="UNIQUE001", contact=self.contact)
         
         with self.assertRaises(IntegrityError):
             with transaction.atomic():
-                Job.objects.create(job_number="UNIQUE001", contact_id=self.contact)
+                Job.objects.create(job_number="UNIQUE001", contact=self.contact)
         
         invoice = Invoice.objects.create(
-            job_id=job,
+            job=job,
             invoice_number="INV_UNIQUE001"
         )
         
         with self.assertRaises(IntegrityError):
             with transaction.atomic():
                 Invoice.objects.create(
-                    job_id=job,
+                    job=job,
                     invoice_number="INV_UNIQUE001"
                 )
 
     def test_model_str_representations(self):
-        job = Job.objects.create(job_number="STR_TEST", contact_id=self.contact)
-        estimate = Estimate.objects.create(job_id=job, estimate_number="EST_STR")
-        invoice = Invoice.objects.create(job_id=job, invoice_number="INV_STR")
+        job = Job.objects.create(job_number="STR_TEST", contact=self.contact)
+        estimate = Estimate.objects.create(job=job, estimate_number="EST_STR")
+        invoice = Invoice.objects.create(job=job, invoice_number="INV_STR")
         po = PurchaseOrder.objects.create(po_number="PO_STR")
         
         self.assertEqual(str(job), "Job STR_TEST")

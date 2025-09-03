@@ -9,7 +9,7 @@ class Invoice(models.Model):
     ]
 
     invoice_id = models.AutoField(primary_key=True)
-    job_id = models.ForeignKey('jobs.Job', on_delete=models.CASCADE)
+    job = models.ForeignKey('jobs.Job', on_delete=models.CASCADE)
     invoice_number = models.CharField(max_length=50, unique=True)
     customer_po_number = models.CharField(max_length=50, blank=True)
     status = models.CharField(max_length=20, choices=INVOICE_STATUS_CHOICES, default='active')
@@ -20,12 +20,12 @@ class Invoice(models.Model):
 
 class LineItem(models.Model):
     line_item_id = models.AutoField(primary_key=True)
-    estimate_id = models.ForeignKey('jobs.Estimate', on_delete=models.CASCADE, null=True, blank=True)
-    po_id = models.ForeignKey('purchasing.PurchaseOrder', on_delete=models.CASCADE, null=True, blank=True)
-    bill_id = models.ForeignKey('purchasing.Bill', on_delete=models.CASCADE, null=True, blank=True)
-    invoice_id = models.ForeignKey(Invoice, on_delete=models.CASCADE, null=True, blank=True)
-    task_id = models.ForeignKey('jobs.Task', on_delete=models.CASCADE, null=True, blank=True)
-    price_list_item_id = models.ForeignKey('PriceListItem', on_delete=models.CASCADE, null=True, blank=True)
+    estimate = models.ForeignKey('jobs.Estimate', on_delete=models.CASCADE, null=True, blank=True)
+    purchase_order = models.ForeignKey('purchasing.PurchaseOrder', on_delete=models.CASCADE, null=True, blank=True)
+    bill = models.ForeignKey('purchasing.Bill', on_delete=models.CASCADE, null=True, blank=True)
+    invoice = models.ForeignKey(Invoice, on_delete=models.CASCADE, null=True, blank=True)
+    task = models.ForeignKey('jobs.Task', on_delete=models.CASCADE, null=True, blank=True)
+    price_list_item = models.ForeignKey('PriceListItem', on_delete=models.CASCADE, null=True, blank=True)
     central_line_item_number = models.CharField(max_length=50, blank=True)
     qty = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal('0.00'))
     unit_parts_labor = models.CharField(max_length=50, blank=True)
@@ -38,7 +38,7 @@ class LineItem(models.Model):
 
 class PriceListItem(models.Model):
     price_list_item_id = models.AutoField(primary_key=True)
-    item_type_id = models.ForeignKey('ItemType', on_delete=models.CASCADE)
+    item_type = models.ForeignKey('ItemType', on_delete=models.CASCADE)
     code = models.CharField(max_length=50)
     unit_parts_labor = models.CharField(max_length=50, blank=True)
     description = models.TextField(blank=True)

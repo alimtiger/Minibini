@@ -30,7 +30,7 @@ class Command(BaseCommand):
         price_list_items = self.create_price_list_items(item_types)
         
         # Get existing jobs
-        jobs = Job.objects.all().order_by('job_id')
+        jobs = Job.objects.all().order_by('pk')
         
         # Create estimates for non-draft jobs
         estimates = self.create_estimates(jobs)
@@ -50,7 +50,7 @@ class Command(BaseCommand):
         self.stdout.write(self.style.SUCCESS('Extended test data created successfully!'))
 
     def create_payment_terms(self):
-        terms, created = PaymentTerms.objects.get_or_create(term_id=1)
+        terms, created = PaymentTerms.objects.get_or_create(pk=1)
         if created:
             self.stdout.write('  Created payment terms')
         return terms
@@ -74,7 +74,7 @@ class Command(BaseCommand):
                 'business_number': 'BN-789012',
                 'business_address': '888 Supply Drive, Industrial District, City, State 12350',
                 'tax_exemption_number': 'TEX-456789',
-                'term_id': payment_terms
+                'terms': payment_terms
             }
         )
         if created:
@@ -92,7 +92,7 @@ class Command(BaseCommand):
                 'business_number': 'BN-123456',
                 'business_address': contact.address,
                 'tax_exemption_number': 'TEX-123456',
-                'term_id': payment_terms
+                'terms': payment_terms
             }
         )
         if created:
@@ -107,7 +107,7 @@ class Command(BaseCommand):
                 'business_number': 'BN-345678',
                 'business_address': contact.address,
                 'tax_exemption_number': 'TEX-345678',
-                'term_id': payment_terms
+                'terms': payment_terms
             }
         )
         if created:
@@ -122,7 +122,7 @@ class Command(BaseCommand):
                 'business_number': 'BN-567890',
                 'business_address': contact.address,
                 'tax_exemption_number': 'TEX-567890',
-                'term_id': payment_terms
+                'terms': payment_terms
             }
         )
         if created:
@@ -166,7 +166,7 @@ class Command(BaseCommand):
             item, created = PriceListItem.objects.get_or_create(
                 code=item_data['code'],
                 defaults={
-                    'item_type_id': item_types[item_data['type']],
+                    'item_type': item_types[item_data['type']],
                     'unit_parts_labor': item_data['unit'],
                     'description': item_data['description'],
                     'purchase_price': Decimal(str(item_data['purchase'])),
@@ -200,7 +200,7 @@ class Command(BaseCommand):
                     estimate, created = Estimate.objects.get_or_create(
                         estimate_number=f'EST-2024-{estimate_counter:03d}',
                         defaults={
-                            'job_id': job,
+                            'job': job,
                             'revision_number': revision,
                             'status': status
                         }
@@ -221,7 +221,7 @@ class Command(BaseCommand):
                 invoice, created = Invoice.objects.get_or_create(
                     invoice_number=f'INV-2024-{invoice_counter:03d}',
                     defaults={
-                        'job_id': job,
+                        'job': job,
                         'status': 'active'
                     }
                 )
@@ -238,7 +238,7 @@ class Command(BaseCommand):
         # Create line items for estimates
         for estimate in estimates:
             # 2-4 line items per estimate
-            num_items = 3 if estimate.job_id.status == 'complete' else 2
+            num_items = 3 if estimate.job.status == 'complete' else 2
             
             for i in range(num_items):
                 price_item = price_list_items[i % len(price_list_items)]
@@ -247,8 +247,8 @@ class Command(BaseCommand):
                 line_item, created = LineItem.objects.get_or_create(
                     central_line_item_number=f'LI-EST-{line_item_counter:03d}',
                     defaults={
-                        'estimate_id': estimate,
-                        'price_list_item_id': price_item,
+                        'estimate': estimate,
+                        'price_list_item': price_item,
                         'qty': qty,
                         'unit_parts_labor': price_item.unit_parts_labor,
                         'description': price_item.description,
@@ -269,8 +269,8 @@ class Command(BaseCommand):
                 line_item, created = LineItem.objects.get_or_create(
                     central_line_item_number=f'LI-INV-{line_item_counter:03d}',
                     defaults={
-                        'invoice_id': invoice,
-                        'price_list_item_id': price_item,
+                        'invoice': invoice,
+                        'price_list_item': price_item,
                         'qty': qty,
                         'unit_parts_labor': price_item.unit_parts_labor,
                         'description': price_item.description,
@@ -290,7 +290,7 @@ class Command(BaseCommand):
         for job in jobs_with_tasks:
             # Create a work order for the job
             work_order, created = WorkOrder.objects.get_or_create(
-                job_id=job,
+                job=job,
                 defaults={
                     'status': 'complete' if job.status == 'complete' else 'incomplete',
                     'estimated_time': timedelta(hours=8)
@@ -326,8 +326,8 @@ class Command(BaseCommand):
         po, created = PurchaseOrder.objects.get_or_create(
             po_number='PO-2024-001',
             defaults={
-                'job_id': job,
-                'price_list_item_id': price_list_items[2].code  # MAT001 - Drywall
+                'job': job,
+                'price_list_item': price_list_items[2]  # Drywall item object
             }
         )
         if created:
@@ -337,8 +337,8 @@ class Command(BaseCommand):
         bill, created = Bill.objects.get_or_create(
             vendor_invoice_number='HS-INV-001',
             defaults={
-                'po_id': po,
-                'contact_id': housing_contact
+                'purchase_order': po,
+                'contact': housing_contact
             }
         )
         if created:
@@ -348,8 +348,8 @@ class Command(BaseCommand):
         line_item, created = LineItem.objects.get_or_create(
             central_line_item_number='LI-BILL-001',
             defaults={
-                'bill_id': bill,
-                'price_list_item_id': price_list_items[2],  # Drywall
+                'bill': bill,
+                'price_list_item': price_list_items[2],  # Drywall
                 'qty': Decimal('50.00'),
                 'unit_parts_labor': 'sheet',
                 'description': 'Drywall sheets for office renovation',

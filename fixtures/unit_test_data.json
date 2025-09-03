@@ -95,7 +95,7 @@
       "business_number": "123-456-7890",
       "tax_exemption_number": "TX123456789",
       "tax_cloud": "CLOUD001",
-      "term_id": 1
+      "terms": 1
     }
   },
   {
@@ -108,7 +108,7 @@
       "business_number": "987-654-3210",
       "tax_exemption_number": "",
       "tax_cloud": "",
-      "term_id": 2
+      "terms": 2
     }
   },
   {
@@ -222,7 +222,7 @@
       "created_date": "2024-01-15T09:00:00Z",
       "completion_date": null,
       "status": "draft",
-      "contact_id": 1,
+      "contact": 1,
       "customer_po_number": "PO-ABC-12345",
       "description": "Kitchen renovation project for residential client"
     }
@@ -235,7 +235,7 @@
       "created_date": "2024-01-20T10:30:00Z",
       "completion_date": "2024-02-15T16:00:00Z",
       "status": "complete",
-      "contact_id": 2,
+      "contact": 2,
       "customer_po_number": "",
       "description": "Office electrical upgrade"
     }
@@ -244,7 +244,7 @@
     "model": "jobs.workorder",
     "pk": 1,
     "fields": {
-      "job_id": 1,
+      "job": 1,
       "status": "incomplete",
       "estimated_time": "40:00:00"
     }
@@ -253,7 +253,7 @@
     "model": "jobs.workorder",
     "pk": 2,
     "fields": {
-      "job_id": 2,
+      "job": 2,
       "status": "complete",
       "estimated_time": "24:00:00"
     }
@@ -282,7 +282,7 @@
     "model": "jobs.estimate",
     "pk": 1,
     "fields": {
-      "job_id": 1,
+      "job": 1,
       "estimate_number": "EST-2024-0001",
       "revision_number": 1,
       "status": "draft",
@@ -295,7 +295,7 @@
     "model": "jobs.estimate",
     "pk": 2,
     "fields": {
-      "job_id": 2,
+      "job": 2,
       "estimate_number": "EST-2024-0002",
       "revision_number": 1,
       "status": "superseded",
@@ -308,7 +308,7 @@
     "model": "jobs.estimate",
     "pk": 3,
     "fields": {
-      "job_id": 2,
+      "job": 2,
       "estimate_number": "EST-2024-0002",
       "revision_number": 2,
       "status": "accepted",
@@ -321,8 +321,8 @@
     "model": "purchasing.purchaseorder",
     "pk": 1,
     "fields": {
-      "job_id": 1,
-      "price_list_item_id": "PLI001",
+      "job": 1,
+      "price_list_item": 1,
       "po_number": "PO-2024-0001"
     }
   },
@@ -330,8 +330,8 @@
     "model": "purchasing.purchaseorder",
     "pk": 2,
     "fields": {
-      "job_id": 2,
-      "price_list_item_id": "PLI002",
+      "job": 2,
+      "price_list_item": 2,
       "po_number": "PO-2024-0002"
     }
   },
@@ -339,8 +339,8 @@
     "model": "purchasing.bill",
     "pk": 1,
     "fields": {
-      "po_id": 1,
-      "contact_id": 3,
+      "purchase_order": 1,
+      "contact": 3,
       "vendor_invoice_number": "ACME-INV-001"
     }
   },
@@ -348,8 +348,8 @@
     "model": "purchasing.bill",
     "pk": 2,
     "fields": {
-      "po_id": 2,
-      "contact_id": 3,
+      "purchase_order": 2,
+      "contact": 3,
       "vendor_invoice_number": "ACME-INV-002"
     }
   },
@@ -384,7 +384,7 @@
     "model": "invoicing.pricelistitem",
     "pk": 1,
     "fields": {
-      "item_type_id": 1,
+      "item_type": 1,
       "code": "SCREW001",
       "unit_parts_labor": "each",
       "description": "Stainless steel screws 2.5 inch",
@@ -399,7 +399,7 @@
     "model": "invoicing.pricelistitem",
     "pk": 2,
     "fields": {
-      "item_type_id": 2,
+      "item_type": 2,
       "code": "LABOR001",
       "unit_parts_labor": "hour",
       "description": "Skilled labor hourly rate",
@@ -414,7 +414,7 @@
     "model": "invoicing.invoice",
     "pk": 1,
     "fields": {
-      "job_id": 1,
+      "job": 1,
       "invoice_number": "INV-2024-0001",
       "customer_po_number": "PO-ABC-12345",
       "status": "active"
@@ -424,7 +424,7 @@
     "model": "invoicing.invoice",
     "pk": 2,
     "fields": {
-      "job_id": 2,
+      "job": 2,
       "invoice_number": "INV-2024-0002",
       "customer_po_number": "",
       "status": "active"
@@ -434,12 +434,12 @@
     "model": "invoicing.lineitem",
     "pk": 1,
     "fields": {
-      "estimate_id": 1,
-      "po_id": null,
-      "bill_id": null,
-      "invoice_id": 1,
-      "task_id": 1,
-      "price_list_item_id": 1,
+      "estimate": 1,
+      "purchase_order": null,
+      "bill": null,
+      "invoice": 1,
+      "task": 1,
+      "price_list_item": 1,
       "central_line_item_number": "CLI001",
       "qty": "50.00",
       "unit_parts_labor": "each",
@@ -451,12 +451,12 @@
     "model": "invoicing.lineitem",
     "pk": 2,
     "fields": {
-      "estimate_id": 1,
-      "po_id": null,
-      "bill_id": null,
-      "invoice_id": 1,
-      "task_id": 2,
-      "price_list_item_id": 2,
+      "estimate": 1,
+      "purchase_order": null,
+      "bill": null,
+      "invoice": 1,
+      "task": 2,
+      "price_list_item": 2,
       "central_line_item_number": "CLI002",
       "qty": "8.00",
       "unit_parts_labor": "hour",

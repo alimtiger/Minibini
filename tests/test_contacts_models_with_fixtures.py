@@ -46,7 +46,7 @@ class ContactModelFixtureTest(FixtureTestCase):
 
         john_contact = Contact.objects.get(name="John Doe")
         job1 = Job.objects.get(job_number="JOB-2024-0001")
-        self.assertEqual(job1.contact_id, john_contact)
+        self.assertEqual(job1.contact, john_contact)
 
     def test_create_new_contact(self):
         """Test creating a new contact alongside existing fixture data"""
@@ -75,11 +75,11 @@ class PaymentTermsModelFixtureTest(FixtureTestCase):
         """Test that payment terms are properly linked to businesses"""
         terms1 = PaymentTerms.objects.get(pk=1)
         business1 = Business.objects.get(business_name="ABC Corporation")
-        self.assertEqual(business1.term_id, terms1)
+        self.assertEqual(business1.terms, terms1)
 
         terms2 = PaymentTerms.objects.get(pk=2)
         business2 = Business.objects.get(business_name="XYZ Industries")
-        self.assertEqual(business2.term_id, terms2)
+        self.assertEqual(business2.terms, terms2)
 
     def test_create_new_payment_terms(self):
         """Test creating new payment terms alongside existing fixture data"""
@@ -115,10 +115,10 @@ class BusinessModelFixtureTest(FixtureTestCase):
     def test_business_payment_terms_relationships(self):
         """Test that businesses are properly linked to payment terms"""
         abc_corp = Business.objects.get(business_name="ABC Corporation")
-        self.assertEqual(abc_corp.term_id.pk, 1)
+        self.assertEqual(abc_corp.terms.pk, 1)
 
         xyz_industries = Business.objects.get(business_name="XYZ Industries")
-        self.assertEqual(xyz_industries.term_id.pk, 2)
+        self.assertEqual(xyz_industries.terms.pk, 2)
 
     def test_business_optional_fields(self):
         """Test businesses with optional fields from fixture data"""
@@ -133,7 +133,7 @@ class BusinessModelFixtureTest(FixtureTestCase):
             our_reference_code="CUST003",
             business_name="New Business LLC",
             business_address="789 New St, Town, ST 44444",
-            term_id=terms
+            terms=terms
         )
         self.assertEqual(new_business.business_name, "New Business LLC")
         self.assertEqual(Business.objects.count(), 3)  # 2 from fixture + 1 new
@@ -142,11 +142,11 @@ class BusinessModelFixtureTest(FixtureTestCase):
         """Test that business handles payment terms deletion correctly"""
         # Get a business and its payment terms
         business = Business.objects.get(business_name="ABC Corporation")
-        original_terms = business.term_id
+        original_terms = business.terms
 
-        # Delete the payment terms (should set business.term_id to NULL due to SET_NULL)
+        # Delete the payment terms (should set business.terms to NULL due to SET_NULL)
         original_terms.delete()
 
         # Refresh business from database
         business.refresh_from_db()
-        self.assertIsNone(business.term_id)
+        self.assertIsNone(business.terms)

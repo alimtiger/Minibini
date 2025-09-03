@@ -17,8 +17,8 @@
         {% for bill in bills %}
         <tr>
             <td>{{ bill.bill_id }}</td>
-            <td>{{ bill.po_id }}</td>
-            <td>{{ bill.contact_id }}</td>
+            <td>{{ bill.purchase_order }}</td>
+            <td>{{ bill.contact }}</td>
             <td>{{ bill.vendor_invoice_number }}</td>
             <td><a href="{% url 'purchasing:bill_detail' bill.bill_id %}">View</a></td>
         </tr>

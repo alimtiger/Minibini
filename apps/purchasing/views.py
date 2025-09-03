@@ -7,7 +7,7 @@ def purchase_order_list(request):
 
 def purchase_order_detail(request, po_id):
     purchase_order = get_object_or_404(PurchaseOrder, po_id=po_id)
-    bills = Bill.objects.filter(po_id=purchase_order).order_by('-bill_id')
+    bills = Bill.objects.filter(purchase_order=purchase_order).order_by('-bill_id')
     return render(request, 'purchasing/purchase_order_detail.html', {'purchase_order': purchase_order, 'bills': bills})
 
 def bill_list(request):

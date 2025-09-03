@@ -32,7 +32,7 @@
     </tr>
     <tr>
         <td>Contact</td>
-        <td>{{ job.contact_id }}</td>
+        <td>{{ job.contact }}</td>
     </tr>
     <tr>
         <td>Description</td>
@@ -88,7 +88,7 @@
             <tr>
                 <td>{{ purchase_order.po_number }}</td>
                 <td>{{ purchase_order.po_id }}</td>
-                <td>{{ purchase_order.price_list_item_id|default:"—" }}</td>
+                <td>{{ purchase_order.price_list_item|default:"—" }}</td>
                 <td>
                     <a href="{% url 'purchasing:purchase_order_detail' purchase_order.po_id %}">View Details</a>
                 </td>

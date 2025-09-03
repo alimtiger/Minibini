@@ -17,7 +17,7 @@ class Job(models.Model):
     created_date = models.DateTimeField(default=timezone.now)
     completion_date = models.DateTimeField(null=True, blank=True)
     status = models.CharField(max_length=20, choices=JOB_STATUS_CHOICES, default='draft')
-    contact_id = models.ForeignKey('contacts.Contact', on_delete=models.CASCADE)
+    contact = models.ForeignKey('contacts.Contact', on_delete=models.CASCADE)
     customer_po_number = models.CharField(max_length=50, blank=True)
     description = models.TextField(blank=True)
 
@@ -35,7 +35,7 @@ class Estimate(models.Model):
     ]
 
     estimate_id = models.AutoField(primary_key=True)
-    job_id = models.ForeignKey(Job, on_delete=models.CASCADE)
+    job = models.ForeignKey(Job, on_delete=models.CASCADE)
     estimate_number = models.CharField(max_length=50)
     revision_number = models.IntegerField(default=1)
     status = models.CharField(max_length=20, choices=ESTIMATE_STATUS_CHOICES, default='draft')
@@ -58,7 +58,7 @@ class WorkOrder(models.Model):
     ]
 
     work_order_id = models.AutoField(primary_key=True)
-    job_id = models.ForeignKey(Job, on_delete=models.CASCADE)
+    job = models.ForeignKey(Job, on_delete=models.CASCADE)
     status = models.CharField(max_length=20, choices=WORK_ORDER_STATUS_CHOICES, default='incomplete')
     estimated_time = models.DurationField(null=True, blank=True)
 
@@ -80,18 +80,18 @@ class Task(models.Model):
 
 class Step(models.Model):
     step_id = models.AutoField(primary_key=True)
-    user_id = models.ForeignKey('core.User', on_delete=models.SET_NULL, null=True, blank=True)
-    task_id = models.ForeignKey(Task, on_delete=models.CASCADE)
+    user = models.ForeignKey('core.User', on_delete=models.SET_NULL, null=True, blank=True)
+    task = models.ForeignKey(Task, on_delete=models.CASCADE)
     start_time = models.DateTimeField(null=True, blank=True)
     end_time = models.DateTimeField(null=True, blank=True)
 
     def __str__(self):
-        return f"Step {self.step_id} for Task {self.task_id.task_id}"
+        return f"Step {self.step_id} for Task {self.task.task_id}"
 
 
 class TaskMapping(models.Model):
     task_mapping_id = models.AutoField(primary_key=True)
-    task_id = models.ForeignKey(Task, on_delete=models.CASCADE)
+    task = models.ForeignKey(Task, on_delete=models.CASCADE)
     step_type = models.CharField(max_length=100)
     task_type_id = models.CharField(max_length=50)
     breakdown_of_task = models.TextField(blank=True)

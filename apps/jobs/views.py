@@ -8,8 +8,8 @@ def job_list(request):
 
 def job_detail(request, job_id):
     job = get_object_or_404(Job, job_id=job_id)
-    estimates = Estimate.objects.filter(job_id=job).order_by('-created_date')
-    purchase_orders = PurchaseOrder.objects.filter(job_id=job).order_by('-po_id')
+    estimates = Estimate.objects.filter(job=job).order_by('-created_date')
+    purchase_orders = PurchaseOrder.objects.filter(job=job).order_by('-po_id')
     return render(request, 'jobs/job_detail.html', {'job': job, 'estimates': estimates, 'purchase_orders': purchase_orders})
 
 def estimate_list(request):
