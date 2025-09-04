@@ -1,7 +1,7 @@
 from django.test import TestCase
 from django.core.exceptions import ValidationError
 from decimal import Decimal
-from apps.invoicing.models import Invoice, LineItem, PriceListItem, ItemType
+from apps.invoicing.models import Invoice, InvoiceLineItem, PriceListItem, ItemType
 from apps.jobs.models import Job, Estimate, Task, WorkOrder
 from apps.purchasing.models import PurchaseOrder, Bill
 from apps.contacts.models import Contact
@@ -116,7 +116,7 @@ class InvoiceModelTest(TestCase):
         self.assertEqual(invoice.status, 'cancelled')
 
 
-class LineItemModelTest(TestCase):
+class InvoiceLineItemModelTest(TestCase):
     def setUp(self):
         self.contact = Contact.objects.create(name="Test Customer")
         self.job = Job.objects.create(
@@ -153,49 +153,91 @@ class LineItemModelTest(TestCase):
             code="ITEM001"
         )
         
-    def test_line_item_creation(self):
-        line_item = LineItem.objects.create(
-            estimate=self.estimate,
-            purchase_order=self.purchase_order,
-            bill=self.bill,
+    def test_invoice_line_item_creation(self):
+        line_item = InvoiceLineItem.objects.create(
             invoice=self.invoice,
             task=self.task,
-            price_list_item=self.price_list_item,
+            price_list_item=None,
             central_line_item_number="CLI001",
             qty=Decimal('5.00'),
             unit_parts_labor="hours",
             description="Test line item",
             price_currency=Decimal('50.00')
         )
-        self.assertEqual(line_item.estimate, self.estimate)
-        self.assertEqual(line_item.purchase_order, self.purchase_order)
-        self.assertEqual(line_item.bill, self.bill)
         self.assertEqual(line_item.invoice, self.invoice)
         self.assertEqual(line_item.task, self.task)
-        self.assertEqual(line_item.price_list_item, self.price_list_item)
+        self.assertIsNone(line_item.price_list_item)
         self.assertEqual(line_item.central_line_item_number, "CLI001")
         self.assertEqual(line_item.qty, Decimal('5.00'))
         self.assertEqual(line_item.unit_parts_labor, "hours")
         self.assertEqual(line_item.description, "Test line item")
         self.assertEqual(line_item.price_currency, Decimal('50.00'))
         
-    def test_line_item_str_method(self):
-        line_item = LineItem.objects.create()
-        self.assertEqual(str(line_item), f"Line Item {line_item.line_item_id}")
+    def test_invoice_line_item_str_method(self):
+        line_item = InvoiceLineItem.objects.create(invoice=self.invoice, task=self.task)
+        self.assertEqual(str(line_item), f"Invoice Line Item {line_item.line_item_id} for {self.invoice.invoice_number}")
         
-    def test_line_item_defaults(self):
-        line_item = LineItem.objects.create()
+    def test_invoice_line_item_defaults(self):
+        line_item = InvoiceLineItem.objects.create(invoice=self.invoice, task=self.task)
         self.assertEqual(line_item.qty, Decimal('0.00'))
         self.assertEqual(line_item.price_currency, Decimal('0.00'))
         
-    def test_line_item_optional_relationships(self):
-        line_item = LineItem.objects.create(
+    def test_invoice_line_item_optional_relationships(self):
+        line_item = InvoiceLineItem.objects.create(
+            invoice=self.invoice,
+            price_list_item=self.price_list_item,
             qty=Decimal('1.00'),
             description="Simple line item"
         )
-        self.assertIsNone(line_item.estimate)
-        self.assertIsNone(line_item.purchase_order)
-        self.assertIsNone(line_item.bill)
-        self.assertIsNone(line_item.invoice)
+        self.assertEqual(line_item.invoice, self.invoice)
+        self.assertIsNone(line_item.task)
+        self.assertEqual(line_item.price_list_item, self.price_list_item)
+        
+    def test_invoice_line_item_validation_both_task_and_price_item(self):
+        """Test that validation prevents having both task and price_list_item"""
+        line_item = InvoiceLineItem(
+            invoice=self.invoice,
+            task=self.task,
+            price_list_item=self.price_list_item,
+            description="Invalid line item with both"
+        )
+        with self.assertRaises(ValidationError) as context:
+            line_item.full_clean()
+        self.assertIn("cannot have both task and price_list_item", str(context.exception))
+        
+    def test_invoice_line_item_validation_both_null_allowed(self):
+        """Test that validation allows both task and price_list_item to be null"""
+        line_item = InvoiceLineItem.objects.create(
+            invoice=self.invoice,
+            task=None,
+            price_list_item=None,
+            description="Line item with neither task nor price item"
+        )
+        # Should not raise any validation errors
+        line_item.full_clean()
         self.assertIsNone(line_item.task)
         self.assertIsNone(line_item.price_list_item)
+        
+    def test_invoice_line_item_validation_task_only(self):
+        """Test that line item with only task is valid"""
+        line_item = InvoiceLineItem.objects.create(
+            invoice=self.invoice,
+            task=self.task,
+            price_list_item=None,
+            description="Task-only line item"
+        )
+        line_item.full_clean()  # Should not raise
+        self.assertEqual(line_item.task, self.task)
+        self.assertIsNone(line_item.price_list_item)
+        
+    def test_invoice_line_item_validation_price_item_only(self):
+        """Test that line item with only price_list_item is valid"""
+        line_item = InvoiceLineItem.objects.create(
+            invoice=self.invoice,
+            task=None,
+            price_list_item=self.price_list_item,
+            description="Price item only line item"
+        )
+        line_item.full_clean()  # Should not raise
+        self.assertIsNone(line_item.task)
+        self.assertEqual(line_item.price_list_item, self.price_list_item)

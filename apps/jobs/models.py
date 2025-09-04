@@ -98,3 +98,19 @@ class TaskMapping(models.Model):
 
     def __str__(self):
         return f"Task Mapping {self.task_mapping_id}"
+
+
+from apps.core.models import BaseLineItem
+
+
+class EstimateLineItem(BaseLineItem):
+    """Line item for estimates - inherits shared functionality from BaseLineItem."""
+    
+    estimate = models.ForeignKey(Estimate, on_delete=models.CASCADE)
+    
+    class Meta:
+        verbose_name = "Estimate Line Item"
+        verbose_name_plural = "Estimate Line Items"
+    
+    def __str__(self):
+        return f"Estimate Line Item {self.line_item_id} for {self.estimate.estimate_number}"

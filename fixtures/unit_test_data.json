@@ -431,14 +431,11 @@
     }
   },
   {
-    "model": "invoicing.lineitem",
+    "model": "jobs.estimatelineitem",
     "pk": 1,
     "fields": {
       "estimate": 1,
-      "purchase_order": null,
-      "bill": null,
-      "invoice": 1,
-      "task": 1,
+      "task": null,
       "price_list_item": 1,
       "central_line_item_number": "CLI001",
       "qty": "50.00",
@@ -448,20 +445,73 @@
     }
   },
   {
-    "model": "invoicing.lineitem",
+    "model": "jobs.estimatelineitem", 
     "pk": 2,
     "fields": {
       "estimate": 1,
-      "purchase_order": null,
-      "bill": null,
-      "invoice": 1,
       "task": 2,
-      "price_list_item": 2,
+      "price_list_item": null,
       "central_line_item_number": "CLI002",
       "qty": "8.00",
       "unit_parts_labor": "hour",
       "description": "Electrical rough-in labor",
       "price_currency": "600.00"
+    }
+  },
+  {
+    "model": "invoicing.invoicelineitem",
+    "pk": 1,
+    "fields": {
+      "invoice": 1,
+      "task": null,
+      "price_list_item": 1,
+      "central_line_item_number": "CLI001",
+      "qty": "50.00",
+      "unit_parts_labor": "each",
+      "description": "Screws for kitchen cabinet installation",
+      "price_currency": "25.00"
+    }
+  },
+  {
+    "model": "invoicing.invoicelineitem",
+    "pk": 2,
+    "fields": {
+      "invoice": 1,
+      "task": 2,
+      "price_list_item": null,
+      "central_line_item_number": "CLI002",
+      "qty": "8.00",
+      "unit_parts_labor": "hour",
+      "description": "Electrical rough-in labor",
+      "price_currency": "600.00"
+    }
+  },
+  {
+    "model": "purchasing.purchaseorderlineitem",
+    "pk": 1,
+    "fields": {
+      "purchase_order": 1,
+      "task": null,
+      "price_list_item": 1,
+      "central_line_item_number": "CLI003",
+      "qty": "100.00",
+      "unit_parts_labor": "each",
+      "description": "Screws for purchase order",
+      "price_currency": "25.00"
+    }
+  },
+  {
+    "model": "purchasing.billlineitem",
+    "pk": 1,
+    "fields": {
+      "bill": 1,
+      "task": null,
+      "price_list_item": 1,
+      "central_line_item_number": "CLI004",
+      "qty": "100.00",
+      "unit_parts_labor": "each",
+      "description": "Screws received on bill",
+      "price_currency": "25.00"
     }
   }
 ]

@@ -5,7 +5,9 @@ from datetime import timedelta
 
 from apps.contacts.models import Contact, Business, PaymentTerms
 from apps.jobs.models import Job, Estimate, Task, WorkOrder
-from apps.invoicing.models import Invoice, LineItem, ItemType, PriceListItem
+from apps.invoicing.models import Invoice, InvoiceLineItem, ItemType, PriceListItem
+from apps.jobs.models import EstimateLineItem
+from apps.purchasing.models import BillLineItem
 from apps.purchasing.models import PurchaseOrder, Bill
 from apps.core.models import User
 
@@ -244,7 +246,7 @@ class Command(BaseCommand):
                 price_item = price_list_items[i % len(price_list_items)]
                 qty = Decimal('10.00') if i == 0 else Decimal('5.00')
                 
-                line_item, created = LineItem.objects.get_or_create(
+                line_item, created = EstimateLineItem.objects.get_or_create(
                     central_line_item_number=f'LI-EST-{line_item_counter:03d}',
                     defaults={
                         'estimate': estimate,
@@ -266,7 +268,7 @@ class Command(BaseCommand):
                 price_item = price_list_items[i % len(price_list_items)]
                 qty = Decimal('8.00') if i == 0 else Decimal('4.00')
                 
-                line_item, created = LineItem.objects.get_or_create(
+                line_item, created = InvoiceLineItem.objects.get_or_create(
                     central_line_item_number=f'LI-INV-{line_item_counter:03d}',
                     defaults={
                         'invoice': invoice,
@@ -345,7 +347,7 @@ class Command(BaseCommand):
             self.stdout.write(f'  Created bill for PO: {bill.vendor_invoice_number}')
         
         # Create line items for the bill
-        line_item, created = LineItem.objects.get_or_create(
+        line_item, created = BillLineItem.objects.get_or_create(
             central_line_item_number='LI-BILL-001',
             defaults={
                 'bill': bill,

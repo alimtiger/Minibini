@@ -1,5 +1,6 @@
 from django.db import models
 from decimal import Decimal
+from apps.core.models import BaseLineItem
 
 
 class Invoice(models.Model):
@@ -17,23 +18,6 @@ class Invoice(models.Model):
     def __str__(self):
         return f"Invoice {self.invoice_number}"
 
-
-class LineItem(models.Model):
-    line_item_id = models.AutoField(primary_key=True)
-    estimate = models.ForeignKey('jobs.Estimate', on_delete=models.CASCADE, null=True, blank=True)
-    purchase_order = models.ForeignKey('purchasing.PurchaseOrder', on_delete=models.CASCADE, null=True, blank=True)
-    bill = models.ForeignKey('purchasing.Bill', on_delete=models.CASCADE, null=True, blank=True)
-    invoice = models.ForeignKey(Invoice, on_delete=models.CASCADE, null=True, blank=True)
-    task = models.ForeignKey('jobs.Task', on_delete=models.CASCADE, null=True, blank=True)
-    price_list_item = models.ForeignKey('PriceListItem', on_delete=models.CASCADE, null=True, blank=True)
-    central_line_item_number = models.CharField(max_length=50, blank=True)
-    qty = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal('0.00'))
-    unit_parts_labor = models.CharField(max_length=50, blank=True)
-    description = models.TextField(blank=True)
-    price_currency = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal('0.00'))
-
-    def __str__(self):
-        return f"Line Item {self.line_item_id}"
 
 
 class PriceListItem(models.Model):
@@ -60,3 +44,16 @@ class ItemType(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class InvoiceLineItem(BaseLineItem):
+    """Line item for invoices - inherits shared functionality from BaseLineItem."""
+    
+    invoice = models.ForeignKey(Invoice, on_delete=models.CASCADE)
+    
+    class Meta:
+        verbose_name = "Invoice Line Item"
+        verbose_name_plural = "Invoice Line Items"
+    
+    def __str__(self):
+        return f"Invoice Line Item {self.line_item_id} for {self.invoice.invoice_number}"

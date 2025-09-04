@@ -470,13 +470,10 @@
   }
 },
 {
-  "model": "invoicing.lineitem",
+  "model": "jobs.estimatelineitem",
   "pk": 1,
   "fields": {
     "estimate": 1,
-    "purchase_order": null,
-    "bill": null,
-    "invoice": null,
     "task": null,
     "price_list_item": 1,
     "central_line_item_number": "LI-EST-001",
@@ -487,13 +484,10 @@
   }
 },
 {
-  "model": "invoicing.lineitem",
+  "model": "jobs.estimatelineitem",
   "pk": 2,
   "fields": {
     "estimate": 1,
-    "purchase_order": null,
-    "bill": null,
-    "invoice": null,
     "task": null,
     "price_list_item": 2,
     "central_line_item_number": "LI-EST-002",
@@ -504,13 +498,10 @@
   }
 },
 {
-  "model": "invoicing.lineitem",
+  "model": "jobs.estimatelineitem",
   "pk": 3,
   "fields": {
     "estimate": 1,
-    "purchase_order": null,
-    "bill": null,
-    "invoice": null,
     "task": null,
     "price_list_item": 3,
     "central_line_item_number": "LI-EST-003",
@@ -521,13 +512,10 @@
   }
 },
 {
-  "model": "invoicing.lineitem",
+  "model": "jobs.estimatelineitem",
   "pk": 4,
   "fields": {
     "estimate": 2,
-    "purchase_order": null,
-    "bill": null,
-    "invoice": null,
     "task": null,
     "price_list_item": 1,
     "central_line_item_number": "LI-EST-004",
@@ -538,13 +526,10 @@
   }
 },
 {
-  "model": "invoicing.lineitem",
+  "model": "jobs.estimatelineitem",
   "pk": 5,
   "fields": {
     "estimate": 2,
-    "purchase_order": null,
-    "bill": null,
-    "invoice": null,
     "task": null,
     "price_list_item": 2,
     "central_line_item_number": "LI-EST-005",
@@ -555,13 +540,10 @@
   }
 },
 {
-  "model": "invoicing.lineitem",
+  "model": "jobs.estimatelineitem",
   "pk": 6,
   "fields": {
     "estimate": 2,
-    "purchase_order": null,
-    "bill": null,
-    "invoice": null,
     "task": null,
     "price_list_item": 3,
     "central_line_item_number": "LI-EST-006",
@@ -572,13 +554,10 @@
   }
 },
 {
-  "model": "invoicing.lineitem",
+  "model": "jobs.estimatelineitem",
   "pk": 7,
   "fields": {
     "estimate": 3,
-    "purchase_order": null,
-    "bill": null,
-    "invoice": null,
     "task": null,
     "price_list_item": 1,
     "central_line_item_number": "LI-EST-007",
@@ -589,13 +568,10 @@
   }
 },
 {
-  "model": "invoicing.lineitem",
+  "model": "jobs.estimatelineitem",
   "pk": 8,
   "fields": {
     "estimate": 3,
-    "purchase_order": null,
-    "bill": null,
-    "invoice": null,
     "task": null,
     "price_list_item": 2,
     "central_line_item_number": "LI-EST-008",
@@ -606,13 +582,10 @@
   }
 },
 {
-  "model": "invoicing.lineitem",
+  "model": "jobs.estimatelineitem",
   "pk": 9,
   "fields": {
     "estimate": 4,
-    "purchase_order": null,
-    "bill": null,
-    "invoice": null,
     "task": null,
     "price_list_item": 1,
     "central_line_item_number": "LI-EST-009",
@@ -623,13 +596,10 @@
   }
 },
 {
-  "model": "invoicing.lineitem",
+  "model": "jobs.estimatelineitem",
   "pk": 10,
   "fields": {
     "estimate": 4,
-    "purchase_order": null,
-    "bill": null,
-    "invoice": null,
     "task": null,
     "price_list_item": 2,
     "central_line_item_number": "LI-EST-010",
@@ -640,13 +610,10 @@
   }
 },
 {
-  "model": "invoicing.lineitem",
+  "model": "jobs.estimatelineitem",
   "pk": 11,
   "fields": {
     "estimate": 5,
-    "purchase_order": null,
-    "bill": null,
-    "invoice": null,
     "task": null,
     "price_list_item": 1,
     "central_line_item_number": "LI-EST-011",
@@ -657,13 +624,10 @@
   }
 },
 {
-  "model": "invoicing.lineitem",
+  "model": "jobs.estimatelineitem",
   "pk": 12,
   "fields": {
     "estimate": 5,
-    "purchase_order": null,
-    "bill": null,
-    "invoice": null,
     "task": null,
     "price_list_item": 2,
     "central_line_item_number": "LI-EST-012",
@@ -674,13 +638,10 @@
   }
 },
 {
-  "model": "invoicing.lineitem",
+  "model": "jobs.estimatelineitem",
   "pk": 13,
   "fields": {
     "estimate": 6,
-    "purchase_order": null,
-    "bill": null,
-    "invoice": null,
     "task": null,
     "price_list_item": 1,
     "central_line_item_number": "LI-EST-013",
@@ -691,13 +652,10 @@
   }
 },
 {
-  "model": "invoicing.lineitem",
+  "model": "jobs.estimatelineitem",
   "pk": 14,
   "fields": {
     "estimate": 6,
-    "purchase_order": null,
-    "bill": null,
-    "invoice": null,
     "task": null,
     "price_list_item": 2,
     "central_line_item_number": "LI-EST-014",
@@ -708,13 +666,10 @@
   }
 },
 {
-  "model": "invoicing.lineitem",
+  "model": "jobs.estimatelineitem",
   "pk": 15,
   "fields": {
     "estimate": 7,
-    "purchase_order": null,
-    "bill": null,
-    "invoice": null,
     "task": null,
     "price_list_item": 1,
     "central_line_item_number": "LI-EST-015",
@@ -725,13 +680,10 @@
   }
 },
 {
-  "model": "invoicing.lineitem",
+  "model": "jobs.estimatelineitem",
   "pk": 16,
   "fields": {
     "estimate": 7,
-    "purchase_order": null,
-    "bill": null,
-    "invoice": null,
     "task": null,
     "price_list_item": 2,
     "central_line_item_number": "LI-EST-016",
@@ -742,12 +694,9 @@
   }
 },
 {
-  "model": "invoicing.lineitem",
+  "model": "invoicing.invoicelineitem",
   "pk": 17,
   "fields": {
-    "estimate": null,
-    "purchase_order": null,
-    "bill": null,
     "invoice": 1,
     "task": null,
     "price_list_item": 1,
@@ -759,12 +708,9 @@
   }
 },
 {
-  "model": "invoicing.lineitem",
+  "model": "invoicing.invoicelineitem",
   "pk": 18,
   "fields": {
-    "estimate": null,
-    "purchase_order": null,
-    "bill": null,
     "invoice": 1,
     "task": null,
     "price_list_item": 2,
@@ -776,12 +722,9 @@
   }
 },
 {
-  "model": "invoicing.lineitem",
+  "model": "invoicing.invoicelineitem",
   "pk": 19,
   "fields": {
-    "estimate": null,
-    "purchase_order": null,
-    "bill": null,
     "invoice": 1,
     "task": null,
     "price_list_item": 3,
@@ -793,13 +736,10 @@
   }
 },
 {
-  "model": "invoicing.lineitem",
+  "model": "purchasing.billlineitem",
   "pk": 20,
   "fields": {
-    "estimate": null,
-    "purchase_order": null,
     "bill": 1,
-    "invoice": null,
     "task": null,
     "price_list_item": 3,
     "central_line_item_number": "LI-BILL-001",
