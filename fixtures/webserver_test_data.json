@@ -1084,26 +1084,6 @@
         "itemtype"
       ],
       [
-        "add_lineitem",
-        "invoicing",
-        "lineitem"
-      ],
-      [
-        "change_lineitem",
-        "invoicing",
-        "lineitem"
-      ],
-      [
-        "delete_lineitem",
-        "invoicing",
-        "lineitem"
-      ],
-      [
-        "view_lineitem",
-        "invoicing",
-        "lineitem"
-      ],
-      [
         "add_pricelistitem",
         "invoicing",
         "pricelistitem"
@@ -1390,26 +1370,6 @@
         "view_itemtype",
         "invoicing",
         "itemtype"
-      ],
-      [
-        "add_lineitem",
-        "invoicing",
-        "lineitem"
-      ],
-      [
-        "change_lineitem",
-        "invoicing",
-        "lineitem"
-      ],
-      [
-        "delete_lineitem",
-        "invoicing",
-        "lineitem"
-      ],
-      [
-        "view_lineitem",
-        "invoicing",
-        "lineitem"
       ],
       [
         "add_pricelistitem",
@@ -1802,6 +1762,48 @@
     "work_order": 7,
     "name": "Installation and construction work",
     "task_type": "installation"
+  }
+},
+{
+  "model": "purchasing.purchaseorderlineitem",
+  "pk": 21,
+  "fields": {
+    "purchase_order": 1,
+    "task": null,
+    "price_list_item": 3,
+    "central_line_item_number": "LI-PO-001",
+    "qty": "50.00",
+    "unit_parts_labor": "sheet",
+    "description": "Drywall sheets for office renovation",
+    "price_currency": "12.00"
+  }
+},
+{
+  "model": "jobs.estimatelineitem",
+  "pk": 17,
+  "fields": {
+    "estimate": 2,
+    "task": 1,
+    "price_list_item": null,
+    "central_line_item_number": "LI-EST-017",
+    "qty": "1.00",
+    "unit_parts_labor": "task",
+    "description": "Site preparation and setup",
+    "price_currency": "450.00"
+  }
+},
+{
+  "model": "invoicing.invoicelineitem",
+  "pk": 22,
+  "fields": {
+    "invoice": 1,
+    "task": 2,
+    "price_list_item": null,
+    "central_line_item_number": "LI-INV-022",
+    "qty": "1.00",
+    "unit_parts_labor": "task",
+    "description": "Material procurement and delivery",
+    "price_currency": "325.00"
   }
 }
 ]
