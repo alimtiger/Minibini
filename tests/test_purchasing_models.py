@@ -103,7 +103,7 @@ class BillModelTest(TestCase):
             contact=self.contact,
             vendor_invoice_number="VIN004"
         )
-        contact_id = self.contact.contact_id
+        contact_id = self.contact.pk
         
         # Delete the contact
         self.contact.delete()

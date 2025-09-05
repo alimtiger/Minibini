@@ -18,7 +18,7 @@
             <td>{{ contact.name }}</td>
             <td>{{ contact.email }}</td>
             <td>{{ contact.phone }}</td>
-            <td><a href="{% url 'contacts:contact_detail' contact.contact_id %}">View</a></td>
+            <td><a href="{% url 'contacts:contact_detail' contact.pk %}">View</a></td>
         </tr>
         {% endfor %}
     </table>

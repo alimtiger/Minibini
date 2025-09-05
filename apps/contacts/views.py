@@ -15,4 +15,5 @@ def business_list(request):
 
 def business_detail(request, business_id):
     business = get_object_or_404(Business, business_id=business_id)
-    return render(request, 'contacts/business_detail.html', {'business': business})
+    contacts = Contact.objects.filter(business=business).order_by('name')
+    return render(request, 'contacts/business_detail.html', {'business': business, 'contacts': contacts})

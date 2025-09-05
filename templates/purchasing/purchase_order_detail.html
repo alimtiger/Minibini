@@ -22,7 +22,7 @@
         <td>Job</td>
         <td>
             {% if purchase_order.job %}
-                <a href="{% url 'jobs:detail' purchase_order.job.job_id %}">{{ purchase_order.job }}</a>
+                <a href="{% url 'jobs:detail' purchase_order.job.pk %}">{{ purchase_order.job }}</a>
             {% else %}
                 No job assigned
             {% endif %}
@@ -49,7 +49,7 @@
             {% for bill in bills %}
             <tr>
                 <td>{{ bill.bill_id }}</td>
-                <td>{{ bill.contact_id }}</td>
+                <td>{{ bill.contact }}</td>
                 <td>{{ bill.vendor_invoice_number }}</td>
                 <td>
                     <a href="{% url 'purchasing:bill_detail' bill.bill_id %}">View Details</a>

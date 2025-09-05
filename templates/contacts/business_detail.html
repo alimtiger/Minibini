@@ -44,5 +44,35 @@
     </tr>
 </table>
 
+<h3>Associated Contacts</h3>
+{% if contacts %}
+    <table border="1" style="border-collapse: collapse; width: 100%; margin-top: 10px;">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>Address</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for contact in contacts %}
+            <tr>
+                <td>{{ contact.name }}</td>
+                <td>{{ contact.email|default:"No email" }}</td>
+                <td>{{ contact.mobile_number|default:contact.work_number|default:contact.home_number|default:"No phone" }}</td>
+                <td>{{ contact.address|default:"No address" }}</td>
+                <td>
+                    <a href="{% url 'contacts:contact_detail' contact.pk %}">View Details</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% else %}
+    <p>No contacts found for this business.</p>
+{% endif %}
+
 <p><a href="{% url 'contacts:business_list' %}">Back to Businesses List</a></p>
 {% endblock %}

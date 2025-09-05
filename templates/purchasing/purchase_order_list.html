@@ -16,8 +16,8 @@
         {% for po in purchase_orders %}
         <tr>
             <td>{{ po.po_number }}</td>
-            <td>{{ po.job_id|default:"No job" }}</td>
-            <td>{{ po.price_list_item_id|default:"No price list item" }}</td>
+            <td>{{ po.job|default:"No job" }}</td>
+            <td>{{ po.price_list_item|default:"No price list item" }}</td>
             <td><a href="{% url 'purchasing:purchase_order_detail' po.po_id %}">View</a></td>
         </tr>
         {% endfor %}
