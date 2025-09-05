@@ -48,9 +48,9 @@ class BaseLineItem(models.Model):
     line_item_id = models.AutoField(primary_key=True)
     task = models.ForeignKey('jobs.Task', on_delete=models.CASCADE, null=True, blank=True)
     price_list_item = models.ForeignKey('invoicing.PriceListItem', on_delete=models.CASCADE, null=True, blank=True)
-    central_line_item_number = models.CharField(max_length=50, blank=True)
+    line_number = models.CharField(max_length=50, blank=True)
     qty = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal('0.00'))
-    unit_parts_labor = models.CharField(max_length=50, blank=True)
+    units = models.CharField(max_length=50, blank=True)
     description = models.TextField(blank=True)
     price_currency = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal('0.00'))
 

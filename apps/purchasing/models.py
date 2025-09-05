@@ -5,7 +5,6 @@ from apps.core.models import BaseLineItem
 class PurchaseOrder(models.Model):
     po_id = models.AutoField(primary_key=True)
     job = models.ForeignKey('jobs.Job', on_delete=models.CASCADE, null=True, blank=True)
-    price_list_item = models.ForeignKey('invoicing.PriceListItem', on_delete=models.CASCADE, null=True, blank=True)
     po_number = models.CharField(max_length=50, unique=True)
 
     def __str__(self):

@@ -12,8 +12,12 @@ class Invoice(models.Model):
     invoice_id = models.AutoField(primary_key=True)
     job = models.ForeignKey('jobs.Job', on_delete=models.CASCADE)
     invoice_number = models.CharField(max_length=50, unique=True)
-    customer_po_number = models.CharField(max_length=50, blank=True)
     status = models.CharField(max_length=20, choices=INVOICE_STATUS_CHOICES, default='active')
+
+    @property
+    def customer_po_number(self):
+        """Get customer PO number from the associated Job."""
+        return self.job.customer_po_number
 
     def __str__(self):
         return f"Invoice {self.invoice_number}"
@@ -24,7 +28,7 @@ class PriceListItem(models.Model):
     price_list_item_id = models.AutoField(primary_key=True)
     item_type = models.ForeignKey('ItemType', on_delete=models.CASCADE)
     code = models.CharField(max_length=50)
-    unit_parts_labor = models.CharField(max_length=50, blank=True)
+    units = models.CharField(max_length=50, blank=True)
     description = models.TextField(blank=True)
     purchase_price = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal('0.00'))
     selling_price = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal('0.00'))
