@@ -1,5 +1,5 @@
 from django.shortcuts import render, get_object_or_404
-from .models import PurchaseOrder, Bill
+from .models import PurchaseOrder, Bill, BillLineItem
 
 def purchase_order_list(request):
     purchase_orders = PurchaseOrder.objects.all().order_by('-po_id')
@@ -16,4 +16,11 @@ def bill_list(request):
 
 def bill_detail(request, bill_id):
     bill = get_object_or_404(Bill, bill_id=bill_id)
-    return render(request, 'purchasing/bill_detail.html', {'bill': bill})
+    line_items = BillLineItem.objects.filter(bill=bill).order_by('line_item_id')
+    # Calculate total amount
+    total_amount = sum(item.total_amount for item in line_items)
+    return render(request, 'purchasing/bill_detail.html', {
+        'bill': bill,
+        'line_items': line_items,
+        'total_amount': total_amount
+    })

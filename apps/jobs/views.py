@@ -1,6 +1,7 @@
 from django.shortcuts import render, get_object_or_404
-from .models import Job, Estimate, Task, WorkOrder
+from .models import Job, Estimate, Task, WorkOrder, EstimateLineItem
 from apps.purchasing.models import PurchaseOrder
+from apps.invoicing.models import Invoice
 
 def job_list(request):
     jobs = Job.objects.all().order_by('-created_date')
@@ -10,7 +11,13 @@ def job_detail(request, job_id):
     job = get_object_or_404(Job, job_id=job_id)
     estimates = Estimate.objects.filter(job=job).order_by('-created_date')
     purchase_orders = PurchaseOrder.objects.filter(job=job).order_by('-po_id')
-    return render(request, 'jobs/job_detail.html', {'job': job, 'estimates': estimates, 'purchase_orders': purchase_orders})
+    invoices = Invoice.objects.filter(job=job).order_by('-invoice_id')
+    return render(request, 'jobs/job_detail.html', {
+        'job': job, 
+        'estimates': estimates, 
+        'purchase_orders': purchase_orders,
+        'invoices': invoices
+    })
 
 def estimate_list(request):
     estimates = Estimate.objects.all().order_by('-estimate_id')
@@ -18,7 +25,14 @@ def estimate_list(request):
 
 def estimate_detail(request, estimate_id):
     estimate = get_object_or_404(Estimate, estimate_id=estimate_id)
-    return render(request, 'jobs/estimate_detail.html', {'estimate': estimate})
+    line_items = EstimateLineItem.objects.filter(estimate=estimate).order_by('line_item_id')
+    # Calculate total amount
+    total_amount = sum(item.total_amount for item in line_items)
+    return render(request, 'jobs/estimate_detail.html', {
+        'estimate': estimate, 
+        'line_items': line_items,
+        'total_amount': total_amount
+    })
 
 def task_list(request):
     tasks = Task.objects.all().order_by('-task_id')

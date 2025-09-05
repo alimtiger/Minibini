@@ -100,5 +100,33 @@
     <p>No purchase orders found for this job.</p>
 {% endif %}
 
+<h3>Associated Invoices</h3>
+{% if invoices %}
+    <table border="1" style="border-collapse: collapse; width: 100%; margin-top: 10px;">
+        <thead>
+            <tr>
+                <th>Invoice Number</th>
+                <th>Customer PO Number</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for invoice in invoices %}
+            <tr>
+                <td>{{ invoice.invoice_number }}</td>
+                <td>{{ invoice.customer_po_number|default:"No PO Number" }}</td>
+                <td>{{ invoice.get_status_display }}</td>
+                <td>
+                    <a href="{% url 'invoicing:invoice_detail' invoice.pk %}">View Details</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% else %}
+    <p>No invoices found for this job.</p>
+{% endif %}
+
 <p><a href="{% url 'jobs:list' %}">Back to Jobs List</a></p>
 {% endblock %}
