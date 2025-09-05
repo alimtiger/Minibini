@@ -32,7 +32,13 @@
     </tr>
     <tr>
         <td>Contact</td>
-        <td>{{ job.contact }}</td>
+        <td>
+            {% if job.contact %}
+                <a href="{% url 'contacts:contact_detail' job.contact.contact_id %}">{{ job.contact.name }}</a>
+            {% else %}
+                No contact
+            {% endif %}
+        </td>
     </tr>
     <tr>
         <td>Description</td>

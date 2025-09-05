@@ -30,6 +30,16 @@
         <td>Address</td>
         <td>{{ contact.address|default:"No address" }}</td>
     </tr>
+    <tr>
+        <td>Business</td>
+        <td>
+            {% if contact.business %}
+                <a href="{% url 'contacts:business_detail' contact.business.business_id %}">{{ contact.business.business_name }}</a>
+            {% else %}
+                No business associated
+            {% endif %}
+        </td>
+    </tr>
 </table>
 
 <p><a href="{% url 'contacts:contact_list' %}">Back to Contacts List</a></p>
