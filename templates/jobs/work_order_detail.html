@@ -16,7 +16,7 @@
     </tr>
     <tr>
         <td>Associated Job</td>
-        <td><a href="{% url 'jobs:detail' work_order.job.job_id %}">{{ work_order.job.job_number }} - {{ work_order.job.description }}</a></td>
+        <td><a href="{% url 'jobs:detail' work_order.job.pk %}">{{ work_order.job.job_number }} - {{ work_order.job.description }}</a></td>
     </tr>
     <tr>
         <td>Status</td>
@@ -44,7 +44,7 @@
             <td>{{ task.task_type }}</td>
             <td>{{ task.assigned|default:"Unassigned" }}</td>
             <td>{{ task.parent_task|default:"None" }}</td>
-            <td><a href="{% url 'jobs:task_detail' task.task_id %}">View Task</a></td>
+            <td><a href="{% url 'jobs:task_detail' task.pk %}">View Task</a></td>
         </tr>
         {% endfor %}
     </table>
@@ -54,6 +54,6 @@
 
 <p>
     <a href="{% url 'jobs:work_order_list' %}">Back to Work Orders List</a> | 
-    <a href="{% url 'jobs:detail' work_order.job.job_id %}">View Associated Job</a>
+    <a href="{% url 'jobs:detail' work_order.job.pk %}">View Associated Job</a>
 </p>
 {% endblock %}

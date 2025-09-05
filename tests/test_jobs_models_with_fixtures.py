@@ -196,7 +196,7 @@ class StepModelFixtureTest(FixtureTestCase):
         """Test step string representation with fixture task data"""
         task = Task.objects.get(name="Kitchen demolition")
         step = Step.objects.create(task=task)
-        expected_str = f"Step {step.step_id} for Task {task.task_id}"
+        expected_str = f"Step {step.pk} for Task {task.pk}"
         self.assertEqual(str(step), expected_str)
 
 

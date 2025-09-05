@@ -18,7 +18,7 @@
             <td>{{ business.business_name }}</td>
             <td>{{ business.business_number }}</td>
             <td>{{ business.our_reference_code }}</td>
-            <td><a href="{% url 'contacts:business_detail' business.business_id %}">View</a></td>
+            <td><a href="{% url 'contacts:business_detail' business.pk %}">View</a></td>
         </tr>
         {% endfor %}
     </table>

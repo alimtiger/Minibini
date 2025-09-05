@@ -62,7 +62,7 @@
                 <td>{{ estimate.created_date|date:"M d, Y" }}</td>
                 <td>{{ estimate.superseded_date|date:"M d, Y"|default:"—" }}</td>
                 <td>
-                    <a href="{% url 'jobs:estimate_detail' estimate.estimate_id %}">View Details</a>
+                    <a href="{% url 'jobs:estimate_detail' estimate.pk %}">View Details</a>
                 </td>
             </tr>
             {% endfor %}
