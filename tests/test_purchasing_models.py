@@ -16,11 +16,9 @@ class PurchaseOrderModelTest(TestCase):
     def test_purchase_order_creation(self):
         po = PurchaseOrder.objects.create(
             job=self.job,
-            price_list_item=None,
             po_number="PO001"
         )
         self.assertEqual(po.job, self.job)
-        self.assertIsNone(po.price_list_item)
         self.assertEqual(po.po_number, "PO001")
         
     def test_purchase_order_str_method(self):
@@ -29,19 +27,16 @@ class PurchaseOrderModelTest(TestCase):
         
     def test_purchase_order_optional_job(self):
         po = PurchaseOrder.objects.create(
-            po_number="PO003",
-            price_list_item=None
+            po_number="PO003"
         )
         self.assertIsNone(po.job)
-        self.assertIsNone(po.price_list_item)
         
-    def test_purchase_order_optional_price_list_item(self):
+    def test_purchase_order_without_job(self):
         po = PurchaseOrder.objects.create(
-            job=self.job,
             po_number="PO004"
         )
-        self.assertEqual(po.job, self.job)
-        self.assertIsNone(po.price_list_item)
+        self.assertIsNone(po.job)
+        self.assertEqual(po.po_number, "PO004")
         
     def test_purchase_order_unique_po_number(self):
         PurchaseOrder.objects.create(po_number="UNIQUE001")

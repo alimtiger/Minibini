@@ -72,7 +72,7 @@ class BaseLineItem(models.Model):
         super().save(*args, **kwargs)
 
     def __str__(self):
-        return f"Line Item {self.line_item_id}: {self.description[:50]}"
+        return f"Line Item {self.pk}: {self.description[:50]}"
 
     @property
     def total_amount(self):

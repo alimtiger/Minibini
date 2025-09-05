@@ -60,4 +60,4 @@ class InvoiceLineItem(BaseLineItem):
         verbose_name_plural = "Invoice Line Items"
     
     def __str__(self):
-        return f"Invoice Line Item {self.line_item_id} for {self.invoice.invoice_number}"
+        return f"Invoice Line Item {self.pk} for {self.invoice.invoice_number}"

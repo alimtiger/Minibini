@@ -18,7 +18,7 @@ class Bill(models.Model):
     vendor_invoice_number = models.CharField(max_length=50)
 
     def __str__(self):
-        return f"Bill {self.bill_id}"
+        return f"Bill {self.pk}"
 
 
 class PurchaseOrderLineItem(BaseLineItem):
@@ -31,7 +31,7 @@ class PurchaseOrderLineItem(BaseLineItem):
         verbose_name_plural = "Purchase Order Line Items"
     
     def __str__(self):
-        return f"PO Line Item {self.line_item_id} for {self.purchase_order.po_number}"
+        return f"PO Line Item {self.pk} for {self.purchase_order.po_number}"
 
 
 class BillLineItem(BaseLineItem):
@@ -44,4 +44,4 @@ class BillLineItem(BaseLineItem):
         verbose_name_plural = "Bill Line Items"
     
     def __str__(self):
-        return f"Bill Line Item {self.line_item_id} for Bill {self.bill.bill_id}"
+        return f"Bill Line Item {self.pk} for Bill {self.bill.pk}"

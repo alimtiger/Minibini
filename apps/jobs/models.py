@@ -97,7 +97,7 @@ class TaskMapping(models.Model):
     breakdown_of_task = models.TextField(blank=True)
 
     def __str__(self):
-        return f"Task Mapping {self.task_mapping_id}"
+        return f"Task Mapping {self.pk}"
 
 
 from apps.core.models import BaseLineItem
@@ -113,4 +113,4 @@ class EstimateLineItem(BaseLineItem):
         verbose_name_plural = "Estimate Line Items"
     
     def __str__(self):
-        return f"Estimate Line Item {self.line_item_id} for {self.estimate.estimate_number}"
+        return f"Estimate Line Item {self.pk} for {self.estimate.estimate_number}"

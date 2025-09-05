@@ -7,7 +7,7 @@ from decimal import Decimal
 from datetime import timedelta
 from apps.contacts.models import Contact, Business, PaymentTerms
 from apps.core.models import User, Configuration
-from apps.jobs.models import Job, Estimate, WorkOrder, Task, Step, TaskMapping
+from apps.jobs.models import Job, Estimate, WorkOrder, Task, Blep, TaskMapping
 from apps.invoicing.models import Invoice, InvoiceLineItem, PriceListItem, ItemType
 from apps.jobs.models import EstimateLineItem
 from apps.purchasing.models import PurchaseOrderLineItem, BillLineItem
@@ -55,13 +55,13 @@ class ComprehensiveModelIntegrationTest(TestCase):
         )
         
         task = Task.objects.create(
-            assigned=self.user,
+            assignee=self.user,
             work_order=work_order,
             name="Test Task",
             task_type="Development"
         )
         
-        step = Step.objects.create(
+        blep = Blep.objects.create(
             user=self.user,
             task=task,
             start_time=timezone.now()
@@ -71,7 +71,7 @@ class ComprehensiveModelIntegrationTest(TestCase):
         self.assertEqual(estimate.job, job)
         self.assertEqual(work_order.job, job)
         self.assertEqual(task.work_order, work_order)
-        self.assertEqual(step.task, task)
+        self.assertEqual(blep.task, task)
 
     def test_invoice_line_item_workflow(self):
         job = Job.objects.create(
@@ -251,14 +251,14 @@ class ComprehensiveModelIntegrationTest(TestCase):
         
         work_order = WorkOrder.objects.create(job=job)
         task = Task.objects.create(work_order=work_order, name="Test Task", task_type="Test")
-        step = Step.objects.create(task=task, user=self.user)
+        blep = Blep.objects.create(task=task, user=self.user)
         
-        initial_step_count = Step.objects.count()
+        initial_blep_count = Blep.objects.count()
         initial_task_count = Task.objects.count()
         
         work_order.delete()
         
-        self.assertEqual(Step.objects.count(), initial_step_count - 1)
+        self.assertEqual(Blep.objects.count(), initial_blep_count - 1)
         self.assertEqual(Task.objects.count(), initial_task_count - 1)
 
     def test_user_group_relationship(self):
