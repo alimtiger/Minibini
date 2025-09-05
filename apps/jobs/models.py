@@ -63,7 +63,7 @@ class WorkOrder(models.Model):
     estimated_time = models.DurationField(null=True, blank=True)
 
     def __str__(self):
-        return f"Work Order {self.work_order_id}"
+        return f"Work Order {self.pk}"
 
 
 class Task(models.Model):
@@ -86,7 +86,7 @@ class Step(models.Model):
     end_time = models.DateTimeField(null=True, blank=True)
 
     def __str__(self):
-        return f"Step {self.step_id} for Task {self.task.task_id}"
+        return f"Step {self.pk} for Task {self.task.pk}"
 
 
 class TaskMapping(models.Model):

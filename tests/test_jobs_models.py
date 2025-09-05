@@ -227,7 +227,7 @@ class StepModelTest(TestCase):
         
     def test_step_str_method(self):
         step = Step.objects.create(task=self.task)
-        self.assertEqual(str(step), f"Step {step.step_id} for Task {self.task.task_id}")
+        self.assertEqual(str(step), f"Step {step.pk} for Task {self.task.pk}")
         
     def test_step_optional_fields(self):
         step = Step.objects.create(task=self.task)

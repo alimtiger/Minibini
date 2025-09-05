@@ -20,7 +20,7 @@
             <td>{{ task.task_type }}</td>
             <td>{{ task.work_order }}</td>
             <td>{{ task.assigned|default:"Unassigned" }}</td>
-            <td><a href="{% url 'jobs:task_detail' task.task_id %}">View</a></td>
+            <td><a href="{% url 'jobs:task_detail' task.pk %}">View</a></td>
         </tr>
         {% endfor %}
     </table>

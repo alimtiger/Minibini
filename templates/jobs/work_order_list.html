@@ -17,10 +17,10 @@
         {% for work_order in work_orders %}
         <tr>
             <td>{{ work_order.work_order_id }}</td>
-            <td><a href="{% url 'jobs:detail' work_order.job.job_id %}">{{ work_order.job.job_number }}</a></td>
+            <td><a href="{% url 'jobs:detail' work_order.job.pk %}">{{ work_order.job.job_number }}</a></td>
             <td>{{ work_order.get_status_display }}</td>
             <td>{{ work_order.estimated_time|default:"Not specified" }}</td>
-            <td><a href="{% url 'jobs:work_order_detail' work_order.work_order_id %}">View</a></td>
+            <td><a href="{% url 'jobs:work_order_detail' work_order.pk %}">View</a></td>
         </tr>
         {% endfor %}
     </table>
