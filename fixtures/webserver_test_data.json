@@ -383,8 +383,7 @@
   "pk": 1,
   "fields": {
     "job": 1,
-    "status": "complete",
-    "estimated_time": "08:00:00"
+    "status": "complete"
   }
 },
 {
@@ -392,8 +391,7 @@
   "pk": 2,
   "fields": {
     "job": 2,
-    "status": "incomplete",
-    "estimated_time": "08:00:00"
+    "status": "incomplete"
   }
 },
 {
@@ -401,8 +399,7 @@
   "pk": 3,
   "fields": {
     "job": 3,
-    "status": "incomplete",
-    "estimated_time": "08:00:00"
+    "status": "incomplete"
   }
 },
 {
@@ -410,8 +407,7 @@
   "pk": 4,
   "fields": {
     "job": 4,
-    "status": "incomplete",
-    "estimated_time": "08:00:00"
+    "status": "incomplete"
   }
 },
 {
@@ -419,8 +415,7 @@
   "pk": 5,
   "fields": {
     "job": 5,
-    "status": "incomplete",
-    "estimated_time": "08:00:00"
+    "status": "incomplete"
   }
 },
 {
@@ -428,8 +423,7 @@
   "pk": 6,
   "fields": {
     "job": 6,
-    "status": "incomplete",
-    "estimated_time": "08:00:00"
+    "status": "incomplete"
   }
 },
 {
@@ -437,8 +431,7 @@
   "pk": 7,
   "fields": {
     "job": 7,
-    "status": "incomplete",
-    "estimated_time": "08:00:00"
+    "status": "incomplete"
   }
 },
 {
@@ -751,7 +744,6 @@
   "model": "invoicing.pricelistitem",
   "pk": 1,
   "fields": {
-    "item_type": 1,
     "code": "LAB001",
     "units": "hour",
     "description": "General Labor - per hour",
@@ -766,7 +758,6 @@
   "model": "invoicing.pricelistitem",
   "pk": 2,
   "fields": {
-    "item_type": 1,
     "code": "LAB002",
     "units": "hour",
     "description": "Skilled Labor - per hour",
@@ -781,7 +772,6 @@
   "model": "invoicing.pricelistitem",
   "pk": 3,
   "fields": {
-    "item_type": 2,
     "code": "MAT001",
     "units": "sheet",
     "description": "Drywall - per sheet",
@@ -796,7 +786,6 @@
   "model": "invoicing.pricelistitem",
   "pk": 4,
   "fields": {
-    "item_type": 2,
     "code": "MAT002",
     "units": "gallon",
     "description": "Paint - per gallon",
@@ -811,7 +800,6 @@
   "model": "invoicing.pricelistitem",
   "pk": 5,
   "fields": {
-    "item_type": 2,
     "code": "MAT003",
     "units": "sq ft",
     "description": "Flooring - per sq ft",
@@ -826,7 +814,6 @@
   "model": "invoicing.pricelistitem",
   "pk": 6,
   "fields": {
-    "item_type": 3,
     "code": "EQP001",
     "units": "day",
     "description": "Tool Rental - per day",
@@ -841,7 +828,6 @@
   "model": "invoicing.pricelistitem",
   "pk": 7,
   "fields": {
-    "item_type": 4,
     "code": "SUP001",
     "units": "box",
     "description": "Screws and Fasteners",
@@ -850,42 +836,6 @@
     "qty_on_hand": "100.00",
     "qty_sold": "0.00",
     "qty_wasted": "0.00"
-  }
-},
-{
-  "model": "invoicing.itemtype",
-  "pk": 1,
-  "fields": {
-    "name": "Labor",
-    "taxability": "taxable",
-    "mapping_to_task": "labor"
-  }
-},
-{
-  "model": "invoicing.itemtype",
-  "pk": 2,
-  "fields": {
-    "name": "Materials",
-    "taxability": "taxable",
-    "mapping_to_task": "materials"
-  }
-},
-{
-  "model": "invoicing.itemtype",
-  "pk": 3,
-  "fields": {
-    "name": "Equipment",
-    "taxability": "taxable",
-    "mapping_to_task": "equipment"
-  }
-},
-{
-  "model": "invoicing.itemtype",
-  "pk": 4,
-  "fields": {
-    "name": "Supplies",
-    "taxability": "taxable",
-    "mapping_to_task": "supplies"
   }
 },
 {
@@ -1598,8 +1548,7 @@
   "fields": {
     "assignee": null,
     "work_order": 1,
-    "name": "Site preparation and setup",
-    "task_type": "preparation"
+    "name": "Site preparation and setup"
   }
 },
 {
@@ -1608,8 +1557,7 @@
   "fields": {
     "assignee": null,
     "work_order": 1,
-    "name": "Material procurement and delivery",
-    "task_type": "preparation"
+    "name": "Material procurement and delivery"
   }
 },
 {
@@ -1618,8 +1566,7 @@
   "fields": {
     "assignee": null,
     "work_order": 1,
-    "name": "Installation and construction work",
-    "task_type": "installation"
+    "name": "Installation and construction work"
   }
 },
 {
@@ -1628,8 +1575,7 @@
   "fields": {
     "assignee": null,
     "work_order": 2,
-    "name": "Site preparation and setup",
-    "task_type": "preparation"
+    "name": "Site preparation and setup"
   }
 },
 {
@@ -1638,8 +1584,7 @@
   "fields": {
     "assignee": null,
     "work_order": 2,
-    "name": "Material procurement and delivery",
-    "task_type": "preparation"
+    "name": "Material procurement and delivery"
   }
 },
 {
@@ -1648,8 +1593,7 @@
   "fields": {
     "assignee": null,
     "work_order": 2,
-    "name": "Installation and construction work",
-    "task_type": "installation"
+    "name": "Installation and construction work"
   }
 },
 {
@@ -1658,8 +1602,7 @@
   "fields": {
     "assignee": null,
     "work_order": 3,
-    "name": "Site preparation and setup",
-    "task_type": "preparation"
+    "name": "Site preparation and setup"
   }
 },
 {
@@ -1668,8 +1611,7 @@
   "fields": {
     "assignee": null,
     "work_order": 3,
-    "name": "Material procurement and delivery",
-    "task_type": "preparation"
+    "name": "Material procurement and delivery"
   }
 },
 {
@@ -1678,8 +1620,7 @@
   "fields": {
     "assignee": null,
     "work_order": 4,
-    "name": "Site preparation and setup",
-    "task_type": "preparation"
+    "name": "Site preparation and setup"
   }
 },
 {
@@ -1688,8 +1629,7 @@
   "fields": {
     "assignee": null,
     "work_order": 4,
-    "name": "Material procurement and delivery",
-    "task_type": "preparation"
+    "name": "Material procurement and delivery"
   }
 },
 {
@@ -1698,8 +1638,7 @@
   "fields": {
     "assignee": null,
     "work_order": 5,
-    "name": "Site preparation and setup",
-    "task_type": "preparation"
+    "name": "Site preparation and setup"
   }
 },
 {
@@ -1708,8 +1647,7 @@
   "fields": {
     "assignee": null,
     "work_order": 5,
-    "name": "Material procurement and delivery",
-    "task_type": "preparation"
+    "name": "Material procurement and delivery"
   }
 },
 {
@@ -1718,8 +1656,7 @@
   "fields": {
     "assignee": null,
     "work_order": 6,
-    "name": "Site preparation and setup",
-    "task_type": "preparation"
+    "name": "Site preparation and setup"
   }
 },
 {
@@ -1728,8 +1665,7 @@
   "fields": {
     "assignee": null,
     "work_order": 6,
-    "name": "Material procurement and delivery",
-    "task_type": "preparation"
+    "name": "Material procurement and delivery"
   }
 },
 {
@@ -1738,8 +1674,7 @@
   "fields": {
     "assignee": null,
     "work_order": 7,
-    "name": "Site preparation and setup",
-    "task_type": "preparation"
+    "name": "Site preparation and setup"
   }
 },
 {
@@ -1748,8 +1683,7 @@
   "fields": {
     "assignee": null,
     "work_order": 7,
-    "name": "Material procurement and delivery",
-    "task_type": "preparation"
+    "name": "Material procurement and delivery"
   }
 },
 {
@@ -1758,8 +1692,7 @@
   "fields": {
     "assignee": null,
     "work_order": 7,
-    "name": "Installation and construction work",
-    "task_type": "installation"
+    "name": "Installation and construction work"
   }
 },
 {

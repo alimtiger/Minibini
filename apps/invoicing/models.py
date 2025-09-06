@@ -26,7 +26,6 @@ class Invoice(models.Model):
 
 class PriceListItem(models.Model):
     price_list_item_id = models.AutoField(primary_key=True)
-    item_type = models.ForeignKey('ItemType', on_delete=models.CASCADE)
     code = models.CharField(max_length=50)
     units = models.CharField(max_length=50, blank=True)
     description = models.TextField(blank=True)
@@ -39,15 +38,6 @@ class PriceListItem(models.Model):
     def __str__(self):
         return f"{self.code} - {self.description[:50]}"
 
-
-class ItemType(models.Model):
-    item_type_id = models.AutoField(primary_key=True)
-    name = models.CharField(max_length=100)
-    taxability = models.CharField(max_length=50, blank=True)
-    mapping_to_task = models.CharField(max_length=100, blank=True)
-
-    def __str__(self):
-        return self.name
 
 
 class InvoiceLineItem(BaseLineItem):

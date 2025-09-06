@@ -118,7 +118,6 @@ class TaskService:
         task = Task.objects.create(
             work_order=work_order,
             name=f"Task from {line_item.description or 'LineItem'}",
-            task_type="converted_from_line_item",
         )
         return task
     
@@ -135,18 +134,16 @@ class TaskService:
             work_order=work_order,
             template=template,
             name=template.template_name,
-            task_type=template.task_type,
             assignee=assignee
         )
         return task
     
     @staticmethod
-    def create_direct(work_order, name, task_type, **kwargs):
+    def create_direct(work_order, name, **kwargs):
         """Create Task directly."""
         return Task.objects.create(
             work_order=work_order,
             name=name,
-            task_type=task_type,
             **kwargs
         )
     

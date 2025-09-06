@@ -1,45 +1,11 @@
 from django.test import TestCase
 from decimal import Decimal
-from apps.invoicing.models import Invoice, InvoiceLineItem, PriceListItem, ItemType
+from apps.invoicing.models import Invoice, InvoiceLineItem, PriceListItem
 from apps.jobs.models import EstimateLineItem
 from apps.purchasing.models import PurchaseOrderLineItem, BillLineItem
 from apps.jobs.models import Job, Estimate, Task
 from .base import FixtureTestCase
 
-
-class ItemTypeModelFixtureTest(FixtureTestCase):
-    """
-    Test ItemType model using fixture data loaded from unit_test_data.json
-    """
-    
-    def test_item_types_exist_from_fixture(self):
-        """Test that item types from fixture data exist and have correct properties"""
-        hardware = ItemType.objects.get(name="Hardware")
-        self.assertEqual(hardware.taxability, "taxable")
-        self.assertEqual(hardware.mapping_to_task, "installation")
-        
-        labor = ItemType.objects.get(name="Labor")
-        self.assertEqual(labor.taxability, "taxable")
-        self.assertEqual(labor.mapping_to_task, "labor")
-        
-        materials = ItemType.objects.get(name="Materials")
-        self.assertEqual(materials.taxability, "non_taxable")
-        self.assertEqual(materials.mapping_to_task, "supply")
-        
-    def test_item_type_str_method_with_fixture_data(self):
-        """Test item type string representation with fixture data"""
-        item_type = ItemType.objects.get(name="Hardware")
-        self.assertEqual(str(item_type), "Hardware")
-        
-    def test_create_new_item_type(self):
-        """Test creating a new item type alongside existing fixture data"""
-        new_type = ItemType.objects.create(
-            name="Software",
-            taxability="exempt",
-            mapping_to_task="configuration"
-        )
-        self.assertEqual(new_type.name, "Software")
-        self.assertEqual(ItemType.objects.count(), 4)  # 3 from fixture + 1 new
 
 
 class PriceListItemModelFixtureTest(FixtureTestCase):
@@ -56,7 +22,6 @@ class PriceListItemModelFixtureTest(FixtureTestCase):
         self.assertEqual(screw_item.qty_on_hand, Decimal('1000.00'))
         self.assertEqual(screw_item.qty_sold, Decimal('150.00'))
         self.assertEqual(screw_item.qty_wasted, Decimal('5.00'))
-        self.assertEqual(screw_item.item_type.name, "Hardware")
         
         labor_item = PriceListItem.objects.get(code="LABOR001")
         self.assertEqual(labor_item.description, "Skilled labor hourly rate")
@@ -64,7 +29,6 @@ class PriceListItemModelFixtureTest(FixtureTestCase):
         self.assertEqual(labor_item.selling_price, Decimal('75.00'))
         self.assertEqual(labor_item.qty_on_hand, Decimal('0.00'))
         self.assertEqual(labor_item.qty_sold, Decimal('240.00'))
-        self.assertEqual(labor_item.item_type.name, "Labor")
         
     def test_price_list_item_str_method_with_fixture_data(self):
         """Test price list item string representation with fixture data"""
@@ -72,17 +36,10 @@ class PriceListItemModelFixtureTest(FixtureTestCase):
         expected_str = "SCREW001 - Stainless steel screws 2.5 inch"
         self.assertEqual(str(item), expected_str)
         
-    def test_price_list_item_type_relationships(self):
-        """Test that price list items are properly linked to item types"""
-        screw_item = PriceListItem.objects.get(code="SCREW001")
-        hardware_type = ItemType.objects.get(name="Hardware")
-        self.assertEqual(screw_item.item_type, hardware_type)
         
     def test_create_new_price_list_item(self):
-        """Test creating a new price list item with existing item type from fixtures"""
-        materials_type = ItemType.objects.get(name="Materials")
+        """Test creating a new price list item"""
         new_item = PriceListItem.objects.create(
-            item_type=materials_type,
             code="WOOD001",
             units="board_foot",
             description="Oak lumber 1x6",

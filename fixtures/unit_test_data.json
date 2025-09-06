@@ -245,8 +245,7 @@
     "pk": 1,
     "fields": {
       "job": 1,
-      "status": "incomplete",
-      "estimated_time": "40:00:00"
+      "status": "incomplete"
     }
   },
   {
@@ -254,8 +253,7 @@
     "pk": 2,
     "fields": {
       "job": 2,
-      "status": "complete",
-      "estimated_time": "24:00:00"
+      "status": "complete"
     }
   },
   {
@@ -264,8 +262,7 @@
     "fields": {
       "assignee": 2,
       "work_order": 1,
-      "name": "Kitchen demolition",
-      "task_type": "demolition"
+      "name": "Kitchen demolition"
     }
   },
   {
@@ -274,8 +271,7 @@
     "fields": {
       "assignee": 2,
       "work_order": 1,
-      "name": "Electrical rough-in",
-      "task_type": "electrical"
+      "name": "Electrical rough-in"
     }
   },
   {
@@ -352,37 +348,9 @@
     }
   },
   {
-    "model": "invoicing.itemtype",
-    "pk": 1,
-    "fields": {
-      "name": "Hardware",
-      "taxability": "taxable",
-      "mapping_to_task": "installation"
-    }
-  },
-  {
-    "model": "invoicing.itemtype",
-    "pk": 2,
-    "fields": {
-      "name": "Labor",
-      "taxability": "taxable",
-      "mapping_to_task": "labor"
-    }
-  },
-  {
-    "model": "invoicing.itemtype",
-    "pk": 3,
-    "fields": {
-      "name": "Materials",
-      "taxability": "non_taxable",
-      "mapping_to_task": "supply"
-    }
-  },
-  {
     "model": "invoicing.pricelistitem",
     "pk": 1,
     "fields": {
-      "item_type": 1,
       "code": "SCREW001",
       "units": "each",
       "description": "Stainless steel screws 2.5 inch",
@@ -397,7 +365,6 @@
     "model": "invoicing.pricelistitem",
     "pk": 2,
     "fields": {
-      "item_type": 2,
       "code": "LABOR001",
       "units": "hour",
       "description": "Skilled labor hourly rate",

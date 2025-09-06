@@ -61,7 +61,6 @@ class WorkOrder(models.Model):
     work_order_id = models.AutoField(primary_key=True)
     job = models.ForeignKey(Job, on_delete=models.CASCADE)
     status = models.CharField(max_length=20, choices=WORK_ORDER_STATUS_CHOICES, default='draft')
-    estimated_time = models.DurationField(null=True, blank=True)
     template = models.ForeignKey('WorkOrderTemplate', on_delete=models.SET_NULL, null=True, blank=True)
 
     def __str__(self):
@@ -74,7 +73,9 @@ class Task(models.Model):
     assignee = models.ForeignKey('core.User', on_delete=models.SET_NULL, null=True, blank=True)
     work_order = models.ForeignKey(WorkOrder, on_delete=models.CASCADE)
     name = models.CharField(max_length=255)
-    task_type = models.CharField(max_length=100)
+    units = models.CharField(max_length=50, blank=True)
+    rate = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    est_qty = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     template = models.ForeignKey('TaskTemplate', on_delete=models.SET_NULL, null=True, blank=True)
 
     def __str__(self):
@@ -130,8 +131,9 @@ class TaskTemplate(models.Model):
     template_id = models.AutoField(primary_key=True)
     template_name = models.CharField(max_length=255)
     description = models.TextField(blank=True)
-    estimated_hours = models.DecimalField(max_digits=8, decimal_places=2, null=True, blank=True)
-    task_type = models.CharField(max_length=100)
+    units = models.CharField(max_length=50, blank=True)
+    rate = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    est_qty = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     task_mapping = models.ForeignKey(TaskMapping, on_delete=models.CASCADE)
     work_order_template = models.ForeignKey(WorkOrderTemplate, on_delete=models.CASCADE, null=True, blank=True)
     created_date = models.DateTimeField(auto_now_add=True)

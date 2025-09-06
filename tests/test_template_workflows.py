@@ -213,13 +213,11 @@ class TaskCreationWorkflowTest(TestCase):
         task = TaskService.create_direct(
             work_order=self.work_order,
             name="Test Task",
-            task_type="manual",
             assignee=self.user
         )
         
         self.assertEqual(task.work_order, self.work_order)
         self.assertEqual(task.name, "Test Task")
-        self.assertEqual(task.task_type, "manual")
         self.assertEqual(task.assignee, self.user)
         self.assertIsNone(task.template)
     
@@ -227,10 +225,8 @@ class TaskCreationWorkflowTest(TestCase):
         """Test Task creation from active TaskTemplate."""
         template = TaskTemplate.objects.create(
             template_name="Test Task Template",
-            task_type="template_task",
             task_mapping=self.task_mapping,
-            is_active=True,
-            estimated_hours=Decimal('8.00')
+            is_active=True
         )
         
         task = TaskService.create_from_template(template, self.work_order, self.user)
@@ -238,14 +234,12 @@ class TaskCreationWorkflowTest(TestCase):
         self.assertEqual(task.work_order, self.work_order)
         self.assertEqual(task.template, template)
         self.assertEqual(task.name, template.template_name)
-        self.assertEqual(task.task_type, template.task_type)
         self.assertEqual(task.assignee, self.user)
     
     def test_task_from_inactive_template_rejected(self):
         """Test Task creation from inactive template is rejected."""
         template = TaskTemplate.objects.create(
             template_name="Inactive Template",
-            task_type="inactive",
             task_mapping=self.task_mapping,
             is_active=False
         )
@@ -292,19 +286,15 @@ class TemplateIntegrationTest(TestCase):
         
         task_template1 = TaskTemplate.objects.create(
             template_name="Preparation Task",
-            task_type="preparation",
             task_mapping=self.task_mapping1,
             work_order_template=work_order_template,
-            estimated_hours=Decimal('4.00'),
             is_active=True
         )
         
         task_template2 = TaskTemplate.objects.create(
             template_name="Execution Task",
-            task_type="execution",
             task_mapping=self.task_mapping2,
             work_order_template=work_order_template,
-            estimated_hours=Decimal('8.00'),
             is_active=True
         )
         

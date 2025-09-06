@@ -116,18 +116,15 @@ class WorkOrderModelTest(TestCase):
         self.task = Task.objects.create(
             work_order=self.work_order,
             name="Parent Task",
-            task_type="parent"
         )
         
     def test_work_order_creation(self):
         work_order = WorkOrder.objects.create(
             job=self.job,
             status='blocked',
-            estimated_time=timedelta(hours=8)
         )
         self.assertEqual(work_order.job, self.job)
         self.assertEqual(work_order.status, 'blocked')
-        self.assertEqual(work_order.estimated_time, timedelta(hours=8))
         
     def test_work_order_str_method(self):
         work_order = WorkOrder.objects.create(job=self.job)
@@ -137,8 +134,7 @@ class WorkOrderModelTest(TestCase):
         work_order = WorkOrder.objects.create(job=self.job)
         # when a WorkOrder is created based on an existing Estimate it will change to status 'incomplete' before saving
         self.assertEqual(work_order.status, 'draft')
-        self.assertIsNone(work_order.estimated_time)
-        
+ 
     def test_work_order_status_choices(self):
         statuses = ['incomplete', 'blocked', 'complete']
         for status in statuses:
@@ -163,26 +159,22 @@ class TaskModelTest(TestCase):
         parent_task = Task.objects.create(
             work_order=self.work_order,
             name="Parent Task",
-            task_type="parent"
         )
         task = Task.objects.create(
             parent_task=parent_task,
             assignee=self.user,
             work_order=self.work_order,
             name="Installation Task",
-            task_type="installation"
         )
         self.assertEqual(task.parent_task, parent_task)
         self.assertEqual(task.assignee, self.user)
         self.assertEqual(task.work_order, self.work_order)
         self.assertEqual(task.name, "Installation Task")
-        self.assertEqual(task.task_type, "installation")
         
     def test_task_str_method(self):
         task = Task.objects.create(
             work_order=self.work_order,
             name="Test Task",
-            task_type="test"
         )
         self.assertEqual(str(task), "Test Task")
         
@@ -190,7 +182,6 @@ class TaskModelTest(TestCase):
         task = Task.objects.create(
             work_order=self.work_order,
             name="Basic Task",
-            task_type="basic"
         )
         self.assertIsNone(task.parent_task)
         self.assertIsNone(task.assignee)
@@ -207,7 +198,6 @@ class BlepModelTest(TestCase):
         self.task = Task.objects.create(
             work_order=self.work_order,
             name="Test Task",
-            task_type="test"
         )
         self.user = User.objects.create_user(username="testuser")
         
@@ -248,7 +238,6 @@ class TaskMappingModelTest(TestCase):
         self.task = Task.objects.create(
             work_order=self.work_order,
             name="Test Task",
-            task_type="test"
         )
         
     def test_task_mapping_creation(self):
