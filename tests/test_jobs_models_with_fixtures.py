@@ -1,7 +1,7 @@
 from django.test import TestCase
 from django.utils import timezone
 from datetime import timedelta
-from apps.jobs.models import Job, Estimate, WorkOrder, Task, Step, TaskMapping
+from apps.jobs.models import Job, Estimate, WorkOrder, Task, Blep, TaskMapping
 from apps.contacts.models import Contact
 from apps.core.models import User
 from .base import FixtureTestCase
@@ -128,12 +128,12 @@ class TaskModelFixtureTest(FixtureTestCase):
         """Test that tasks from fixture data exist and have correct properties"""
         task1 = Task.objects.get(name="Kitchen demolition")
         self.assertEqual(task1.task_type, "demolition")
-        self.assertEqual(task1.assigned.username, "manager1")
+        self.assertEqual(task1.assignee.username, "manager1")
         self.assertEqual(task1.work_order.pk, 1)
         
         task2 = Task.objects.get(name="Electrical rough-in")
         self.assertEqual(task2.task_type, "electrical")
-        self.assertEqual(task2.assigned.username, "manager1")
+        self.assertEqual(task2.assignee.username, "manager1")
         
     def test_task_str_method_with_fixture_data(self):
         """Test task string representation with fixture data"""
@@ -144,7 +144,7 @@ class TaskModelFixtureTest(FixtureTestCase):
         """Test that tasks are properly assigned to users"""
         task = Task.objects.get(name="Kitchen demolition")
         user = User.objects.get(username="manager1")
-        self.assertEqual(task.assigned, user)
+        self.assertEqual(task.assignee, user)
         
     def test_task_work_order_relationships(self):
         """Test that tasks are properly linked to work orders"""
@@ -158,7 +158,7 @@ class TaskModelFixtureTest(FixtureTestCase):
         user = User.objects.get(username="manager1")
         
         new_task = Task.objects.create(
-            assigned=user,
+            assignee=user,
             work_order=work_order,
             name="Cabinet installation",
             task_type="installation"
@@ -167,37 +167,37 @@ class TaskModelFixtureTest(FixtureTestCase):
         self.assertEqual(Task.objects.count(), 3)  # 2 from fixture + 1 new
 
 
-class StepModelFixtureTest(FixtureTestCase):
+class BlepModelFixtureTest(FixtureTestCase):
     """
-    Test Step model using fixture data
+    Test Blep model using fixture data
     """
     
-    def test_create_step_for_existing_task(self):
-        """Test creating steps for existing tasks from fixtures"""
+    def test_create_blep_for_existing_task(self):
+        """Test creating bleps for existing tasks from fixtures"""
         task = Task.objects.get(name="Kitchen demolition")
         user = User.objects.get(username="manager1")
         
         start_time = timezone.now()
         end_time = start_time + timedelta(hours=4)
         
-        step = Step.objects.create(
+        blep = Blep.objects.create(
             user=user,
             task=task,
             start_time=start_time,
             end_time=end_time
         )
         
-        self.assertEqual(step.task, task)
-        self.assertEqual(step.user, user)
-        self.assertEqual(step.start_time, start_time)
-        self.assertEqual(step.end_time, end_time)
+        self.assertEqual(blep.task, task)
+        self.assertEqual(blep.user, user)
+        self.assertEqual(blep.start_time, start_time)
+        self.assertEqual(blep.end_time, end_time)
         
-    def test_step_str_method_with_fixture_task(self):
-        """Test step string representation with fixture task data"""
+    def test_blep_str_method_with_fixture_task(self):
+        """Test blep string representation with fixture task data"""
         task = Task.objects.get(name="Kitchen demolition")
-        step = Step.objects.create(task=task)
-        expected_str = f"Step {step.pk} for Task {task.pk}"
-        self.assertEqual(str(step), expected_str)
+        blep = Blep.objects.create(task=task)
+        expected_str = f"Blep {blep.pk} for Task {task.pk}"
+        self.assertEqual(str(blep), expected_str)
 
 
 class TaskMappingModelFixtureTest(FixtureTestCase):

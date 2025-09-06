@@ -36,7 +36,7 @@ class PriceListItemModelTest(TestCase):
         item = PriceListItem.objects.create(
             item_type=self.item_type,
             code="ITEM001",
-            unit_parts_labor="each",
+            units="each",
             description="Test item description",
             purchase_price=Decimal('10.50'),
             selling_price=Decimal('15.75'),
@@ -46,7 +46,7 @@ class PriceListItemModelTest(TestCase):
         )
         self.assertEqual(item.item_type, self.item_type)
         self.assertEqual(item.code, "ITEM001")
-        self.assertEqual(item.unit_parts_labor, "each")
+        self.assertEqual(item.units, "each")
         self.assertEqual(item.description, "Test item description")
         self.assertEqual(item.purchase_price, Decimal('10.50'))
         self.assertEqual(item.selling_price, Decimal('15.75'))
@@ -158,18 +158,18 @@ class InvoiceLineItemModelTest(TestCase):
             invoice=self.invoice,
             task=self.task,
             price_list_item=None,
-            central_line_item_number="CLI001",
+            line_number="CLI001",
             qty=Decimal('5.00'),
-            unit_parts_labor="hours",
+            units="hours",
             description="Test line item",
             price_currency=Decimal('50.00')
         )
         self.assertEqual(line_item.invoice, self.invoice)
         self.assertEqual(line_item.task, self.task)
         self.assertIsNone(line_item.price_list_item)
-        self.assertEqual(line_item.central_line_item_number, "CLI001")
+        self.assertEqual(line_item.line_number, "CLI001")
         self.assertEqual(line_item.qty, Decimal('5.00'))
-        self.assertEqual(line_item.unit_parts_labor, "hours")
+        self.assertEqual(line_item.units, "hours")
         self.assertEqual(line_item.description, "Test line item")
         self.assertEqual(line_item.price_currency, Decimal('50.00'))
         

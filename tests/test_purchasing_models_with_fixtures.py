@@ -13,11 +13,9 @@ class PurchaseOrderModelFixtureTest(FixtureTestCase):
     def test_purchase_orders_exist_from_fixture(self):
         """Test that purchase orders from fixture data exist and have correct properties"""
         po1 = PurchaseOrder.objects.get(po_number="PO-2024-0001")
-        self.assertEqual(po1.price_list_item.pk, 1)
         self.assertEqual(po1.job.job_number, "JOB-2024-0001")
         
         po2 = PurchaseOrder.objects.get(po_number="PO-2024-0002")
-        self.assertEqual(po2.price_list_item.pk, 2)
         self.assertEqual(po2.job.job_number, "JOB-2024-0002")
         
     def test_purchase_order_str_method_with_fixture_data(self):
@@ -54,11 +52,9 @@ class PurchaseOrderModelFixtureTest(FixtureTestCase):
     def test_purchase_order_without_job(self):
         """Test creating purchase order without job relationship"""
         po_without_job = PurchaseOrder.objects.create(
-            price_list_item=None,
             po_number="PO-2024-0004"
         )
         self.assertIsNone(po_without_job.job)
-        self.assertIsNone(po_without_job.price_list_item)
         
     def test_purchase_order_cascade_behavior(self):
         """Test purchase order behavior when related job is deleted"""
@@ -73,7 +69,6 @@ class PurchaseOrderModelFixtureTest(FixtureTestCase):
         # Create PO linked to this job
         test_po = PurchaseOrder.objects.create(
             job=test_job,
-            price_list_item=None,
             po_number="PO-TEST-DELETE"
         )
         po_id = test_po.po_id

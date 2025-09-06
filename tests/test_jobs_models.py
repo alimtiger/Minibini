@@ -1,7 +1,7 @@
 from django.test import TestCase
 from django.utils import timezone
 from datetime import timedelta
-from apps.jobs.models import Job, Estimate, WorkOrder, Task, Step, TaskMapping
+from apps.jobs.models import Job, Estimate, WorkOrder, Task, Blep, TaskMapping
 from apps.contacts.models import Contact
 from apps.core.models import User
 
@@ -166,13 +166,13 @@ class TaskModelTest(TestCase):
         )
         task = Task.objects.create(
             parent_task=parent_task,
-            assigned=self.user,
+            assignee=self.user,
             work_order=self.work_order,
             name="Installation Task",
             task_type="installation"
         )
         self.assertEqual(task.parent_task, parent_task)
-        self.assertEqual(task.assigned, self.user)
+        self.assertEqual(task.assignee, self.user)
         self.assertEqual(task.work_order, self.work_order)
         self.assertEqual(task.name, "Installation Task")
         self.assertEqual(task.task_type, "installation")
@@ -192,10 +192,10 @@ class TaskModelTest(TestCase):
             task_type="basic"
         )
         self.assertIsNone(task.parent_task)
-        self.assertIsNone(task.assigned)
+        self.assertIsNone(task.assignee)
 
 
-class StepModelTest(TestCase):
+class BlepModelTest(TestCase):
     def setUp(self):
         self.contact = Contact.objects.create(name="Test Customer")
         self.job = Job.objects.create(
@@ -210,30 +210,30 @@ class StepModelTest(TestCase):
         )
         self.user = User.objects.create_user(username="testuser")
         
-    def test_step_creation(self):
+    def test_blep_creation(self):
         start_time = timezone.now()
         end_time = start_time + timedelta(hours=2)
         
-        step = Step.objects.create(
+        blep = Blep.objects.create(
             user=self.user,
             task=self.task,
             start_time=start_time,
             end_time=end_time
         )
-        self.assertEqual(step.user, self.user)
-        self.assertEqual(step.task, self.task)
-        self.assertEqual(step.start_time, start_time)
-        self.assertEqual(step.end_time, end_time)
+        self.assertEqual(blep.user, self.user)
+        self.assertEqual(blep.task, self.task)
+        self.assertEqual(blep.start_time, start_time)
+        self.assertEqual(blep.end_time, end_time)
         
-    def test_step_str_method(self):
-        step = Step.objects.create(task=self.task)
-        self.assertEqual(str(step), f"Step {step.pk} for Task {self.task.pk}")
+    def test_blep_str_method(self):
+        blep = Blep.objects.create(task=self.task)
+        self.assertEqual(str(blep), f"Blep {blep.pk} for Task {self.task.pk}")
         
-    def test_step_optional_fields(self):
-        step = Step.objects.create(task=self.task)
-        self.assertIsNone(step.user)
-        self.assertIsNone(step.start_time)
-        self.assertIsNone(step.end_time)
+    def test_blep_optional_fields(self):
+        blep = Blep.objects.create(task=self.task)
+        self.assertIsNone(blep.user)
+        self.assertIsNone(blep.start_time)
+        self.assertIsNone(blep.end_time)
 
 
 class TaskMappingModelTest(TestCase):
@@ -268,7 +268,7 @@ class TaskMappingModelTest(TestCase):
             step_type="execution",
             task_type_id="EXEC_001"
         )
-        self.assertEqual(str(mapping), f"Task Mapping {mapping.task_mapping_id}")
+        self.assertEqual(str(mapping), f"Task Mapping {mapping.pk}")
         
     def test_task_mapping_optional_breakdown(self):
         mapping = TaskMapping.objects.create(

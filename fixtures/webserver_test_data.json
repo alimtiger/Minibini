@@ -446,7 +446,6 @@
   "pk": 1,
   "fields": {
     "job": 1,
-    "price_list_item": 3,
     "po_number": "PO-2024-001"
   }
 },
@@ -465,7 +464,6 @@
   "fields": {
     "job": 1,
     "invoice_number": "INV-2024-001",
-    "customer_po_number": "ABC-PO-001",
     "status": "active"
   }
 },
@@ -476,9 +474,9 @@
     "estimate": 1,
     "task": null,
     "price_list_item": 1,
-    "central_line_item_number": "LI-EST-001",
+    "line_number": "LI-EST-001",
     "qty": "10.00",
-    "unit_parts_labor": "hour",
+    "units": "hour",
     "description": "General Labor - per hour",
     "price_currency": "45.00"
   }
@@ -490,9 +488,9 @@
     "estimate": 1,
     "task": null,
     "price_list_item": 2,
-    "central_line_item_number": "LI-EST-002",
+    "line_number": "LI-EST-002",
     "qty": "5.00",
-    "unit_parts_labor": "hour",
+    "units": "hour",
     "description": "Skilled Labor - per hour",
     "price_currency": "65.00"
   }
@@ -504,9 +502,9 @@
     "estimate": 1,
     "task": null,
     "price_list_item": 3,
-    "central_line_item_number": "LI-EST-003",
+    "line_number": "LI-EST-003",
     "qty": "5.00",
-    "unit_parts_labor": "sheet",
+    "units": "sheet",
     "description": "Drywall - per sheet",
     "price_currency": "18.00"
   }
@@ -518,9 +516,9 @@
     "estimate": 2,
     "task": null,
     "price_list_item": 1,
-    "central_line_item_number": "LI-EST-004",
+    "line_number": "LI-EST-004",
     "qty": "10.00",
-    "unit_parts_labor": "hour",
+    "units": "hour",
     "description": "General Labor - per hour",
     "price_currency": "45.00"
   }
@@ -532,9 +530,9 @@
     "estimate": 2,
     "task": null,
     "price_list_item": 2,
-    "central_line_item_number": "LI-EST-005",
+    "line_number": "LI-EST-005",
     "qty": "5.00",
-    "unit_parts_labor": "hour",
+    "units": "hour",
     "description": "Skilled Labor - per hour",
     "price_currency": "65.00"
   }
@@ -546,9 +544,9 @@
     "estimate": 2,
     "task": null,
     "price_list_item": 3,
-    "central_line_item_number": "LI-EST-006",
+    "line_number": "LI-EST-006",
     "qty": "5.00",
-    "unit_parts_labor": "sheet",
+    "units": "sheet",
     "description": "Drywall - per sheet",
     "price_currency": "18.00"
   }
@@ -560,9 +558,9 @@
     "estimate": 3,
     "task": null,
     "price_list_item": 1,
-    "central_line_item_number": "LI-EST-007",
+    "line_number": "LI-EST-007",
     "qty": "10.00",
-    "unit_parts_labor": "hour",
+    "units": "hour",
     "description": "General Labor - per hour",
     "price_currency": "45.00"
   }
@@ -574,9 +572,9 @@
     "estimate": 3,
     "task": null,
     "price_list_item": 2,
-    "central_line_item_number": "LI-EST-008",
+    "line_number": "LI-EST-008",
     "qty": "5.00",
-    "unit_parts_labor": "hour",
+    "units": "hour",
     "description": "Skilled Labor - per hour",
     "price_currency": "65.00"
   }
@@ -588,9 +586,9 @@
     "estimate": 4,
     "task": null,
     "price_list_item": 1,
-    "central_line_item_number": "LI-EST-009",
+    "line_number": "LI-EST-009",
     "qty": "10.00",
-    "unit_parts_labor": "hour",
+    "units": "hour",
     "description": "General Labor - per hour",
     "price_currency": "45.00"
   }
@@ -602,9 +600,9 @@
     "estimate": 4,
     "task": null,
     "price_list_item": 2,
-    "central_line_item_number": "LI-EST-010",
+    "line_number": "LI-EST-010",
     "qty": "5.00",
-    "unit_parts_labor": "hour",
+    "units": "hour",
     "description": "Skilled Labor - per hour",
     "price_currency": "65.00"
   }
@@ -616,9 +614,9 @@
     "estimate": 5,
     "task": null,
     "price_list_item": 1,
-    "central_line_item_number": "LI-EST-011",
+    "line_number": "LI-EST-011",
     "qty": "10.00",
-    "unit_parts_labor": "hour",
+    "units": "hour",
     "description": "General Labor - per hour",
     "price_currency": "45.00"
   }
@@ -630,9 +628,9 @@
     "estimate": 5,
     "task": null,
     "price_list_item": 2,
-    "central_line_item_number": "LI-EST-012",
+    "line_number": "LI-EST-012",
     "qty": "5.00",
-    "unit_parts_labor": "hour",
+    "units": "hour",
     "description": "Skilled Labor - per hour",
     "price_currency": "65.00"
   }
@@ -644,9 +642,9 @@
     "estimate": 6,
     "task": null,
     "price_list_item": 1,
-    "central_line_item_number": "LI-EST-013",
+    "line_number": "LI-EST-013",
     "qty": "10.00",
-    "unit_parts_labor": "hour",
+    "units": "hour",
     "description": "General Labor - per hour",
     "price_currency": "45.00"
   }
@@ -658,9 +656,9 @@
     "estimate": 6,
     "task": null,
     "price_list_item": 2,
-    "central_line_item_number": "LI-EST-014",
+    "line_number": "LI-EST-014",
     "qty": "5.00",
-    "unit_parts_labor": "hour",
+    "units": "hour",
     "description": "Skilled Labor - per hour",
     "price_currency": "65.00"
   }
@@ -672,9 +670,9 @@
     "estimate": 7,
     "task": null,
     "price_list_item": 1,
-    "central_line_item_number": "LI-EST-015",
+    "line_number": "LI-EST-015",
     "qty": "10.00",
-    "unit_parts_labor": "hour",
+    "units": "hour",
     "description": "General Labor - per hour",
     "price_currency": "45.00"
   }
@@ -686,9 +684,9 @@
     "estimate": 7,
     "task": null,
     "price_list_item": 2,
-    "central_line_item_number": "LI-EST-016",
+    "line_number": "LI-EST-016",
     "qty": "5.00",
-    "unit_parts_labor": "hour",
+    "units": "hour",
     "description": "Skilled Labor - per hour",
     "price_currency": "65.00"
   }
@@ -700,9 +698,9 @@
     "invoice": 1,
     "task": null,
     "price_list_item": 1,
-    "central_line_item_number": "LI-INV-017",
+    "line_number": "LI-INV-017",
     "qty": "8.00",
-    "unit_parts_labor": "hour",
+    "units": "hour",
     "description": "General Labor - per hour",
     "price_currency": "45.00"
   }
@@ -714,9 +712,9 @@
     "invoice": 1,
     "task": null,
     "price_list_item": 2,
-    "central_line_item_number": "LI-INV-018",
+    "line_number": "LI-INV-018",
     "qty": "4.00",
-    "unit_parts_labor": "hour",
+    "units": "hour",
     "description": "Skilled Labor - per hour",
     "price_currency": "65.00"
   }
@@ -728,9 +726,9 @@
     "invoice": 1,
     "task": null,
     "price_list_item": 3,
-    "central_line_item_number": "LI-INV-019",
+    "line_number": "LI-INV-019",
     "qty": "4.00",
-    "unit_parts_labor": "sheet",
+    "units": "sheet",
     "description": "Drywall - per sheet",
     "price_currency": "18.00"
   }
@@ -742,9 +740,9 @@
     "bill": 1,
     "task": null,
     "price_list_item": 3,
-    "central_line_item_number": "LI-BILL-001",
+    "line_number": "LI-BILL-001",
     "qty": "50.00",
-    "unit_parts_labor": "sheet",
+    "units": "sheet",
     "description": "Drywall sheets for office renovation",
     "price_currency": "12.00"
   }
@@ -755,7 +753,7 @@
   "fields": {
     "item_type": 1,
     "code": "LAB001",
-    "unit_parts_labor": "hour",
+    "units": "hour",
     "description": "General Labor - per hour",
     "purchase_price": "25.00",
     "selling_price": "45.00",
@@ -770,7 +768,7 @@
   "fields": {
     "item_type": 1,
     "code": "LAB002",
-    "unit_parts_labor": "hour",
+    "units": "hour",
     "description": "Skilled Labor - per hour",
     "purchase_price": "35.00",
     "selling_price": "65.00",
@@ -785,7 +783,7 @@
   "fields": {
     "item_type": 2,
     "code": "MAT001",
-    "unit_parts_labor": "sheet",
+    "units": "sheet",
     "description": "Drywall - per sheet",
     "purchase_price": "12.00",
     "selling_price": "18.00",
@@ -800,7 +798,7 @@
   "fields": {
     "item_type": 2,
     "code": "MAT002",
-    "unit_parts_labor": "gallon",
+    "units": "gallon",
     "description": "Paint - per gallon",
     "purchase_price": "25.00",
     "selling_price": "40.00",
@@ -815,7 +813,7 @@
   "fields": {
     "item_type": 2,
     "code": "MAT003",
-    "unit_parts_labor": "sq ft",
+    "units": "sq ft",
     "description": "Flooring - per sq ft",
     "purchase_price": "3.50",
     "selling_price": "6.00",
@@ -830,7 +828,7 @@
   "fields": {
     "item_type": 3,
     "code": "EQP001",
-    "unit_parts_labor": "day",
+    "units": "day",
     "description": "Tool Rental - per day",
     "purchase_price": "15.00",
     "selling_price": "25.00",
@@ -845,7 +843,7 @@
   "fields": {
     "item_type": 4,
     "code": "SUP001",
-    "unit_parts_labor": "box",
+    "units": "box",
     "description": "Screws and Fasteners",
     "purchase_price": "8.00",
     "selling_price": "15.00",
@@ -1598,7 +1596,7 @@
   "model": "jobs.task",
   "pk": 1,
   "fields": {
-    "assigned": null,
+    "assignee": null,
     "work_order": 1,
     "name": "Site preparation and setup",
     "task_type": "preparation"
@@ -1608,7 +1606,7 @@
   "model": "jobs.task",
   "pk": 2,
   "fields": {
-    "assigned": null,
+    "assignee": null,
     "work_order": 1,
     "name": "Material procurement and delivery",
     "task_type": "preparation"
@@ -1618,7 +1616,7 @@
   "model": "jobs.task",
   "pk": 3,
   "fields": {
-    "assigned": null,
+    "assignee": null,
     "work_order": 1,
     "name": "Installation and construction work",
     "task_type": "installation"
@@ -1628,7 +1626,7 @@
   "model": "jobs.task",
   "pk": 4,
   "fields": {
-    "assigned": null,
+    "assignee": null,
     "work_order": 2,
     "name": "Site preparation and setup",
     "task_type": "preparation"
@@ -1638,7 +1636,7 @@
   "model": "jobs.task",
   "pk": 5,
   "fields": {
-    "assigned": null,
+    "assignee": null,
     "work_order": 2,
     "name": "Material procurement and delivery",
     "task_type": "preparation"
@@ -1648,7 +1646,7 @@
   "model": "jobs.task",
   "pk": 6,
   "fields": {
-    "assigned": null,
+    "assignee": null,
     "work_order": 2,
     "name": "Installation and construction work",
     "task_type": "installation"
@@ -1658,7 +1656,7 @@
   "model": "jobs.task",
   "pk": 7,
   "fields": {
-    "assigned": null,
+    "assignee": null,
     "work_order": 3,
     "name": "Site preparation and setup",
     "task_type": "preparation"
@@ -1668,7 +1666,7 @@
   "model": "jobs.task",
   "pk": 8,
   "fields": {
-    "assigned": null,
+    "assignee": null,
     "work_order": 3,
     "name": "Material procurement and delivery",
     "task_type": "preparation"
@@ -1678,7 +1676,7 @@
   "model": "jobs.task",
   "pk": 9,
   "fields": {
-    "assigned": null,
+    "assignee": null,
     "work_order": 4,
     "name": "Site preparation and setup",
     "task_type": "preparation"
@@ -1688,7 +1686,7 @@
   "model": "jobs.task",
   "pk": 10,
   "fields": {
-    "assigned": null,
+    "assignee": null,
     "work_order": 4,
     "name": "Material procurement and delivery",
     "task_type": "preparation"
@@ -1698,7 +1696,7 @@
   "model": "jobs.task",
   "pk": 11,
   "fields": {
-    "assigned": null,
+    "assignee": null,
     "work_order": 5,
     "name": "Site preparation and setup",
     "task_type": "preparation"
@@ -1708,7 +1706,7 @@
   "model": "jobs.task",
   "pk": 12,
   "fields": {
-    "assigned": null,
+    "assignee": null,
     "work_order": 5,
     "name": "Material procurement and delivery",
     "task_type": "preparation"
@@ -1718,7 +1716,7 @@
   "model": "jobs.task",
   "pk": 13,
   "fields": {
-    "assigned": null,
+    "assignee": null,
     "work_order": 6,
     "name": "Site preparation and setup",
     "task_type": "preparation"
@@ -1728,7 +1726,7 @@
   "model": "jobs.task",
   "pk": 14,
   "fields": {
-    "assigned": null,
+    "assignee": null,
     "work_order": 6,
     "name": "Material procurement and delivery",
     "task_type": "preparation"
@@ -1738,7 +1736,7 @@
   "model": "jobs.task",
   "pk": 15,
   "fields": {
-    "assigned": null,
+    "assignee": null,
     "work_order": 7,
     "name": "Site preparation and setup",
     "task_type": "preparation"
@@ -1748,7 +1746,7 @@
   "model": "jobs.task",
   "pk": 16,
   "fields": {
-    "assigned": null,
+    "assignee": null,
     "work_order": 7,
     "name": "Material procurement and delivery",
     "task_type": "preparation"
@@ -1758,7 +1756,7 @@
   "model": "jobs.task",
   "pk": 17,
   "fields": {
-    "assigned": null,
+    "assignee": null,
     "work_order": 7,
     "name": "Installation and construction work",
     "task_type": "installation"
@@ -1771,9 +1769,9 @@
     "purchase_order": 1,
     "task": null,
     "price_list_item": 3,
-    "central_line_item_number": "LI-PO-001",
+    "line_number": "LI-PO-001",
     "qty": "50.00",
-    "unit_parts_labor": "sheet",
+    "units": "sheet",
     "description": "Drywall sheets for office renovation",
     "price_currency": "12.00"
   }
@@ -1785,9 +1783,9 @@
     "estimate": 2,
     "task": 1,
     "price_list_item": null,
-    "central_line_item_number": "LI-EST-017",
+    "line_number": "LI-EST-017",
     "qty": "1.00",
-    "unit_parts_labor": "task",
+    "units": "task",
     "description": "Site preparation and setup",
     "price_currency": "450.00"
   }
@@ -1799,9 +1797,9 @@
     "invoice": 1,
     "task": 2,
     "price_list_item": null,
-    "central_line_item_number": "LI-INV-022",
+    "line_number": "LI-INV-022",
     "qty": "1.00",
-    "unit_parts_labor": "task",
+    "units": "task",
     "description": "Material procurement and delivery",
     "price_currency": "325.00"
   }
