@@ -262,7 +262,10 @@
     "fields": {
       "assignee": 2,
       "work_order": 1,
-      "name": "Kitchen demolition"
+      "name": "Kitchen demolition",
+      "units": "hours",
+      "rate": "75.00",
+      "est_qty": "8.00"
     }
   },
   {
@@ -271,7 +274,10 @@
     "fields": {
       "assignee": 2,
       "work_order": 1,
-      "name": "Electrical rough-in"
+      "name": "Electrical rough-in",
+      "units": "linear_feet",
+      "rate": "12.50",
+      "est_qty": "150.00"
     }
   },
   {
@@ -475,6 +481,126 @@
       "units": "each",
       "description": "Screws received on bill",
       "price_currency": "25.00"
+    }
+  },
+  {
+    "model": "jobs.taskmapping",
+    "pk": 1,
+    "fields": {
+      "task": null,
+      "step_type": "preparation",
+      "task_type_id": "PREP001",
+      "breakdown_of_task": "Site preparation and safety setup"
+    }
+  },
+  {
+    "model": "jobs.taskmapping",
+    "pk": 2,
+    "fields": {
+      "task": null,
+      "step_type": "material",
+      "task_type_id": "MAT001",
+      "breakdown_of_task": "Material delivery and staging"
+    }
+  },
+  {
+    "model": "jobs.taskmapping",
+    "pk": 3,
+    "fields": {
+      "task": null,
+      "step_type": "installation",
+      "task_type_id": "INST001",
+      "breakdown_of_task": "Installation and construction work"
+    }
+  },
+  {
+    "model": "jobs.taskmapping",
+    "pk": 4,
+    "fields": {
+      "task": null,
+      "step_type": "electrical",
+      "task_type_id": "ELEC001",
+      "breakdown_of_task": "Electrical work and connections"
+    }
+  },
+  {
+    "model": "jobs.workordertemplate",
+    "pk": 1,
+    "fields": {
+      "template_name": "Standard Kitchen Renovation",
+      "description": "Complete template for kitchen renovation projects",
+      "is_active": true,
+      "created_date": "2023-01-15T10:00:00Z"
+    }
+  },
+  {
+    "model": "jobs.workordertemplate",
+    "pk": 2,
+    "fields": {
+      "template_name": "Basic Maintenance",
+      "description": "Template for routine maintenance work",
+      "is_active": true,
+      "created_date": "2023-02-20T14:30:00Z"
+    }
+  },
+  {
+    "model": "jobs.tasktemplate",
+    "pk": 1,
+    "fields": {
+      "template_name": "Site Preparation",
+      "description": "Standard site preparation and safety setup",
+      "units": "days",
+      "rate": "350.00",
+      "est_qty": "1.00",
+      "task_mapping": 1,
+      "work_order_template": 1,
+      "is_active": true,
+      "created_date": "2023-01-15T10:30:00Z"
+    }
+  },
+  {
+    "model": "jobs.tasktemplate",
+    "pk": 2,
+    "fields": {
+      "template_name": "Material Delivery",
+      "description": "Material procurement and delivery setup",
+      "units": "loads",
+      "rate": "125.00",
+      "est_qty": "2.00",
+      "task_mapping": 2,
+      "work_order_template": 1,
+      "is_active": true,
+      "created_date": "2023-01-15T11:00:00Z"
+    }
+  },
+  {
+    "model": "jobs.tasktemplate",
+    "pk": 3,
+    "fields": {
+      "template_name": "Electrical Installation",
+      "description": "Standard electrical rough-in work",
+      "units": "linear_feet",
+      "rate": "12.50",
+      "est_qty": "150.00",
+      "task_mapping": 4,
+      "work_order_template": 1,
+      "is_active": true,
+      "created_date": "2023-01-15T11:30:00Z"
+    }
+  },
+  {
+    "model": "jobs.tasktemplate",
+    "pk": 4,
+    "fields": {
+      "template_name": "Construction Work",
+      "description": "General construction and installation",
+      "units": "square_feet",
+      "rate": "25.75",
+      "est_qty": "200.00",
+      "task_mapping": 3,
+      "work_order_template": 1,
+      "is_active": true,
+      "created_date": "2023-01-15T12:00:00Z"
     }
   }
 ]

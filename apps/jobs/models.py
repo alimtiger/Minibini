@@ -134,7 +134,7 @@ class TaskTemplate(models.Model):
     units = models.CharField(max_length=50, blank=True)
     rate = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     est_qty = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
-    task_mapping = models.ForeignKey(TaskMapping, on_delete=models.CASCADE)
+    task_mapping = models.ForeignKey(TaskMapping, on_delete=models.CASCADE, null=True, blank=True)
     work_order_template = models.ForeignKey(WorkOrderTemplate, on_delete=models.CASCADE, null=True, blank=True)
     created_date = models.DateTimeField(auto_now_add=True)
     is_active = models.BooleanField(default=True)

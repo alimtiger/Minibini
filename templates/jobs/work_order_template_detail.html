@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ template.template_name }} - Minibini{% endblock %}
+
+{% block content %}
+<h2>Work Order Template: {{ template.template_name }}</h2>
+
+<table border="1">
+    <tr>
+        <th>Field</th>
+        <th>Value</th>
+    </tr>
+    <tr>
+        <td>Template ID</td>
+        <td>{{ template.template_id }}</td>
+    </tr>
+    <tr>
+        <td>Template Name</td>
+        <td>{{ template.template_name }}</td>
+    </tr>
+    <tr>
+        <td>Description</td>
+        <td>{{ template.description|default:"-" }}</td>
+    </tr>
+    <tr>
+        <td>Active</td>
+        <td>{{ template.is_active|yesno:"Yes,No" }}</td>
+    </tr>
+    <tr>
+        <td>Created Date</td>
+        <td>{{ template.created_date }}</td>
+    </tr>
+</table>
+
+<h3>Task Templates</h3>
+<p><a href="{% url 'jobs:add_task_template' template.template_id %}">Add Task Template</a></p>
+
+<table border="1">
+    <tr>
+        <th>Task Name</th>
+        <th>Description</th>
+        <th>Units</th>
+        <th>Rate</th>
+        <th>Est. Quantity</th>
+        <th>Task Mapping</th>
+        <th>Active</th>
+    </tr>
+    {% for task in task_templates %}
+    <tr>
+        <td>{{ task.template_name }}</td>
+        <td>{{ task.description|truncatewords:10|default:"-" }}</td>
+        <td>{{ task.units|default:"-" }}</td>
+        <td>{{ task.rate|default:"-" }}</td>
+        <td>{{ task.est_qty|default:"-" }}</td>
+        <td>{{ task.task_mapping }}</td>
+        <td>{{ task.is_active|yesno:"Yes,No" }}</td>
+    </tr>
+    {% empty %}
+    <tr>
+        <td colspan="7">No task templates found for this work order template.</td>
+    </tr>
+    {% endfor %}
+</table>
+
+<p>
+    <a href="{% url 'jobs:work_order_template_list' %}">Back to Templates List</a>
+</p>
+
+{% endblock %}
