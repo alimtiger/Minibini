@@ -135,7 +135,8 @@ class WorkOrderModelTest(TestCase):
         
     def test_work_order_defaults(self):
         work_order = WorkOrder.objects.create(job=self.job)
-        self.assertEqual(work_order.status, 'incomplete')
+        # when a WorkOrder is created based on an existing Estimate it will change to status 'incomplete' before saving
+        self.assertEqual(work_order.status, 'draft')
         self.assertIsNone(work_order.estimated_time)
         
     def test_work_order_status_choices(self):

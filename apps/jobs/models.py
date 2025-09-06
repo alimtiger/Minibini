@@ -52,6 +52,7 @@ class Estimate(models.Model):
 
 class WorkOrder(models.Model):
     WORK_ORDER_STATUS_CHOICES = [
+        ('draft', 'Draft'),
         ('incomplete', 'Incomplete'),
         ('blocked', 'Blocked'),
         ('complete', 'Complete'),
@@ -59,8 +60,9 @@ class WorkOrder(models.Model):
 
     work_order_id = models.AutoField(primary_key=True)
     job = models.ForeignKey(Job, on_delete=models.CASCADE)
-    status = models.CharField(max_length=20, choices=WORK_ORDER_STATUS_CHOICES, default='incomplete')
+    status = models.CharField(max_length=20, choices=WORK_ORDER_STATUS_CHOICES, default='draft')
     estimated_time = models.DurationField(null=True, blank=True)
+    template = models.ForeignKey('WorkOrderTemplate', on_delete=models.SET_NULL, null=True, blank=True)
 
     def __str__(self):
         return f"Work Order {self.pk}"
@@ -73,6 +75,7 @@ class Task(models.Model):
     work_order = models.ForeignKey(WorkOrder, on_delete=models.CASCADE)
     name = models.CharField(max_length=255)
     task_type = models.CharField(max_length=100)
+    template = models.ForeignKey('TaskTemplate', on_delete=models.SET_NULL, null=True, blank=True)
 
     def __str__(self):
         return self.name
@@ -91,7 +94,7 @@ class Blep(models.Model):
 
 class TaskMapping(models.Model):
     task_mapping_id = models.AutoField(primary_key=True)
-    task = models.ForeignKey(Task, on_delete=models.CASCADE)
+    task = models.ForeignKey(Task, on_delete=models.CASCADE, null=True, blank=True)
     step_type = models.CharField(max_length=100)
     task_type_id = models.CharField(max_length=50)
     breakdown_of_task = models.TextField(blank=True)
@@ -101,6 +104,46 @@ class TaskMapping(models.Model):
 
 
 from apps.core.models import BaseLineItem
+
+
+class WorkOrderTemplate(models.Model):
+    """Template for creating WorkOrders with predefined TaskTemplates."""
+    
+    template_id = models.AutoField(primary_key=True)
+    template_name = models.CharField(max_length=255)
+    description = models.TextField(blank=True)
+    is_active = models.BooleanField(default=True)
+    created_date = models.DateTimeField(auto_now_add=True)
+    
+    def __str__(self):
+        return self.template_name
+        
+    def generate_work_order(self, job):
+        """Generate a WorkOrder from this template for the given job."""
+        # Implementation will be in service class
+        pass
+
+
+class TaskTemplate(models.Model):
+    """Template for creating Tasks with predefined settings."""
+    
+    template_id = models.AutoField(primary_key=True)
+    template_name = models.CharField(max_length=255)
+    description = models.TextField(blank=True)
+    estimated_hours = models.DecimalField(max_digits=8, decimal_places=2, null=True, blank=True)
+    task_type = models.CharField(max_length=100)
+    task_mapping = models.ForeignKey(TaskMapping, on_delete=models.CASCADE)
+    work_order_template = models.ForeignKey(WorkOrderTemplate, on_delete=models.CASCADE, null=True, blank=True)
+    created_date = models.DateTimeField(auto_now_add=True)
+    is_active = models.BooleanField(default=True)
+    
+    def __str__(self):
+        return self.template_name
+        
+    def generate_task(self, work_order, assignee=None):
+        """Generate a Task from this template for the given work_order."""
+        # Implementation will be in service class
+        pass
 
 
 class EstimateLineItem(BaseLineItem):
