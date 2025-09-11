@@ -51,7 +51,7 @@
         <tbody>
             {% for item in line_items %}
             <tr>
-                <td>{{ item.central_line_item_number|default:item.line_item_id }}</td>
+                <td>{{ item.line_number|default:item.line_item_id }}</td>
                 <td>{{ item.description|default:"No description" }}</td>
                 <td>
                     {% if item.task %}
@@ -63,7 +63,7 @@
                     {% endif %}
                 </td>
                 <td>{{ item.qty }}</td>
-                <td>{{ item.unit_parts_labor|default:"—" }}</td>
+                <td>{{ item.units|default:"—" }}</td>
                 <td>${{ item.price_currency|floatformat:2 }}</td>
                 <td>${{ item.total_amount|floatformat:2 }}</td>
             </tr>
