@@ -10,3 +10,4 @@ db.sqlite3
 pyvenv.cfg
 .vscode/
 .DS_Store
+Minibini.code-workspace
