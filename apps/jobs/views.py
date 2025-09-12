@@ -1,9 +1,10 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
 from django.urls import reverse
-from .models import Job, Estimate, Task, WorkOrder, WorkOrderTemplate, TaskTemplate
+from .models import Job, Estimate, EstimateLineItem, Task, WorkOrder, WorkOrderTemplate, TaskTemplate
 from .forms import WorkOrderTemplateForm, TaskTemplateForm
 from apps.purchasing.models import PurchaseOrder
+from apps.invoicing.models import Invoice
 
 def job_list(request):
     jobs = Job.objects.all().order_by('-created_date')
@@ -12,8 +13,16 @@ def job_list(request):
 def job_detail(request, job_id):
     job = get_object_or_404(Job, job_id=job_id)
     estimates = Estimate.objects.filter(job=job).order_by('-created_date')
+    work_orders = WorkOrder.objects.filter(job=job).order_by('-work_order_id')
     purchase_orders = PurchaseOrder.objects.filter(job=job).order_by('-po_id')
-    return render(request, 'jobs/job_detail.html', {'job': job, 'estimates': estimates, 'purchase_orders': purchase_orders})
+    invoices = Invoice.objects.filter(job=job).order_by('-invoice_id')
+    return render(request, 'jobs/job_detail.html', {
+        'job': job,
+        'estimates': estimates,
+        'work_orders': work_orders,
+        'purchase_orders': purchase_orders,
+        'invoices': invoices
+    })
 
 def estimate_list(request):
     estimates = Estimate.objects.all().order_by('-estimate_id')
@@ -21,7 +30,14 @@ def estimate_list(request):
 
 def estimate_detail(request, estimate_id):
     estimate = get_object_or_404(Estimate, estimate_id=estimate_id)
-    return render(request, 'jobs/estimate_detail.html', {'estimate': estimate})
+    line_items = EstimateLineItem.objects.filter(estimate=estimate).order_by('line_item_id')
+    # Calculate total amount
+    total_amount = sum(item.total_amount for item in line_items)
+    return render(request, 'jobs/estimate_detail.html', {
+        'estimate': estimate,
+        'line_items': line_items,
+        'total_amount': total_amount
+    })
 
 def task_list(request):
     tasks = Task.objects.all().order_by('-task_id')
@@ -52,13 +68,13 @@ def add_work_order_template(request):
             return redirect('jobs:work_order_template_detail', template_id=template.template_id)
     else:
         form = WorkOrderTemplateForm()
-    
+
     return render(request, 'jobs/add_work_order_template.html', {'form': form})
 
 
 def add_task_template(request, template_id):
     work_order_template = get_object_or_404(WorkOrderTemplate, template_id=template_id)
-    
+
     if request.method == 'POST':
         form = TaskTemplateForm(request.POST)
         if form.is_valid():
@@ -66,16 +82,16 @@ def add_task_template(request, template_id):
             task_template.work_order_template = work_order_template
             task_template.save()
             messages.success(request, f'Task Template "{task_template.template_name}" added successfully.')
-            
+
             if 'add_another' in request.POST:
                 return redirect('jobs:add_task_template', template_id=template_id)
             else:
                 return redirect('jobs:work_order_template_detail', template_id=template_id)
     else:
         form = TaskTemplateForm()
-    
+
     existing_tasks = TaskTemplate.objects.filter(work_order_template=work_order_template)
-    
+
     return render(request, 'jobs/add_task_template.html', {
         'form': form,
         'work_order_template': work_order_template,

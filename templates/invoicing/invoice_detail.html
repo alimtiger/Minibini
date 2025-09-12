@@ -1,9 +1,9 @@
 {% extends 'base.html' %}
 
-{% block title %}Bill {{ bill.bill_id }} - Minibini{% endblock %}
+{% block title %}Invoice {{ invoice.invoice_number }} - Minibini{% endblock %}
 
 {% block content %}
-<h2>Bill: {{ bill.bill_id }}</h2>
+<h2>Invoice: {{ invoice.invoice_number }}</h2>
 
 <table border="1">
     <tr>
@@ -11,26 +11,24 @@
         <th>Value</th>
     </tr>
     <tr>
-        <td>Bill ID</td>
-        <td>{{ bill.bill_id }}</td>
+        <td>Invoice ID</td>
+        <td>{{ invoice.invoice_id }}</td>
     </tr>
     <tr>
-        <td>Purchase Order</td>
-        <td>
-            {% if bill.purchase_order %}
-                <a href="{% url 'purchasing:purchase_order_detail' bill.purchase_order.po_id %}">{{ bill.purchase_order }}</a>
-            {% else %}
-                No purchase order assigned
-            {% endif %}
-        </td>
+        <td>Invoice Number</td>
+        <td>{{ invoice.invoice_number }}</td>
     </tr>
     <tr>
-        <td>Contact</td>
-        <td>{{ bill.contact }}</td>
+        <td>Job</td>
+        <td><a href="{% url 'jobs:detail' invoice.job.pk %}">{{ invoice.job }}</a></td>
     </tr>
     <tr>
-        <td>Vendor Invoice Number</td>
-        <td>{{ bill.vendor_invoice_number }}</td>
+        <td>Customer PO Number</td>
+        <td>{{ invoice.customer_po_number|default:"No PO Number" }}</td>
+    </tr>
+    <tr>
+        <td>Status</td>
+        <td>{{ invoice.get_status_display }}</td>
     </tr>
 </table>
 
@@ -51,7 +49,7 @@
         <tbody>
             {% for item in line_items %}
             <tr>
-                <td>{{ item.line_number|default:item.line_item_id }}</td>
+                <td>{{ item.central_line_item_number|default:item.line_item_id }}</td>
                 <td>{{ item.description|default:"No description" }}</td>
                 <td>
                     {% if item.task %}
@@ -63,7 +61,7 @@
                     {% endif %}
                 </td>
                 <td>{{ item.qty }}</td>
-                <td>{{ item.units|default:"—" }}</td>
+                <td>{{ item.unit_parts_labor|default:"—" }}</td>
                 <td>${{ item.price_currency|floatformat:2 }}</td>
                 <td>${{ item.total_amount|floatformat:2 }}</td>
             </tr>
@@ -71,14 +69,17 @@
         </tbody>
         <tfoot>
             <tr style="background-color: #f0f0f0; font-weight: bold;">
-                <td colspan="6">Total Bill Amount:</td>
+                <td colspan="6">Total Invoice Amount:</td>
                 <td>${{ total_amount|floatformat:2 }}</td>
             </tr>
         </tfoot>
     </table>
 {% else %}
-    <p>No line items found for this bill.</p>
+    <p>No line items found for this invoice.</p>
 {% endif %}
 
-<p><a href="{% url 'purchasing:bill_list' %}">Back to Bills List</a></p>
+<p>
+    <a href="{% url 'jobs:detail' invoice.job.pk %}">View Job Details</a> |
+    <a href="{% url 'invoicing:invoice_list' %}">Back to Invoices List</a>
+</p>
 {% endblock %}

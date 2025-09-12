@@ -25,4 +25,5 @@ urlpatterns = [
     path('contacts/', include('apps.contacts.urls')),
     path('core/', include('apps.core.urls')),
     path('purchasing/', include('apps.purchasing.urls')),
+    path('invoicing/', include('apps.invoicing.urls')),
 ]
