@@ -8,7 +8,7 @@ from datetime import timedelta
 from apps.contacts.models import Contact, Business, PaymentTerms
 from apps.core.models import User, Configuration
 from apps.jobs.models import Job, Estimate, WorkOrder, Task, Blep, TaskMapping
-from apps.invoicing.models import Invoice, InvoiceLineItem, PriceListItem, ItemType
+from apps.invoicing.models import Invoice, InvoiceLineItem, PriceListItem
 from apps.jobs.models import EstimateLineItem
 from apps.purchasing.models import PurchaseOrderLineItem, BillLineItem
 from apps.purchasing.models import PurchaseOrder, Bill
@@ -50,15 +50,13 @@ class ComprehensiveModelIntegrationTest(TestCase):
         
         work_order = WorkOrder.objects.create(
             job=job,
-            status='incomplete',
-            estimated_time=timedelta(hours=8)
+            status='incomplete'
         )
         
         task = Task.objects.create(
             assignee=self.user,
             work_order=work_order,
             name="Test Task",
-            task_type="Development"
         )
         
         blep = Blep.objects.create(
@@ -89,13 +87,7 @@ class ComprehensiveModelIntegrationTest(TestCase):
             invoice_number="INV001"
         )
         
-        item_type = ItemType.objects.create(
-            name="Test Item Type",
-            taxability="taxable"
-        )
-        
         price_list_item = PriceListItem.objects.create(
-            item_type=item_type,
             code="ITEM001",
             description="Test item",
             purchase_price=Decimal('10.00'),
@@ -145,10 +137,8 @@ class ComprehensiveModelIntegrationTest(TestCase):
         )
         
         # Test creating both purchase order and bill line items
-        # Create item type and price list item for testing
-        item_type = ItemType.objects.create(name="Test Hardware")
+        # Create price list item for testing
         price_item = PriceListItem.objects.create(
-            item_type=item_type,
             code="TEST001",
             selling_price=Decimal('25.00')
         )
@@ -214,7 +204,6 @@ class ComprehensiveModelIntegrationTest(TestCase):
         task = Task.objects.create(
             work_order=work_order,
             name="Planning Task",
-            task_type="Planning"
         )
         
         task_mapping = TaskMapping.objects.create(
@@ -250,7 +239,7 @@ class ComprehensiveModelIntegrationTest(TestCase):
         )
         
         work_order = WorkOrder.objects.create(job=job)
-        task = Task.objects.create(work_order=work_order, name="Test Task", task_type="Test")
+        task = Task.objects.create(work_order=work_order, name="Test Task")
         blep = Blep.objects.create(task=task, user=self.user)
         
         initial_blep_count = Blep.objects.count()
@@ -280,10 +269,7 @@ class ComprehensiveModelIntegrationTest(TestCase):
         self.assertNotIn(new_group, developer_user.groups.all())
 
     def test_price_calculation_accuracy(self):
-        item_type = ItemType.objects.create(name="Hardware")
-        
         price_list_item = PriceListItem.objects.create(
-            item_type=item_type,
             code="BOLT001",
             purchase_price=Decimal('1.50'),
             selling_price=Decimal('2.25'),
@@ -370,13 +356,10 @@ class LineItemValidationTest(TestCase):
         self.task = Task.objects.create(
             work_order=self.work_order,
             name="Test Task",
-            task_type="standard"
         )
         
         # Create price list item
-        self.item_type = ItemType.objects.create(name="Test Items")
         self.price_list_item = PriceListItem.objects.create(
-            item_type=self.item_type,
             code="TEST001",
             selling_price=Decimal('25.00')
         )

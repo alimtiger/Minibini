@@ -12,4 +12,8 @@ urlpatterns = [
     path('tasks/<int:task_id>/', views.task_detail, name='task_detail'),
     path('workorders/', views.work_order_list, name='work_order_list'),
     path('workorders/<int:work_order_id>/', views.work_order_detail, name='work_order_detail'),
+    path('templates/', views.work_order_template_list, name='work_order_template_list'),
+    path('templates/add/', views.add_work_order_template, name='add_work_order_template'),
+    path('templates/<int:template_id>/', views.work_order_template_detail, name='work_order_template_detail'),
+    path('templates/<int:template_id>/add-task/', views.add_task_template, name='add_task_template'),
 ]

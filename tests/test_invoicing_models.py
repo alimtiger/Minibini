@@ -1,40 +1,19 @@
 from django.test import TestCase
 from django.core.exceptions import ValidationError
 from decimal import Decimal
-from apps.invoicing.models import Invoice, InvoiceLineItem, PriceListItem, ItemType
+from apps.invoicing.models import Invoice, InvoiceLineItem, PriceListItem
 from apps.jobs.models import Job, Estimate, Task, WorkOrder
 from apps.purchasing.models import PurchaseOrder, Bill
 from apps.contacts.models import Contact
 
 
-class ItemTypeModelTest(TestCase):
-    def test_item_type_creation(self):
-        item_type = ItemType.objects.create(
-            name="Hardware",
-            taxability="taxable",
-            mapping_to_task="installation"
-        )
-        self.assertEqual(item_type.name, "Hardware")
-        self.assertEqual(item_type.taxability, "taxable")
-        self.assertEqual(item_type.mapping_to_task, "installation")
-        
-    def test_item_type_str_method(self):
-        item_type = ItemType.objects.create(name="Software")
-        self.assertEqual(str(item_type), "Software")
-        
-    def test_item_type_optional_fields(self):
-        item_type = ItemType.objects.create(name="Basic Type")
-        self.assertEqual(item_type.taxability, "")
-        self.assertEqual(item_type.mapping_to_task, "")
-
 
 class PriceListItemModelTest(TestCase):
     def setUp(self):
-        self.item_type = ItemType.objects.create(name="Test Type")
+        pass
         
     def test_price_list_item_creation(self):
         item = PriceListItem.objects.create(
-            item_type=self.item_type,
             code="ITEM001",
             units="each",
             description="Test item description",
@@ -44,7 +23,6 @@ class PriceListItemModelTest(TestCase):
             qty_sold=Decimal('25.00'),
             qty_wasted=Decimal('2.00')
         )
-        self.assertEqual(item.item_type, self.item_type)
         self.assertEqual(item.code, "ITEM001")
         self.assertEqual(item.units, "each")
         self.assertEqual(item.description, "Test item description")
@@ -56,7 +34,6 @@ class PriceListItemModelTest(TestCase):
         
     def test_price_list_item_str_method(self):
         item = PriceListItem.objects.create(
-            item_type=self.item_type,
             code="TEST123",
             description="This is a very long description that should be truncated in the string representation"
         )
@@ -64,7 +41,6 @@ class PriceListItemModelTest(TestCase):
         
     def test_price_list_item_defaults(self):
         item = PriceListItem.objects.create(
-            item_type=self.item_type,
             code="DEFAULT001"
         )
         self.assertEqual(item.purchase_price, Decimal('0.00'))
@@ -136,7 +112,6 @@ class InvoiceLineItemModelTest(TestCase):
         self.task = Task.objects.create(
             work_order=self.work_order,
             name="Test Task",
-            task_type="standard"
         )
         self.purchase_order = PurchaseOrder.objects.create(
             job=self.job,
@@ -147,9 +122,7 @@ class InvoiceLineItemModelTest(TestCase):
             contact=self.contact,
             vendor_invoice_number="VIN001"
         )
-        self.item_type = ItemType.objects.create(name="Test Type")
         self.price_list_item = PriceListItem.objects.create(
-            item_type=self.item_type,
             code="ITEM001"
         )
         

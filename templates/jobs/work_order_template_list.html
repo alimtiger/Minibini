@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+{% block title %}Work Order Templates - Minibini{% endblock %}
+
+{% block content %}
+<h2>Work Order Templates</h2>
+
+<p><a href="{% url 'jobs:add_work_order_template' %}">Add New Template</a></p>
+
+<table border="1">
+    <tr>
+        <th>Template Name</th>
+        <th>Description</th>
+        <th>Created Date</th>
+        <th>Active</th>
+        <th>Actions</th>
+    </tr>
+    {% for template in templates %}
+    <tr>
+        <td><a href="{% url 'jobs:work_order_template_detail' template.template_id %}">{{ template.template_name }}</a></td>
+        <td>{{ template.description|truncatewords:10 }}</td>
+        <td>{{ template.created_date|date:"Y-m-d" }}</td>
+        <td>{{ template.is_active|yesno:"Yes,No" }}</td>
+        <td>
+            <a href="{% url 'jobs:work_order_template_detail' template.template_id %}">View</a> |
+            <a href="{% url 'jobs:add_task_template' template.template_id %}">Add Task Template</a>
+        </td>
+    </tr>
+    {% empty %}
+    <tr>
+        <td colspan="5">No work order templates found.</td>
+    </tr>
+    {% endfor %}
+</table>
+
+{% endblock %}

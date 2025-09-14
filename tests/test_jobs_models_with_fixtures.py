@@ -100,13 +100,11 @@ class WorkOrderModelFixtureTest(FixtureTestCase):
         wo1 = WorkOrder.objects.get(pk=1)
         self.assertEqual(wo1.status, "incomplete")
         self.assertEqual(wo1.job.job_number, "JOB-2024-0001")
-        self.assertEqual(wo1.estimated_time, timedelta(hours=40))
-        
+ 
         wo2 = WorkOrder.objects.get(pk=2)
         self.assertEqual(wo2.status, "complete")
         self.assertEqual(wo2.job.job_number, "JOB-2024-0002")
-        self.assertEqual(wo2.estimated_time, timedelta(hours=24))
-        
+ 
     def test_work_order_str_method_with_fixture_data(self):
         """Test work order string representation with fixture data"""
         work_order = WorkOrder.objects.get(pk=1)
@@ -127,12 +125,10 @@ class TaskModelFixtureTest(FixtureTestCase):
     def test_tasks_exist_from_fixture(self):
         """Test that tasks from fixture data exist and have correct properties"""
         task1 = Task.objects.get(name="Kitchen demolition")
-        self.assertEqual(task1.task_type, "demolition")
         self.assertEqual(task1.assignee.username, "manager1")
         self.assertEqual(task1.work_order.pk, 1)
         
         task2 = Task.objects.get(name="Electrical rough-in")
-        self.assertEqual(task2.task_type, "electrical")
         self.assertEqual(task2.assignee.username, "manager1")
         
     def test_task_str_method_with_fixture_data(self):
@@ -161,7 +157,6 @@ class TaskModelFixtureTest(FixtureTestCase):
             assignee=user,
             work_order=work_order,
             name="Cabinet installation",
-            task_type="installation"
         )
         self.assertEqual(new_task.work_order, work_order)
         self.assertEqual(Task.objects.count(), 3)  # 2 from fixture + 1 new
