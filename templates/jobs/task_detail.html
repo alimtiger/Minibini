@@ -24,7 +24,35 @@
     </tr>
     <tr>
         <td>Work Order</td>
-        <td>{{ task.work_order }}</td>
+        <td>
+            {% if task.work_order %}
+                <a href="{% url 'jobs:work_order_detail' task.work_order.pk %}">{{ task.work_order }}</a>
+            {% else %}
+                None
+            {% endif %}
+        </td>
+    </tr>
+    <tr>
+        <td>Est Worksheet</td>
+        <td>
+            {% if task.est_worksheet %}
+                {{ task.est_worksheet }}
+            {% else %}
+                None
+            {% endif %}
+        </td>
+    </tr>
+    <tr>
+        <td>Associated Job</td>
+        <td>
+            {% if task.work_order %}
+                <a href="{% url 'jobs:detail' task.work_order.job.pk %}">{{ task.work_order.job }}</a>
+            {% elif task.est_worksheet %}
+                <a href="{% url 'jobs:detail' task.est_worksheet.job.pk %}">{{ task.est_worksheet.job }}</a>
+            {% else %}
+                No job assigned
+            {% endif %}
+        </td>
     </tr>
     <tr>
         <td>Assigned To</td>
