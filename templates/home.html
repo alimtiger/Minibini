@@ -6,18 +6,21 @@
 <h2>Dashboard</h2>
 <p>Welcome to Minibini project management system.</p>
 
-<h3>Quick Links</h3>
+<h3>Main Operations</h3>
 <ul>
-    <li><a href="{% url 'jobs:list' %}">View All Jobs</a></li>
-    <li><a href="{% url 'jobs:estimate_list' %}">View All Estimates</a></li>
-    <li><a href="{% url 'jobs:work_order_list' %}">View All Work Orders</a></li>
-    <li><a href="{% url 'jobs:work_order_template_list' %}">View Work Order Templates</a></li>
-    <li><a href="{% url 'jobs:task_list' %}">View All Tasks</a></li>
-    <li><a href="{% url 'contacts:contact_list' %}">View All Contacts</a></li>
-    <li><a href="{% url 'contacts:business_list' %}">View All Businesses</a></li>
-    <li><a href="{% url 'core:user_list' %}">View All Users</a></li>
-    <li><a href="{% url 'purchasing:purchase_order_list' %}">View All Purchase Orders</a></li>
-    <li><a href="{% url 'purchasing:bill_list' %}">View All Bills</a></li>
-    <li><a href="{% url 'invoicing:invoice_list' %}">View All Invoices</a></li>
+    <li><a href="{% url 'jobs:list' %}">Jobs</a> - Active projects and work</li>
+    <li><a href="{% url 'jobs:estimate_list' %}">Estimates</a> - Customer quotes and proposals</li>
+    <li><a href="{% url 'jobs:estworksheet_list' %}">Worksheets</a> - Work planning and cost estimation</li>
+    <li><a href="{% url 'jobs:work_order_list' %}">Work Orders</a> - Production schedules</li>
+    <li><a href="{% url 'jobs:task_list' %}">Tasks</a> - Individual work items</li>
+    <li><a href="{% url 'contacts:contact_list' %}">Contacts</a> - Customer and vendor information</li>
+    <li><a href="{% url 'purchasing:purchase_order_list' %}">Purchase Orders</a> - Material procurement</li>
+    <li><a href="{% url 'purchasing:bill_list' %}">Bills</a> - Vendor invoices</li>
+    <li><a href="{% url 'invoicing:invoice_list' %}">Invoices</a> - Customer billing</li>
+</ul>
+
+<h3>Configuration</h3>
+<ul>
+    <li><a href="{% url 'settings' %}">Settings</a> - Templates, users, and system configuration</li>
 </ul>
 {% endblock %}

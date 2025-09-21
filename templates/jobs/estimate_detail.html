@@ -79,6 +79,9 @@
 {% endif %}
 
 <p>
+    {% if worksheet %}
+        <a href="{% url 'jobs:estworksheet_detail' worksheet.est_worksheet_id %}">View Source Worksheet</a> |
+    {% endif %}
     <a href="{% url 'jobs:detail' estimate.job.pk %}">View Job Details</a> |
     <a href="{% url 'jobs:estimate_list' %}">Back to Estimates List</a>
 </p>

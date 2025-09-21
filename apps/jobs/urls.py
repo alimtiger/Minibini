@@ -19,4 +19,5 @@ urlpatterns = [
     path('worksheets/', views.estworksheet_list, name='estworksheet_list'),
     path('worksheets/<int:worksheet_id>/', views.estworksheet_detail, name='estworksheet_detail'),
     path('worksheets/<int:worksheet_id>/generate-estimate/', views.estworksheet_generate_estimate, name='estworksheet_generate_estimate'),
+    path('task-mappings/', views.task_mapping_list, name='task_mapping_list'),
 ]

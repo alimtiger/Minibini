@@ -6,24 +6,30 @@
 <body>
     <h1>Minibini</h1>
     <nav>
-        <a href="{% url 'home' %}">Home</a> |
+        {% block navigation %}
+        <strong>Main:</strong>
         <a href="{% url 'jobs:list' %}">Jobs</a> |
         <a href="{% url 'jobs:estimate_list' %}">Estimates</a> |
         <a href="{% url 'jobs:estworksheet_list' %}">Worksheets</a> |
         <a href="{% url 'jobs:work_order_list' %}">Work Orders</a> |
-        <a href="{% url 'jobs:work_order_template_list' %}">Templates</a> | 
         <a href="{% url 'jobs:task_list' %}">Tasks</a> |
         <a href="{% url 'contacts:contact_list' %}">Contacts</a> |
         <a href="{% url 'contacts:business_list' %}">Businesses</a> |
-        <a href="{% url 'core:user_list' %}">Users</a> |
         <a href="{% url 'purchasing:purchase_order_list' %}">Purchase Orders</a> |
         <a href="{% url 'purchasing:bill_list' %}">Bills</a> |
         <a href="{% url 'invoicing:invoice_list' %}">Invoices</a>
+        {% endblock %}
     </nav>
     
     <main>
         {% block content %}
         {% endblock %}
     </main>
+    
+    <hr>
+    <footer>
+        <a href="{% url 'home' %}">Main</a> |
+        <a href="{% url 'settings' %}">Settings</a>
+    </footer>
 </body>
 </html>

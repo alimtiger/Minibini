@@ -1,7 +1,7 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
 from django.urls import reverse
-from .models import Job, Estimate, EstimateLineItem, Task, WorkOrder, WorkOrderTemplate, TaskTemplate, EstWorksheet
+from .models import Job, Estimate, EstimateLineItem, Task, WorkOrder, WorkOrderTemplate, TaskTemplate, EstWorksheet, TaskMapping
 from .forms import WorkOrderTemplateForm, TaskTemplateForm
 from apps.purchasing.models import PurchaseOrder
 from apps.invoicing.models import Invoice
@@ -35,10 +35,13 @@ def estimate_detail(request, estimate_id):
     line_items = EstimateLineItem.objects.filter(estimate=estimate).order_by('line_item_id')
     # Calculate total amount
     total_amount = sum(item.total_amount for item in line_items)
+    # Check for associated worksheet
+    worksheet = EstWorksheet.objects.filter(estimate=estimate).first()
     return render(request, 'jobs/estimate_detail.html', {
         'estimate': estimate,
         'line_items': line_items,
-        'total_amount': total_amount
+        'total_amount': total_amount,
+        'worksheet': worksheet
     })
 
 def task_list(request):
@@ -166,4 +169,10 @@ def estworksheet_generate_estimate(request, worksheet_id):
         'tasks': tasks,
         'total_cost': total_cost
     })
+
+
+def task_mapping_list(request):
+    """List all TaskMappings"""
+    mappings = TaskMapping.objects.all().order_by('mapping_strategy', 'step_type', 'task_type_id')
+    return render(request, 'jobs/task_mapping_list.html', {'mappings': mappings})
 

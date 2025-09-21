@@ -1422,10 +1422,10 @@
       "step_type": "labor",
       "mapping_strategy": "direct",
       "default_product_type": "",
-      "line_item_name": "",
-      "line_item_description": "Research and planning activities",
+      "line_item_name": "Design Consultation",
+      "line_item_description": "Research, planning and consultation services",
       "task_type_id": "RESEARCH",
-      "breakdown_of_task": "Initial research and project planning phase"
+      "breakdown_of_task": "Maps research tasks directly to consultation line items"
     }
   },
   {
@@ -1435,49 +1435,49 @@
       "step_type": "labor",
       "mapping_strategy": "direct",
       "default_product_type": "",
-      "line_item_name": "",
-      "line_item_description": "CAD design and modeling work",
+      "line_item_name": "Technical Drawings",
+      "line_item_description": "CAD drawings and technical documentation",
       "task_type_id": "CAD",
-      "breakdown_of_task": "Computer-aided design, drawing, detailing, and modeling"
+      "breakdown_of_task": "Maps CAD/design tasks directly to technical drawing line items"
     }
   },
   {
     "model": "jobs.taskmapping",
     "pk": 3,
     "fields": {
-      "step_type": "labor",
+      "step_type": "component",
       "mapping_strategy": "bundle_to_product",
       "default_product_type": "furniture",
-      "line_item_name": "",
-      "line_item_description": "",
+      "line_item_name": "Custom Furniture",
+      "line_item_description": "Bundled into complete furniture product",
       "task_type_id": "CUT",
-      "breakdown_of_task": "Cutting and shaping materials for production"
+      "breakdown_of_task": "Bundles cutting tasks with other manufacturing steps into furniture products"
     }
   },
   {
     "model": "jobs.taskmapping",
     "pk": 4,
     "fields": {
-      "step_type": "labor",
+      "step_type": "component",
       "mapping_strategy": "bundle_to_product",
       "default_product_type": "furniture",
-      "line_item_name": "",
-      "line_item_description": "",
+      "line_item_name": "Custom Furniture",
+      "line_item_description": "Bundled into complete furniture product",
       "task_type_id": "ASSEMBLE",
-      "breakdown_of_task": "Assembly and construction of furniture pieces"
+      "breakdown_of_task": "Bundles assembly tasks with other manufacturing steps into furniture products"
     }
   },
   {
     "model": "jobs.taskmapping",
     "pk": 5,
     "fields": {
-      "step_type": "labor",
+      "step_type": "component",
       "mapping_strategy": "bundle_to_product",
       "default_product_type": "furniture",
-      "line_item_name": "",
-      "line_item_description": "",
+      "line_item_name": "Custom Furniture",
+      "line_item_description": "Bundled into complete furniture product",
       "task_type_id": "FINISH",
-      "breakdown_of_task": "Finishing work including sanding, staining, and coating"
+      "breakdown_of_task": "Bundles finishing tasks with other manufacturing steps into furniture products"
     }
   },
   {
@@ -1487,10 +1487,10 @@
       "step_type": "labor",
       "mapping_strategy": "bundle_to_service",
       "default_product_type": "delivery",
-      "line_item_name": "",
-      "line_item_description": "",
-      "task_type_id": "PALLET",
-      "breakdown_of_task": "Packaging and preparation for delivery"
+      "line_item_name": "Delivery & Installation",
+      "line_item_description": "Complete delivery and installation service",
+      "task_type_id": "DELIVERY",
+      "breakdown_of_task": "Bundles delivery-related tasks into a single service line item"
     }
   },
   {
@@ -1500,10 +1500,10 @@
       "step_type": "material",
       "mapping_strategy": "bundle_to_product",
       "default_product_type": "furniture",
-      "line_item_name": "",
-      "line_item_description": "",
+      "line_item_name": "Custom Furniture",
+      "line_item_description": "Bundled into complete furniture product",
       "task_type_id": "MATERIALS",
-      "breakdown_of_task": "Raw materials for furniture production"
+      "breakdown_of_task": "Bundles material costs with manufacturing into furniture products"
     }
   },
   {
@@ -1516,7 +1516,7 @@
       "line_item_name": "",
       "line_item_description": "",
       "task_type_id": "QA",
-      "breakdown_of_task": "Internal quality assurance and inspection"
+      "breakdown_of_task": "Internal task - excluded from customer estimates"
     }
   },
   {
@@ -1543,6 +1543,23 @@
       "include_materials": false,
       "include_labor": true,
       "include_overhead": false
+    }
+  },
+  {
+    "model": "jobs.productbundlingrule",
+    "pk": 3,
+    "fields": {
+      "rule_name": "Premium Furniture Template Pricing",
+      "product_type": "furniture",
+      "work_order_template": 1,
+      "line_item_template": "Premium Custom Furniture",
+      "combine_instances": true,
+      "pricing_method": "template_base",
+      "include_materials": true,
+      "include_labor": true,
+      "include_overhead": false,
+      "priority": 50,
+      "is_active": true
     }
   },
   {

@@ -443,5 +443,20 @@ class ProductBundlingRule(models.Model):
     class Meta:
         ordering = ['priority', 'rule_name']
     
+    def clean(self):
+        """Validate ProductBundlingRule constraints"""
+        from django.core.exceptions import ValidationError
+        
+        if self.pricing_method == 'template_base':
+            if not self.work_order_template:
+                raise ValidationError({
+                    'work_order_template': 'template_base pricing requires a WorkOrderTemplate to be specified.'
+                })
+            
+            if not self.work_order_template.base_price:
+                raise ValidationError({
+                    'work_order_template': f'The selected WorkOrderTemplate "{self.work_order_template.template_name}" must have a base_price set to use template_base pricing.'
+                })
+    
     def __str__(self):
         return f"Bundling Rule: {self.rule_name}"

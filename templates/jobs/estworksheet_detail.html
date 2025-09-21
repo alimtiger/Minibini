@@ -18,7 +18,10 @@
 
 <p>
     {% if worksheet.status == 'draft' %}
-        <a href="{% url 'jobs:estworksheet_generate_estimate' worksheet.est_worksheet_id %}">Generate Estimate</a>
+        <a href="{% url 'jobs:estworksheet_generate_estimate' worksheet.est_worksheet_id %}">Generate Estimate</a> |
+    {% endif %}
+    {% if worksheet.estimate %}
+        <a href="{% url 'jobs:estimate_detail' worksheet.estimate.estimate_id %}">View Estimate</a> |
     {% endif %}
     <a href="{% url 'jobs:estworksheet_list' %}">Back to Worksheets</a>
 </p>
