@@ -17,7 +17,7 @@
         {% for invoice in invoices %}
         <tr>
             <td>{{ invoice.invoice_number }}</td>
-            <td>{{ invoice.job }}</td>
+            <td><a href="{% url 'jobs:detail' invoice.job.pk %}">{{ invoice.job }}</a></td>
             <td>{{ invoice.customer_po_number|default:"No PO Number" }}</td>
             <td>{{ invoice.get_status_display }}</td>
             <td><a href="{% url 'invoicing:invoice_detail' invoice.pk %}">View</a></td>
