@@ -16,4 +16,7 @@ urlpatterns = [
     path('templates/add/', views.add_work_order_template, name='add_work_order_template'),
     path('templates/<int:template_id>/', views.work_order_template_detail, name='work_order_template_detail'),
     path('templates/<int:template_id>/add-task/', views.add_task_template, name='add_task_template'),
+    path('worksheets/', views.estworksheet_list, name='estworksheet_list'),
+    path('worksheets/<int:worksheet_id>/', views.estworksheet_detail, name='estworksheet_detail'),
+    path('worksheets/<int:worksheet_id>/generate-estimate/', views.estworksheet_generate_estimate, name='estworksheet_generate_estimate'),
 ]

@@ -279,42 +279,48 @@ class TaskMappingModelTest(TestCase):
         
     def test_task_mapping_creation(self):
         mapping = TaskMapping.objects.create(
-            task=self.task,
-            step_type="preparation",
+            step_type="labor",
+            mapping_strategy="direct",
             task_type_id="PREP_001",
             breakdown_of_task="Detailed breakdown of preparation steps"
         )
-        self.assertEqual(mapping.task, self.task)
-        self.assertEqual(mapping.step_type, "preparation")
+        self.assertEqual(mapping.step_type, "labor")
+        self.assertEqual(mapping.mapping_strategy, "direct")
         self.assertEqual(mapping.task_type_id, "PREP_001")
         self.assertEqual(mapping.breakdown_of_task, "Detailed breakdown of preparation steps")
         
     def test_task_mapping_str_method(self):
         mapping = TaskMapping.objects.create(
-            task=self.task,
-            step_type="execution",
+            step_type="labor",
+            mapping_strategy="bundle_to_product",
             task_type_id="EXEC_001"
         )
-        self.assertEqual(str(mapping), f"Task Mapping {mapping.pk}")
+        self.assertEqual(str(mapping), f"Task Mapping {mapping.pk} (bundle_to_product)")
         
     def test_task_mapping_optional_breakdown(self):
         mapping = TaskMapping.objects.create(
-            task=self.task,
-            step_type="completion",
+            step_type="material",
+            mapping_strategy="direct",
             task_type_id="COMP_001"
         )
         self.assertEqual(mapping.breakdown_of_task, "")
         
-    def test_task_mapping_optional_task(self):
-        """Test TaskMapping with null task field."""
+    def test_task_mapping_template_relationship(self):
+        """Test TaskMapping used as template via TaskTemplate."""
         mapping = TaskMapping.objects.create(
-            task=None,
-            step_type="general",
+            step_type="labor",
+            mapping_strategy="direct",
             task_type_id="GEN_001",
-            breakdown_of_task="General task mapping without specific task"
+            breakdown_of_task="General task mapping template"
         )
-        self.assertIsNone(mapping.task)
-        self.assertEqual(mapping.step_type, "general")
+        
+        template = TaskTemplate.objects.create(
+            template_name="General Task Template",
+            task_mapping=mapping
+        )
+        
+        self.assertEqual(template.task_mapping, mapping)
+        self.assertEqual(mapping.step_type, "labor")
 
 
 class WorkOrderTemplateModelTest(TestCase):
@@ -363,8 +369,8 @@ class TaskTemplateModelTest(TestCase):
             name="Test Task",
         )
         self.task_mapping = TaskMapping.objects.create(
-            task=self.task,
-            step_type="test_type",
+            step_type="labor",
+            mapping_strategy="direct",
             task_type_id="TEST001"
         )
         self.work_order_template = WorkOrderTemplate.objects.create(

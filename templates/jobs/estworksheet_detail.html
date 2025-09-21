@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+
+{% block title %}Worksheet {{ worksheet.est_worksheet_id }} - Minibini{% endblock %}
+
+{% block content %}
+<h2>Estimate Worksheet #{{ worksheet.est_worksheet_id }}</h2>
+
+<table border="1">
+    <tr><th>Job</th><td><a href="{% url 'jobs:detail' worksheet.job.job_id %}">{{ worksheet.job.job_number }} - {{ worksheet.job.description }}</a></td></tr>
+    <tr><th>Status</th><td>{{ worksheet.get_status_display }}</td></tr>
+    <tr><th>Version</th><td>{{ worksheet.version }}</td></tr>
+    <tr><th>Created</th><td>{{ worksheet.created_date }}</td></tr>
+    {% if worksheet.estimate %}
+    <tr><th>Linked Estimate</th><td><a href="{% url 'jobs:estimate_detail' worksheet.estimate.estimate_id %}">{{ worksheet.estimate.estimate_number }}</a></td></tr>
+    {% endif %}
+    <tr><th>Total Cost</th><td>${{ total_cost|floatformat:2 }}</td></tr>
+</table>
+
+<p>
+    {% if worksheet.status == 'draft' %}
+        <a href="{% url 'jobs:estworksheet_generate_estimate' worksheet.est_worksheet_id %}">Generate Estimate</a>
+    {% endif %}
+    <a href="{% url 'jobs:estworksheet_list' %}">Back to Worksheets</a>
+</p>
+
+<h3>Tasks</h3>
+
+{% if tasks %}
+    <table border="1">
+        <tr>
+            <th>Task Name</th>
+            <th>Template</th>
+            <th>Units</th>
+            <th>Rate</th>
+            <th>Estimated Qty</th>
+            <th>Total</th>
+        </tr>
+        {% for task in tasks %}
+        <tr>
+            <td><a href="{% url 'jobs:task_detail' task.task_id %}">{{ task.name }}</a></td>
+            <td>
+                {% if task.template %}
+                    {{ task.template.template_name }}
+                {% else %}
+                    No template
+                {% endif %}
+            </td>
+            <td>{{ task.units }}</td>
+            <td>${{ task.rate|floatformat:2 }}</td>
+            <td>{{ task.est_qty|floatformat:2 }}</td>
+            <td>
+                {% if task.rate and task.est_qty %}
+                    ${{ task.rate|floatformat:2 }} x {{ task.est_qty|floatformat:2 }}
+                {% else %}
+                    $0.00
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+        <tr>
+            <td colspan="5"><strong>Total:</strong></td>
+            <td><strong>${{ total_cost|floatformat:2 }}</strong></td>
+        </tr>
+    </table>
+{% else %}
+    <p>No tasks found in this worksheet.</p>
+{% endif %}
+
+{% endblock %}

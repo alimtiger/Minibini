@@ -7,7 +7,7 @@ from decimal import Decimal
 from datetime import timedelta
 from apps.contacts.models import Contact, Business, PaymentTerms
 from apps.core.models import User, Configuration
-from apps.jobs.models import Job, Estimate, WorkOrder, Task, Blep, TaskMapping
+from apps.jobs.models import Job, Estimate, WorkOrder, Task, Blep, TaskMapping, TaskTemplate
 from apps.invoicing.models import Invoice, InvoiceLineItem, PriceListItem
 from apps.jobs.models import EstimateLineItem
 from apps.purchasing.models import PurchaseOrderLineItem, BillLineItem
@@ -207,14 +207,23 @@ class ComprehensiveModelIntegrationTest(TestCase):
         )
         
         task_mapping = TaskMapping.objects.create(
-            task=task,
-            step_type="Planning",
+            step_type="labor",
+            mapping_strategy="direct",
             task_type_id="PLAN001",
             breakdown_of_task="Break down the planning requirements"
         )
         
+        task_template = TaskTemplate.objects.create(
+            template_name="Planning Task Template",
+            task_mapping=task_mapping
+        )
+        
+        # Update task to use template
+        task.template = task_template
+        task.save()
+        
         self.assertEqual(task.work_order, work_order)
-        self.assertEqual(task_mapping.task, task)
+        self.assertEqual(task.template.task_mapping, task_mapping)
 
     def test_configuration_number_sequences(self):
         config = Configuration.objects.create(

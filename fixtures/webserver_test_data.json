@@ -688,6 +688,9 @@
     "fields": {
       "template_name": "TEST1",
       "description": "this is the first work order template to be defined in the test data",
+      "template_type": "product",
+      "product_type": "furniture",
+      "base_price": "2500.00",
       "is_active": true,
       "created_date": "2025-09-06T17:29:48.279Z"
     }
@@ -701,7 +704,7 @@
       "units": "hours",
       "rate": "100.00",
       "est_qty": "4.00",
-      "task_mapping": null,
+      "task_mapping": 1,
       "work_order_template": 1,
       "created_date": "2025-09-06T17:30:38.271Z",
       "is_active": true
@@ -716,7 +719,7 @@
       "units": "hours",
       "rate": "150.00",
       "est_qty": "5.00",
-      "task_mapping": null,
+      "task_mapping": 2,
       "work_order_template": 1,
       "created_date": "2025-09-06T17:31:20.508Z",
       "is_active": true
@@ -731,7 +734,7 @@
       "units": "minutes",
       "rate": "22.00",
       "est_qty": "300.00",
-      "task_mapping": null,
+      "task_mapping": 3,
       "work_order_template": 1,
       "created_date": "2025-09-06T17:31:44.072Z",
       "is_active": true
@@ -746,7 +749,7 @@
       "units": "hours",
       "rate": "100.00",
       "est_qty": "6.00",
-      "task_mapping": null,
+      "task_mapping": 4,
       "work_order_template": 1,
       "created_date": "2025-09-06T17:38:15.359Z",
       "is_active": true
@@ -761,7 +764,7 @@
       "units": "hours",
       "rate": "100.00",
       "est_qty": "10.00",
-      "task_mapping": null,
+      "task_mapping": 5,
       "work_order_template": 1,
       "created_date": "2025-09-06T17:39:14.272Z",
       "is_active": true
@@ -776,7 +779,7 @@
       "units": "hours",
       "rate": "100.00",
       "est_qty": "2.00",
-      "task_mapping": null,
+      "task_mapping": 6,
       "work_order_template": 1,
       "created_date": "2025-09-06T17:40:08.033Z",
       "is_active": true
@@ -1410,6 +1413,447 @@
       "description": "Drywall sheets for office renovation",
       "price_currency": "12.00",
       "bill": 1
+    }
+  },
+  {
+    "model": "jobs.taskmapping",
+    "pk": 1,
+    "fields": {
+      "step_type": "labor",
+      "mapping_strategy": "direct",
+      "default_product_type": "",
+      "line_item_name": "",
+      "line_item_description": "Research and planning activities",
+      "task_type_id": "RESEARCH",
+      "breakdown_of_task": "Initial research and project planning phase"
+    }
+  },
+  {
+    "model": "jobs.taskmapping",
+    "pk": 2,
+    "fields": {
+      "step_type": "labor",
+      "mapping_strategy": "direct",
+      "default_product_type": "",
+      "line_item_name": "",
+      "line_item_description": "CAD design and modeling work",
+      "task_type_id": "CAD",
+      "breakdown_of_task": "Computer-aided design, drawing, detailing, and modeling"
+    }
+  },
+  {
+    "model": "jobs.taskmapping",
+    "pk": 3,
+    "fields": {
+      "step_type": "labor",
+      "mapping_strategy": "bundle_to_product",
+      "default_product_type": "furniture",
+      "line_item_name": "",
+      "line_item_description": "",
+      "task_type_id": "CUT",
+      "breakdown_of_task": "Cutting and shaping materials for production"
+    }
+  },
+  {
+    "model": "jobs.taskmapping",
+    "pk": 4,
+    "fields": {
+      "step_type": "labor",
+      "mapping_strategy": "bundle_to_product",
+      "default_product_type": "furniture",
+      "line_item_name": "",
+      "line_item_description": "",
+      "task_type_id": "ASSEMBLE",
+      "breakdown_of_task": "Assembly and construction of furniture pieces"
+    }
+  },
+  {
+    "model": "jobs.taskmapping",
+    "pk": 5,
+    "fields": {
+      "step_type": "labor",
+      "mapping_strategy": "bundle_to_product",
+      "default_product_type": "furniture",
+      "line_item_name": "",
+      "line_item_description": "",
+      "task_type_id": "FINISH",
+      "breakdown_of_task": "Finishing work including sanding, staining, and coating"
+    }
+  },
+  {
+    "model": "jobs.taskmapping",
+    "pk": 6,
+    "fields": {
+      "step_type": "labor",
+      "mapping_strategy": "bundle_to_service",
+      "default_product_type": "delivery",
+      "line_item_name": "",
+      "line_item_description": "",
+      "task_type_id": "PALLET",
+      "breakdown_of_task": "Packaging and preparation for delivery"
+    }
+  },
+  {
+    "model": "jobs.taskmapping",
+    "pk": 7,
+    "fields": {
+      "step_type": "material",
+      "mapping_strategy": "bundle_to_product",
+      "default_product_type": "furniture",
+      "line_item_name": "",
+      "line_item_description": "",
+      "task_type_id": "MATERIALS",
+      "breakdown_of_task": "Raw materials for furniture production"
+    }
+  },
+  {
+    "model": "jobs.taskmapping",
+    "pk": 8,
+    "fields": {
+      "step_type": "overhead",
+      "mapping_strategy": "exclude",
+      "default_product_type": "",
+      "line_item_name": "",
+      "line_item_description": "",
+      "task_type_id": "QA",
+      "breakdown_of_task": "Internal quality assurance and inspection"
+    }
+  },
+  {
+    "model": "jobs.productbundlingrule",
+    "pk": 1,
+    "fields": {
+      "rule_name": "Furniture Bundling Rule",
+      "product_type": "furniture",
+      "line_item_template": "Custom Furniture Item",
+      "pricing_method": "sum_components",
+      "include_materials": true,
+      "include_labor": true,
+      "include_overhead": false
+    }
+  },
+  {
+    "model": "jobs.productbundlingrule",
+    "pk": 2,
+    "fields": {
+      "rule_name": "Delivery Service Bundling",
+      "product_type": "delivery",
+      "line_item_template": "Delivery and Setup Services",
+      "pricing_method": "sum_components",
+      "include_materials": false,
+      "include_labor": true,
+      "include_overhead": false
+    }
+  },
+  {
+    "model": "jobs.estworksheet",
+    "pk": 1,
+    "fields": {
+      "job": 1,
+      "template": null,
+      "estimate": 2,
+      "status": "final",
+      "version": 1,
+      "parent": null,
+      "created_date": "2025-07-02T21:45:16.554Z"
+    }
+  },
+  {
+    "model": "jobs.estworksheet",
+    "pk": 2,
+    "fields": {
+      "job": 2,
+      "template": null,
+      "estimate": 3,
+      "status": "draft",
+      "version": 1,
+      "parent": null,
+      "created_date": "2025-07-17T21:45:16.554Z"
+    }
+  },
+  {
+    "model": "jobs.estworksheet",
+    "pk": 3,
+    "fields": {
+      "job": 3,
+      "template": null,
+      "estimate": 4,
+      "status": "draft",
+      "version": 1,
+      "parent": null,
+      "created_date": "2025-07-27T21:45:16.554Z"
+    }
+  },
+  {
+    "model": "jobs.task",
+    "pk": 18,
+    "fields": {
+      "parent_task": null,
+      "assignee": null,
+      "work_order": null,
+      "est_worksheet": 2,
+      "name": "Kitchen Cabinet Design",
+      "units": "hours",
+      "rate": "150.00",
+      "est_qty": "8.00",
+      "template": 2
+    }
+  },
+  {
+    "model": "jobs.task",
+    "pk": 19,
+    "fields": {
+      "parent_task": null,
+      "assignee": null,
+      "work_order": null,
+      "est_worksheet": 2,
+      "name": "Cabinet Cutting",
+      "units": "hours",
+      "rate": "75.00",
+      "est_qty": "12.00",
+      "template": 3
+    }
+  },
+  {
+    "model": "jobs.task",
+    "pk": 20,
+    "fields": {
+      "parent_task": null,
+      "assignee": null,
+      "work_order": null,
+      "est_worksheet": 2,
+      "name": "Cabinet Assembly",
+      "units": "hours",
+      "rate": "100.00",
+      "est_qty": "16.00",
+      "template": 4
+    }
+  },
+  {
+    "model": "jobs.task",
+    "pk": 21,
+    "fields": {
+      "parent_task": null,
+      "assignee": null,
+      "work_order": null,
+      "est_worksheet": 2,
+      "name": "Cabinet Finishing",
+      "units": "hours",
+      "rate": "125.00",
+      "est_qty": "10.00",
+      "template": 5
+    }
+  },
+  {
+    "model": "jobs.task",
+    "pk": 22,
+    "fields": {
+      "parent_task": null,
+      "assignee": null,
+      "work_order": null,
+      "est_worksheet": 2,
+      "name": "Wood Materials",
+      "units": "board_feet",
+      "rate": "8.50",
+      "est_qty": "200.00",
+      "template": null
+    }
+  },
+  {
+    "model": "jobs.task",
+    "pk": 23,
+    "fields": {
+      "parent_task": null,
+      "assignee": null,
+      "work_order": null,
+      "est_worksheet": 2,
+      "name": "Delivery and Installation",
+      "units": "hours",
+      "rate": "85.00",
+      "est_qty": "4.00",
+      "template": 6
+    }
+  },
+  {
+    "model": "jobs.task",
+    "pk": 24,
+    "fields": {
+      "parent_task": null,
+      "assignee": null,
+      "work_order": null,
+      "est_worksheet": 2,
+      "name": "Quality Inspection",
+      "units": "hours",
+      "rate": "90.00",
+      "est_qty": "2.00",
+      "template": null
+    }
+  },
+  {
+    "model": "jobs.task",
+    "pk": 25,
+    "fields": {
+      "parent_task": null,
+      "assignee": null,
+      "work_order": null,
+      "est_worksheet": 1,
+      "name": "Site Research and Planning",
+      "units": "hours",
+      "rate": "100.00",
+      "est_qty": "3.00",
+      "template": 1
+    }
+  },
+  {
+    "model": "jobs.task",
+    "pk": 26,
+    "fields": {
+      "parent_task": null,
+      "assignee": null,
+      "work_order": null,
+      "est_worksheet": 1,
+      "name": "Technical Drawing",
+      "units": "hours",
+      "rate": "150.00",
+      "est_qty": "4.00",
+      "template": 2
+    }
+  },
+  {
+    "model": "jobs.task",
+    "pk": 27,
+    "fields": {
+      "parent_task": null,
+      "assignee": null,
+      "work_order": null,
+      "est_worksheet": 1,
+      "name": "Material Cutting",
+      "units": "minutes",
+      "rate": "22.00",
+      "est_qty": "180.00",
+      "template": 3
+    }
+  },
+  {
+    "model": "jobs.task",
+    "pk": 28,
+    "fields": {
+      "parent_task": null,
+      "assignee": null,
+      "work_order": null,
+      "est_worksheet": 1,
+      "name": "Final Assembly",
+      "units": "hours",
+      "rate": "100.00",
+      "est_qty": "4.00",
+      "template": 4
+    }
+  },
+  {
+    "model": "jobs.task",
+    "pk": 29,
+    "fields": {
+      "parent_task": null,
+      "assignee": null,
+      "work_order": null,
+      "est_worksheet": 3,
+      "name": "HVAC System Research",
+      "units": "hours",
+      "rate": "100.00",
+      "est_qty": "2.00",
+      "template": 1
+    }
+  },
+  {
+    "model": "jobs.task",
+    "pk": 30,
+    "fields": {
+      "parent_task": null,
+      "assignee": null,
+      "work_order": null,
+      "est_worksheet": 3,
+      "name": "HVAC Design and Drawings",
+      "units": "hours",
+      "rate": "150.00",
+      "est_qty": "6.00",
+      "template": 2
+    }
+  },
+  {
+    "model": "jobs.task",
+    "pk": 31,
+    "fields": {
+      "parent_task": null,
+      "assignee": null,
+      "work_order": null,
+      "est_worksheet": 3,
+      "name": "Ductwork Cutting",
+      "units": "minutes",
+      "rate": "22.00",
+      "est_qty": "420.00",
+      "template": 3
+    }
+  },
+  {
+    "model": "jobs.task",
+    "pk": 32,
+    "fields": {
+      "parent_task": null,
+      "assignee": null,
+      "work_order": null,
+      "est_worksheet": 3,
+      "name": "HVAC Assembly and Installation",
+      "units": "hours",
+      "rate": "100.00",
+      "est_qty": "8.00",
+      "template": 4
+    }
+  },
+  {
+    "model": "jobs.task",
+    "pk": 33,
+    "fields": {
+      "parent_task": null,
+      "assignee": null,
+      "work_order": null,
+      "est_worksheet": 3,
+      "name": "System Finishing and Testing",
+      "units": "hours",
+      "rate": "100.00",
+      "est_qty": "3.00",
+      "template": 5
+    }
+  },
+  {
+    "model": "jobs.taskinstancemapping",
+    "pk": 1,
+    "fields": {
+      "task": 19,
+      "product_identifier": "kitchen_cabinet_set_001"
+    }
+  },
+  {
+    "model": "jobs.taskinstancemapping",
+    "pk": 2,
+    "fields": {
+      "task": 20,
+      "product_identifier": "kitchen_cabinet_set_001"
+    }
+  },
+  {
+    "model": "jobs.taskinstancemapping",
+    "pk": 3,
+    "fields": {
+      "task": 21,
+      "product_identifier": "kitchen_cabinet_set_001"
+    }
+  },
+  {
+    "model": "jobs.taskinstancemapping",
+    "pk": 4,
+    "fields": {
+      "task": 22,
+      "product_identifier": "kitchen_cabinet_set_001"
     }
   }
 ]

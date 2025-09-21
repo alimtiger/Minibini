@@ -487,8 +487,11 @@
     "model": "jobs.taskmapping",
     "pk": 1,
     "fields": {
-      "task": null,
-      "step_type": "preparation",
+      "step_type": "labor",
+      "mapping_strategy": "direct",
+      "default_product_type": "",
+      "line_item_name": "",
+      "line_item_description": "Site preparation and safety setup",
       "task_type_id": "PREP001",
       "breakdown_of_task": "Site preparation and safety setup"
     }
@@ -497,8 +500,11 @@
     "model": "jobs.taskmapping",
     "pk": 2,
     "fields": {
-      "task": null,
       "step_type": "material",
+      "mapping_strategy": "direct",
+      "default_product_type": "",
+      "line_item_name": "",
+      "line_item_description": "Material delivery and staging",
       "task_type_id": "MAT001",
       "breakdown_of_task": "Material delivery and staging"
     }
@@ -507,8 +513,11 @@
     "model": "jobs.taskmapping",
     "pk": 3,
     "fields": {
-      "task": null,
-      "step_type": "installation",
+      "step_type": "labor",
+      "mapping_strategy": "direct",
+      "default_product_type": "",
+      "line_item_name": "",
+      "line_item_description": "Installation and construction work",
       "task_type_id": "INST001",
       "breakdown_of_task": "Installation and construction work"
     }
@@ -517,8 +526,11 @@
     "model": "jobs.taskmapping",
     "pk": 4,
     "fields": {
-      "task": null,
-      "step_type": "electrical",
+      "step_type": "labor",
+      "mapping_strategy": "direct",
+      "default_product_type": "",
+      "line_item_name": "",
+      "line_item_description": "Electrical work and connections",
       "task_type_id": "ELEC001",
       "breakdown_of_task": "Electrical work and connections"
     }
