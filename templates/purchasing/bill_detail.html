@@ -25,6 +25,16 @@
         </td>
     </tr>
     <tr>
+        <td>Associated Job</td>
+        <td>
+            {% if bill.purchase_order.job %}
+                <a href="{% url 'jobs:detail' bill.purchase_order.job.pk %}">{{ bill.purchase_order.job }}</a>
+            {% else %}
+                No job assigned
+            {% endif %}
+        </td>
+    </tr>
+    <tr>
         <td>Contact</td>
         <td>{{ bill.contact }}</td>
     </tr>
