@@ -233,5 +233,5 @@ class TaskMappingModelFixtureTest(FixtureTestCase):
             mapping_strategy="direct",
             task_type_id="DEMO_EXEC_001"
         )
-        expected_str = f"Task Mapping {mapping.task_mapping_id} (direct)"
+        expected_str = "DEMO_EXEC_001 - "
         self.assertEqual(str(mapping), expected_str)

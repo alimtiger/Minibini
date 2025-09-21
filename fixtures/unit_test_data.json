@@ -563,9 +563,7 @@
       "description": "Standard site preparation and safety setup",
       "units": "days",
       "rate": "350.00",
-      "est_qty": "1.00",
       "task_mapping": 1,
-      "work_order_template": 1,
       "is_active": true,
       "created_date": "2023-01-15T10:30:00Z"
     }
@@ -578,9 +576,7 @@
       "description": "Material procurement and delivery setup",
       "units": "loads",
       "rate": "125.00",
-      "est_qty": "2.00",
       "task_mapping": 2,
-      "work_order_template": 1,
       "is_active": true,
       "created_date": "2023-01-15T11:00:00Z"
     }
@@ -593,9 +589,7 @@
       "description": "Standard electrical rough-in work",
       "units": "linear_feet",
       "rate": "12.50",
-      "est_qty": "150.00",
       "task_mapping": 4,
-      "work_order_template": 1,
       "is_active": true,
       "created_date": "2023-01-15T11:30:00Z"
     }
@@ -608,11 +602,49 @@
       "description": "General construction and installation",
       "units": "square_feet",
       "rate": "25.75",
-      "est_qty": "200.00",
       "task_mapping": 3,
-      "work_order_template": 1,
       "is_active": true,
       "created_date": "2023-01-15T12:00:00Z"
+    }
+  },
+  {
+    "model": "jobs.templatetaskassociation",
+    "pk": 1,
+    "fields": {
+      "work_order_template": 1,
+      "task_template": 1,
+      "est_qty": "1.00",
+      "sort_order": 1
+    }
+  },
+  {
+    "model": "jobs.templatetaskassociation",
+    "pk": 2,
+    "fields": {
+      "work_order_template": 1,
+      "task_template": 2,
+      "est_qty": "2.00",
+      "sort_order": 2
+    }
+  },
+  {
+    "model": "jobs.templatetaskassociation",
+    "pk": 3,
+    "fields": {
+      "work_order_template": 1,
+      "task_template": 3,
+      "est_qty": "150.00",
+      "sort_order": 3
+    }
+  },
+  {
+    "model": "jobs.templatetaskassociation",
+    "pk": 4,
+    "fields": {
+      "work_order_template": 1,
+      "task_template": 4,
+      "est_qty": "200.00",
+      "sort_order": 4
     }
   }
 ]

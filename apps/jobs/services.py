@@ -59,9 +59,15 @@ class WorkOrderService:
             status='draft'
         )
         
-        # Generate Tasks from TaskTemplates
-        for task_template in template.tasktemplate_set.filter(is_active=True):
-            TaskService.create_from_template(task_template, work_order)
+        # Generate Tasks from TaskTemplate associations
+        from .models import TemplateTaskAssociation
+        associations = TemplateTaskAssociation.objects.filter(
+            work_order_template=template,
+            task_template__is_active=True
+        ).order_by('sort_order', 'task_template__template_name')
+        
+        for association in associations:
+            association.task_template.generate_task(work_order, association.est_qty)
             
         return work_order
     

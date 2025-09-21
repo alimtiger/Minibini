@@ -21,10 +21,9 @@ class TaskTemplateForm(forms.ModelForm):
     
     class Meta:
         model = TaskTemplate
-        fields = ['template_name', 'description', 'units', 'rate', 'est_qty', 'task_mapping', 'is_active']
+        fields = ['template_name', 'description', 'units', 'rate', 'task_mapping', 'is_active']
         widgets = {
             'description': forms.Textarea(attrs={'rows': 3}),
             'units': forms.TextInput(attrs={'placeholder': 'e.g., hours, pieces'}),
             'rate': forms.NumberInput(attrs={'step': '0.01', 'placeholder': '0.00'}),
-            'est_qty': forms.NumberInput(attrs={'step': '0.01', 'placeholder': '0.00'}),
         }

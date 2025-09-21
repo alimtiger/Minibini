@@ -271,7 +271,7 @@ class TaskMapping(models.Model):
     breakdown_of_task = models.TextField(blank=True)
 
     def __str__(self):
-        return f"Task Mapping {self.pk} ({self.mapping_strategy})"
+        return f"{self.task_type_id} - {self.breakdown_of_task}"
 
 
 class TaskInstanceMapping(models.Model):
@@ -321,21 +321,38 @@ class WorkOrderTemplate(models.Model):
         for instance in range(1, quantity + 1):
             product_identifier = f"{self.product_type}_{worksheet.est_worksheet_id}_{instance}"
             
-            # Get root-level task templates for this work order template
-            root_templates = self.tasktemplate_set.filter(
-                parent_template__isnull=True,
-                is_active=True
-            )
+            # Get task template associations for this work order template
+            associations = TemplateTaskAssociation.objects.filter(
+                work_order_template=self,
+                task_template__parent_template__isnull=True,  # Root-level templates only
+                task_template__is_active=True
+            ).order_by('sort_order', 'task_template__template_name')
             
-            for task_template in root_templates:
-                task = task_template.generate_task(
+            for association in associations:
+                task = association.task_template.generate_task(
                     worksheet,
+                    est_qty=association.est_qty,
                     product_identifier=product_identifier,
                     product_instance=instance if quantity > 1 else None
                 )
                 generated_tasks.append(task)
         
         return generated_tasks
+
+
+class TemplateTaskAssociation(models.Model):
+    """Association between WorkOrderTemplate and TaskTemplate with customizable quantities"""
+    work_order_template = models.ForeignKey(WorkOrderTemplate, on_delete=models.CASCADE)
+    task_template = models.ForeignKey('TaskTemplate', on_delete=models.CASCADE)
+    est_qty = models.DecimalField(max_digits=10, decimal_places=2)
+    sort_order = models.IntegerField(default=0)
+    
+    class Meta:
+        unique_together = ['work_order_template', 'task_template']
+        ordering = ['sort_order', 'task_template__template_name']
+    
+    def __str__(self):
+        return f"{self.work_order_template.template_name} -> {self.task_template.template_name} ({self.est_qty})"
 
 
 class TaskTemplate(models.Model):
@@ -346,11 +363,10 @@ class TaskTemplate(models.Model):
     description = models.TextField(blank=True)
     units = models.CharField(max_length=50, blank=True)
     rate = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
-    est_qty = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     
     # Relationships
     task_mapping = models.ForeignKey(TaskMapping, on_delete=models.CASCADE, null=True, blank=True)
-    work_order_template = models.ForeignKey(WorkOrderTemplate, on_delete=models.CASCADE, null=True, blank=True)
+    work_order_templates = models.ManyToManyField(WorkOrderTemplate, through='TemplateTaskAssociation', related_name='task_templates')
     parent_template = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True, related_name='child_templates')
     
     created_date = models.DateTimeField(auto_now_add=True)
@@ -359,15 +375,15 @@ class TaskTemplate(models.Model):
     def __str__(self):
         return self.template_name
         
-    def generate_task(self, container, product_identifier=None, product_instance=None, assignee=None):
-        """Generate a Task from this template"""
+    def generate_task(self, container, est_qty, product_identifier=None, product_instance=None, assignee=None):
+        """Generate a Task from this template with specified quantity"""
         task = Task.objects.create(
             work_order=container if isinstance(container, WorkOrder) else None,
             est_worksheet=container if isinstance(container, EstWorksheet) else None,
             name=self.template_name,
             units=self.units,
             rate=self.rate,
-            est_qty=self.est_qty,
+            est_qty=est_qty,
             template=self,
             assignee=assignee
         )
@@ -376,6 +392,7 @@ class TaskTemplate(models.Model):
         for child_template in self.child_templates.filter(is_active=True):
             child_task = child_template.generate_task(
                 container, 
+                est_qty=est_qty,  # Pass the same quantity to child tasks
                 product_identifier=product_identifier,
                 product_instance=product_instance,
                 assignee=assignee

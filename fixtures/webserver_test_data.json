@@ -703,9 +703,7 @@
       "description": "Research that has to happen before the project can be started",
       "units": "hours",
       "rate": "100.00",
-      "est_qty": "4.00",
       "task_mapping": 1,
-      "work_order_template": 1,
       "created_date": "2025-09-06T17:30:38.271Z",
       "is_active": true
     }
@@ -718,9 +716,7 @@
       "description": "Design, drawing, detailing, modelling",
       "units": "hours",
       "rate": "150.00",
-      "est_qty": "5.00",
       "task_mapping": 2,
-      "work_order_template": 1,
       "created_date": "2025-09-06T17:31:20.508Z",
       "is_active": true
     }
@@ -733,9 +729,7 @@
       "description": "Cutting parts",
       "units": "minutes",
       "rate": "22.00",
-      "est_qty": "300.00",
       "task_mapping": 3,
-      "work_order_template": 1,
       "created_date": "2025-09-06T17:31:44.072Z",
       "is_active": true
     }
@@ -748,9 +742,7 @@
       "description": "Glue and staple the parts together",
       "units": "hours",
       "rate": "100.00",
-      "est_qty": "6.00",
       "task_mapping": 4,
-      "work_order_template": 1,
       "created_date": "2025-09-06T17:38:15.359Z",
       "is_active": true
     }
@@ -763,9 +755,7 @@
       "description": "Sand and fill and apply finish, or veneer, or laminate",
       "units": "hours",
       "rate": "100.00",
-      "est_qty": "10.00",
       "task_mapping": 5,
-      "work_order_template": 1,
       "created_date": "2025-09-06T17:39:14.272Z",
       "is_active": true
     }
@@ -778,9 +768,7 @@
       "description": "Palletize piece, build or customize a pallet if needed",
       "units": "hours",
       "rate": "100.00",
-      "est_qty": "2.00",
       "task_mapping": 6,
-      "work_order_template": 1,
       "created_date": "2025-09-06T17:40:08.033Z",
       "is_active": true
     }
@@ -1871,6 +1859,66 @@
     "fields": {
       "task": 22,
       "product_identifier": "kitchen_cabinet_set_001"
+    }
+  },
+  {
+    "model": "jobs.templatetaskassociation",
+    "pk": 1,
+    "fields": {
+      "work_order_template": 1,
+      "task_template": 1,
+      "est_qty": "4.00",
+      "sort_order": 1
+    }
+  },
+  {
+    "model": "jobs.templatetaskassociation",
+    "pk": 2,
+    "fields": {
+      "work_order_template": 1,
+      "task_template": 2,
+      "est_qty": "5.00",
+      "sort_order": 2
+    }
+  },
+  {
+    "model": "jobs.templatetaskassociation",
+    "pk": 3,
+    "fields": {
+      "work_order_template": 1,
+      "task_template": 3,
+      "est_qty": "300.00",
+      "sort_order": 3
+    }
+  },
+  {
+    "model": "jobs.templatetaskassociation",
+    "pk": 4,
+    "fields": {
+      "work_order_template": 1,
+      "task_template": 4,
+      "est_qty": "6.00",
+      "sort_order": 4
+    }
+  },
+  {
+    "model": "jobs.templatetaskassociation",
+    "pk": 5,
+    "fields": {
+      "work_order_template": 1,
+      "task_template": 5,
+      "est_qty": "10.00",
+      "sort_order": 5
+    }
+  },
+  {
+    "model": "jobs.templatetaskassociation",
+    "pk": 6,
+    "fields": {
+      "work_order_template": 1,
+      "task_template": 6,
+      "est_qty": "2.00",
+      "sort_order": 6
     }
   }
 ]

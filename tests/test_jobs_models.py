@@ -295,7 +295,7 @@ class TaskMappingModelTest(TestCase):
             mapping_strategy="bundle_to_product",
             task_type_id="EXEC_001"
         )
-        self.assertEqual(str(mapping), f"Task Mapping {mapping.pk} (bundle_to_product)")
+        self.assertEqual(str(mapping), "EXEC_001 - ")
         
     def test_task_mapping_optional_breakdown(self):
         mapping = TaskMapping.objects.create(
@@ -383,18 +383,25 @@ class TaskTemplateModelTest(TestCase):
             description="Standard electrical installation task",
             units="outlets",
             rate=Decimal('45.00'),
-            est_qty=Decimal('12.00'),
             task_mapping=self.task_mapping,
-            work_order_template=self.work_order_template,
             is_active=True
         )
+        
+        # Create association with quantity
+        from apps.jobs.models import TemplateTaskAssociation
+        association = TemplateTaskAssociation.objects.create(
+            work_order_template=self.work_order_template,
+            task_template=template,
+            est_qty=Decimal('12.00')
+        )
+        
         self.assertEqual(template.template_name, "Electrical Installation")
         self.assertEqual(template.description, "Standard electrical installation task")
         self.assertEqual(template.units, "outlets")
         self.assertEqual(template.rate, Decimal('45.00'))
-        self.assertEqual(template.est_qty, Decimal('12.00'))
         self.assertEqual(template.task_mapping, self.task_mapping)
-        self.assertEqual(template.work_order_template, self.work_order_template)
+        self.assertIn(self.work_order_template, template.work_order_templates.all())
+        self.assertEqual(association.est_qty, Decimal('12.00'))
         self.assertTrue(template.is_active)
         self.assertIsNotNone(template.created_date)
         
@@ -414,8 +421,7 @@ class TaskTemplateModelTest(TestCase):
         self.assertEqual(template.description, "")
         self.assertEqual(template.units, "")
         self.assertIsNone(template.rate)
-        self.assertIsNone(template.est_qty)
-        self.assertIsNone(template.work_order_template)
+        self.assertEqual(template.work_order_templates.count(), 0)
     
     def test_task_template_without_task_mapping(self):
         """Test TaskTemplate can be created without TaskMapping."""
@@ -423,8 +429,7 @@ class TaskTemplateModelTest(TestCase):
             template_name="Template Without Mapping",
             description="Template without task mapping",
             units="hours",
-            rate=Decimal('50.00'),
-            est_qty=Decimal('8.00')
+            rate=Decimal('50.00')
         )
         self.assertIsNone(template.task_mapping)
         self.assertEqual(template.template_name, "Template Without Mapping")
@@ -439,27 +444,32 @@ class TaskTemplateModelTest(TestCase):
         )
         self.assertEqual(template.units, "")
         self.assertIsNone(template.rate)
-        self.assertIsNone(template.est_qty)
         
     def test_task_template_pricing_calculation(self):
-        """Test using TaskTemplate fields for cost calculations."""
+        """Test using TaskTemplate fields with association quantities for cost calculations."""
         template = TaskTemplate.objects.create(
             template_name="Material Template",
             task_mapping=self.task_mapping,
             units="square_feet",
-            rate=Decimal('15.25'),
+            rate=Decimal('15.25')
+        )
+        
+        # Create association with quantity
+        from apps.jobs.models import TemplateTaskAssociation
+        association = TemplateTaskAssociation.objects.create(
+            work_order_template=self.work_order_template,
+            task_template=template,
             est_qty=Decimal('200.00')
         )
         
-        estimated_cost = template.rate * template.est_qty if template.rate and template.est_qty else Decimal('0.00')
+        estimated_cost = template.rate * association.est_qty if template.rate and association.est_qty else Decimal('0.00')
         self.assertEqual(estimated_cost, Decimal('3050.00'))
         
     def test_task_template_without_work_order_template(self):
         """Test TaskTemplate can exist without WorkOrderTemplate."""
         template = TaskTemplate.objects.create(
             template_name="Standalone Template",
-            task_mapping=self.task_mapping,
-            work_order_template=None
+            task_mapping=self.task_mapping
         )
-        self.assertIsNone(template.work_order_template)
+        self.assertEqual(template.work_order_templates.count(), 0)
         self.assertEqual(template.task_mapping, self.task_mapping)

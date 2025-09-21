@@ -77,32 +77,6 @@ def add_work_order_template(request):
     return render(request, 'jobs/add_work_order_template.html', {'form': form})
 
 
-def add_task_template(request, template_id):
-    work_order_template = get_object_or_404(WorkOrderTemplate, template_id=template_id)
-
-    if request.method == 'POST':
-        form = TaskTemplateForm(request.POST)
-        if form.is_valid():
-            task_template = form.save(commit=False)
-            task_template.work_order_template = work_order_template
-            task_template.save()
-            messages.success(request, f'Task Template "{task_template.template_name}" added successfully.')
-
-            if 'add_another' in request.POST:
-                return redirect('jobs:add_task_template', template_id=template_id)
-            else:
-                return redirect('jobs:work_order_template_detail', template_id=template_id)
-    else:
-        form = TaskTemplateForm()
-
-    existing_tasks = TaskTemplate.objects.filter(work_order_template=work_order_template)
-
-    return render(request, 'jobs/add_task_template.html', {
-        'form': form,
-        'work_order_template': work_order_template,
-        'existing_tasks': existing_tasks
-    })
-
 
 def work_order_template_list(request):
     templates = WorkOrderTemplate.objects.filter(is_active=True).order_by('-created_date')
@@ -111,10 +85,53 @@ def work_order_template_list(request):
 
 def work_order_template_detail(request, template_id):
     template = get_object_or_404(WorkOrderTemplate, template_id=template_id)
-    task_templates = TaskTemplate.objects.filter(work_order_template=template, is_active=True)
+    
+    # Handle TaskTemplate association
+    if request.method == 'POST' and 'associate_task' in request.POST:
+        task_template_id = request.POST.get('task_template_id')
+        est_qty = request.POST.get('est_qty', '1.00')
+        if task_template_id:
+            from .models import TemplateTaskAssociation
+            task_template = get_object_or_404(TaskTemplate, template_id=task_template_id)
+            association, created = TemplateTaskAssociation.objects.get_or_create(
+                work_order_template=template,
+                task_template=task_template,
+                defaults={'est_qty': est_qty}
+            )
+            if created:
+                messages.success(request, f'Task Template "{task_template.template_name}" associated with quantity {est_qty}.')
+            else:
+                messages.warning(request, f'Task Template "{task_template.template_name}" is already associated.')
+        return redirect('jobs:work_order_template_detail', template_id=template_id)
+    
+    # Handle TaskTemplate disassociation
+    if request.method == 'POST' and 'remove_task' in request.POST:
+        task_template_id = request.POST.get('task_template_id')
+        if task_template_id:
+            from .models import TemplateTaskAssociation
+            task_template = get_object_or_404(TaskTemplate, template_id=task_template_id)
+            TemplateTaskAssociation.objects.filter(
+                work_order_template=template,
+                task_template=task_template
+            ).delete()
+            messages.success(request, f'Task Template "{task_template.template_name}" removed successfully.')
+        return redirect('jobs:work_order_template_detail', template_id=template_id)
+    
+    # Get task template associations
+    from .models import TemplateTaskAssociation
+    associations = TemplateTaskAssociation.objects.filter(
+        work_order_template=template,
+        task_template__is_active=True
+    ).select_related('task_template').order_by('sort_order', 'task_template__template_name')
+    
+    # Get available task templates (not yet associated)
+    associated_task_ids = associations.values_list('task_template_id', flat=True)
+    available_templates = TaskTemplate.objects.filter(is_active=True).exclude(template_id__in=associated_task_ids)
+    
     return render(request, 'jobs/work_order_template_detail.html', {
         'template': template,
-        'task_templates': task_templates
+        'associations': associations,
+        'available_templates': available_templates
     })
 
 
@@ -175,4 +192,24 @@ def task_mapping_list(request):
     """List all TaskMappings"""
     mappings = TaskMapping.objects.all().order_by('mapping_strategy', 'step_type', 'task_type_id')
     return render(request, 'jobs/task_mapping_list.html', {'mappings': mappings})
+
+
+def task_template_list(request):
+    """List all TaskTemplates with all fields"""
+    templates = TaskTemplate.objects.filter(is_active=True).select_related('task_mapping').prefetch_related('work_order_templates').order_by('template_name')
+    return render(request, 'jobs/task_template_list.html', {'templates': templates})
+
+
+def add_task_template_standalone(request):
+    """Create a new TaskTemplate independently"""
+    if request.method == 'POST':
+        form = TaskTemplateForm(request.POST)
+        if form.is_valid():
+            task_template = form.save()
+            messages.success(request, f'Task Template "{task_template.template_name}" created successfully.')
+            return redirect('jobs:task_template_list')
+    else:
+        form = TaskTemplateForm()
+
+    return render(request, 'jobs/add_task_template_standalone.html', {'form': form})
 
