@@ -172,7 +172,7 @@ class EstimateRevisionTests(TestCase):
         self.line_item1 = EstimateLineItem.objects.create(
             estimate=self.estimate,
             price_list_item=self.price_list_item,
-            line_number='LI-001',
+            line_number=1,
             qty=5.0,
             units='hour',
             description='Line Item 1',
@@ -181,7 +181,7 @@ class EstimateRevisionTests(TestCase):
 
         self.line_item2 = EstimateLineItem.objects.create(
             estimate=self.estimate,
-            line_number='LI-002',
+            line_number=2,
             qty=10.0,
             units='each',
             description='Line Item 2',
@@ -262,14 +262,14 @@ class EstimateRevisionTests(TestCase):
         self.assertEqual(new_line_items.count(), 2)
 
         # Check details match
-        new_li1 = new_line_items.filter(line_number='LI-001').first()
+        new_li1 = new_line_items.filter(line_number=1).first()
         self.assertIsNotNone(new_li1)
         self.assertEqual(new_li1.qty, 5.0)
         self.assertEqual(new_li1.units, 'hour')
         self.assertEqual(new_li1.description, 'Line Item 1')
         self.assertEqual(new_li1.price_currency, 100.00)
 
-        new_li2 = new_line_items.filter(line_number='LI-002').first()
+        new_li2 = new_line_items.filter(line_number=2).first()
         self.assertIsNotNone(new_li2)
         self.assertEqual(new_li2.qty, 10.0)
         self.assertEqual(new_li2.units, 'each')

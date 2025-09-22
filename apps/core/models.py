@@ -48,7 +48,7 @@ class BaseLineItem(models.Model):
     line_item_id = models.AutoField(primary_key=True)
     task = models.ForeignKey('jobs.Task', on_delete=models.CASCADE, null=True, blank=True)
     price_list_item = models.ForeignKey('invoicing.PriceListItem', on_delete=models.CASCADE, null=True, blank=True)
-    line_number = models.CharField(max_length=50, blank=True)
+    line_number = models.PositiveIntegerField(blank=True, null=True)
     qty = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal('0.00'))
     units = models.CharField(max_length=50, blank=True)
     description = models.TextField(blank=True)
@@ -67,9 +67,32 @@ class BaseLineItem(models.Model):
             raise ValidationError("LineItem cannot have both task and price_list_item")
 
     def save(self, *args, **kwargs):
-        """Override save to ensure validation is always run."""
+        """Override save to ensure validation is always run and handle automatic line numbering."""
+        from django.db import transaction
+
+        if self.line_number is None:
+            with transaction.atomic():
+                # Get the parent field name from the concrete model
+                parent_field_name = self.get_parent_field_name()
+                parent_obj = getattr(self, parent_field_name)
+
+                if parent_obj:
+                    # Use select_for_update to prevent race conditions
+                    max_line = self.__class__.objects.filter(
+                        **{parent_field_name: parent_obj}
+                    ).select_for_update().aggregate(
+                        max_line=models.Max('line_number')
+                    )['max_line']
+                    self.line_number = (max_line or 0) + 1
+                else:
+                    self.line_number = 1
+
         self.full_clean()
         super().save(*args, **kwargs)
+
+    def get_parent_field_name(self):
+        """Override in subclasses to specify the parent field name."""
+        raise NotImplementedError("Subclasses must implement get_parent_field_name")
 
     def __str__(self):
         return f"Line Item {self.pk}: {self.description[:50]}"

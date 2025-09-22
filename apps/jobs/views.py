@@ -511,7 +511,6 @@ def estimate_revise(request, estimate_id):
                     estimate=new_estimate,
                     task=line_item.task,
                     price_list_item=line_item.price_list_item,
-                    line_number=line_item.line_number,
                     qty=line_item.qty,
                     units=line_item.units,
                     description=line_item.description,

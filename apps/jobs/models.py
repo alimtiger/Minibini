@@ -417,13 +417,17 @@ class TaskTemplate(models.Model):
 
 class EstimateLineItem(BaseLineItem):
     """Line item for estimates - inherits shared functionality from BaseLineItem."""
-    
+
     estimate = models.ForeignKey(Estimate, on_delete=models.CASCADE)
-    
+
     class Meta:
         verbose_name = "Estimate Line Item"
         verbose_name_plural = "Estimate Line Items"
-    
+
+    def get_parent_field_name(self):
+        """Get the name of the parent field for this line item type."""
+        return 'estimate'
+
     def __str__(self):
         return f"Estimate Line Item {self.pk} for {self.estimate.estimate_number}"
 

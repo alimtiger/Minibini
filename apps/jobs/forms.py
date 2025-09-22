@@ -83,7 +83,7 @@ class EstimateLineItemForm(forms.ModelForm):
     """Form for creating/editing EstimateLineItem"""
     class Meta:
         model = EstimateLineItem
-        fields = ['line_number', 'description', 'qty', 'units', 'price_currency', 'task', 'price_list_item']
+        fields = ['description', 'qty', 'units', 'price_currency', 'task', 'price_list_item']
         widgets = {
             'qty': forms.NumberInput(attrs={'step': '0.01'}),
             'price_currency': forms.NumberInput(attrs={'step': '0.01'}),

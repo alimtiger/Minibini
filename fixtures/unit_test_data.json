@@ -150,7 +150,9 @@
       "is_active": true,
       "date_joined": "2024-01-01T00:00:00Z",
       "contact": 1,
-      "groups": [1],
+      "groups": [
+        1
+      ],
       "user_permissions": []
     }
   },
@@ -169,7 +171,9 @@
       "is_active": true,
       "date_joined": "2024-01-01T00:00:00Z",
       "contact": 2,
-      "groups": [2],
+      "groups": [
+        2
+      ],
       "user_permissions": []
     }
   },
@@ -188,7 +192,9 @@
       "is_active": true,
       "date_joined": "2024-01-01T00:00:00Z",
       "contact": 4,
-      "groups": [3],
+      "groups": [
+        3
+      ],
       "user_permissions": []
     }
   },
@@ -406,7 +412,7 @@
       "estimate": 1,
       "task": null,
       "price_list_item": 1,
-      "line_number": "CLI001",
+      "line_number": 1,
       "qty": "50.00",
       "units": "each",
       "description": "Screws for kitchen cabinet installation",
@@ -414,13 +420,13 @@
     }
   },
   {
-    "model": "jobs.estimatelineitem", 
+    "model": "jobs.estimatelineitem",
     "pk": 2,
     "fields": {
       "estimate": 1,
       "task": 2,
       "price_list_item": null,
-      "line_number": "CLI002",
+      "line_number": 2,
       "qty": "8.00",
       "units": "hour",
       "description": "Electrical rough-in labor",
@@ -434,7 +440,7 @@
       "invoice": 1,
       "task": null,
       "price_list_item": 1,
-      "line_number": "CLI001",
+      "line_number": 1,
       "qty": "50.00",
       "units": "each",
       "description": "Screws for kitchen cabinet installation",
@@ -448,7 +454,7 @@
       "invoice": 1,
       "task": 2,
       "price_list_item": null,
-      "line_number": "CLI002",
+      "line_number": 2,
       "qty": "8.00",
       "units": "hour",
       "description": "Electrical rough-in labor",
@@ -462,7 +468,7 @@
       "purchase_order": 1,
       "task": null,
       "price_list_item": 1,
-      "line_number": "CLI003",
+      "line_number": 3,
       "qty": "100.00",
       "units": "each",
       "description": "Screws for purchase order",
@@ -476,7 +482,7 @@
       "bill": 1,
       "task": null,
       "price_list_item": 1,
-      "line_number": "CLI004",
+      "line_number": 4,
       "qty": "100.00",
       "units": "each",
       "description": "Screws received on bill",
