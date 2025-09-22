@@ -72,12 +72,12 @@ class EstimateModelTest(TestCase):
         estimate = Estimate.objects.create(
             job=self.job,
             estimate_number="EST001",
-            revision_number=2,
+            version=2,
             status='open'
         )
         self.assertEqual(estimate.job, self.job)
         self.assertEqual(estimate.estimate_number, "EST001")
-        self.assertEqual(estimate.revision_number, 2)
+        self.assertEqual(estimate.version, 2)
         self.assertEqual(estimate.status, 'open')
         
     def test_estimate_str_method(self):
@@ -92,7 +92,7 @@ class EstimateModelTest(TestCase):
             job=self.job,
             estimate_number="EST003"
         )
-        self.assertEqual(estimate.revision_number, 1)
+        self.assertEqual(estimate.version, 1)
         self.assertEqual(estimate.status, 'draft')
         
     def test_estimate_status_choices(self):

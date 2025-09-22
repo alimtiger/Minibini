@@ -19,6 +19,11 @@
 <p>
     {% if worksheet.status == 'draft' %}
         <a href="{% url 'jobs:estworksheet_generate_estimate' worksheet.est_worksheet_id %}">Generate Estimate</a> |
+    {% else %}
+        <form method="post" action="{% url 'jobs:estworksheet_revise' worksheet.est_worksheet_id %}" style="display: inline;">
+            {% csrf_token %}
+            <button type="submit">Revise Worksheet</button>
+        </form> |
     {% endif %}
     {% if worksheet.estimate %}
         <a href="{% url 'jobs:estimate_detail' worksheet.estimate.estimate_id %}">View Estimate</a> |
@@ -31,15 +36,17 @@
 {% if tasks %}
     <table border="1">
         <tr>
+            <th>Est. Qty</th>
+            <th>Units</th>
             <th>Task Name</th>
             <th>Template</th>
-            <th>Units</th>
             <th>Rate</th>
-            <th>Estimated Qty</th>
             <th>Total</th>
         </tr>
         {% for task in tasks %}
         <tr>
+            <td>{{ task.est_qty|floatformat:2 }}</td>
+            <td>{{ task.units }}</td>
             <td><a href="{% url 'jobs:task_detail' task.task_id %}">{{ task.name }}</a></td>
             <td>
                 {% if task.template %}
@@ -48,16 +55,8 @@
                     No template
                 {% endif %}
             </td>
-            <td>{{ task.units }}</td>
             <td>${{ task.rate|floatformat:2 }}</td>
-            <td>{{ task.est_qty|floatformat:2 }}</td>
-            <td>
-                {% if task.rate and task.est_qty %}
-                    ${{ task.rate|floatformat:2 }} x {{ task.est_qty|floatformat:2 }}
-                {% else %}
-                    $0.00
-                {% endif %}
-            </td>
+            <td>${{ task.calculated_total|floatformat:2 }}</td>
         </tr>
         {% endfor %}
         <tr>

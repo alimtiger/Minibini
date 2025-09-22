@@ -69,12 +69,12 @@ class EstimateModelFixtureTest(FixtureTestCase):
     def test_estimates_exist_from_fixture(self):
         """Test that estimates from fixture data exist and have correct properties"""
         est1 = Estimate.objects.get(estimate_number="EST-2024-0001")
-        self.assertEqual(est1.revision_number, 1)
+        self.assertEqual(est1.version, 1)
         self.assertEqual(est1.status, "draft")
         self.assertEqual(est1.job.job_number, "JOB-2024-0001")
-        
-        est2 = Estimate.objects.get(estimate_number="EST-2024-0002", revision_number=2)
-        self.assertEqual(est2.revision_number, 2)
+
+        est2 = Estimate.objects.get(estimate_number="EST-2024-0002", version=2)
+        self.assertEqual(est2.version, 2)
         self.assertEqual(est2.status, "accepted")
         self.assertEqual(est2.job.job_number, "JOB-2024-0002")
         

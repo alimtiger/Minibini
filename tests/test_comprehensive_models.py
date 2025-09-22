@@ -44,7 +44,7 @@ class ComprehensiveModelIntegrationTest(TestCase):
         estimate = Estimate.objects.create(
             job=job,
             estimate_number="EST001",
-            revision_number=1,
+            version=1,
             status='open'
         )
         
@@ -172,25 +172,24 @@ class ComprehensiveModelIntegrationTest(TestCase):
         original_estimate = Estimate.objects.create(
             job=job,
             estimate_number="EST003",
-            revision_number=1,
+            version=1,
             status='open'
         )
         
         superseding_estimate = Estimate.objects.create(
             job=job,
             estimate_number="EST003",
-            revision_number=2,
+            version=2,
             status='open',
-            superseded_by=None
+            parent=original_estimate
         )
-        
-        original_estimate.superseded_by = superseding_estimate
+
         original_estimate.status = 'superseded'
         original_estimate.superseded_date = timezone.now()
         original_estimate.save()
         
         self.assertEqual(original_estimate.status, 'superseded')
-        self.assertEqual(original_estimate.superseded_by, superseding_estimate)
+        self.assertEqual(superseding_estimate.parent, original_estimate)
         self.assertIsNotNone(original_estimate.superseded_date)
 
     def test_task_workflow(self):

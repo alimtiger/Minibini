@@ -1,7 +1,7 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
 from django.urls import reverse
-from .models import Job, Estimate, EstimateLineItem, Task, WorkOrder, WorkOrderTemplate, TaskTemplate, EstWorksheet, TaskMapping
+from .models import Job, Estimate, EstimateLineItem, Task, WorkOrder, WorkOrderTemplate, TaskTemplate, EstWorksheet, TaskMapping, TaskInstanceMapping
 from .forms import WorkOrderTemplateForm, TaskTemplateForm
 from apps.purchasing.models import PurchaseOrder
 from apps.invoicing.models import Invoice
@@ -147,10 +147,14 @@ def estworksheet_detail(request, worksheet_id):
     tasks = Task.objects.filter(est_worksheet=worksheet).select_related(
         'template', 'template__task_mapping'
     ).prefetch_related('taskinstancemapping')
-    
+
+    # Add calculated total for each task
+    for task in tasks:
+        task.calculated_total = (task.rate * task.est_qty) if task.rate and task.est_qty else 0
+
     # Calculate worksheet totals
-    total_cost = sum(task.rate * task.est_qty for task in tasks if task.rate and task.est_qty)
-    
+    total_cost = sum(task.calculated_total for task in tasks)
+
     return render(request, 'jobs/estworksheet_detail.html', {
         'worksheet': worksheet,
         'tasks': tasks,
@@ -192,6 +196,78 @@ def task_mapping_list(request):
     """List all TaskMappings"""
     mappings = TaskMapping.objects.all().order_by('mapping_strategy', 'step_type', 'task_type_id')
     return render(request, 'jobs/task_mapping_list.html', {'mappings': mappings})
+
+
+def estimate_mark_open(request, estimate_id):
+    """Mark an estimate as Open and update associated worksheet to Final"""
+    estimate = get_object_or_404(Estimate, estimate_id=estimate_id)
+
+    if request.method == 'POST':
+        if estimate.status == 'draft':
+            # Mark estimate as open
+            estimate.status = 'open'
+            estimate.save()
+
+            # Update associated worksheet to final if exists
+            worksheet = EstWorksheet.objects.filter(estimate=estimate).first()
+            if worksheet and worksheet.status == 'draft':
+                worksheet.status = 'final'
+                worksheet.save()
+
+            messages.success(request, f'Estimate {estimate.estimate_number} marked as Open')
+        else:
+            messages.warning(request, 'Only Draft estimates can be marked as Open')
+
+    return redirect('jobs:estimate_detail', estimate_id=estimate.estimate_id)
+
+
+def estworksheet_revise(request, worksheet_id):
+    """Create a new revision of a worksheet"""
+    parent_worksheet = get_object_or_404(EstWorksheet, est_worksheet_id=worksheet_id)
+
+    if request.method == 'POST':
+        if parent_worksheet.status != 'draft':
+            # Create new draft worksheet
+            new_worksheet = EstWorksheet.objects.create(
+                job=parent_worksheet.job,
+                parent=parent_worksheet,
+                status='draft',
+                version=parent_worksheet.version + 1
+            )
+
+            # Copy tasks from parent to new worksheet
+            parent_tasks = Task.objects.filter(est_worksheet=parent_worksheet)
+            for task in parent_tasks:
+                new_task = Task.objects.create(
+                    name=task.name,
+                    template=task.template,
+                    est_worksheet=new_worksheet,
+                    est_qty=task.est_qty,
+                    units=task.units,
+                    rate=task.rate
+                )
+
+                # Copy instance mapping if exists
+                try:
+                    instance_mapping = TaskInstanceMapping.objects.get(task=task)
+                    TaskInstanceMapping.objects.create(
+                        task=new_task,
+                        product_identifier=instance_mapping.product_identifier,
+                        product_instance=instance_mapping.product_instance
+                    )
+                except TaskInstanceMapping.DoesNotExist:
+                    pass
+
+            # Mark parent as superseded and increment version
+            parent_worksheet.status = 'superseded'
+            parent_worksheet.save()
+
+            messages.success(request, f'New worksheet revision created (v{new_worksheet.version})')
+            return redirect('jobs:estworksheet_detail', worksheet_id=new_worksheet.est_worksheet_id)
+        else:
+            messages.warning(request, 'Cannot revise a Draft worksheet')
+
+    return redirect('jobs:estworksheet_detail', worksheet_id=worksheet_id)
 
 
 def task_template_list(request):

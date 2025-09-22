@@ -37,9 +37,9 @@ class Estimate(models.Model):
     estimate_id = models.AutoField(primary_key=True)
     job = models.ForeignKey(Job, on_delete=models.CASCADE)
     estimate_number = models.CharField(max_length=50)
-    revision_number = models.IntegerField(default=1)
+    version = models.IntegerField(default=1)
     status = models.CharField(max_length=20, choices=ESTIMATE_STATUS_CHOICES, default='draft')
-    superseded_by = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True, related_name='supersedes')
+    parent = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True, related_name='revisions')
     created_date = models.DateTimeField(default=timezone.now)
     superseded_date = models.DateTimeField(null=True, blank=True)
     
@@ -91,7 +91,7 @@ class Estimate(models.Model):
         return f"Estimate {self.estimate_number}"
     
     class Meta:
-        unique_together = ['estimate_number', 'revision_number']
+        unique_together = ['estimate_number', 'version']
 
 
 class AbstractWorkContainer(models.Model):

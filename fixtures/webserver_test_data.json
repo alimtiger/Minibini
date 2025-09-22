@@ -296,9 +296,9 @@
     "fields": {
       "job": 1,
       "estimate_number": "EST-2024-001",
-      "revision_number": 1,
+      "version": 1,
       "status": "superseded",
-      "superseded_by": 2,
+      "parent": null,
       "created_date": "2025-07-02T21:45:16.554Z",
       "superseded_date": "2025-07-03T10:30:00Z"
     }
@@ -309,9 +309,9 @@
     "fields": {
       "job": 1,
       "estimate_number": "EST-2024-001",
-      "revision_number": 2,
+      "version": 2,
       "status": "accepted",
-      "superseded_by": null,
+      "parent": 1,
       "created_date": "2025-07-03T10:30:00Z",
       "superseded_date": null
     }
@@ -322,9 +322,9 @@
     "fields": {
       "job": 2,
       "estimate_number": "EST-2024-002",
-      "revision_number": 1,
+      "version": 1,
       "status": "open",
-      "superseded_by": null,
+      "parent": null,
       "created_date": "2025-07-17T21:45:16.554Z",
       "superseded_date": null
     }
@@ -335,9 +335,9 @@
     "fields": {
       "job": 3,
       "estimate_number": "EST-2024-003",
-      "revision_number": 1,
+      "version": 1,
       "status": "open",
-      "superseded_by": null,
+      "parent": null,
       "created_date": "2025-07-27T21:45:16.554Z",
       "superseded_date": null
     }
@@ -348,9 +348,9 @@
     "fields": {
       "job": 5,
       "estimate_number": "EST-2024-004",
-      "revision_number": 1,
+      "version": 1,
       "status": "open",
-      "superseded_by": null,
+      "parent": null,
       "created_date": "2025-08-06T21:45:16.554Z",
       "superseded_date": null
     }
@@ -361,9 +361,9 @@
     "fields": {
       "job": 6,
       "estimate_number": "EST-2024-005",
-      "revision_number": 1,
+      "version": 1,
       "status": "rejected",
-      "superseded_by": null,
+      "parent": null,
       "created_date": "2025-08-08T21:45:16.554Z",
       "superseded_date": null
     }
@@ -374,9 +374,9 @@
     "fields": {
       "job": 7,
       "estimate_number": "EST-2024-006",
-      "revision_number": 1,
+      "version": 1,
       "status": "open",
-      "superseded_by": null,
+      "parent": null,
       "created_date": "2025-08-13T21:45:16.554Z",
       "superseded_date": null
     }

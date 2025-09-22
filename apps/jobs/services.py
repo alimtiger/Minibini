@@ -9,6 +9,7 @@ from typing import List, Dict, Optional, Tuple
 from django.core.exceptions import ValidationError
 from django.db import transaction
 from django.db.models import Q, Prefetch
+from django.utils import timezone
 
 from .models import (
     Job, WorkOrder, Estimate, Task, WorkOrderTemplate, TaskTemplate,
@@ -245,22 +246,41 @@ class EstimateGenerationService:
     
     def _create_estimate(self, worksheet: EstWorksheet) -> Estimate:
         """Create a new estimate for the worksheet's job"""
-        # Generate estimate number (this would typically use a sequence generator)
-        last_estimate = Estimate.objects.filter(job=worksheet.job).order_by('-estimate_id').first()
-        if last_estimate and last_estimate.estimate_number:
-            # Simple increment logic - in production use proper sequence
-            base_num = last_estimate.estimate_number.split('-')[0]
-            try:
-                num = int(base_num) + 1
-            except ValueError:
-                num = 1000
+        # Check if worksheet has a parent with an estimate
+        version = 1
+
+        parent_estimate = None
+
+        if worksheet.parent and worksheet.parent.estimate:
+            parent_estimate = worksheet.parent.estimate
+            # New estimate inherits parent's number but increments version
+            estimate_number = parent_estimate.estimate_number
+            version = parent_estimate.version + 1
+
+            # Mark parent as superseded
+            parent_estimate.status = 'superseded'
+            parent_estimate.superseded_date = timezone.now()
+            parent_estimate.save()
         else:
-            num = 1000
-        
+            # Generate new estimate number
+            last_estimate = Estimate.objects.filter(job=worksheet.job).order_by('-estimate_id').first()
+            if last_estimate and last_estimate.estimate_number:
+                # Simple increment logic - in production use proper sequence
+                base_num = last_estimate.estimate_number.split('-')[0]
+                try:
+                    num = int(base_num) + 1
+                except ValueError:
+                    num = 1000
+            else:
+                num = 1000
+            estimate_number = f"{num:04d}"
+
+        # Create new estimate with parent reference
         estimate = Estimate.objects.create(
             job=worksheet.job,
-            estimate_number=f"{num:04d}",
-            revision_number=1,
+            estimate_number=estimate_number,
+            version=version,
+            parent=parent_estimate,
             status='draft'
         )
         
