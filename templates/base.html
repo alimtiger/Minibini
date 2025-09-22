@@ -2,6 +2,12 @@
 <html>
 <head>
     <title>{% block title %}Minibini{% endblock %}</title>
+    <style>
+        .superseded {
+            color: #888;
+            opacity: 0.7;
+        }
+    </style>
 </head>
 <body>
     <h1>Minibini</h1>
@@ -9,15 +15,16 @@
         {% block navigation %}
         <strong>Main:</strong>
         <a href="{% url 'jobs:list' %}">Jobs</a> |
-        <a href="{% url 'jobs:estimate_list' %}">Estimates</a> |
-        <a href="{% url 'jobs:estworksheet_list' %}">Worksheets</a> |
-        <a href="{% url 'jobs:work_order_list' %}">Work Orders</a> |
         <a href="{% url 'jobs:task_list' %}">Tasks</a> |
         <a href="{% url 'contacts:contact_list' %}">Contacts</a> |
         <a href="{% url 'contacts:business_list' %}">Businesses</a> |
         <a href="{% url 'purchasing:purchase_order_list' %}">Purchase Orders</a> |
         <a href="{% url 'purchasing:bill_list' %}">Bills</a> |
         <a href="{% url 'invoicing:invoice_list' %}">Invoices</a>
+<br/>
+        <a href="{% url 'jobs:estimate_list' %}">Estimates</a> |
+        <a href="{% url 'jobs:estworksheet_list' %}">Worksheets</a> |
+        <a href="{% url 'jobs:work_order_list' %}">Work Orders</a>
         {% endblock %}
     </nav>
     

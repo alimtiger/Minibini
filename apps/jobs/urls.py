@@ -22,5 +22,13 @@ urlpatterns = [
     path('worksheets/<int:worksheet_id>/generate-estimate/', views.estworksheet_generate_estimate, name='estworksheet_generate_estimate'),
     path('worksheets/<int:worksheet_id>/revise/', views.estworksheet_revise, name='estworksheet_revise'),
     path('estimates/<int:estimate_id>/mark-open/', views.estimate_mark_open, name='estimate_mark_open'),
+    path('estimates/<int:estimate_id>/update-status/', views.estimate_update_status, name='estimate_update_status'),
+    path('estimates/<int:estimate_id>/add-line-item/', views.estimate_add_line_item, name='estimate_add_line_item'),
+    path('estimates/<int:estimate_id>/revise/', views.estimate_revise, name='estimate_revise'),
+    path('worksheets/create/', views.estworksheet_create, name='estworksheet_create'),
+    path('worksheets/create-from-template/', views.estworksheet_create_from_template, name='estworksheet_create_from_template'),
+    path('worksheets/<int:worksheet_id>/add-task-from-template/', views.task_add_from_template, name='task_add_from_template'),
+    path('worksheets/<int:worksheet_id>/add-task-manual/', views.task_add_manual, name='task_add_manual'),
     path('task-mappings/', views.task_mapping_list, name='task_mapping_list'),
+    path('<int:job_id>/create-estimate/', views.estimate_create_for_job, name='estimate_create_for_job'),
 ]

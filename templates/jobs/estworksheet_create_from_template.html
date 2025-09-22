@@ -1,0 +1,13 @@
+<h1>Create EstWorksheet from Template</h1>
+
+<form method="post">
+    {% csrf_token %}
+    <table>
+        {{ form.as_table }}
+    </table>
+    <button type="submit">Create from Template</button>
+</form>
+
+<p>
+    <a href="{% url 'jobs:estworksheet_list' %}">Back to Worksheets</a>
+</p>

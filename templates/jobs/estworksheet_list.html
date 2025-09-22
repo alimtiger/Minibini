@@ -5,6 +5,11 @@
 {% block content %}
 <h2>All Estimate Worksheets</h2>
 
+<p>
+    <a href="{% url 'jobs:estworksheet_create' %}">Create New EstWorksheet</a> |
+    <a href="{% url 'jobs:estworksheet_create_from_template' %}">Create EstWorksheet from Template</a>
+</p>
+
 {% if worksheets %}
     <table border="1">
         <tr>

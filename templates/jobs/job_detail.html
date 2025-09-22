@@ -47,12 +47,19 @@
 </table>
 
 <h3>Associated Estimates</h3>
+
+{% if not estimates %}
+<p>
+    <a href="{% url 'jobs:estimate_create_for_job' job.job_id %}">Create New Estimate</a>
+</p>
+{% endif %}
+
 {% if estimates %}
     <table border="1" style="border-collapse: collapse; width: 100%; margin-top: 10px;">
         <thead>
             <tr>
                 <th>Estimate Number</th>
-                <th>Revision</th>
+                <th>Version</th>
                 <th>Status</th>
                 <th>Created Date</th>
                 <th>Superseded Date</th>
@@ -63,7 +70,7 @@
             {% for estimate in estimates %}
             <tr>
                 <td>{{ estimate.estimate_number }}</td>
-                <td>{{ estimate.revision_number }}</td>
+                <td>{{ estimate.version }}</td>
                 <td>{{ estimate.get_status_display }}</td>
                 <td>{{ estimate.created_date|date:"M d, Y" }}</td>
                 <td>{{ estimate.superseded_date|date:"M d, Y"|default:"—" }}</td>

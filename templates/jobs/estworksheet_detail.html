@@ -3,9 +3,9 @@
 {% block title %}Worksheet {{ worksheet.est_worksheet_id }} - Minibini{% endblock %}
 
 {% block content %}
-<h2>Estimate Worksheet #{{ worksheet.est_worksheet_id }}</h2>
+<h2{% if worksheet.status == 'superseded' %} class="superseded"{% endif %}>Estimate Worksheet #{{ worksheet.est_worksheet_id }}</h2>
 
-<table border="1">
+<table border="1"{% if worksheet.status == 'superseded' %} class="superseded"{% endif %}>
     <tr><th>Job</th><td><a href="{% url 'jobs:detail' worksheet.job.job_id %}">{{ worksheet.job.job_number }} - {{ worksheet.job.description }}</a></td></tr>
     <tr><th>Status</th><td>{{ worksheet.get_status_display }}</td></tr>
     <tr><th>Version</th><td>{{ worksheet.version }}</td></tr>
@@ -15,6 +15,21 @@
     {% endif %}
     <tr><th>Total Cost</th><td>${{ total_cost|floatformat:2 }}</td></tr>
 </table>
+
+{% if worksheet.parent %}
+<p>
+    <strong>Parent Worksheet:</strong> <a href="{% url 'jobs:estworksheet_detail' worksheet.parent.est_worksheet_id %}">Worksheet #{{ worksheet.parent.est_worksheet_id }} (v{{ worksheet.parent.version }})</a>
+</p>
+{% endif %}
+
+{% if worksheet.children.exists %}
+<p>
+    <strong>Child Worksheets:</strong>
+    {% for child in worksheet.children.all %}
+        <a href="{% url 'jobs:estworksheet_detail' child.est_worksheet_id %}">Worksheet #{{ child.est_worksheet_id }} (v{{ child.version }})</a>{% if not forloop.last %}, {% endif %}
+    {% endfor %}
+</p>
+{% endif %}
 
 <p>
     {% if worksheet.status == 'draft' %}
@@ -32,6 +47,11 @@
 </p>
 
 <h3>Tasks</h3>
+
+<p>
+    <a href="{% url 'jobs:task_add_from_template' worksheet.est_worksheet_id %}">Add Task from Template</a> |
+    <a href="{% url 'jobs:task_add_manual' worksheet.est_worksheet_id %}">Add Task Manually</a>
+</p>
 
 {% if tasks %}
     <table border="1">

@@ -3,9 +3,9 @@
 {% block title %}Estimate {{ estimate.estimate_number }} - Minibini{% endblock %}
 
 {% block content %}
-<h2>Estimate: {{ estimate.estimate_number }}</h2>
+<h2{% if estimate.status == 'superseded' %} class="superseded"{% endif %}>Estimate: {{ estimate.estimate_number }}</h2>
 
-<table border="1">
+<table border="1"{% if estimate.status == 'superseded' %} class="superseded"{% endif %}>
     <tr>
         <th>Field</th>
         <th>Value</th>
@@ -32,21 +32,40 @@
     </tr>
 </table>
 
-{% if estimate.status == 'draft' %}
+{% if estimate.parent %}
 <p>
-    <form method="post" action="{% url 'jobs:estimate_mark_open' estimate.estimate_id %}" style="display: inline;">
-        {% csrf_token %}
-        <button type="submit">Mark as Open</button>
-    </form>
+    <strong>Parent Estimate:</strong> <a href="{% url 'jobs:estimate_detail' estimate.parent.estimate_id %}">{{ estimate.parent.estimate_number }} (v{{ estimate.parent.version }})</a>
 </p>
 {% endif %}
+
+{% if estimate.children.exists %}
+<p>
+    <strong>Child Estimates:</strong>
+    {% for child in estimate.children.all %}
+        <a href="{% url 'jobs:estimate_detail' child.estimate_id %}">{{ child.estimate_number }} (v{{ child.version }})</a>{% if not forloop.last %}, {% endif %}
+    {% endfor %}
+</p>
+{% endif %}
+
+<p>
+    <a href="{% url 'jobs:estimate_add_line_item' estimate.estimate_id %}">Add Line Item</a> |
+    <a href="{% url 'jobs:estimate_update_status' estimate.estimate_id %}">Update Status</a>
+    {% if estimate.status == 'draft' %}
+        | <form method="post" action="{% url 'jobs:estimate_mark_open' estimate.estimate_id %}" style="display: inline;">
+            {% csrf_token %}
+            <button type="submit">Mark as Open</button>
+        </form>
+    {% elif estimate.status != 'superseded' %}
+        | <a href="{% url 'jobs:estimate_revise' estimate.estimate_id %}">Revise Estimate</a>
+    {% endif %}
+</p>
 
 <h3>Line Items</h3>
 {% if line_items %}
     <table border="1" style="border-collapse: collapse; width: 100%; margin-top: 10px;">
         <thead>
             <tr>
-                <th>Item #</th>
+                <th>Line #</th>
                 <th>Description</th>
                 <th>Task/Price List Item</th>
                 <th>Quantity</th>
@@ -58,7 +77,7 @@
         <tbody>
             {% for item in line_items %}
             <tr>
-                <td>{{ item.central_line_item_number|default:item.line_item_id }}</td>
+                <td>{{ item.line_number|default:item.line_number }}</td>
                 <td>{{ item.description|default:"No description" }}</td>
                 <td>
                     {% if item.task %}

@@ -39,7 +39,7 @@ class Estimate(models.Model):
     estimate_number = models.CharField(max_length=50)
     version = models.IntegerField(default=1)
     status = models.CharField(max_length=20, choices=ESTIMATE_STATUS_CHOICES, default='draft')
-    parent = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True, related_name='revisions')
+    parent = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True, related_name='children')
     created_date = models.DateTimeField(default=timezone.now)
     superseded_date = models.DateTimeField(null=True, blank=True)
     

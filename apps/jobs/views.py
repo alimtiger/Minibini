@@ -1,8 +1,14 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
 from django.urls import reverse
+from django import forms
+from django.utils import timezone
 from .models import Job, Estimate, EstimateLineItem, Task, WorkOrder, WorkOrderTemplate, TaskTemplate, EstWorksheet, TaskMapping, TaskInstanceMapping
-from .forms import WorkOrderTemplateForm, TaskTemplateForm
+from .forms import (
+    WorkOrderTemplateForm, TaskTemplateForm, EstWorksheetForm,
+    EstWorksheetFromTemplateForm, TaskForm, TaskFromTemplateForm,
+    EstimateLineItemForm, EstimateStatusForm, EstimateForm
+)
 from apps.purchasing.models import PurchaseOrder
 from apps.invoicing.models import Invoice
 
@@ -288,4 +294,242 @@ def add_task_template_standalone(request):
         form = TaskTemplateForm()
 
     return render(request, 'jobs/add_task_template_standalone.html', {'form': form})
+
+
+def estworksheet_create(request):
+    """Create a new EstWorksheet manually"""
+    if request.method == 'POST':
+        form = EstWorksheetForm(request.POST)
+        if form.is_valid():
+            worksheet = form.save()
+            messages.success(request, f'Worksheet created successfully')
+            return redirect('jobs:estworksheet_detail', worksheet_id=worksheet.est_worksheet_id)
+    else:
+        form = EstWorksheetForm()
+
+    return render(request, 'jobs/estworksheet_create.html', {'form': form})
+
+
+def estworksheet_create_from_template(request):
+    """Create EstWorksheet from WorkOrderTemplate"""
+    if request.method == 'POST':
+        form = EstWorksheetFromTemplateForm(request.POST)
+        if form.is_valid():
+            job = form.cleaned_data['job']
+            template = form.cleaned_data['template']
+
+            # Create the worksheet
+            worksheet = EstWorksheet.objects.create(
+                job=job,
+                template=template,
+                status='draft',
+                version=1
+            )
+
+            # Create tasks from template's task templates
+            for task_template in template.task_templates.filter(is_active=True):
+                Task.objects.create(
+                    name=task_template.template_name,
+                    template=task_template,
+                    est_worksheet=worksheet,
+                    est_qty=1.0,  # Default quantity
+                    units=task_template.units,
+                    rate=task_template.rate
+                )
+
+            messages.success(request, f'Worksheet created from template "{template.template_name}"')
+            return redirect('jobs:estworksheet_detail', worksheet_id=worksheet.est_worksheet_id)
+    else:
+        form = EstWorksheetFromTemplateForm()
+
+    return render(request, 'jobs/estworksheet_create_from_template.html', {'form': form})
+
+
+def task_add_from_template(request, worksheet_id):
+    """Add Task to EstWorksheet from TaskTemplate"""
+    worksheet = get_object_or_404(EstWorksheet, est_worksheet_id=worksheet_id)
+
+    if request.method == 'POST':
+        form = TaskFromTemplateForm(request.POST)
+        if form.is_valid():
+            template = form.cleaned_data['template']
+            est_qty = form.cleaned_data['est_qty']
+
+            task = Task.objects.create(
+                name=template.template_name,
+                template=template,
+                est_worksheet=worksheet,
+                est_qty=est_qty,
+                units=template.units,
+                rate=template.rate
+            )
+
+            messages.success(request, f'Task "{task.name}" added from template')
+            return redirect('jobs:estworksheet_detail', worksheet_id=worksheet.est_worksheet_id)
+    else:
+        form = TaskFromTemplateForm()
+
+    return render(request, 'jobs/task_add_from_template.html', {
+        'form': form,
+        'worksheet': worksheet
+    })
+
+
+def task_add_manual(request, worksheet_id):
+    """Add Task to EstWorksheet manually"""
+    worksheet = get_object_or_404(EstWorksheet, est_worksheet_id=worksheet_id)
+
+    if request.method == 'POST':
+        form = TaskForm(request.POST)
+        if form.is_valid():
+            task = form.save(commit=False)
+            task.est_worksheet = worksheet
+            task.save()
+
+            messages.success(request, f'Task "{task.name}" added manually')
+            return redirect('jobs:estworksheet_detail', worksheet_id=worksheet.est_worksheet_id)
+    else:
+        form = TaskForm(initial={'est_worksheet': worksheet})
+        # Hide the worksheet field since it's already set
+        form.fields['est_worksheet'].widget = forms.HiddenInput()
+
+    return render(request, 'jobs/task_add_manual.html', {
+        'form': form,
+        'worksheet': worksheet
+    })
+
+
+def estimate_add_line_item(request, estimate_id):
+    """Add line item to Estimate manually"""
+    estimate = get_object_or_404(Estimate, estimate_id=estimate_id)
+
+    if request.method == 'POST':
+        form = EstimateLineItemForm(request.POST, estimate=estimate)
+        if form.is_valid():
+            line_item = form.save(commit=False)
+            line_item.estimate = estimate
+            line_item.save()
+
+            messages.success(request, f'Line item "{line_item.description}" added')
+            return redirect('jobs:estimate_detail', estimate_id=estimate.estimate_id)
+    else:
+        form = EstimateLineItemForm(estimate=estimate)
+
+    return render(request, 'jobs/estimate_add_line_item.html', {
+        'form': form,
+        'estimate': estimate
+    })
+
+
+def estimate_update_status(request, estimate_id):
+    """Update Estimate status"""
+    estimate = get_object_or_404(Estimate, estimate_id=estimate_id)
+
+    if request.method == 'POST':
+        form = EstimateStatusForm(request.POST, current_status=estimate.status)
+        if form.is_valid():
+            new_status = form.cleaned_data['status']
+            if new_status != estimate.status:
+                estimate.status = new_status
+                estimate.save()
+                messages.success(request, f'Estimate status updated to {new_status.title()}')
+            return redirect('jobs:estimate_detail', estimate_id=estimate.estimate_id)
+    else:
+        form = EstimateStatusForm(current_status=estimate.status)
+
+    return render(request, 'jobs/estimate_update_status.html', {
+        'form': form,
+        'estimate': estimate
+    })
+
+
+def estimate_create_for_job(request, job_id):
+    """Create a new Estimate for a specific Job"""
+    job = get_object_or_404(Job, job_id=job_id)
+
+    # Check if an estimate already exists for this job
+    existing_estimate = Estimate.objects.filter(job=job).exclude(status='superseded').first()
+    if existing_estimate:
+        if existing_estimate.status == 'draft':
+            # Redirect to existing draft estimate for editing
+            messages.info(request, f'A draft estimate already exists for this job. You can edit it here.')
+            return redirect('jobs:estimate_detail', estimate_id=existing_estimate.estimate_id)
+        else:
+            # For non-draft estimates, user must use revise functionality
+            messages.error(request, f'An estimate already exists for this job. Use the Revise option to create a new version.')
+            return redirect('jobs:estimate_detail', estimate_id=existing_estimate.estimate_id)
+
+    if request.method == 'POST':
+        form = EstimateForm(request.POST, job=job)
+        if form.is_valid():
+            estimate = form.save(commit=False)
+            estimate.job = job
+
+            # Handle versioning
+            estimate_number = form.cleaned_data['estimate_number']
+            existing_estimates = Estimate.objects.filter(
+                job=job,
+                estimate_number=estimate_number
+            ).order_by('-version')
+
+            if existing_estimates.exists():
+                estimate.version = existing_estimates.first().version + 1
+            else:
+                estimate.version = 1
+
+            estimate.save()
+            messages.success(request, f'Estimate {estimate.estimate_number} (v{estimate.version}) created successfully')
+            return redirect('jobs:estimate_detail', estimate_id=estimate.estimate_id)
+    else:
+        form = EstimateForm(job=job)
+
+    return render(request, 'jobs/estimate_create_for_job.html', {
+        'form': form,
+        'job': job
+    })
+
+
+def estimate_revise(request, estimate_id):
+    """Create a new revision of an estimate"""
+    parent_estimate = get_object_or_404(Estimate, estimate_id=estimate_id)
+
+    if request.method == 'POST':
+        if parent_estimate.status != 'draft':
+            # Create new draft estimate
+            new_estimate = Estimate.objects.create(
+                job=parent_estimate.job,
+                estimate_number=parent_estimate.estimate_number,
+                version=parent_estimate.version + 1,
+                status='draft',
+                parent=parent_estimate
+            )
+
+            # Copy line items from parent to new estimate
+            parent_line_items = EstimateLineItem.objects.filter(estimate=parent_estimate)
+            for line_item in parent_line_items:
+                EstimateLineItem.objects.create(
+                    estimate=new_estimate,
+                    task=line_item.task,
+                    price_list_item=line_item.price_list_item,
+                    line_number=line_item.line_number,
+                    qty=line_item.qty,
+                    units=line_item.units,
+                    description=line_item.description,
+                    price_currency=line_item.price_currency
+                )
+
+            # Mark parent as superseded
+            parent_estimate.status = 'superseded'
+            parent_estimate.superseded_date = timezone.now()
+            parent_estimate.save()
+
+            messages.success(request, f'Created new revision of estimate {new_estimate.estimate_number} (v{new_estimate.version})')
+            return redirect('jobs:estimate_detail', estimate_id=new_estimate.estimate_id)
+        else:
+            messages.info(request, 'Cannot revise a draft estimate. Please edit it directly.')
+            return redirect('jobs:estimate_detail', estimate_id=parent_estimate.estimate_id)
+
+    return render(request, 'jobs/estimate_revise_confirm.html', {
+        'estimate': parent_estimate
+    })
 

@@ -37,7 +37,7 @@
     <table border="1" style="border-collapse: collapse; width: 100%; margin-top: 10px;">
         <thead>
             <tr>
-                <th>Item #</th>
+                <th>Line #</th>
                 <th>Description</th>
                 <th>Task/Price List Item</th>
                 <th>Quantity</th>
@@ -49,7 +49,7 @@
         <tbody>
             {% for item in line_items %}
             <tr>
-                <td>{{ item.central_line_item_number|default:item.line_item_id }}</td>
+                <td>{{ item.line_number|default:item.line_item_id }}</td>
                 <td>{{ item.description|default:"No description" }}</td>
                 <td>
                     {% if item.task %}
