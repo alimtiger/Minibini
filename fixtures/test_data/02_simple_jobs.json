@@ -4,7 +4,7 @@
     "pk": 1,
     "fields": {
       "job_number": "JOB-2025-001",
-      "created_date": "2025-01-15T10:00:00.000Z",
+      "created_date": "2025-01-15T10:00:00Z",
       "completion_date": null,
       "status": "approved",
       "contact": 1,
@@ -17,7 +17,7 @@
     "pk": 2,
     "fields": {
       "job_number": "JOB-2025-002",
-      "created_date": "2025-02-01T14:30:00.000Z",
+      "created_date": "2025-02-01T14:30:00Z",
       "completion_date": null,
       "status": "draft",
       "contact": 2,
@@ -30,7 +30,7 @@
     "pk": 3,
     "fields": {
       "job_number": "JOB-2025-003",
-      "created_date": "2025-02-10T09:15:00.000Z",
+      "created_date": "2025-02-10T09:15:00Z",
       "completion_date": null,
       "status": "approved",
       "contact": 7,
@@ -47,7 +47,7 @@
       "version": 1,
       "status": "accepted",
       "parent": null,
-      "created_date": "2025-01-15T11:00:00.000Z",
+      "created_date": "2025-01-15T11:00:00Z",
       "superseded_date": null
     }
   },
@@ -60,8 +60,8 @@
       "version": 1,
       "status": "superseded",
       "parent": null,
-      "created_date": "2025-02-10T10:00:00.000Z",
-      "superseded_date": "2025-02-12T14:00:00.000Z"
+      "created_date": "2025-02-10T10:00:00Z",
+      "superseded_date": "2025-02-12T14:00:00Z"
     }
   },
   {
@@ -73,8 +73,8 @@
       "version": 2,
       "status": "superseded",
       "parent": 2,
-      "created_date": "2025-02-12T14:00:00.000Z",
-      "superseded_date": "2025-02-15T16:30:00.000Z"
+      "created_date": "2025-02-12T14:00:00Z",
+      "superseded_date": "2025-02-15T16:30:00Z"
     }
   },
   {
@@ -84,262 +84,36 @@
       "job": 3,
       "estimate_number": "EST-2025-003",
       "version": 3,
-      "status": "accepted",
+      "status": "superseded",
       "parent": 3,
-      "created_date": "2025-02-15T16:30:00.000Z",
+      "created_date": "2025-02-15T16:30:00Z",
+      "superseded_date": "2025-09-23T04:29:03.735Z"
+    }
+  },
+  {
+    "model": "jobs.estimate",
+    "pk": 5,
+    "fields": {
+      "job": 3,
+      "estimate_number": "EST-2025-003",
+      "version": 4,
+      "status": "draft",
+      "parent": 4,
+      "created_date": "2025-09-23T04:29:03.720Z",
       "superseded_date": null
     }
   },
   {
-    "model": "jobs.estimatelineitem",
-    "pk": 1,
-    "fields": {
-      "estimate": 1,
-      "task": null,
-      "price_list_item": null,
-      "line_number": 1,
-      "qty": "3.00",
-      "units": "hours",
-      "description": "CAD design and template creation",
-      "price_currency": "3800.00"
-    }
-  },
-  {
-    "model": "jobs.estimatelineitem",
-    "pk": 2,
-    "fields": {
-      "estimate": 1,
-      "task": null,
-      "price_list_item": null,
-      "line_number": 2,
-      "qty": "1.00",
-      "units": "job",
-      "description": "CNC cutting of concrete forms",
-      "price_currency": "3800.00"
-    }
-  },
-  {
-    "model": "jobs.estimatelineitem",
-    "pk": 3,
-    "fields": {
-      "estimate": 1,
-      "task": null,
-      "price_list_item": 3,
-      "line_number": 3,
-      "qty": "20.00",
-      "units": "sheets",
-      "description": "Plywood sheets for form construction",
-      "price_currency": "2000.00"
-    }
-  },
-  {
-    "model": "jobs.estimatelineitem",
-    "pk": 4,
-    "fields": {
-      "estimate": 2,
-      "task": null,
-      "price_list_item": null,
-      "line_number": 4,
-      "qty": "6.00",
-      "units": "hours",
-      "description": "Design drawings",
-      "price_currency": "900.00"
-    }
-  },
-  {
-    "model": "jobs.estimatelineitem",
-    "pk": 5,
-    "fields": {
-      "estimate": 2,
-      "task": null,
-      "price_list_item": 5,
-      "line_number": 5,
-      "qty": "1.00",
-      "units": "piece",
-      "description": "HDU material for sign",
-      "price_currency": "300.00"
-    }
-  },
-  {
-    "model": "jobs.estimatelineitem",
+    "model": "jobs.estimate",
     "pk": 6,
     "fields": {
-      "estimate": 2,
-      "task": null,
-      "price_list_item": null,
-      "line_number": 6,
-      "qty": "120.00",
-      "units": "minutes",
-      "description": "CNC cutting of sign",
-      "price_currency": "2640.00"
-    }
-  },
-  {
-    "model": "jobs.estimatelineitem",
-    "pk": 7,
-    "fields": {
-      "estimate": 2,
-      "task": null,
-      "price_list_item": null,
-      "line_number": 7,
-      "qty": "8.00",
-      "units": "hours",
-      "description": "Painting and finishing",
-      "price_currency": "800.00"
-    }
-  },
-  {
-    "model": "jobs.estimatelineitem",
-    "pk": 8,
-    "fields": {
-      "estimate": 2,
-      "task": null,
-      "price_list_item": null,
-      "line_number": 8,
-      "qty": "4.00",
-      "units": "hours",
-      "description": "Assembly and hardware installation",
-      "price_currency": "400.00"
-    }
-  },
-  {
-    "model": "jobs.estimatelineitem",
-    "pk": 9,
-    "fields": {
-      "estimate": 3,
-      "task": null,
-      "price_list_item": null,
-      "line_number": 9,
-      "qty": "8.00",
-      "units": "hours",
-      "description": "Design drawings",
-      "price_currency": "1200.00"
-    }
-  },
-  {
-    "model": "jobs.estimatelineitem",
-    "pk": 10,
-    "fields": {
-      "estimate": 3,
-      "task": null,
-      "price_list_item": 5,
-      "line_number": 10,
-      "qty": "1.00",
-      "units": "piece",
-      "description": "HDU material for sign",
-      "price_currency": "300.00"
-    }
-  },
-  {
-    "model": "jobs.estimatelineitem",
-    "pk": 11,
-    "fields": {
-      "estimate": 3,
-      "task": null,
-      "price_list_item": null,
-      "line_number": 11,
-      "qty": "140.00",
-      "units": "minutes",
-      "description": "CNC cutting of sign",
-      "price_currency": "3080.00"
-    }
-  },
-  {
-    "model": "jobs.estimatelineitem",
-    "pk": 12,
-    "fields": {
-      "estimate": 3,
-      "task": null,
-      "price_list_item": null,
-      "line_number": 12,
-      "qty": "10.00",
-      "units": "hours",
-      "description": "Painting and finishing",
-      "price_currency": "1000.00"
-    }
-  },
-  {
-    "model": "jobs.estimatelineitem",
-    "pk": 13,
-    "fields": {
-      "estimate": 3,
-      "task": null,
-      "price_list_item": null,
-      "line_number": 13,
-      "qty": "5.00",
-      "units": "hours",
-      "description": "Assembly and hardware installation",
-      "price_currency": "500.00"
-    }
-  },
-  {
-    "model": "jobs.estimatelineitem",
-    "pk": 14,
-    "fields": {
-      "estimate": 4,
-      "task": null,
-      "price_list_item": null,
-      "line_number": 14,
-      "qty": "10.00",
-      "units": "hours",
-      "description": "Design drawings with client revisions",
-      "price_currency": "1500.00"
-    }
-  },
-  {
-    "model": "jobs.estimatelineitem",
-    "pk": 15,
-    "fields": {
-      "estimate": 4,
-      "task": null,
-      "price_list_item": 5,
-      "line_number": 15,
-      "qty": "1.00",
-      "units": "piece",
-      "description": "Premium HDU material for sign",
-      "price_currency": "300.00"
-    }
-  },
-  {
-    "model": "jobs.estimatelineitem",
-    "pk": 16,
-    "fields": {
-      "estimate": 4,
-      "task": null,
-      "price_list_item": null,
-      "line_number": 16,
-      "qty": "150.00",
-      "units": "minutes",
-      "description": "Precision CNC cutting with detail work",
-      "price_currency": "3300.00"
-    }
-  },
-  {
-    "model": "jobs.estimatelineitem",
-    "pk": 17,
-    "fields": {
-      "estimate": 4,
-      "task": null,
-      "price_list_item": null,
-      "line_number": 17,
-      "qty": "12.00",
-      "units": "hours",
-      "description": "Multi-layer painting and protective coating",
-      "price_currency": "1200.00"
-    }
-  },
-  {
-    "model": "jobs.estimatelineitem",
-    "pk": 18,
-    "fields": {
-      "estimate": 4,
-      "task": null,
-      "price_list_item": null,
-      "line_number": 18,
-      "qty": "6.00",
-      "units": "hours",
-      "description": "Assembly with LED lighting integration",
-      "price_currency": "600.00"
+      "job": 2,
+      "estimate_number": "1000",
+      "version": 1,
+      "status": "draft",
+      "parent": null,
+      "created_date": "2025-09-23T04:32:33.144Z",
+      "superseded_date": null
     }
   },
   {
@@ -348,11 +122,11 @@
     "fields": {
       "job": 2,
       "template": null,
-      "estimate": null,
-      "status": "draft",
+      "estimate": 6,
+      "status": "final",
       "version": 1,
       "parent": null,
-      "created_date": "2025-02-01T15:00:00.000Z"
+      "created_date": "2025-02-01T15:00:00Z"
     }
   },
   {
@@ -428,6 +202,398 @@
       "rate": "100.00",
       "est_qty": "22.00",
       "template": 5
+    }
+  },
+  {
+    "model": "jobs.estimatelineitem",
+    "pk": 1,
+    "fields": {
+      "task": null,
+      "price_list_item": null,
+      "line_number": 1,
+      "qty": "3.00",
+      "units": "hours",
+      "description": "CAD design and template creation",
+      "price_currency": "3800.00",
+      "estimate": 1
+    }
+  },
+  {
+    "model": "jobs.estimatelineitem",
+    "pk": 2,
+    "fields": {
+      "task": null,
+      "price_list_item": null,
+      "line_number": 2,
+      "qty": "1.00",
+      "units": "job",
+      "description": "CNC cutting of concrete forms",
+      "price_currency": "3800.00",
+      "estimate": 1
+    }
+  },
+  {
+    "model": "jobs.estimatelineitem",
+    "pk": 3,
+    "fields": {
+      "task": null,
+      "price_list_item": 3,
+      "line_number": 3,
+      "qty": "20.00",
+      "units": "sheets",
+      "description": "Plywood sheets for form construction",
+      "price_currency": "2000.00",
+      "estimate": 1
+    }
+  },
+  {
+    "model": "jobs.estimatelineitem",
+    "pk": 4,
+    "fields": {
+      "task": null,
+      "price_list_item": null,
+      "line_number": 4,
+      "qty": "6.00",
+      "units": "hours",
+      "description": "Design drawings",
+      "price_currency": "900.00",
+      "estimate": 2
+    }
+  },
+  {
+    "model": "jobs.estimatelineitem",
+    "pk": 5,
+    "fields": {
+      "task": null,
+      "price_list_item": 5,
+      "line_number": 5,
+      "qty": "1.00",
+      "units": "piece",
+      "description": "HDU material for sign",
+      "price_currency": "300.00",
+      "estimate": 2
+    }
+  },
+  {
+    "model": "jobs.estimatelineitem",
+    "pk": 6,
+    "fields": {
+      "task": null,
+      "price_list_item": null,
+      "line_number": 6,
+      "qty": "120.00",
+      "units": "minutes",
+      "description": "CNC cutting of sign",
+      "price_currency": "2640.00",
+      "estimate": 2
+    }
+  },
+  {
+    "model": "jobs.estimatelineitem",
+    "pk": 7,
+    "fields": {
+      "task": null,
+      "price_list_item": null,
+      "line_number": 7,
+      "qty": "8.00",
+      "units": "hours",
+      "description": "Painting and finishing",
+      "price_currency": "800.00",
+      "estimate": 2
+    }
+  },
+  {
+    "model": "jobs.estimatelineitem",
+    "pk": 8,
+    "fields": {
+      "task": null,
+      "price_list_item": null,
+      "line_number": 8,
+      "qty": "4.00",
+      "units": "hours",
+      "description": "Assembly and hardware installation",
+      "price_currency": "400.00",
+      "estimate": 2
+    }
+  },
+  {
+    "model": "jobs.estimatelineitem",
+    "pk": 9,
+    "fields": {
+      "task": null,
+      "price_list_item": null,
+      "line_number": 9,
+      "qty": "8.00",
+      "units": "hours",
+      "description": "Design drawings",
+      "price_currency": "1200.00",
+      "estimate": 3
+    }
+  },
+  {
+    "model": "jobs.estimatelineitem",
+    "pk": 10,
+    "fields": {
+      "task": null,
+      "price_list_item": 5,
+      "line_number": 10,
+      "qty": "1.00",
+      "units": "piece",
+      "description": "HDU material for sign",
+      "price_currency": "300.00",
+      "estimate": 3
+    }
+  },
+  {
+    "model": "jobs.estimatelineitem",
+    "pk": 11,
+    "fields": {
+      "task": null,
+      "price_list_item": null,
+      "line_number": 11,
+      "qty": "140.00",
+      "units": "minutes",
+      "description": "CNC cutting of sign",
+      "price_currency": "3080.00",
+      "estimate": 3
+    }
+  },
+  {
+    "model": "jobs.estimatelineitem",
+    "pk": 12,
+    "fields": {
+      "task": null,
+      "price_list_item": null,
+      "line_number": 12,
+      "qty": "10.00",
+      "units": "hours",
+      "description": "Painting and finishing",
+      "price_currency": "1000.00",
+      "estimate": 3
+    }
+  },
+  {
+    "model": "jobs.estimatelineitem",
+    "pk": 13,
+    "fields": {
+      "task": null,
+      "price_list_item": null,
+      "line_number": 13,
+      "qty": "5.00",
+      "units": "hours",
+      "description": "Assembly and hardware installation",
+      "price_currency": "500.00",
+      "estimate": 3
+    }
+  },
+  {
+    "model": "jobs.estimatelineitem",
+    "pk": 14,
+    "fields": {
+      "task": null,
+      "price_list_item": null,
+      "line_number": 14,
+      "qty": "10.00",
+      "units": "hours",
+      "description": "Design drawings with client revisions",
+      "price_currency": "1500.00",
+      "estimate": 4
+    }
+  },
+  {
+    "model": "jobs.estimatelineitem",
+    "pk": 15,
+    "fields": {
+      "task": null,
+      "price_list_item": 5,
+      "line_number": 15,
+      "qty": "1.00",
+      "units": "piece",
+      "description": "Premium HDU material for sign",
+      "price_currency": "300.00",
+      "estimate": 4
+    }
+  },
+  {
+    "model": "jobs.estimatelineitem",
+    "pk": 16,
+    "fields": {
+      "task": null,
+      "price_list_item": null,
+      "line_number": 16,
+      "qty": "150.00",
+      "units": "minutes",
+      "description": "Precision CNC cutting with detail work",
+      "price_currency": "3300.00",
+      "estimate": 4
+    }
+  },
+  {
+    "model": "jobs.estimatelineitem",
+    "pk": 17,
+    "fields": {
+      "task": null,
+      "price_list_item": null,
+      "line_number": 17,
+      "qty": "12.00",
+      "units": "hours",
+      "description": "Multi-layer painting and protective coating",
+      "price_currency": "1200.00",
+      "estimate": 4
+    }
+  },
+  {
+    "model": "jobs.estimatelineitem",
+    "pk": 18,
+    "fields": {
+      "task": null,
+      "price_list_item": null,
+      "line_number": 18,
+      "qty": "6.00",
+      "units": "hours",
+      "description": "Assembly with LED lighting integration",
+      "price_currency": "600.00",
+      "estimate": 4
+    }
+  },
+  {
+    "model": "jobs.estimatelineitem",
+    "pk": 19,
+    "fields": {
+      "task": null,
+      "price_list_item": null,
+      "line_number": 1,
+      "qty": "10.00",
+      "units": "hours",
+      "description": "Design drawings with client revisions",
+      "price_currency": "1500.00",
+      "estimate": 5
+    }
+  },
+  {
+    "model": "jobs.estimatelineitem",
+    "pk": 20,
+    "fields": {
+      "task": null,
+      "price_list_item": 5,
+      "line_number": 2,
+      "qty": "1.00",
+      "units": "piece",
+      "description": "Premium HDU material for sign",
+      "price_currency": "300.00",
+      "estimate": 5
+    }
+  },
+  {
+    "model": "jobs.estimatelineitem",
+    "pk": 21,
+    "fields": {
+      "task": null,
+      "price_list_item": null,
+      "line_number": 3,
+      "qty": "150.00",
+      "units": "minutes",
+      "description": "Precision CNC cutting with detail work",
+      "price_currency": "3300.00",
+      "estimate": 5
+    }
+  },
+  {
+    "model": "jobs.estimatelineitem",
+    "pk": 22,
+    "fields": {
+      "task": null,
+      "price_list_item": null,
+      "line_number": 4,
+      "qty": "12.00",
+      "units": "hours",
+      "description": "Multi-layer painting and protective coating",
+      "price_currency": "1200.00",
+      "estimate": 5
+    }
+  },
+  {
+    "model": "jobs.estimatelineitem",
+    "pk": 23,
+    "fields": {
+      "task": null,
+      "price_list_item": null,
+      "line_number": 5,
+      "qty": "6.00",
+      "units": "hours",
+      "description": "Assembly with LED lighting integration",
+      "price_currency": "600.00",
+      "estimate": 5
+    }
+  },
+  {
+    "model": "jobs.estimatelineitem",
+    "pk": 24,
+    "fields": {
+      "task": null,
+      "price_list_item": null,
+      "line_number": 1,
+      "qty": "1.00",
+      "units": "each",
+      "description": "Custom Furniture",
+      "price_currency": "2750.00",
+      "estimate": 6
+    }
+  },
+  {
+    "model": "jobs.estimatelineitem",
+    "pk": 25,
+    "fields": {
+      "task": null,
+      "price_list_item": null,
+      "line_number": 2,
+      "qty": "1.00",
+      "units": "each",
+      "description": "Custom Furniture",
+      "price_currency": "800.00",
+      "estimate": 6
+    }
+  },
+  {
+    "model": "jobs.estimatelineitem",
+    "pk": 26,
+    "fields": {
+      "task": null,
+      "price_list_item": null,
+      "line_number": 3,
+      "qty": "1.00",
+      "units": "each",
+      "description": "Custom Furniture",
+      "price_currency": "2200.00",
+      "estimate": 6
+    }
+  },
+  {
+    "model": "jobs.estimatelineitem",
+    "pk": 27,
+    "fields": {
+      "task": 1,
+      "price_list_item": null,
+      "line_number": 4,
+      "qty": "8.00",
+      "units": "hours",
+      "description": "CAD drawings and technical documentation",
+      "price_currency": "800.00",
+      "estimate": 6
+    }
+  },
+  {
+    "model": "jobs.estimatelineitem",
+    "pk": 28,
+    "fields": {
+      "task": 2,
+      "price_list_item": null,
+      "line_number": 5,
+      "qty": "300.00",
+      "units": "board feet",
+      "description": "White oak lumber purchase",
+      "price_currency": "2100.00",
+      "estimate": 6
     }
   }
 ]
