@@ -46,6 +46,47 @@
     </tr>
 </table>
 
+<h3>Estimate Worksheets</h3>
+{% if worksheets %}
+    <table border="1" style="border-collapse: collapse; width: 100%; margin-top: 10px;">
+        <thead>
+            <tr>
+                <th>Worksheet ID</th>
+                <th>Status</th>
+                <th>Version</th>
+                <th>Created Date</th>
+                <th>Linked Estimate</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for worksheet in worksheets %}
+            <tr>
+                <td>{{ worksheet.est_worksheet_id }}</td>
+                <td>{{ worksheet.get_status_display }}</td>
+                <td>{{ worksheet.version }}</td>
+                <td>{{ worksheet.created_date|date:"M d, Y" }}</td>
+                <td>
+                    {% if worksheet.estimate %}
+                        <a href="{% url 'jobs:estimate_detail' worksheet.estimate.estimate_id %}">{{ worksheet.estimate.estimate_number }}</a>
+                    {% else %}
+                        <em>Not generated</em>
+                    {% endif %}
+                </td>
+                <td>
+                    <a href="{% url 'jobs:estworksheet_detail' worksheet.est_worksheet_id %}">View Details</a>
+                    {% if worksheet.status == 'draft' %}
+                        | <a href="{% url 'jobs:estworksheet_generate_estimate' worksheet.est_worksheet_id %}">Generate Estimate</a>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% else %}
+    <p>No estimate worksheets found for this job.</p>
+{% endif %}
+
 <h3>Associated Estimates</h3>
 
 {% if not estimates %}
@@ -111,47 +152,6 @@
     </table>
 {% else %}
     <p>No work orders found for this job.</p>
-{% endif %}
-
-<h3>Estimate Worksheets</h3>
-{% if worksheets %}
-    <table border="1" style="border-collapse: collapse; width: 100%; margin-top: 10px;">
-        <thead>
-            <tr>
-                <th>Worksheet ID</th>
-                <th>Status</th>
-                <th>Version</th>
-                <th>Created Date</th>
-                <th>Linked Estimate</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for worksheet in worksheets %}
-            <tr>
-                <td>{{ worksheet.est_worksheet_id }}</td>
-                <td>{{ worksheet.get_status_display }}</td>
-                <td>{{ worksheet.version }}</td>
-                <td>{{ worksheet.created_date|date:"M d, Y" }}</td>
-                <td>
-                    {% if worksheet.estimate %}
-                        <a href="{% url 'jobs:estimate_detail' worksheet.estimate.estimate_id %}">{{ worksheet.estimate.estimate_number }}</a>
-                    {% else %}
-                        <em>Not generated</em>
-                    {% endif %}
-                </td>
-                <td>
-                    <a href="{% url 'jobs:estworksheet_detail' worksheet.est_worksheet_id %}">View Details</a>
-                    {% if worksheet.status == 'draft' %}
-                        | <a href="{% url 'jobs:estworksheet_generate_estimate' worksheet.est_worksheet_id %}">Generate Estimate</a>
-                    {% endif %}
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-{% else %}
-    <p>No estimate worksheets found for this job.</p>
 {% endif %}
 
 <h3>Associated Purchase Orders</h3>

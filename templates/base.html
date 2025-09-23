@@ -22,9 +22,9 @@
         <a href="{% url 'purchasing:bill_list' %}">Bills</a> |
         <a href="{% url 'invoicing:invoice_list' %}">Invoices</a>
 <br/>
-        <a href="{% url 'jobs:estimate_list' %}">Estimates</a> |
+        (<a href="{% url 'jobs:estimate_list' %}">Estimates</a> |
         <a href="{% url 'jobs:estworksheet_list' %}">Worksheets</a> |
-        <a href="{% url 'jobs:work_order_list' %}">Work Orders</a>
+        <a href="{% url 'jobs:work_order_list' %}">Work Orders</a>)
         {% endblock %}
     </nav>
     

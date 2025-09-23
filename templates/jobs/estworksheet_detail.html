@@ -48,10 +48,16 @@
 
 <h3>Tasks</h3>
 
+{% if worksheet.status == 'draft' %}
 <p>
     <a href="{% url 'jobs:task_add_from_template' worksheet.est_worksheet_id %}">Add Task from Template</a> |
     <a href="{% url 'jobs:task_add_manual' worksheet.est_worksheet_id %}">Add Task Manually</a>
 </p>
+{% else %}
+<p style="color: #666; font-style: italic;">
+    Tasks cannot be added to a {{ worksheet.get_status_display|lower }} worksheet.
+</p>
+{% endif %}
 
 {% if tasks %}
     <table border="1">

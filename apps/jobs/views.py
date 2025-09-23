@@ -171,13 +171,22 @@ def estworksheet_detail(request, worksheet_id):
 def estworksheet_generate_estimate(request, worksheet_id):
     """Generate an estimate from a worksheet using EstimateGenerationService"""
     worksheet = get_object_or_404(EstWorksheet, est_worksheet_id=worksheet_id)
-    
+
+    # Prevent generating estimates from non-draft worksheets
+    if worksheet.status != 'draft':
+        messages.error(request, f'Cannot generate estimate from a {worksheet.get_status_display().lower()} worksheet.')
+        return redirect('jobs:estworksheet_detail', worksheet_id=worksheet_id)
+
     if request.method == 'POST':
         try:
             from .services import EstimateGenerationService
             service = EstimateGenerationService()
             estimate = service.generate_estimate_from_worksheet(worksheet)
-            
+
+            # Mark worksheet as final after generating estimate
+            worksheet.status = 'final'
+            worksheet.save()
+
             messages.success(request, f'Estimate {estimate.estimate_number} generated successfully!')
             return redirect('jobs:estimate_detail', estimate_id=estimate.estimate_id)
             
@@ -349,6 +358,11 @@ def task_add_from_template(request, worksheet_id):
     """Add Task to EstWorksheet from TaskTemplate"""
     worksheet = get_object_or_404(EstWorksheet, est_worksheet_id=worksheet_id)
 
+    # Prevent adding tasks to non-draft worksheets
+    if worksheet.status != 'draft':
+        messages.error(request, f'Cannot add tasks to a {worksheet.get_status_display().lower()} worksheet.')
+        return redirect('jobs:estworksheet_detail', worksheet_id=worksheet_id)
+
     if request.method == 'POST':
         form = TaskFromTemplateForm(request.POST)
         if form.is_valid():
@@ -379,6 +393,11 @@ def task_add_manual(request, worksheet_id):
     """Add Task to EstWorksheet manually"""
     worksheet = get_object_or_404(EstWorksheet, est_worksheet_id=worksheet_id)
 
+    # Prevent adding tasks to non-draft worksheets
+    if worksheet.status != 'draft':
+        messages.error(request, f'Cannot add tasks to a {worksheet.get_status_display().lower()} worksheet.')
+        return redirect('jobs:estworksheet_detail', worksheet_id=worksheet_id)
+
     if request.method == 'POST':
         form = TaskForm(request.POST)
         if form.is_valid():
@@ -403,6 +422,11 @@ def estimate_add_line_item(request, estimate_id):
     """Add line item to Estimate manually"""
     estimate = get_object_or_404(Estimate, estimate_id=estimate_id)
 
+    # Prevent modifications to superseded estimates
+    if estimate.status == 'superseded':
+        messages.error(request, 'Cannot add line items to a superseded estimate.')
+        return redirect('jobs:estimate_detail', estimate_id=estimate.estimate_id)
+
     if request.method == 'POST':
         form = EstimateLineItemForm(request.POST, estimate=estimate)
         if form.is_valid():
@@ -424,6 +448,11 @@ def estimate_add_line_item(request, estimate_id):
 def estimate_update_status(request, estimate_id):
     """Update Estimate status"""
     estimate = get_object_or_404(Estimate, estimate_id=estimate_id)
+
+    # Prevent modifications to superseded estimates
+    if estimate.status == 'superseded':
+        messages.error(request, 'Cannot update the status of a superseded estimate.')
+        return redirect('jobs:estimate_detail', estimate_id=estimate.estimate_id)
 
     if request.method == 'POST':
         form = EstimateStatusForm(request.POST, current_status=estimate.status)
