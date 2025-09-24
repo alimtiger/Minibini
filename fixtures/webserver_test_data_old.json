@@ -192,7 +192,7 @@
     "fields": {
       "job_number": "JOB-2024-001",
       "created_date": "2025-07-02T21:45:16.554Z",
-      "completion_date": "2025-08-11T21:45:16.554Z",
+      "completed_date": "2025-08-11T21:45:16.554Z",
       "status": "complete",
       "contact": 1,
       "customer_po_number": "ABC-PO-001",
@@ -205,7 +205,7 @@
     "fields": {
       "job_number": "JOB-2024-002",
       "created_date": "2025-07-17T21:45:16.554Z",
-      "completion_date": null,
+      "completed_date": null,
       "status": "approved",
       "contact": 2,
       "customer_po_number": "",
@@ -218,7 +218,7 @@
     "fields": {
       "job_number": "JOB-2024-003",
       "created_date": "2025-07-27T21:45:16.554Z",
-      "completion_date": null,
+      "completed_date": null,
       "status": "needs_attention",
       "contact": 3,
       "customer_po_number": "MOC-2024-HVAC",
@@ -231,7 +231,7 @@
     "fields": {
       "job_number": "JOB-2024-004",
       "created_date": "2025-08-01T21:45:16.554Z",
-      "completion_date": null,
+      "completed_date": null,
       "status": "draft",
       "contact": 4,
       "customer_po_number": "",
@@ -244,7 +244,7 @@
     "fields": {
       "job_number": "JOB-2024-005",
       "created_date": "2025-08-06T21:45:16.554Z",
-      "completion_date": null,
+      "completed_date": null,
       "status": "blocked",
       "contact": 5,
       "customer_po_number": "ISI-EQ-2024-01",
@@ -257,7 +257,7 @@
     "fields": {
       "job_number": "JOB-2024-006",
       "created_date": "2025-08-08T21:45:16.554Z",
-      "completion_date": null,
+      "completed_date": null,
       "status": "rejected",
       "contact": 2,
       "customer_po_number": "",
@@ -270,7 +270,7 @@
     "fields": {
       "job_number": "JOB-2024-007",
       "created_date": "2025-08-13T21:45:16.554Z",
-      "completion_date": null,
+      "completed_date": null,
       "status": "approved",
       "contact": 1,
       "customer_po_number": "ABC-EMRG-007",
@@ -283,7 +283,7 @@
     "fields": {
       "job_number": "JOB-2024-008",
       "created_date": "2025-08-15T21:45:16.554Z",
-      "completion_date": null,
+      "completed_date": null,
       "status": "draft",
       "contact": 3,
       "customer_po_number": "",

@@ -5,6 +5,7 @@ app_name = 'jobs'
 
 urlpatterns = [
     path('', views.job_list, name='list'),
+    path('create/', views.job_create, name='create'),
     path('<int:job_id>/', views.job_detail, name='detail'),
     path('estimates/', views.estimate_list, name='estimate_list'),
     path('estimates/<int:estimate_id>/', views.estimate_detail, name='estimate_detail'),
@@ -26,7 +27,7 @@ urlpatterns = [
     path('estimates/<int:estimate_id>/add-line-item/', views.estimate_add_line_item, name='estimate_add_line_item'),
     path('estimates/<int:estimate_id>/revise/', views.estimate_revise, name='estimate_revise'),
     path('worksheets/create/', views.estworksheet_create, name='estworksheet_create'),
-    path('worksheets/create-from-template/', views.estworksheet_create_from_template, name='estworksheet_create_from_template'),
+    path('<int:job_id>/create-worksheet/', views.estworksheet_create_for_job, name='estworksheet_create_for_job'),
     path('worksheets/<int:worksheet_id>/add-task-from-template/', views.task_add_from_template, name='task_add_from_template'),
     path('worksheets/<int:worksheet_id>/add-task-manual/', views.task_add_manual, name='task_add_manual'),
     path('task-mappings/', views.task_mapping_list, name='task_mapping_list'),

@@ -1,9 +1,60 @@
 from django import forms
 from django.core.exceptions import ValidationError
+from django.utils import timezone
 from .models import (
     WorkOrderTemplate, TaskTemplate, TaskMapping,
     EstWorksheet, Task, Estimate, EstimateLineItem, Job
 )
+from apps.contacts.models import Contact
+
+
+class JobCreateForm(forms.ModelForm):
+    """Form for creating a new Job"""
+    contact = forms.ModelChoiceField(
+        queryset=Contact.objects.all(),
+        required=True,
+        widget=forms.Select(attrs={'class': 'form-control'}),
+        empty_label="-- Select Contact --"
+    )
+    due_date = forms.DateTimeField(
+        required=False,
+        widget=forms.DateTimeInput(attrs={
+            'type': 'datetime-local',
+            'class': 'form-control'
+        })
+    )
+
+    class Meta:
+        model = Job
+        fields = ['job_number', 'contact', 'customer_po_number', 'description', 'due_date']
+        widgets = {
+            'job_number': forms.TextInput(attrs={'class': 'form-control'}),
+            'customer_po_number': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Optional'}),
+            'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 4}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        initial_contact = kwargs.pop('initial_contact', None)
+        super().__init__(*args, **kwargs)
+
+        # Generate next job number
+        last_job = Job.objects.order_by('-job_id').first()
+        if last_job:
+            # Extract number from last job number and increment
+            try:
+                last_num = int(last_job.job_number.split('-')[-1])
+                next_num = last_num + 1
+            except (ValueError, IndexError):
+                next_num = 1
+        else:
+            next_num = 1
+
+        year = timezone.now().year
+        self.fields['job_number'].initial = f"JOB-{year}-{next_num:04d}"
+
+        # Pre-select contact if provided
+        if initial_contact:
+            self.fields['contact'].initial = initial_contact
 
 
 class WorkOrderTemplateForm(forms.ModelForm):
@@ -37,20 +88,19 @@ class EstWorksheetForm(forms.ModelForm):
     """Form for creating/editing EstWorksheet"""
     class Meta:
         model = EstWorksheet
-        fields = ['job', 'template', 'status']
+        fields = ['job', 'template']  # Removed 'status' - always starts as draft
         widgets = {
-            'status': forms.Select(choices=EstWorksheet.EST_WORKSHEET_STATUS_CHOICES)
+            'template': forms.Select(attrs={'class': 'form-control'}),
         }
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Template is optional
+        self.fields['template'].required = False
+        self.fields['template'].empty_label = "-- No Template (Manual) --"
 
-class EstWorksheetFromTemplateForm(forms.Form):
-    """Form for creating EstWorksheet from WorkOrderTemplate"""
-    job = forms.ModelChoiceField(queryset=Job.objects.all(), required=True)
-    template = forms.ModelChoiceField(
-        queryset=WorkOrderTemplate.objects.filter(is_active=True),
-        required=True,
-        label="Work Order Template"
-    )
+
+# Removed EstWorksheetFromTemplateForm - functionality merged into EstWorksheetForm
 
 
 class TaskForm(forms.ModelForm):

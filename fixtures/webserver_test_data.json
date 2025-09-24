@@ -670,7 +670,7 @@
     "fields": {
       "job_number": "JOB-2025-001",
       "created_date": "2025-01-15T10:00:00.000Z",
-      "completion_date": null,
+      "completed_date": null,
       "status": "approved",
       "contact": 1,
       "customer_po_number": "ABC-FORMS-001",
@@ -683,7 +683,7 @@
     "fields": {
       "job_number": "JOB-2025-002",
       "created_date": "2025-02-01T14:30:00.000Z",
-      "completion_date": null,
+      "completed_date": null,
       "status": "draft",
       "contact": 2,
       "customer_po_number": "DINING-SET-001",
@@ -696,7 +696,7 @@
     "fields": {
       "job_number": "JOB-2025-003",
       "created_date": "2025-02-10T09:15:00.000Z",
-      "completion_date": null,
+      "completed_date": null,
       "status": "approved",
       "contact": 7,
       "customer_po_number": "PIZZA-SIGN-001",

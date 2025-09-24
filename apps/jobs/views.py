@@ -5,8 +5,8 @@ from django import forms
 from django.utils import timezone
 from .models import Job, Estimate, EstimateLineItem, Task, WorkOrder, WorkOrderTemplate, TaskTemplate, EstWorksheet, TaskMapping, TaskInstanceMapping
 from .forms import (
-    WorkOrderTemplateForm, TaskTemplateForm, EstWorksheetForm,
-    EstWorksheetFromTemplateForm, TaskForm, TaskFromTemplateForm,
+    JobCreateForm, WorkOrderTemplateForm, TaskTemplateForm, EstWorksheetForm,
+    TaskForm, TaskFromTemplateForm,
     EstimateLineItemForm, EstimateStatusForm, EstimateForm
 )
 from apps.purchasing.models import PurchaseOrder
@@ -31,6 +31,36 @@ def job_detail(request, job_id):
         'purchase_orders': purchase_orders,
         'invoices': invoices
     })
+
+
+def job_create(request):
+    """Create a new Job"""
+    initial_contact_id = request.GET.get('contact_id')
+    initial_contact = None
+
+    if initial_contact_id:
+        try:
+            from apps.contacts.models import Contact
+            initial_contact = Contact.objects.get(contact_id=initial_contact_id)
+        except Contact.DoesNotExist:
+            pass
+
+    if request.method == 'POST':
+        form = JobCreateForm(request.POST)
+        if form.is_valid():
+            job = form.save(commit=False)
+            # Job starts in 'draft' status by default (defined in model)
+            job.save()
+            messages.success(request, f'Job {job.job_number} created successfully.')
+            return redirect('jobs:detail', job_id=job.job_id)
+    else:
+        form = JobCreateForm(initial_contact=initial_contact)
+
+    return render(request, 'jobs/job_create.html', {
+        'form': form,
+        'initial_contact': initial_contact
+    })
+
 
 def estimate_list(request):
     estimates = Estimate.objects.all().order_by('-estimate_id')
@@ -74,8 +104,6 @@ def add_work_order_template(request):
         if form.is_valid():
             template = form.save()
             messages.success(request, f'Work Order Template "{template.template_name}" created successfully.')
-            if 'add_task' in request.POST:
-                return redirect('jobs:add_task_template', template_id=template.template_id)
             return redirect('jobs:work_order_template_detail', template_id=template.template_id)
     else:
         form = WorkOrderTemplateForm()
@@ -319,39 +347,54 @@ def estworksheet_create(request):
     return render(request, 'jobs/estworksheet_create.html', {'form': form})
 
 
-def estworksheet_create_from_template(request):
-    """Create EstWorksheet from WorkOrderTemplate"""
+def estworksheet_create_for_job(request, job_id):
+    """Create a new EstWorksheet for a specific Job, optionally from a template"""
+    job = get_object_or_404(Job, job_id=job_id)
+
     if request.method == 'POST':
-        form = EstWorksheetFromTemplateForm(request.POST)
+        form = EstWorksheetForm(request.POST, initial={'job': job})
         if form.is_valid():
-            job = form.cleaned_data['job']
-            template = form.cleaned_data['template']
+            worksheet = form.save(commit=False)
+            worksheet.job = job  # Ensure job is set
+            worksheet.save()
 
-            # Create the worksheet
-            worksheet = EstWorksheet.objects.create(
-                job=job,
-                template=template,
-                status='draft',
-                version=1
-            )
+            # If a template was selected, create tasks from it
+            template = form.cleaned_data.get('template')
+            if template:
+                # Create tasks from template's task templates
+                from .models import TemplateTaskAssociation
+                associations = TemplateTaskAssociation.objects.filter(
+                    work_order_template=template,
+                    task_template__is_active=True
+                ).select_related('task_template').order_by('sort_order', 'task_template__template_name')
 
-            # Create tasks from template's task templates
-            for task_template in template.task_templates.filter(is_active=True):
-                Task.objects.create(
-                    name=task_template.template_name,
-                    template=task_template,
-                    est_worksheet=worksheet,
-                    est_qty=1.0,  # Default quantity
-                    units=task_template.units,
-                    rate=task_template.rate
-                )
+                for association in associations:
+                    Task.objects.create(
+                        name=association.task_template.template_name,
+                        template=association.task_template,
+                        est_worksheet=worksheet,
+                        est_qty=association.est_qty,  # Use the association's quantity
+                        units=association.task_template.units,
+                        rate=association.task_template.rate
+                    )
 
-            messages.success(request, f'Worksheet created from template "{template.template_name}"')
+                messages.success(request, f'Worksheet created from template "{template.template_name}" for Job {job.job_number}')
+            else:
+                messages.success(request, f'Worksheet created successfully for Job {job.job_number}')
+
             return redirect('jobs:estworksheet_detail', worksheet_id=worksheet.est_worksheet_id)
     else:
-        form = EstWorksheetFromTemplateForm()
+        form = EstWorksheetForm(initial={'job': job})
+        # Hide the job field since it's already set
+        form.fields['job'].widget = forms.HiddenInput()
 
-    return render(request, 'jobs/estworksheet_create_from_template.html', {'form': form})
+    return render(request, 'jobs/estworksheet_create_for_job.html', {
+        'form': form,
+        'job': job
+    })
+
+
+# Removed estworksheet_create_from_template - functionality merged into estworksheet_create_for_job
 
 
 def task_add_from_template(request, worksheet_id):

@@ -27,8 +27,12 @@
         <td>{{ job.created_date }}</td>
     </tr>
     <tr>
-        <td>Completion Date</td>
-        <td>{{ job.completion_date|default:"Not completed" }}</td>
+        <td>Due Date</td>
+        <td>{{ job.due_date|default:"No due date" }}</td>
+    </tr>
+    <tr>
+        <td>Completed Date</td>
+        <td>{{ job.completed_date|default:"Not completed" }}</td>
     </tr>
     <tr>
         <td>Contact</td>
@@ -47,6 +51,9 @@
 </table>
 
 <h3>Estimate Worksheets</h3>
+<p>
+    <a href="{% url 'jobs:estworksheet_create_for_job' job.job_id %}">Create New Worksheet</a>
+</p>
 {% if worksheets %}
     <table border="1" style="border-collapse: collapse; width: 100%; margin-top: 10px;">
         <thead>

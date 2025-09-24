@@ -75,31 +75,7 @@ class EstWorksheetCRUDTests(TestCase):
         self.assertEqual(worksheet.status, 'draft')
         self.assertEqual(worksheet.version, 1)
 
-    def test_create_estworksheet_from_template_get(self):
-        """Test GET request to create EstWorksheet from template form."""
-        url = reverse('jobs:estworksheet_create_from_template')
-        response = self.client.get(url)
-
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'Create EstWorksheet from Template')
-
-    def test_create_estworksheet_from_template_post(self):
-        """Test POST request to create EstWorksheet from template."""
-        url = reverse('jobs:estworksheet_create_from_template')
-        data = {
-            'job': self.job.job_id,
-            'template': self.work_order_template.template_id
-        }
-        response = self.client.post(url, data)
-
-        # Check redirect after successful creation
-        self.assertEqual(response.status_code, 302)
-
-        # Check worksheet was created
-        worksheet = EstWorksheet.objects.filter(job=self.job).first()
-        self.assertIsNotNone(worksheet)
-        self.assertEqual(worksheet.status, 'draft')
-        self.assertEqual(worksheet.template, self.work_order_template)
+    # Removed tests for estworksheet_create_from_template - functionality merged into estworksheet_create_for_job
 
 
 class TaskCRUDTests(TestCase):

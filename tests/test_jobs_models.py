@@ -1,5 +1,6 @@
 from django.test import TestCase
 from django.utils import timezone
+from django.db import IntegrityError
 from datetime import timedelta
 from decimal import Decimal
 from apps.jobs.models import Job, Estimate, WorkOrder, Task, Blep, TaskMapping, WorkOrderTemplate, TaskTemplate
@@ -10,7 +11,7 @@ from apps.core.models import User
 class JobModelTest(TestCase):
     def setUp(self):
         self.contact = Contact.objects.create(name="Test Customer")
-        
+
     def test_job_creation(self):
         job = Job.objects.create(
             job_number="JOB001",
@@ -37,7 +38,8 @@ class JobModelTest(TestCase):
             contact=self.contact
         )
         self.assertEqual(job.status, 'draft')
-        self.assertIsNone(job.completion_date)
+        self.assertIsNone(job.completed_date)
+        self.assertIsNone(job.due_date)
         
     def test_job_status_choices(self):
         statuses = ['draft', 'needs_attention', 'approved', 'rejected', 'blocked', 'complete']
@@ -49,15 +51,79 @@ class JobModelTest(TestCase):
             )
             self.assertEqual(job.status, status)
             
-    def test_job_with_completion_date(self):
+    def test_job_with_completed_date(self):
         completion_time = timezone.now()
         job = Job.objects.create(
             job_number="JOB004",
             contact=self.contact,
-            completion_date=completion_time,
+            completed_date=completion_time,
             status='complete'
         )
-        self.assertEqual(job.completion_date, completion_time)
+        self.assertEqual(job.completed_date, completion_time)
+
+    def test_job_creation_timestamp_is_current(self):
+        """Test that a new Job is always created with a current timestamp"""
+        before_creation = timezone.now()
+        job = Job.objects.create(
+            job_number="JOB_TIMESTAMP",
+            contact=self.contact
+        )
+        after_creation = timezone.now()
+
+        # Check that created_date is between the before and after times
+        self.assertGreaterEqual(job.created_date, before_creation)
+        self.assertLessEqual(job.created_date, after_creation)
+
+    def test_job_default_status_is_draft(self):
+        """Test that a new Job always starts in Draft state by default"""
+        job = Job.objects.create(
+            job_number="JOB_DEFAULT_STATUS",
+            contact=self.contact
+        )
+        self.assertEqual(job.status, 'draft')
+
+    def test_job_requires_contact(self):
+        """Test that a Job must have a Contact associated with it"""
+        # Attempting to create a job without a contact should fail
+        with self.assertRaises(IntegrityError):
+            Job.objects.create(
+                job_number="JOB_NO_CONTACT"
+                # contact is deliberately missing
+            )
+
+    def test_job_contact_cannot_be_none(self):
+        """Test that a Job's contact field cannot be None"""
+        with self.assertRaises(IntegrityError):
+            Job.objects.create(
+                job_number="JOB_NULL_CONTACT",
+                contact=None
+            )
+
+    def test_job_minimal_creation_requirements(self):
+        """Test that only job_number and contact are required for Job creation"""
+        # This should succeed with just job_number and contact
+        job = Job.objects.create(
+            job_number="JOB_MINIMAL",
+            contact=self.contact
+        )
+
+        # Verify defaults are applied
+        self.assertEqual(job.status, 'draft')
+        self.assertIsNotNone(job.created_date)
+        self.assertIsNone(job.due_date)
+        self.assertIsNone(job.completed_date)
+        self.assertEqual(job.customer_po_number, '')
+        self.assertEqual(job.description, '')
+
+    def test_job_with_due_date(self):
+        """Test that a Job can have an optional due date"""
+        due_date = timezone.now() + timedelta(days=7)
+        job = Job.objects.create(
+            job_number="JOB_WITH_DUE",
+            contact=self.contact,
+            due_date=due_date
+        )
+        self.assertEqual(job.due_date, due_date)
 
 
 class EstimateModelTest(TestCase):

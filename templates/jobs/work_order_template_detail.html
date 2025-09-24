@@ -3,11 +3,7 @@
 {% block title %}{{ template.template_name }} - Minibini{% endblock %}
 
 {% block navigation %}
-<strong>Settings:</strong>
-<a href="{% url 'jobs:work_order_template_list' %}">WorkOrder Templates</a> |
-<a href="{% url 'jobs:task_template_list' %}">Task Templates</a> |
-<a href="{% url 'jobs:task_mapping_list' %}">Task Mappings</a> |
-<a href="{% url 'core:user_list' %}">Users</a>
+{% include 'includes/settings_navigation.html' %}
 {% endblock %}
 
 {% block content %}

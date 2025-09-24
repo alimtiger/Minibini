@@ -17,13 +17,13 @@ class JobModelFixtureTest(FixtureTestCase):
         job1 = Job.objects.get(job_number="JOB-2024-0001")
         self.assertEqual(job1.status, "draft")
         self.assertEqual(job1.description, "Kitchen renovation project for residential client")
-        self.assertIsNone(job1.completion_date)
+        self.assertIsNone(job1.completed_date)
         self.assertEqual(job1.contact.name, "John Doe")
         
         job2 = Job.objects.get(job_number="JOB-2024-0002")
         self.assertEqual(job2.status, "complete")
         self.assertEqual(job2.description, "Office electrical upgrade")
-        self.assertIsNotNone(job2.completion_date)
+        self.assertIsNotNone(job2.completed_date)
         self.assertEqual(job2.contact.name, "Jane Smith")
         
     def test_job_str_method_with_fixture_data(self):
