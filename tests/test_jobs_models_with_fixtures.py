@@ -1,7 +1,7 @@
 from django.test import TestCase
 from django.utils import timezone
 from datetime import timedelta
-from apps.jobs.models import Job, Estimate, WorkOrder, Task, Blep, TaskMapping
+from apps.jobs.models import Job, Estimate, WorkOrder, Task, Blep, TaskMapping, TaskTemplate
 from apps.contacts.models import Contact
 from apps.core.models import User
 from .base import FixtureTestCase
@@ -17,13 +17,13 @@ class JobModelFixtureTest(FixtureTestCase):
         job1 = Job.objects.get(job_number="JOB-2024-0001")
         self.assertEqual(job1.status, "draft")
         self.assertEqual(job1.description, "Kitchen renovation project for residential client")
-        self.assertIsNone(job1.completion_date)
+        self.assertIsNone(job1.completed_date)
         self.assertEqual(job1.contact.name, "John Doe")
         
         job2 = Job.objects.get(job_number="JOB-2024-0002")
         self.assertEqual(job2.status, "complete")
         self.assertEqual(job2.description, "Office electrical upgrade")
-        self.assertIsNotNone(job2.completion_date)
+        self.assertIsNotNone(job2.completed_date)
         self.assertEqual(job2.contact.name, "Jane Smith")
         
     def test_job_str_method_with_fixture_data(self):
@@ -69,12 +69,12 @@ class EstimateModelFixtureTest(FixtureTestCase):
     def test_estimates_exist_from_fixture(self):
         """Test that estimates from fixture data exist and have correct properties"""
         est1 = Estimate.objects.get(estimate_number="EST-2024-0001")
-        self.assertEqual(est1.revision_number, 1)
+        self.assertEqual(est1.version, 1)
         self.assertEqual(est1.status, "draft")
         self.assertEqual(est1.job.job_number, "JOB-2024-0001")
-        
-        est2 = Estimate.objects.get(estimate_number="EST-2024-0002", revision_number=2)
-        self.assertEqual(est2.revision_number, 2)
+
+        est2 = Estimate.objects.get(estimate_number="EST-2024-0002", version=2)
+        self.assertEqual(est2.version, 2)
         self.assertEqual(est2.status, "accepted")
         self.assertEqual(est2.job.job_number, "JOB-2024-0002")
         
@@ -201,18 +201,27 @@ class TaskMappingModelFixtureTest(FixtureTestCase):
     """
     
     def test_create_task_mapping_for_existing_task(self):
-        """Test creating task mapping for existing task from fixtures"""
+        """Test creating task mapping template that can be used by tasks"""
         task = Task.objects.get(name="Kitchen demolition")
         
         mapping = TaskMapping.objects.create(
-            task=task,
-            step_type="preparation",
+            step_type="labor",
+            mapping_strategy="direct",
             task_type_id="DEMO_PREP_001",
             breakdown_of_task="Remove cabinet doors and drawers, disconnect utilities"
         )
         
-        self.assertEqual(mapping.task, task)
-        self.assertEqual(mapping.step_type, "preparation")
+        template = TaskTemplate.objects.create(
+            template_name="Demolition Task Template",
+            task_mapping=mapping
+        )
+        
+        # Update task to use template
+        task.template = template
+        task.save()
+        
+        self.assertEqual(task.template.task_mapping, mapping)
+        self.assertEqual(mapping.step_type, "labor")
         self.assertEqual(mapping.task_type_id, "DEMO_PREP_001")
         self.assertEqual(mapping.breakdown_of_task, "Remove cabinet doors and drawers, disconnect utilities")
         
@@ -220,9 +229,9 @@ class TaskMappingModelFixtureTest(FixtureTestCase):
         """Test task mapping string representation with fixture task data"""
         task = Task.objects.get(name="Kitchen demolition")
         mapping = TaskMapping.objects.create(
-            task=task,
-            step_type="execution",
+            step_type="labor",
+            mapping_strategy="direct",
             task_type_id="DEMO_EXEC_001"
         )
-        expected_str = f"Task Mapping {mapping.task_mapping_id}"
+        expected_str = "DEMO_EXEC_001 - "
         self.assertEqual(str(mapping), expected_str)

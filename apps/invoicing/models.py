@@ -42,12 +42,16 @@ class PriceListItem(models.Model):
 
 class InvoiceLineItem(BaseLineItem):
     """Line item for invoices - inherits shared functionality from BaseLineItem."""
-    
+
     invoice = models.ForeignKey(Invoice, on_delete=models.CASCADE)
-    
+
     class Meta:
         verbose_name = "Invoice Line Item"
         verbose_name_plural = "Invoice Line Items"
-    
+
+    def get_parent_field_name(self):
+        """Get the name of the parent field for this line item type."""
+        return 'invoice'
+
     def __str__(self):
         return f"Invoice Line Item {self.pk} for {self.invoice.invoice_number}"

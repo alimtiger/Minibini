@@ -2,6 +2,10 @@
 
 {% block title %}{{ template.template_name }} - Minibini{% endblock %}
 
+{% block navigation %}
+{% include 'includes/settings_navigation.html' %}
+{% endblock %}
+
 {% block content %}
 <h2>Work Order Template: {{ template.template_name }}</h2>
 
@@ -33,7 +37,6 @@
 </table>
 
 <h3>Task Templates</h3>
-<p><a href="{% url 'jobs:add_task_template' template.template_id %}">Add Task Template</a></p>
 
 <table border="1">
     <tr>
@@ -44,23 +47,54 @@
         <th>Est. Quantity</th>
         <th>Task Mapping</th>
         <th>Active</th>
+        <th>Action</th>
     </tr>
-    {% for task in task_templates %}
+    {% for association in associations %}
     <tr>
-        <td>{{ task.template_name }}</td>
-        <td>{{ task.description|truncatewords:10|default:"-" }}</td>
-        <td>{{ task.units|default:"-" }}</td>
-        <td>{{ task.rate|default:"-" }}</td>
-        <td>{{ task.est_qty|default:"-" }}</td>
-        <td>{{ task.task_mapping }}</td>
-        <td>{{ task.is_active|yesno:"Yes,No" }}</td>
+        <td>{{ association.task_template.template_name }}</td>
+        <td>{{ association.task_template.description|truncatewords:10|default:"-" }}</td>
+        <td>{{ association.task_template.units|default:"-" }}</td>
+        <td>${{ association.task_template.rate|default:"0.00" }}</td>
+        <td>{{ association.est_qty }}</td>
+        <td>{{ association.task_template.task_mapping|default:"-" }}</td>
+        <td>{{ association.task_template.is_active|yesno:"Yes,No" }}</td>
+        <td>
+            <form method="post" style="display: inline;">
+                {% csrf_token %}
+                <input type="hidden" name="task_template_id" value="{{ association.task_template.template_id }}">
+                <button type="submit" name="remove_task" onclick="return confirm('Remove this task template from this work order?')">Remove</button>
+            </form>
+        </td>
     </tr>
     {% empty %}
     <tr>
-        <td colspan="7">No task templates found for this work order template.</td>
+        <td colspan="8">No task templates found for this work order template.</td>
     </tr>
     {% endfor %}
 </table>
+
+{% if available_templates %}
+<h4>Associate Existing Task Template</h4>
+<form method="post">
+    {% csrf_token %}
+    <div>
+        <label for="task_template_id">Task Template:</label>
+        <select name="task_template_id" required>
+            <option value="">-- Select Task Template --</option>
+            {% for task in available_templates %}
+                <option value="{{ task.template_id }}">{{ task.template_name }} ({{ task.units|default:"no units" }}, ${{ task.rate|default:"0.00" }})</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div>
+        <label for="est_qty">Estimated Quantity:</label>
+        <input type="number" name="est_qty" step="0.01" value="1.00" min="0" required>
+    </div>
+    <button type="submit" name="associate_task">Associate Task Template</button>
+</form>
+{% else %}
+<h4>All available task templates are already associated with this work order template.</h4>
+{% endif %}
 
 <p>
     <a href="{% url 'jobs:work_order_template_list' %}">Back to Templates List</a>

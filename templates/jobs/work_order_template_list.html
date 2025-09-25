@@ -2,14 +2,16 @@
 
 {% block title %}Work Order Templates - Minibini{% endblock %}
 
+{% block navigation %}
+{% include 'includes/settings_navigation.html' %}
+{% endblock %}
+
 {% block content %}
 <h2>Work Order Templates</h2>
 
-<p><a href="{% url 'jobs:add_work_order_template' %}">Add New Template</a></p>
-
 <table border="1">
     <tr>
-        <th>Template Name</th>
+        <th>Work Order Template Name</th>
         <th>Description</th>
         <th>Created Date</th>
         <th>Active</th>
@@ -22,8 +24,7 @@
         <td>{{ template.created_date|date:"Y-m-d" }}</td>
         <td>{{ template.is_active|yesno:"Yes,No" }}</td>
         <td>
-            <a href="{% url 'jobs:work_order_template_detail' template.template_id %}">View</a> |
-            <a href="{% url 'jobs:add_task_template' template.template_id %}">Add Task Template</a>
+            <a href="{% url 'jobs:work_order_template_detail' template.template_id %}">View</a>
         </td>
     </tr>
     {% empty %}
@@ -32,5 +33,7 @@
     </tr>
     {% endfor %}
 </table>
+
+<p><a href="{% url 'jobs:add_work_order_template' %}">Add New WorkOrder Template</a></p>
 
 {% endblock %}

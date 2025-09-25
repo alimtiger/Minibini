@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+
+{% block title %}Generate Estimate from Worksheet {{ worksheet.est_worksheet_id }} - Minibini{% endblock %}
+
+{% block content %}
+<h2>Generate Estimate from Worksheet #{{ worksheet.est_worksheet_id }}</h2>
+
+<h3>Worksheet Details</h3>
+<table border="1">
+    <tr><th>Job</th><td>{{ worksheet.job.job_number }} - {{ worksheet.job.description }}</td></tr>
+    <tr><th>Status</th><td>{{ worksheet.get_status_display }}</td></tr>
+    <tr><th>Total Tasks</th><td>{{ tasks.count }}</td></tr>
+    <tr><th>Total Cost</th><td>${{ total_cost|floatformat:2 }}</td></tr>
+</table>
+
+<h3>Tasks to be included in estimate:</h3>
+<table border="1">
+    <tr>
+        <th>Task Name</th>
+        <th>Cost</th>
+        <th>Will be included?</th>
+    </tr>
+    {% for task in tasks %}
+    <tr>
+        <td>{{ task.name }}</td>
+        <td>
+            {% if task.rate and task.est_qty %}
+                ${{ task.rate|floatformat:2 }} x {{ task.est_qty|floatformat:2 }}
+            {% else %}
+                $0.00
+            {% endif %}
+        </td>
+        <td>
+            {% if task.get_mapping_strategy == 'exclude' %}
+                No (internal task)
+            {% else %}
+                Yes
+            {% endif %}
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+
+<h3>Generate Estimate</h3>
+<p>Click the button below to generate a new estimate from this worksheet.</p>
+
+<form method="post">
+    {% csrf_token %}
+    <button type="submit">Generate Estimate Now</button>
+    <a href="{% url 'jobs:estworksheet_detail' worksheet.est_worksheet_id %}">Cancel</a>
+</form>
+
+{% endblock %}

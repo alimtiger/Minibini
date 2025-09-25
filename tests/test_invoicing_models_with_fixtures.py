@@ -106,7 +106,7 @@ class LineItemModelFixtureTest(FixtureTestCase):
     
     def test_estimate_line_items_exist_from_fixture(self):
         """Test that estimate line items from fixture data exist and have correct properties"""
-        estimate_item1 = EstimateLineItem.objects.get(line_number="CLI001")
+        estimate_item1 = EstimateLineItem.objects.get(line_number=1)
         self.assertEqual(estimate_item1.qty, Decimal('50.00'))
         self.assertEqual(estimate_item1.units, "each")
         self.assertEqual(estimate_item1.description, "Screws for kitchen cabinet installation")
@@ -115,7 +115,7 @@ class LineItemModelFixtureTest(FixtureTestCase):
         self.assertIsNone(estimate_item1.task)
         self.assertEqual(estimate_item1.price_list_item.code, "SCREW001")
         
-        estimate_item2 = EstimateLineItem.objects.get(line_number="CLI002")
+        estimate_item2 = EstimateLineItem.objects.get(line_number=2)
         self.assertEqual(estimate_item2.qty, Decimal('8.00'))
         self.assertEqual(estimate_item2.units, "hour")
         self.assertEqual(estimate_item2.description, "Electrical rough-in labor")
@@ -126,7 +126,7 @@ class LineItemModelFixtureTest(FixtureTestCase):
         
     def test_invoice_line_items_exist_from_fixture(self):
         """Test that invoice line items from fixture data exist and have correct properties"""
-        invoice_item1 = InvoiceLineItem.objects.get(line_number="CLI001")
+        invoice_item1 = InvoiceLineItem.objects.get(line_number=1)
         self.assertEqual(invoice_item1.qty, Decimal('50.00'))
         self.assertEqual(invoice_item1.units, "each")
         self.assertEqual(invoice_item1.description, "Screws for kitchen cabinet installation")
@@ -135,7 +135,7 @@ class LineItemModelFixtureTest(FixtureTestCase):
         self.assertIsNone(invoice_item1.task)
         self.assertEqual(invoice_item1.price_list_item.code, "SCREW001")
         
-        invoice_item2 = InvoiceLineItem.objects.get(line_number="CLI002")
+        invoice_item2 = InvoiceLineItem.objects.get(line_number=2)
         self.assertEqual(invoice_item2.qty, Decimal('8.00'))
         self.assertEqual(invoice_item2.units, "hour")
         self.assertEqual(invoice_item2.description, "Electrical rough-in labor")
@@ -147,7 +147,7 @@ class LineItemModelFixtureTest(FixtureTestCase):
         
     def test_purchase_order_line_items_exist_from_fixture(self):
         """Test that purchase order line items from fixture data exist and have correct properties"""
-        po_item = PurchaseOrderLineItem.objects.get(line_number="CLI003")
+        po_item = PurchaseOrderLineItem.objects.get(line_number=3)
         self.assertEqual(po_item.qty, Decimal('100.00'))
         self.assertEqual(po_item.units, "each")
         self.assertEqual(po_item.description, "Screws for purchase order")
@@ -158,7 +158,7 @@ class LineItemModelFixtureTest(FixtureTestCase):
         
     def test_bill_line_items_exist_from_fixture(self):
         """Test that bill line items from fixture data exist and have correct properties"""
-        bill_item = BillLineItem.objects.get(line_number="CLI004")
+        bill_item = BillLineItem.objects.get(line_number=4)
         self.assertEqual(bill_item.qty, Decimal('100.00'))
         self.assertEqual(bill_item.units, "each")
         self.assertEqual(bill_item.description, "Screws received on bill")
@@ -169,30 +169,30 @@ class LineItemModelFixtureTest(FixtureTestCase):
         
     def test_line_item_str_method_with_fixture_data(self):
         """Test line item string representation with fixture data"""
-        estimate_item = EstimateLineItem.objects.get(line_number="CLI001")
+        estimate_item = EstimateLineItem.objects.get(line_number=1)
         expected_str = f"Estimate Line Item {estimate_item.line_item_id} for {estimate_item.estimate.estimate_number}"
         self.assertEqual(str(estimate_item), expected_str)
         
-        invoice_item = InvoiceLineItem.objects.get(line_number="CLI001")
+        invoice_item = InvoiceLineItem.objects.get(line_number=1)
         expected_str = f"Invoice Line Item {invoice_item.line_item_id} for {invoice_item.invoice.invoice_number}"
         self.assertEqual(str(invoice_item), expected_str)
         
     def test_line_item_relationships(self):
         """Test that line items are properly linked to related models"""
         # Test estimate line item relationships
-        estimate_item = EstimateLineItem.objects.get(line_number="CLI001")
+        estimate_item = EstimateLineItem.objects.get(line_number=1)
         estimate = estimate_item.estimate
         self.assertEqual(estimate.estimate_number, "EST-2024-0001")
         
         # Test invoice line item relationships
-        invoice_item = InvoiceLineItem.objects.get(line_number="CLI001")
+        invoice_item = InvoiceLineItem.objects.get(line_number=1)
         invoice = invoice_item.invoice
         self.assertEqual(invoice.invoice_number, "INV-2024-0001")
         
         # Test task relationships for items that have tasks
         from apps.jobs.models import Task
-        estimate_item2 = EstimateLineItem.objects.get(line_number="CLI002")
-        invoice_item2 = InvoiceLineItem.objects.get(line_number="CLI002")
+        estimate_item2 = EstimateLineItem.objects.get(line_number=2)
+        invoice_item2 = InvoiceLineItem.objects.get(line_number=2)
         task = Task.objects.get(name="Electrical rough-in")
         self.assertEqual(estimate_item2.task, task)
         self.assertEqual(invoice_item2.task, task)
@@ -208,23 +208,23 @@ class LineItemModelFixtureTest(FixtureTestCase):
         
     def test_line_item_calculations(self):
         """Test line item calculations using fixture data"""
-        estimate_item1 = EstimateLineItem.objects.get(line_number="CLI001")
+        estimate_item1 = EstimateLineItem.objects.get(line_number=1)
         # 50 screws at $0.50 each = $25.00 total
         expected_total = estimate_item1.qty * estimate_item1.price_list_item.selling_price
         self.assertEqual(estimate_item1.price_currency, expected_total)
         
         # Note: CLI002 has task but no price_list_item, so we can't calculate from selling_price
-        estimate_item2 = EstimateLineItem.objects.get(line_number="CLI002")
+        estimate_item2 = EstimateLineItem.objects.get(line_number=2)
         # This is custom labor pricing, not based on price list item
         self.assertEqual(estimate_item2.price_currency, Decimal('600.00'))
         
-        invoice_item1 = InvoiceLineItem.objects.get(line_number="CLI001")
+        invoice_item1 = InvoiceLineItem.objects.get(line_number=1)
         # Same calculations for invoice items with price list items
         expected_total = invoice_item1.qty * invoice_item1.price_list_item.selling_price
         self.assertEqual(invoice_item1.price_currency, expected_total)
         
         # CLI002 has task but no price_list_item
-        invoice_item2 = InvoiceLineItem.objects.get(line_number="CLI002")
+        invoice_item2 = InvoiceLineItem.objects.get(line_number=2)
         self.assertEqual(invoice_item2.price_currency, Decimal('600.00'))
         
     def test_create_new_line_items_with_existing_relationships(self):
@@ -240,7 +240,7 @@ class LineItemModelFixtureTest(FixtureTestCase):
             estimate=estimate,
             task=task,
             price_list_item=None,
-            line_number="CLI005",
+            line_number=5,
             qty=Decimal('2.00'),
             units="hour",
             description="Cleanup labor estimate",
@@ -251,7 +251,7 @@ class LineItemModelFixtureTest(FixtureTestCase):
             invoice=invoice,
             task=task,
             price_list_item=None,
-            line_number="CLI006",
+            line_number=6,
             qty=Decimal('2.00'),
             units="hour",
             description="Cleanup labor invoice",

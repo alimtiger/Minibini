@@ -145,6 +145,9 @@ FIXTURE_DIRS = [
     BASE_DIR / 'fixtures',
 ]
 
+# Session settings
+SESSION_COOKIE_AGE = 86400  # 1 day (24 * 60 * 60 seconds) instead of default 14 days
+
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,

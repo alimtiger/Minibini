@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+
+{% block title %}Task Templates - Minibini{% endblock %}
+
+{% block navigation %}
+{% include 'includes/settings_navigation.html' %}
+{% endblock %}
+
+{% block content %}
+<h2>Task Templates</h2>
+<p>Reusable task definitions that can be used across multiple WorkOrder templates.</p>
+
+<p><a href="{% url 'jobs:add_task_template_standalone' %}">Add New Task Template</a></p>
+
+{% if templates %}
+    <table border="1">
+        <tr>
+            <th>Template Name</th>
+            <th>Description</th>
+            <th>Units</th>
+            <th>Rate</th>
+            <th>Task Mapping</th>
+            <th>Used in WorkOrder Templates</th>
+            <th>Active</th>
+            <th>Created</th>
+        </tr>
+        {% for template in templates %}
+        <tr>
+            <td><strong>{{ template.template_name }}</strong></td>
+            <td>{{ template.description|truncatewords:10|default:"-" }}</td>
+            <td>{{ template.units|default:"-" }}</td>
+            <td>${{ template.rate|default:"0.00" }}</td>
+            <td>{{ template.task_mapping|default:"-" }}</td>
+            <td>
+                {% if template.work_order_templates.all %}
+                    {% for wot in template.work_order_templates.all %}
+                        <a href="{% url 'jobs:work_order_template_detail' template_id=wot.template_id %}">{{ wot.template_name }}</a>{% if not forloop.last %}, {% endif %}
+                    {% endfor %}
+                {% else %}
+                    <em>Not used</em>
+                {% endif %}
+            </td>
+            <td>{% if template.is_active %}Yes{% else %}No{% endif %}</td>
+            <td>{{ template.created_date|date:"M j, Y" }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+{% else %}
+    <p>No task templates found.</p>
+{% endif %}
+
+{% endblock %}

@@ -250,20 +250,18 @@ class TaskCreationWorkflowTest(TestCase):
         self.assertIn("is not active", str(context.exception))
     
     def test_task_template_new_fields(self):
-        """Test TaskTemplate with new units, rate, and est_qty fields."""
+        """Test TaskTemplate with new units and rate fields."""
         template = TaskTemplate.objects.create(
             template_name="Labor Template",
             task_mapping=self.task_mapping,
             units="hours",
             rate=Decimal('85.00'),
-            est_qty=Decimal('6.50'),
             description="Standard labor template with pricing",
             is_active=True
         )
         
         self.assertEqual(template.units, "hours")
         self.assertEqual(template.rate, Decimal('85.00'))
-        self.assertEqual(template.est_qty, Decimal('6.50'))
         
         # Test that tasks created from template inherit the field values
         task = TaskService.create_from_template(template, self.work_order, self.user)
@@ -280,7 +278,6 @@ class TaskCreationWorkflowTest(TestCase):
         
         self.assertEqual(template.units, "")  # CharField blank=True defaults to empty
         self.assertIsNone(template.rate)  # DecimalField null=True
-        self.assertIsNone(template.est_qty)  # DecimalField null=True
     
     def test_task_template_without_task_mapping(self):
         """Test TaskTemplate can be created without TaskMapping."""
@@ -288,7 +285,6 @@ class TaskCreationWorkflowTest(TestCase):
             template_name="Template Without Mapping",
             units="items",
             rate=Decimal('25.00'),
-            est_qty=Decimal('10.00'),
             is_active=True
         )
         
@@ -301,18 +297,26 @@ class TaskCreationWorkflowTest(TestCase):
         self.assertEqual(task.template, template)
         
     def test_task_template_calculation_example(self):
-        """Test using TaskTemplate fields for calculations."""
+        """Test using TaskTemplate fields with association for calculations."""
         template = TaskTemplate.objects.create(
             template_name="Material Template",
             task_mapping=self.task_mapping,
             units="square_feet",
             rate=Decimal('12.75'),
-            est_qty=Decimal('150.00'),
             is_active=True
         )
         
+        # Create association with quantity
+        from apps.jobs.models import TemplateTaskAssociation, WorkOrderTemplate
+        work_order_template = WorkOrderTemplate.objects.create(template_name="Test WO Template")
+        association = TemplateTaskAssociation.objects.create(
+            work_order_template=work_order_template,
+            task_template=template,
+            est_qty=Decimal('150.00')
+        )
+        
         # Example calculation that could be used in business logic
-        estimated_cost = template.rate * template.est_qty if template.rate and template.est_qty else Decimal('0.00')
+        estimated_cost = template.rate * association.est_qty if template.rate and association.est_qty else Decimal('0.00')
         self.assertEqual(estimated_cost, Decimal('1912.50'))
 
 
@@ -353,15 +357,26 @@ class TemplateIntegrationTest(TestCase):
         task_template1 = TaskTemplate.objects.create(
             template_name="Preparation Task",
             task_mapping=self.task_mapping1,
-            work_order_template=work_order_template,
             is_active=True
         )
         
         task_template2 = TaskTemplate.objects.create(
             template_name="Execution Task",
             task_mapping=self.task_mapping2,
-            work_order_template=work_order_template,
             is_active=True
+        )
+        
+        # Create associations with quantities
+        from apps.jobs.models import TemplateTaskAssociation
+        TemplateTaskAssociation.objects.create(
+            work_order_template=work_order_template,
+            task_template=task_template1,
+            est_qty=Decimal('1.00')
+        )
+        TemplateTaskAssociation.objects.create(
+            work_order_template=work_order_template,
+            task_template=task_template2,
+            est_qty=Decimal('1.00')
         )
         
         # Generate WorkOrder from template

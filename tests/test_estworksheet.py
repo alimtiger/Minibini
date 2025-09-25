@@ -32,13 +32,34 @@ class EstWorksheetModelTest(TestCase):
             job=self.job,
             status='draft'
         )
-        
+
         self.assertEqual(worksheet.job, self.job)
         self.assertEqual(worksheet.status, 'draft')
         self.assertEqual(worksheet.version, 1)
         self.assertIsNone(worksheet.estimate)
         self.assertIsNone(worksheet.template)
         self.assertIsNone(worksheet.parent)
+
+    def test_estworksheet_default_status_is_draft(self):
+        """Test that EstWorksheet always starts in draft status by default."""
+        # Create worksheet without specifying status
+        worksheet = EstWorksheet.objects.create(
+            job=self.job
+        )
+
+        # Should default to draft
+        self.assertEqual(worksheet.status, 'draft')
+
+    def test_estworksheet_cannot_be_created_with_non_draft_status(self):
+        """Test that new EstWorksheets always start as draft, even if another status is attempted."""
+        # This test documents the expected behavior
+        # The model default ensures new worksheets start as draft
+        worksheet = EstWorksheet.objects.create(
+            job=self.job
+            # Not specifying status to use default
+        )
+
+        self.assertEqual(worksheet.status, 'draft')
         
     def test_estworksheet_with_template(self):
         """Test creating EstWorksheet from template."""

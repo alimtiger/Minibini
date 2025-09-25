@@ -150,7 +150,9 @@
       "is_active": true,
       "date_joined": "2024-01-01T00:00:00Z",
       "contact": 1,
-      "groups": [1],
+      "groups": [
+        1
+      ],
       "user_permissions": []
     }
   },
@@ -169,7 +171,9 @@
       "is_active": true,
       "date_joined": "2024-01-01T00:00:00Z",
       "contact": 2,
-      "groups": [2],
+      "groups": [
+        2
+      ],
       "user_permissions": []
     }
   },
@@ -188,7 +192,9 @@
       "is_active": true,
       "date_joined": "2024-01-01T00:00:00Z",
       "contact": 4,
-      "groups": [3],
+      "groups": [
+        3
+      ],
       "user_permissions": []
     }
   },
@@ -220,7 +226,7 @@
     "fields": {
       "job_number": "JOB-2024-0001",
       "created_date": "2024-01-15T09:00:00Z",
-      "completion_date": null,
+      "completed_date": null,
       "status": "draft",
       "contact": 1,
       "customer_po_number": "PO-ABC-12345",
@@ -233,7 +239,7 @@
     "fields": {
       "job_number": "JOB-2024-0002",
       "created_date": "2024-01-20T10:30:00Z",
-      "completion_date": "2024-02-15T16:00:00Z",
+      "completed_date": "2024-02-15T16:00:00Z",
       "status": "complete",
       "contact": 2,
       "customer_po_number": "",
@@ -286,9 +292,9 @@
     "fields": {
       "job": 1,
       "estimate_number": "EST-2024-0001",
-      "revision_number": 1,
+      "version": 1,
       "status": "draft",
-      "superseded_by": null,
+      "parent": null,
       "created_date": "2024-01-15T09:30:00Z",
       "superseded_date": null
     }
@@ -299,9 +305,9 @@
     "fields": {
       "job": 2,
       "estimate_number": "EST-2024-0002",
-      "revision_number": 1,
+      "version": 1,
       "status": "superseded",
-      "superseded_by": 3,
+      "parent": null,
       "created_date": "2024-01-20T10:30:00Z",
       "superseded_date": "2024-01-21T14:00:00Z"
     }
@@ -312,9 +318,9 @@
     "fields": {
       "job": 2,
       "estimate_number": "EST-2024-0002",
-      "revision_number": 2,
+      "version": 2,
       "status": "accepted",
-      "superseded_by": null,
+      "parent": 2,
       "created_date": "2024-01-21T14:00:00Z",
       "superseded_date": null
     }
@@ -406,7 +412,7 @@
       "estimate": 1,
       "task": null,
       "price_list_item": 1,
-      "line_number": "CLI001",
+      "line_number": 1,
       "qty": "50.00",
       "units": "each",
       "description": "Screws for kitchen cabinet installation",
@@ -414,13 +420,13 @@
     }
   },
   {
-    "model": "jobs.estimatelineitem", 
+    "model": "jobs.estimatelineitem",
     "pk": 2,
     "fields": {
       "estimate": 1,
       "task": 2,
       "price_list_item": null,
-      "line_number": "CLI002",
+      "line_number": 2,
       "qty": "8.00",
       "units": "hour",
       "description": "Electrical rough-in labor",
@@ -434,7 +440,7 @@
       "invoice": 1,
       "task": null,
       "price_list_item": 1,
-      "line_number": "CLI001",
+      "line_number": 1,
       "qty": "50.00",
       "units": "each",
       "description": "Screws for kitchen cabinet installation",
@@ -448,7 +454,7 @@
       "invoice": 1,
       "task": 2,
       "price_list_item": null,
-      "line_number": "CLI002",
+      "line_number": 2,
       "qty": "8.00",
       "units": "hour",
       "description": "Electrical rough-in labor",
@@ -462,7 +468,7 @@
       "purchase_order": 1,
       "task": null,
       "price_list_item": 1,
-      "line_number": "CLI003",
+      "line_number": 3,
       "qty": "100.00",
       "units": "each",
       "description": "Screws for purchase order",
@@ -476,7 +482,7 @@
       "bill": 1,
       "task": null,
       "price_list_item": 1,
-      "line_number": "CLI004",
+      "line_number": 4,
       "qty": "100.00",
       "units": "each",
       "description": "Screws received on bill",
@@ -487,8 +493,11 @@
     "model": "jobs.taskmapping",
     "pk": 1,
     "fields": {
-      "task": null,
-      "step_type": "preparation",
+      "step_type": "labor",
+      "mapping_strategy": "direct",
+      "default_product_type": "",
+      "line_item_name": "",
+      "line_item_description": "Site preparation and safety setup",
       "task_type_id": "PREP001",
       "breakdown_of_task": "Site preparation and safety setup"
     }
@@ -497,8 +506,11 @@
     "model": "jobs.taskmapping",
     "pk": 2,
     "fields": {
-      "task": null,
       "step_type": "material",
+      "mapping_strategy": "direct",
+      "default_product_type": "",
+      "line_item_name": "",
+      "line_item_description": "Material delivery and staging",
       "task_type_id": "MAT001",
       "breakdown_of_task": "Material delivery and staging"
     }
@@ -507,8 +519,11 @@
     "model": "jobs.taskmapping",
     "pk": 3,
     "fields": {
-      "task": null,
-      "step_type": "installation",
+      "step_type": "labor",
+      "mapping_strategy": "direct",
+      "default_product_type": "",
+      "line_item_name": "",
+      "line_item_description": "Installation and construction work",
       "task_type_id": "INST001",
       "breakdown_of_task": "Installation and construction work"
     }
@@ -517,8 +532,11 @@
     "model": "jobs.taskmapping",
     "pk": 4,
     "fields": {
-      "task": null,
-      "step_type": "electrical",
+      "step_type": "labor",
+      "mapping_strategy": "direct",
+      "default_product_type": "",
+      "line_item_name": "",
+      "line_item_description": "Electrical work and connections",
       "task_type_id": "ELEC001",
       "breakdown_of_task": "Electrical work and connections"
     }
@@ -551,9 +569,7 @@
       "description": "Standard site preparation and safety setup",
       "units": "days",
       "rate": "350.00",
-      "est_qty": "1.00",
       "task_mapping": 1,
-      "work_order_template": 1,
       "is_active": true,
       "created_date": "2023-01-15T10:30:00Z"
     }
@@ -566,9 +582,7 @@
       "description": "Material procurement and delivery setup",
       "units": "loads",
       "rate": "125.00",
-      "est_qty": "2.00",
       "task_mapping": 2,
-      "work_order_template": 1,
       "is_active": true,
       "created_date": "2023-01-15T11:00:00Z"
     }
@@ -581,9 +595,7 @@
       "description": "Standard electrical rough-in work",
       "units": "linear_feet",
       "rate": "12.50",
-      "est_qty": "150.00",
       "task_mapping": 4,
-      "work_order_template": 1,
       "is_active": true,
       "created_date": "2023-01-15T11:30:00Z"
     }
@@ -596,11 +608,49 @@
       "description": "General construction and installation",
       "units": "square_feet",
       "rate": "25.75",
-      "est_qty": "200.00",
       "task_mapping": 3,
-      "work_order_template": 1,
       "is_active": true,
       "created_date": "2023-01-15T12:00:00Z"
+    }
+  },
+  {
+    "model": "jobs.templatetaskassociation",
+    "pk": 1,
+    "fields": {
+      "work_order_template": 1,
+      "task_template": 1,
+      "est_qty": "1.00",
+      "sort_order": 1
+    }
+  },
+  {
+    "model": "jobs.templatetaskassociation",
+    "pk": 2,
+    "fields": {
+      "work_order_template": 1,
+      "task_template": 2,
+      "est_qty": "2.00",
+      "sort_order": 2
+    }
+  },
+  {
+    "model": "jobs.templatetaskassociation",
+    "pk": 3,
+    "fields": {
+      "work_order_template": 1,
+      "task_template": 3,
+      "est_qty": "150.00",
+      "sort_order": 3
+    }
+  },
+  {
+    "model": "jobs.templatetaskassociation",
+    "pk": 4,
+    "fields": {
+      "work_order_template": 1,
+      "task_template": 4,
+      "est_qty": "200.00",
+      "sort_order": 4
     }
   }
 ]

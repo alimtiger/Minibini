@@ -1,5 +1,6 @@
 from django.test import TestCase
 from django.utils import timezone
+from django.db import IntegrityError
 from datetime import timedelta
 from decimal import Decimal
 from apps.jobs.models import Job, Estimate, WorkOrder, Task, Blep, TaskMapping, WorkOrderTemplate, TaskTemplate
@@ -10,7 +11,7 @@ from apps.core.models import User
 class JobModelTest(TestCase):
     def setUp(self):
         self.contact = Contact.objects.create(name="Test Customer")
-        
+
     def test_job_creation(self):
         job = Job.objects.create(
             job_number="JOB001",
@@ -37,7 +38,8 @@ class JobModelTest(TestCase):
             contact=self.contact
         )
         self.assertEqual(job.status, 'draft')
-        self.assertIsNone(job.completion_date)
+        self.assertIsNone(job.completed_date)
+        self.assertIsNone(job.due_date)
         
     def test_job_status_choices(self):
         statuses = ['draft', 'needs_attention', 'approved', 'rejected', 'blocked', 'complete']
@@ -49,15 +51,79 @@ class JobModelTest(TestCase):
             )
             self.assertEqual(job.status, status)
             
-    def test_job_with_completion_date(self):
+    def test_job_with_completed_date(self):
         completion_time = timezone.now()
         job = Job.objects.create(
             job_number="JOB004",
             contact=self.contact,
-            completion_date=completion_time,
+            completed_date=completion_time,
             status='complete'
         )
-        self.assertEqual(job.completion_date, completion_time)
+        self.assertEqual(job.completed_date, completion_time)
+
+    def test_job_creation_timestamp_is_current(self):
+        """Test that a new Job is always created with a current timestamp"""
+        before_creation = timezone.now()
+        job = Job.objects.create(
+            job_number="JOB_TIMESTAMP",
+            contact=self.contact
+        )
+        after_creation = timezone.now()
+
+        # Check that created_date is between the before and after times
+        self.assertGreaterEqual(job.created_date, before_creation)
+        self.assertLessEqual(job.created_date, after_creation)
+
+    def test_job_default_status_is_draft(self):
+        """Test that a new Job always starts in Draft state by default"""
+        job = Job.objects.create(
+            job_number="JOB_DEFAULT_STATUS",
+            contact=self.contact
+        )
+        self.assertEqual(job.status, 'draft')
+
+    def test_job_requires_contact(self):
+        """Test that a Job must have a Contact associated with it"""
+        # Attempting to create a job without a contact should fail
+        with self.assertRaises(IntegrityError):
+            Job.objects.create(
+                job_number="JOB_NO_CONTACT"
+                # contact is deliberately missing
+            )
+
+    def test_job_contact_cannot_be_none(self):
+        """Test that a Job's contact field cannot be None"""
+        with self.assertRaises(IntegrityError):
+            Job.objects.create(
+                job_number="JOB_NULL_CONTACT",
+                contact=None
+            )
+
+    def test_job_minimal_creation_requirements(self):
+        """Test that only job_number and contact are required for Job creation"""
+        # This should succeed with just job_number and contact
+        job = Job.objects.create(
+            job_number="JOB_MINIMAL",
+            contact=self.contact
+        )
+
+        # Verify defaults are applied
+        self.assertEqual(job.status, 'draft')
+        self.assertIsNotNone(job.created_date)
+        self.assertIsNone(job.due_date)
+        self.assertIsNone(job.completed_date)
+        self.assertEqual(job.customer_po_number, '')
+        self.assertEqual(job.description, '')
+
+    def test_job_with_due_date(self):
+        """Test that a Job can have an optional due date"""
+        due_date = timezone.now() + timedelta(days=7)
+        job = Job.objects.create(
+            job_number="JOB_WITH_DUE",
+            contact=self.contact,
+            due_date=due_date
+        )
+        self.assertEqual(job.due_date, due_date)
 
 
 class EstimateModelTest(TestCase):
@@ -72,12 +138,12 @@ class EstimateModelTest(TestCase):
         estimate = Estimate.objects.create(
             job=self.job,
             estimate_number="EST001",
-            revision_number=2,
+            version=2,
             status='open'
         )
         self.assertEqual(estimate.job, self.job)
         self.assertEqual(estimate.estimate_number, "EST001")
-        self.assertEqual(estimate.revision_number, 2)
+        self.assertEqual(estimate.version, 2)
         self.assertEqual(estimate.status, 'open')
         
     def test_estimate_str_method(self):
@@ -92,7 +158,7 @@ class EstimateModelTest(TestCase):
             job=self.job,
             estimate_number="EST003"
         )
-        self.assertEqual(estimate.revision_number, 1)
+        self.assertEqual(estimate.version, 1)
         self.assertEqual(estimate.status, 'draft')
         
     def test_estimate_status_choices(self):
@@ -279,42 +345,48 @@ class TaskMappingModelTest(TestCase):
         
     def test_task_mapping_creation(self):
         mapping = TaskMapping.objects.create(
-            task=self.task,
-            step_type="preparation",
+            step_type="labor",
+            mapping_strategy="direct",
             task_type_id="PREP_001",
             breakdown_of_task="Detailed breakdown of preparation steps"
         )
-        self.assertEqual(mapping.task, self.task)
-        self.assertEqual(mapping.step_type, "preparation")
+        self.assertEqual(mapping.step_type, "labor")
+        self.assertEqual(mapping.mapping_strategy, "direct")
         self.assertEqual(mapping.task_type_id, "PREP_001")
         self.assertEqual(mapping.breakdown_of_task, "Detailed breakdown of preparation steps")
         
     def test_task_mapping_str_method(self):
         mapping = TaskMapping.objects.create(
-            task=self.task,
-            step_type="execution",
+            step_type="labor",
+            mapping_strategy="bundle_to_product",
             task_type_id="EXEC_001"
         )
-        self.assertEqual(str(mapping), f"Task Mapping {mapping.pk}")
+        self.assertEqual(str(mapping), "EXEC_001 - ")
         
     def test_task_mapping_optional_breakdown(self):
         mapping = TaskMapping.objects.create(
-            task=self.task,
-            step_type="completion",
+            step_type="material",
+            mapping_strategy="direct",
             task_type_id="COMP_001"
         )
         self.assertEqual(mapping.breakdown_of_task, "")
         
-    def test_task_mapping_optional_task(self):
-        """Test TaskMapping with null task field."""
+    def test_task_mapping_template_relationship(self):
+        """Test TaskMapping used as template via TaskTemplate."""
         mapping = TaskMapping.objects.create(
-            task=None,
-            step_type="general",
+            step_type="labor",
+            mapping_strategy="direct",
             task_type_id="GEN_001",
-            breakdown_of_task="General task mapping without specific task"
+            breakdown_of_task="General task mapping template"
         )
-        self.assertIsNone(mapping.task)
-        self.assertEqual(mapping.step_type, "general")
+        
+        template = TaskTemplate.objects.create(
+            template_name="General Task Template",
+            task_mapping=mapping
+        )
+        
+        self.assertEqual(template.task_mapping, mapping)
+        self.assertEqual(mapping.step_type, "labor")
 
 
 class WorkOrderTemplateModelTest(TestCase):
@@ -363,8 +435,8 @@ class TaskTemplateModelTest(TestCase):
             name="Test Task",
         )
         self.task_mapping = TaskMapping.objects.create(
-            task=self.task,
-            step_type="test_type",
+            step_type="labor",
+            mapping_strategy="direct",
             task_type_id="TEST001"
         )
         self.work_order_template = WorkOrderTemplate.objects.create(
@@ -377,18 +449,25 @@ class TaskTemplateModelTest(TestCase):
             description="Standard electrical installation task",
             units="outlets",
             rate=Decimal('45.00'),
-            est_qty=Decimal('12.00'),
             task_mapping=self.task_mapping,
-            work_order_template=self.work_order_template,
             is_active=True
         )
+        
+        # Create association with quantity
+        from apps.jobs.models import TemplateTaskAssociation
+        association = TemplateTaskAssociation.objects.create(
+            work_order_template=self.work_order_template,
+            task_template=template,
+            est_qty=Decimal('12.00')
+        )
+        
         self.assertEqual(template.template_name, "Electrical Installation")
         self.assertEqual(template.description, "Standard electrical installation task")
         self.assertEqual(template.units, "outlets")
         self.assertEqual(template.rate, Decimal('45.00'))
-        self.assertEqual(template.est_qty, Decimal('12.00'))
         self.assertEqual(template.task_mapping, self.task_mapping)
-        self.assertEqual(template.work_order_template, self.work_order_template)
+        self.assertIn(self.work_order_template, template.work_order_templates.all())
+        self.assertEqual(association.est_qty, Decimal('12.00'))
         self.assertTrue(template.is_active)
         self.assertIsNotNone(template.created_date)
         
@@ -408,8 +487,7 @@ class TaskTemplateModelTest(TestCase):
         self.assertEqual(template.description, "")
         self.assertEqual(template.units, "")
         self.assertIsNone(template.rate)
-        self.assertIsNone(template.est_qty)
-        self.assertIsNone(template.work_order_template)
+        self.assertEqual(template.work_order_templates.count(), 0)
     
     def test_task_template_without_task_mapping(self):
         """Test TaskTemplate can be created without TaskMapping."""
@@ -417,8 +495,7 @@ class TaskTemplateModelTest(TestCase):
             template_name="Template Without Mapping",
             description="Template without task mapping",
             units="hours",
-            rate=Decimal('50.00'),
-            est_qty=Decimal('8.00')
+            rate=Decimal('50.00')
         )
         self.assertIsNone(template.task_mapping)
         self.assertEqual(template.template_name, "Template Without Mapping")
@@ -433,27 +510,32 @@ class TaskTemplateModelTest(TestCase):
         )
         self.assertEqual(template.units, "")
         self.assertIsNone(template.rate)
-        self.assertIsNone(template.est_qty)
         
     def test_task_template_pricing_calculation(self):
-        """Test using TaskTemplate fields for cost calculations."""
+        """Test using TaskTemplate fields with association quantities for cost calculations."""
         template = TaskTemplate.objects.create(
             template_name="Material Template",
             task_mapping=self.task_mapping,
             units="square_feet",
-            rate=Decimal('15.25'),
+            rate=Decimal('15.25')
+        )
+        
+        # Create association with quantity
+        from apps.jobs.models import TemplateTaskAssociation
+        association = TemplateTaskAssociation.objects.create(
+            work_order_template=self.work_order_template,
+            task_template=template,
             est_qty=Decimal('200.00')
         )
         
-        estimated_cost = template.rate * template.est_qty if template.rate and template.est_qty else Decimal('0.00')
+        estimated_cost = template.rate * association.est_qty if template.rate and association.est_qty else Decimal('0.00')
         self.assertEqual(estimated_cost, Decimal('3050.00'))
         
     def test_task_template_without_work_order_template(self):
         """Test TaskTemplate can exist without WorkOrderTemplate."""
         template = TaskTemplate.objects.create(
             template_name="Standalone Template",
-            task_mapping=self.task_mapping,
-            work_order_template=None
+            task_mapping=self.task_mapping
         )
-        self.assertIsNone(template.work_order_template)
+        self.assertEqual(template.work_order_templates.count(), 0)
         self.assertEqual(template.task_mapping, self.task_mapping)

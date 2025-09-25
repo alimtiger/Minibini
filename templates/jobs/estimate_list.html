@@ -5,12 +5,16 @@
 {% block content %}
 <h2>All Estimates</h2>
 
+<p>
+    <a href="{% url 'jobs:estworksheet_list' %}">Create New Estimate (via Worksheet)</a>
+</p>
+
 {% if estimates %}
     <table border="1">
         <tr>
             <th>Estimate Number</th>
             <th>Job</th>
-            <th>Revision</th>
+            <th>Version</th>
             <th>Status</th>
             <th>Actions</th>
         </tr>
@@ -18,7 +22,7 @@
         <tr>
             <td>{{ estimate.estimate_number }}</td>
             <td><a href="{% url 'jobs:detail' estimate.job.pk %}">{{ estimate.job }}</a></td>
-            <td>{{ estimate.revision_number }}</td>
+            <td>{{ estimate.version }}</td>
             <td>{{ estimate.get_status_display }}</td>
             <td><a href="{% url 'jobs:estimate_detail' estimate.pk %}">View</a></td>
         </tr>

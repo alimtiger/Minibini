@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+
+{% block title %}Estimate Worksheets - Minibini{% endblock %}
+
+{% block content %}
+<h2>All Estimate Worksheets</h2>
+
+<p>
+    <a href="{% url 'jobs:estworksheet_create' %}">Create New EstWorksheet</a>
+</p>
+
+{% if worksheets %}
+    <table border="1">
+        <tr>
+            <th>Worksheet ID</th>
+            <th>Job</th>
+            <th>Status</th>
+            <th>Version</th>
+            <th>Linked Estimate</th>
+            <th>Created Date</th>
+            <th>Actions</th>
+        </tr>
+        {% for worksheet in worksheets %}
+        <tr>
+            <td>{{ worksheet.est_worksheet_id }}</td>
+            <td>
+                <a href="{% url 'jobs:detail' worksheet.job.job_id %}">
+                    {{ worksheet.job.job_number }} - {{ worksheet.job.description }}
+                </a>
+            </td>
+            <td>{{ worksheet.get_status_display }}</td>
+            <td>{{ worksheet.version }}</td>
+            <td>
+                {% if worksheet.estimate %}
+                    <a href="{% url 'jobs:estimate_detail' worksheet.estimate.estimate_id %}">
+                        {{ worksheet.estimate.estimate_number }}
+                    </a>
+                {% else %}
+                    Not generated
+                {% endif %}
+            </td>
+            <td>{{ worksheet.created_date }}</td>
+            <td>
+                <a href="{% url 'jobs:estworksheet_detail' worksheet.est_worksheet_id %}">View</a>
+                {% if worksheet.status == 'draft' %}
+                    | <a href="{% url 'jobs:estworksheet_generate_estimate' worksheet.est_worksheet_id %}">Generate Estimate</a>
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+{% else %}
+    <p>No estimate worksheets found.</p>
+{% endif %}
+
+{% endblock %}

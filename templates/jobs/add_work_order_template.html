@@ -2,16 +2,12 @@
 
 {% block title %}Add Work Order Template - Minibini{% endblock %}
 
+{% block navigation %}
+{% include 'includes/settings_navigation.html' %}
+{% endblock %}
+
 {% block content %}
 <h2>Add Work Order Template</h2>
-
-{% if messages %}
-    <ul class="messages">
-        {% for message in messages %}
-            <li class="{{ message.tags }}">{{ message }}</li>
-        {% endfor %}
-    </ul>
-{% endif %}
 
 <form method="post">
     {% csrf_token %}
@@ -20,7 +16,6 @@
     </table>
     <br>
     <button type="submit" name="save">Save Template</button>
-    <button type="submit" name="add_task">Save and Add Task Template</button>
     <a href="{% url 'jobs:work_order_template_list' %}">Cancel</a>
 </form>
 
