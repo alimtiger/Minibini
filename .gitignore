@@ -12,3 +12,4 @@ pyvenv.cfg
 .DS_Store
 minibini/settings_local.py
 Minibini.code-workspace
+database_commands.txt

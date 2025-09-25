@@ -20,9 +20,24 @@ class Contact(models.Model):
     def __str__(self):
         return self.name
 
+    def phone(self):
+        # Return highest priority phone number: work > mobile > home
+        if self.work_number:
+            return self.work_number
+        elif self.mobile_number:
+            return self.mobile_number
+        elif self.home_number:
+            return self.home_number
+        return ""
+
     def address(self):
+        # Return complete address if all components available
         if (self.addr1 and self.city and self.postal_code):
-            return f"{self.addr1}, {self.city}, {self.municipality} {self.postal_code}"
+            municipality_part = f", {self.municipality}" if self.municipality else ""
+            return f"{self.addr1}, {self.city}{municipality_part} {self.postal_code}"
+        # Return just addr1 if that's all we have
+        elif self.addr1:
+            return self.addr1
         return ""
 
 

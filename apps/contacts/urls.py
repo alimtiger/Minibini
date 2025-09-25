@@ -5,7 +5,10 @@ app_name = 'contacts'
 
 urlpatterns = [
     path('', views.contact_list, name='contact_list'),
+    path('add/', views.add_contact, name='add_contact'),
     path('<int:contact_id>/', views.contact_detail, name='contact_detail'),
     path('businesses/', views.business_list, name='business_list'),
+    path('businesses/add/', views.add_business, name='add_business'),
     path('businesses/<int:business_id>/', views.business_detail, name='business_detail'),
+    path('businesses/<int:business_id>/add-contact/', views.add_business_contact, name='add_business_contact'),
 ]

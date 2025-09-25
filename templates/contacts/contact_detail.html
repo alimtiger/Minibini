@@ -23,8 +23,16 @@
         <td>{{ contact.email|default:"No email" }}</td>
     </tr>
     <tr>
-        <td>Phone</td>
-        <td>{{ contact.phone|default:"No phone" }}</td>
+        <td>Work Phone</td>
+        <td>{{ contact.work_number|default:"Not provided" }}</td>
+    </tr>
+    <tr>
+        <td>Mobile Phone</td>
+        <td>{{ contact.mobile_number|default:"Not provided" }}</td>
+    </tr>
+    <tr>
+        <td>Home Phone</td>
+        <td>{{ contact.home_number|default:"Not provided" }}</td>
     </tr>
     <tr>
         <td>Address</td>
