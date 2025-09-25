@@ -11,7 +11,7 @@ User = get_user_model()
 
 
 class Command(BaseCommand):
-    help = 'Drop and recreate database with job test data for development'
+    help = 'Drop and recreate database with test data for development'
 
     def add_arguments(self, parser):
         parser.add_argument(
@@ -65,8 +65,8 @@ class Command(BaseCommand):
             self.stdout.write(self.style.ERROR(f'Error creating default user: {e}'))
             return
 
-        # Load all fixtures from job_test_data directory
-        fixtures_dir = os.path.join('fixtures', 'job_test_data')
+        # Load all fixtures from test_data directory
+        fixtures_dir = os.path.join('fixtures', 'test_data')
         if not os.path.exists(fixtures_dir):
             self.stdout.write(self.style.ERROR(f'Fixtures directory {fixtures_dir} does not exist.'))
             return
@@ -75,13 +75,13 @@ class Command(BaseCommand):
         fixture_files = sorted([f for f in os.listdir(fixtures_dir) if f.endswith('.json')])
 
         if not fixture_files:
-            self.stdout.write(self.style.WARNING('No fixture files found in job_test_data directory.'))
+            self.stdout.write(self.style.WARNING('No fixture files found in test_data directory.'))
             return
 
         self.stdout.write(f'Loading {len(fixture_files)} fixture files...')
 
         for fixture_file in fixture_files:
-            fixture_path = os.path.join('fixtures', 'job_test_data', fixture_file)
+            fixture_path = os.path.join('fixtures', 'test_data', fixture_file)
             self.stdout.write(f'  Loading {fixture_file}...')
             try:
                 call_command('loaddata', fixture_path, verbosity=0)
@@ -91,7 +91,7 @@ class Command(BaseCommand):
                 return
 
         # Show summary of what was loaded
-        self.stdout.write('\n' + self.style.SUCCESS('Job test data populated successfully!'))
+        self.stdout.write('\n' + self.style.SUCCESS('Test data populated successfully!'))
         self.stdout.write('\nDatabase summary:')
         self.stdout.write(f'  Users: {User.objects.count()}')
         self.stdout.write(f'  Contacts: {Contact.objects.count()}')
