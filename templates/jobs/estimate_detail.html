@@ -49,7 +49,9 @@
 
 <p>
     {% if estimate.status != 'superseded' %}
-        <a href="{% url 'jobs:estimate_add_line_item' estimate.estimate_id %}">Add Line Item</a> |
+        {% if estimate.status == 'draft' %}
+            <a href="{% url 'jobs:estimate_add_line_item' estimate.estimate_id %}">Add Line Item</a> |
+        {% endif %}
         <a href="{% url 'jobs:estimate_update_status' estimate.estimate_id %}">Update Status</a>
         {% if estimate.status == 'draft' %}
             | <form method="post" action="{% url 'jobs:estimate_mark_open' estimate.estimate_id %}" style="display: inline;">
@@ -58,6 +60,9 @@
             </form>
         {% else %}
             | <a href="{% url 'jobs:estimate_revise' estimate.estimate_id %}">Revise Estimate</a>
+        {% endif %}
+        {% if estimate.status == 'accepted' %}
+            | <a href="{% url 'jobs:work_order_create_from_estimate' estimate.estimate_id %}">Create Work Order</a>
         {% endif %}
     {% else %}
         <span style="color: #666; font-style: italic;">This estimate has been superseded and cannot be modified.</span>

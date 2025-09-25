@@ -51,9 +51,11 @@
 </table>
 
 <h3>Estimate Worksheets</h3>
+{% if job.status == 'draft' %}
 <p>
     <a href="{% url 'jobs:estworksheet_create_for_job' job.job_id %}">Create New Worksheet</a>
 </p>
+{% endif %}
 {% if worksheets %}
     <table border="1" style="border-collapse: collapse; width: 100%; margin-top: 10px;">
         <thead>

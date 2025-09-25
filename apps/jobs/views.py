@@ -98,6 +98,92 @@ def work_order_detail(request, work_order_id):
     return render(request, 'jobs/work_order_detail.html', {'work_order': work_order, 'tasks': tasks})
 
 
+def work_order_create_from_estimate(request, estimate_id):
+    """Create a WorkOrder from an accepted Estimate"""
+    from django.db import transaction
+
+    estimate = get_object_or_404(Estimate, estimate_id=estimate_id)
+
+    # Only allow creation from accepted estimates
+    if estimate.status != 'accepted':
+        messages.error(request, 'Work Orders can only be created from accepted estimates.')
+        return redirect('jobs:estimate_detail', estimate_id=estimate_id)
+
+    if request.method == 'POST':
+        with transaction.atomic():
+            # Create the WorkOrder
+            work_order = WorkOrder.objects.create(
+                job=estimate.job,
+                status='draft',
+                template=None  # Will inherit template from EstWorksheet if exists
+            )
+
+            # Check if there's an associated EstWorksheet
+            worksheet = EstWorksheet.objects.filter(estimate=estimate).first()
+
+            if worksheet:
+                # Copy template from worksheet
+                work_order.template = worksheet.template
+                work_order.save()
+
+                # Get all tasks from worksheet, ordered to maintain hierarchy
+                worksheet_tasks = Task.objects.filter(
+                    est_worksheet=worksheet
+                ).order_by('parent_task_id', 'task_id')
+
+                # Map old task IDs to new tasks for parent-child relationships
+                task_mapping = {}
+
+                # First pass: create all tasks without parent relationships
+                for old_task in worksheet_tasks:
+                    new_task = Task.objects.create(
+                        work_order=work_order,
+                        name=old_task.name,
+                        units=old_task.units,
+                        rate=old_task.rate,
+                        est_qty=old_task.est_qty,
+                        assignee=old_task.assignee,
+                        template=old_task.template,  # Keep template for TaskMapping
+                        parent_task=None  # Set in second pass
+                    )
+                    task_mapping[old_task.task_id] = new_task
+
+                    # Copy TaskInstanceMapping if exists
+                    try:
+                        old_mapping = TaskInstanceMapping.objects.get(task=old_task)
+                        TaskInstanceMapping.objects.create(
+                            task=new_task,
+                            product_identifier=old_mapping.product_identifier,
+                            product_instance=old_mapping.product_instance
+                        )
+                    except TaskInstanceMapping.DoesNotExist:
+                        pass  # No mapping to copy
+
+                # Second pass: update parent relationships
+                for old_task in worksheet_tasks:
+                    if old_task.parent_task:
+                        new_task = task_mapping[old_task.task_id]
+                        new_parent = task_mapping.get(old_task.parent_task_id)
+                        if new_parent:
+                            new_task.parent_task = new_parent
+                            new_task.save()
+
+            messages.success(request, f'Work Order {work_order.work_order_id} created successfully from Estimate {estimate.estimate_number}.')
+            return redirect('jobs:work_order_detail', work_order_id=work_order.work_order_id)
+
+    # GET request - show confirmation page
+    worksheet = EstWorksheet.objects.filter(estimate=estimate).first()
+    task_count = 0
+    if worksheet:
+        task_count = Task.objects.filter(est_worksheet=worksheet).count()
+
+    return render(request, 'jobs/work_order_create_confirm.html', {
+        'estimate': estimate,
+        'worksheet': worksheet,
+        'task_count': task_count
+    })
+
+
 def add_work_order_template(request):
     if request.method == 'POST':
         form = WorkOrderTemplateForm(request.POST)

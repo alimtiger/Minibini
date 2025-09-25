@@ -189,11 +189,41 @@ class SupersededEstimateRestrictionTests(TestCase):
         self.assertEqual(response.status_code, 200)
 
         # Check that modification links are present
-        self.assertContains(response, 'Add Line Item')
+        # Note: Add Line Item only shows for draft status (not open)
+        self.assertNotContains(response, 'Add Line Item')  # Open status doesn't show this
         self.assertContains(response, 'Update Status')
+        self.assertContains(response, 'Revise Estimate')  # Open status shows this instead
 
         # Check that restriction message is NOT shown
         self.assertNotContains(response, 'This estimate has been superseded and cannot be modified')
+
+    def test_draft_vs_open_estimate_links(self):
+        """Test that draft estimates show Add Line Item but open estimates don't."""
+        # Create a draft estimate
+        draft_estimate = Estimate.objects.create(
+            job=self.job,
+            estimate_number='EST-DRAFT-001',
+            version=1,
+            status='draft'
+        )
+
+        # Test draft estimate shows Add Line Item
+        url = reverse('jobs:estimate_detail', args=[draft_estimate.estimate_id])
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Add Line Item')
+        self.assertContains(response, 'Update Status')
+        self.assertContains(response, 'Mark as Open')  # Draft status shows this
+        self.assertNotContains(response, 'Revise Estimate')  # Not shown for draft
+
+        # Test open estimate (already created as self.active_estimate)
+        url = reverse('jobs:estimate_detail', args=[self.active_estimate.estimate_id])
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, 'Add Line Item')  # Not shown for open
+        self.assertContains(response, 'Update Status')
+        self.assertNotContains(response, 'Mark as Open')  # Not shown for open
+        self.assertContains(response, 'Revise Estimate')  # Shown for open
 
 
 class SupersededEstimateModelTests(TestCase):
