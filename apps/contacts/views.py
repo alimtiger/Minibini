@@ -174,3 +174,114 @@ def add_business(request):
             return redirect('contacts:business_list')
 
     return render(request, 'contacts/add_business.html')
+
+def edit_contact(request, contact_id):
+    contact = get_object_or_404(Contact, contact_id=contact_id)
+   
+    if request.method == 'POST':
+        # Contact fields
+        name = request.POST.get('name')
+        email = request.POST.get('email')
+        work_number = request.POST.get('work_number')
+        mobile_number = request.POST.get('mobile_number')
+        home_number = request.POST.get('home_number')
+        address = request.POST.get('address')
+        city = request.POST.get('city')
+        postal_code = request.POST.get('postal_code')
+
+        # Business fields
+        business_selection_mode = request.POST.get('business_selection_mode')
+        existing_business_id = request.POST.get('existing_business_id')
+        business_name = request.POST.get('business_name')
+        our_reference_code = request.POST.get('our_reference_code')
+        business_number = request.POST.get('business_number')
+        business_address = request.POST.get('business_address')
+        tax_exemption_number = request.POST.get('tax_exemption_number')
+        tax_cloud = request.POST.get('tax_cloud')
+
+        if name:
+
+            # Handle business association based on selection mode
+            business = None
+
+            if business_selection_mode == 'existing' and existing_business_id:
+                # Associate with existing business - NO MODIFICATION ALLOWED
+                try:
+                    business = Business.objects.get(business_id=existing_business_id)
+                    # Existing business is used as-is, no fields are updated
+                except Business.DoesNotExist:
+                    messages.error(request, 'Selected business no longer exists.')
+                    existing_businesses = Business.objects.all().order_by('business_name')
+                    return render(request, 'contacts/edit_contact.html', {
+                        'contact': contact,
+                        'existing_businesses': existing_businesses
+                    })
+
+            elif business_selection_mode == 'new' and business_name and business_name.strip():
+                # Create new business - this will dissociate from current business
+                # First, note the current business for messaging
+                old_business_name = contact.business.business_name if contact.business else None
+
+                # Check if business with this name already exists
+                existing_business = Business.objects.filter(business_name__iexact=business_name.strip()).first()
+                if existing_business:
+                    # Use existing business instead of creating duplicate
+                    business = existing_business
+                    if old_business_name:
+                        messages.info(request, f'Contact removed from "{old_business_name}" and associated with existing business "{existing_business.business_name}".')
+                    else:
+                        messages.info(request, f'Contact associated with existing business "{existing_business.business_name}".')
+                else:
+                    # Create new business (contact will be dissociated from old business)
+                    business = Business.objects.create(
+                        business_name=business_name.strip(),
+                        our_reference_code=our_reference_code.strip() if our_reference_code else '',
+                        business_number=business_number.strip() if business_number else '',
+                        business_address=business_address.strip() if business_address else '',
+                        tax_exemption_number=tax_exemption_number.strip() if tax_exemption_number else '',
+                        tax_cloud=tax_cloud.strip() if tax_cloud else ''
+                    )
+                    if old_business_name:
+                        messages.success(request, f'Contact removed from "{old_business_name}" and associated with new business "{business_name.strip()}".')
+                    else:
+                        messages.success(request, f'Contact associated with new business "{business_name.strip()}".')
+
+            elif business_selection_mode == 'name_search' and business_name and business_name.strip():
+                # Search for existing business by name - NO MODIFICATION ALLOWED
+                existing_business = Business.objects.filter(business_name__iexact=business_name.strip()).first()
+                if existing_business:
+                    business = existing_business
+                    # Existing business is used as-is, no fields are updated
+                    messages.info(request, f'Contact associated with existing business "{existing_business.business_name}".')
+                else:
+                    messages.error(request, f'No business found with name "{business_name.strip()}". Please select from existing businesses or create a new one.')
+                    existing_businesses = Business.objects.all().order_by('business_name')
+                    return render(request, 'contacts/edit_contact.html', {
+                        'contact': contact,
+                        'existing_businesses': existing_businesses
+                    })
+
+            # business remains None if no selection mode or empty fields
+
+            # Update contact
+            contact.name = name
+            contact.email = email or ''
+            contact.work_number = work_number or ''
+            contact.mobile_number = mobile_number or ''
+            contact.home_number = home_number or ''
+            contact.addr1 = address or ''
+            contact.city = city or ''
+            contact.postal_code = postal_code or ''
+            contact.business = business
+            contact.save()
+
+            messages.success(request, f'Contact "{name}" has been updated successfully.')
+            return redirect('contacts:contact_detail', contact_id=contact.contact_id)
+        else:
+            messages.error(request, 'Name is required.')
+
+    existing_businesses = Business.objects.all().order_by('business_name')
+    return render(request, 'contacts/edit_contact.html', {
+        'contact': contact,
+        'existing_businesses': existing_businesses
+    })
