@@ -34,7 +34,7 @@ class WorkOrderFromEstimateTestCase(TestCase):
         self.assertEqual(estimate.status, 'accepted')
         self.assertEqual(worksheet.estimate_id, estimate.estimate_id)
         initial_task_count = Task.objects.filter(est_worksheet=worksheet).count()
-        self.assertEqual(initial_task_count, 4)  # 1 parent + 2 children + 1 standalone
+        self.assertEqual(initial_task_count, 5)  # 1 parent + 2 children + 2 standalone
 
         # GET request - should show confirmation page
         url = reverse('jobs:work_order_create_from_estimate', kwargs={'estimate_id': estimate.estimate_id})
@@ -42,7 +42,7 @@ class WorkOrderFromEstimateTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'Create Work Order from Estimate')
         self.assertContains(response, estimate.estimate_number)
-        self.assertContains(response, 'Number of tasks to copy: 4')
+        self.assertContains(response, 'The Work Order will be created from 3 line item')
 
         # POST request - create the WorkOrder
         response = self.client.post(url, follow=True)
@@ -59,7 +59,7 @@ class WorkOrderFromEstimateTestCase(TestCase):
 
         # Verify tasks were copied
         wo_tasks = Task.objects.filter(work_order=work_order).order_by('task_id')
-        self.assertEqual(wo_tasks.count(), 4)
+        self.assertEqual(wo_tasks.count(), 5)
 
         # Check success message
         messages = list(response.context['messages'])
@@ -216,7 +216,7 @@ class WorkOrderFromEstimateTestCase(TestCase):
         original_mappings = TaskInstanceMapping.objects.filter(
             task__est_worksheet_id=100
         )
-        self.assertEqual(original_mappings.count(), 2)
+        self.assertEqual(original_mappings.count(), 3)
 
         # Create WorkOrder
         url = reverse('jobs:work_order_create_from_estimate', kwargs={'estimate_id': estimate.estimate_id})
@@ -265,13 +265,13 @@ class WorkOrderFromEstimateTestCase(TestCase):
         # Check context data
         self.assertEqual(response.context['estimate'], estimate)
         self.assertIsNotNone(response.context['worksheet'])
-        self.assertEqual(response.context['task_count'], 4)
+        self.assertEqual(response.context['total_line_items'], 3)
 
         # Check displayed information
         self.assertContains(response, estimate.estimate_number)
         self.assertContains(response, estimate.job.job_number)
         self.assertContains(response, "Status: Draft")
-        self.assertContains(response, "Number of tasks to copy: 4")
+        self.assertContains(response, "The Work Order will be created from 3 line item")
         self.assertContains(response, "Test Product Template")
 
     def test_confirmation_page_no_worksheet(self):
@@ -283,10 +283,10 @@ class WorkOrderFromEstimateTestCase(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertIsNone(response.context['worksheet'])
-        self.assertEqual(response.context['task_count'], 0)
+        self.assertEqual(response.context['total_line_items'], 0)
 
-        self.assertContains(response, "No worksheet is associated with this estimate")
-        self.assertContains(response, "No tasks (can be added manually later)")
+        self.assertContains(response, "The Work Order will be created from 0 line items:")
+        self.assertContains(response, "Tasks generated from all line items above")
 
     def test_create_workorder_link_visibility(self):
         """Test that Create Work Order link only shows for accepted estimates"""

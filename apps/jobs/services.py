@@ -18,6 +18,129 @@ from .models import (
 from apps.invoicing.models import PriceListItem
 
 
+class LineItemTaskService:
+    """Service class for generating tasks from EstimateLineItems."""
+
+    @staticmethod
+    def generate_tasks_for_work_order(line_item, work_order):
+        """
+        Generate appropriate Task(s) for a LineItem in a WorkOrder.
+
+        Args:
+            line_item (EstimateLineItem): The line item to generate tasks from
+            work_order (WorkOrder): The WorkOrder to create tasks for
+
+        Returns:
+            List[Task]: Tasks created for this LineItem
+        """
+        if line_item.task:
+            # Case 1: LineItem derived from worksheet task - copy existing task(s)
+            return LineItemTaskService._copy_worksheet_tasks(line_item, work_order)
+        elif line_item.price_list_item:
+            # Case 2: LineItem from catalog - create task from catalog item
+            return LineItemTaskService._create_task_from_catalog_item(line_item, work_order)
+        else:
+            # Case 3: Manual LineItem - create generic task
+            return LineItemTaskService._create_generic_task(line_item, work_order)
+
+    @staticmethod
+    def _copy_worksheet_tasks(line_item, work_order):
+        """Copy all tasks that contributed to this EstimateLineItem."""
+        tasks = []
+
+        # Check if this task is part of a bundle
+        try:
+            instance_mapping = TaskInstanceMapping.objects.get(task=line_item.task)
+            # Find all tasks with the same product_identifier (all tasks that contributed to this line item)
+            source_tasks = Task.objects.filter(
+                est_worksheet=line_item.task.est_worksheet,
+                taskinstancemapping__product_identifier=instance_mapping.product_identifier
+            ).order_by('task_id')
+        except TaskInstanceMapping.DoesNotExist:
+            # Single task, not part of a bundle
+            source_tasks = [line_item.task]
+
+        # Create mapping for parent-child relationships
+        task_mapping = {}
+
+        # First pass: create all tasks that contributed to this line item
+        for source_task in source_tasks:
+            new_task = Task.objects.create(
+                work_order=work_order,
+                name=source_task.name,
+                units=source_task.units,
+                rate=source_task.rate,
+                est_qty=source_task.est_qty,
+                assignee=source_task.assignee,
+                template=source_task.template,
+                parent_task=None  # Set in second pass
+            )
+            task_mapping[source_task.task_id] = new_task
+            tasks.append(new_task)
+
+            # Copy TaskInstanceMapping if exists
+            try:
+                old_mapping = TaskInstanceMapping.objects.get(task=source_task)
+                TaskInstanceMapping.objects.create(
+                    task=new_task,
+                    product_identifier=old_mapping.product_identifier,
+                    product_instance=old_mapping.product_instance
+                )
+            except TaskInstanceMapping.DoesNotExist:
+                pass
+
+        # Second pass: set parent relationships within this set of tasks
+        for source_task in source_tasks:
+            if source_task.parent_task and source_task.parent_task_id in task_mapping:
+                new_task = task_mapping[source_task.task_id]
+                new_parent = task_mapping[source_task.parent_task_id]
+                new_task.parent_task = new_parent
+                new_task.save()
+
+        return tasks
+
+    @staticmethod
+    def _create_task_from_catalog_item(line_item, work_order):
+        """Create a task from PriceListItem data."""
+        task_name = f"{line_item.price_list_item.code} - {line_item.price_list_item.description[:50]}"
+        if len(line_item.price_list_item.description) > 50:
+            task_name += "..."
+
+        task = Task.objects.create(
+            work_order=work_order,
+            name=task_name,
+            units=line_item.units or line_item.price_list_item.units,
+            rate=line_item.price_currency or line_item.price_list_item.selling_price,
+            est_qty=line_item.qty,
+            assignee=None,
+            template=None,
+            parent_task=None
+        )
+        return [task]
+
+    @staticmethod
+    def _create_generic_task(line_item, work_order):
+        """Create a generic task from manual LineItem data."""
+        if line_item.description:
+            task_name = line_item.description
+        elif line_item.line_number:
+            task_name = f"Line Item {line_item.line_number}"
+        else:
+            task_name = f"Line Item {line_item.pk}"
+
+        task = Task.objects.create(
+            work_order=work_order,
+            name=task_name,
+            units=line_item.units,
+            rate=line_item.price_currency,
+            est_qty=line_item.qty,
+            assignee=None,
+            template=None,
+            parent_task=None
+        )
+        return [task]
+
+
 class WorkOrderService:
     """Service class for WorkOrder creation workflows."""
     

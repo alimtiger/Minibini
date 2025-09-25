@@ -26,15 +26,37 @@
     </tr>
 </table>
 
-{% if worksheet %}
-<h3>Source Worksheet Information</h3>
-<p>The following data will be copied from the associated worksheet:</p>
+<h3>Line Items Analysis</h3>
+<p>The Work Order will be created from {{ total_line_items }} line item{{ total_line_items|pluralize }}:</p>
+
+{% if worksheet_items %}
+<h4>From Worksheet Tasks ({{ worksheet_items|length }})</h4>
 <ul>
-    <li>Template: {{ worksheet.template.template_name|default:"No template" }}</li>
-    <li>Number of tasks to copy: {{ task_count }}</li>
+    {% for item in worksheet_items %}
+    <li>{{ item.description|default:item.task.name }} - ${{ item.price_currency }} (Qty: {{ item.qty }})</li>
+    {% endfor %}
 </ul>
-{% else %}
-<p><strong>Note:</strong> No worksheet is associated with this estimate. The Work Order will be created without tasks.</p>
+<p><em>These will copy existing task details and hierarchy.</em></p>
+{% endif %}
+
+{% if catalog_items %}
+<h4>From Catalog Items ({{ catalog_items|length }})</h4>
+<ul>
+    {% for item in catalog_items %}
+    <li>{{ item.price_list_item.code }}: {{ item.description|default:item.price_list_item.description }} - ${{ item.price_currency }} (Qty: {{ item.qty }})</li>
+    {% endfor %}
+</ul>
+<p><em>These will create new tasks based on catalog item details.</em></p>
+{% endif %}
+
+{% if manual_items %}
+<h4>Manual Line Items ({{ manual_items|length }})</h4>
+<ul>
+    {% for item in manual_items %}
+    <li>{% if item.description %}{{ item.description }}{% else %}Line item #{{ item.line_number|default:item.pk }}{% endif %} - ${{ item.price_currency }} (Qty: {{ item.qty }})</li>
+    {% endfor %}
+</ul>
+<p><em>These will create generic tasks that may need manual refinement.</em></p>
 {% endif %}
 
 <h3>Work Order Details</h3>
@@ -42,10 +64,9 @@
 <ul>
     <li>Status: Draft</li>
     <li>Job: {{ estimate.job.job_number }}</li>
+    <li>Tasks generated from all line items above</li>
     {% if worksheet %}
-    <li>All tasks from the worksheet (with preserved hierarchy and mapping data)</li>
-    {% else %}
-    <li>No tasks (can be added manually later)</li>
+    <li>Template: {{ worksheet.template.template_name|default:"No template" }}</li>
     {% endif %}
 </ul>
 

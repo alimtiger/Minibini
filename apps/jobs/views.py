@@ -115,72 +115,52 @@ def work_order_create_from_estimate(request, estimate_id):
             work_order = WorkOrder.objects.create(
                 job=estimate.job,
                 status='draft',
-                template=None  # Will inherit template from EstWorksheet if exists
+                template=None
             )
 
-            # Check if there's an associated EstWorksheet
-            worksheet = EstWorksheet.objects.filter(estimate=estimate).first()
+            # Generate tasks from all EstimateLineItems
+            from .services import LineItemTaskService
+            total_tasks = 0
+            line_items = estimate.estimatelineitem_set.all().order_by('line_number', 'pk')
 
+            for line_item in line_items:
+                generated_tasks = LineItemTaskService.generate_tasks_for_work_order(line_item, work_order)
+                total_tasks += len(generated_tasks)
+
+            # If we have worksheet-based tasks, try to set template from worksheet
+            worksheet = EstWorksheet.objects.filter(estimate=estimate).first()
             if worksheet:
-                # Copy template from worksheet
                 work_order.template = worksheet.template
                 work_order.save()
-
-                # Get all tasks from worksheet, ordered to maintain hierarchy
-                worksheet_tasks = Task.objects.filter(
-                    est_worksheet=worksheet
-                ).order_by('parent_task_id', 'task_id')
-
-                # Map old task IDs to new tasks for parent-child relationships
-                task_mapping = {}
-
-                # First pass: create all tasks without parent relationships
-                for old_task in worksheet_tasks:
-                    new_task = Task.objects.create(
-                        work_order=work_order,
-                        name=old_task.name,
-                        units=old_task.units,
-                        rate=old_task.rate,
-                        est_qty=old_task.est_qty,
-                        assignee=old_task.assignee,
-                        template=old_task.template,  # Keep template for TaskMapping
-                        parent_task=None  # Set in second pass
-                    )
-                    task_mapping[old_task.task_id] = new_task
-
-                    # Copy TaskInstanceMapping if exists
-                    try:
-                        old_mapping = TaskInstanceMapping.objects.get(task=old_task)
-                        TaskInstanceMapping.objects.create(
-                            task=new_task,
-                            product_identifier=old_mapping.product_identifier,
-                            product_instance=old_mapping.product_instance
-                        )
-                    except TaskInstanceMapping.DoesNotExist:
-                        pass  # No mapping to copy
-
-                # Second pass: update parent relationships
-                for old_task in worksheet_tasks:
-                    if old_task.parent_task:
-                        new_task = task_mapping[old_task.task_id]
-                        new_parent = task_mapping.get(old_task.parent_task_id)
-                        if new_parent:
-                            new_task.parent_task = new_parent
-                            new_task.save()
 
             messages.success(request, f'Work Order {work_order.work_order_id} created successfully from Estimate {estimate.estimate_number}.')
             return redirect('jobs:work_order_detail', work_order_id=work_order.work_order_id)
 
     # GET request - show confirmation page
     worksheet = EstWorksheet.objects.filter(estimate=estimate).first()
-    task_count = 0
-    if worksheet:
-        task_count = Task.objects.filter(est_worksheet=worksheet).count()
+    line_items = estimate.estimatelineitem_set.all().order_by('line_number', 'pk')
+
+    # Categorize line items by source
+    worksheet_items = []
+    catalog_items = []
+    manual_items = []
+
+    for line_item in line_items:
+        if line_item.task:
+            worksheet_items.append(line_item)
+        elif line_item.price_list_item:
+            catalog_items.append(line_item)
+        else:
+            manual_items.append(line_item)
 
     return render(request, 'jobs/work_order_create_confirm.html', {
         'estimate': estimate,
         'worksheet': worksheet,
-        'task_count': task_count
+        'line_items': line_items,
+        'worksheet_items': worksheet_items,
+        'catalog_items': catalog_items,
+        'manual_items': manual_items,
+        'total_line_items': line_items.count()
     })
 
 

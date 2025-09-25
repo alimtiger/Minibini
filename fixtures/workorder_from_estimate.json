@@ -244,6 +244,21 @@
       "assignee": null,
       "work_order": null,
       "est_worksheet": 100,
+      "name": "Standalone Task - Material Delivery",
+      "units": "hours",
+      "rate": "40.00",
+      "est_qty": "2.00",
+      "template": null
+    }
+  },
+  {
+    "model": "jobs.task",
+    "pk": 104,
+    "fields": {
+      "parent_task": null,
+      "assignee": null,
+      "work_order": null,
+      "est_worksheet": 100,
       "name": "Standalone Task - Quality Check",
       "units": "hours",
       "rate": "60.00",
@@ -267,6 +282,57 @@
       "task": 101,
       "product_identifier": "test_product_100_1",
       "product_instance": 1
+    }
+  },
+  {
+    "model": "jobs.taskinstancemapping",
+    "pk": 102,
+    "fields": {
+      "task": 102,
+      "product_identifier": "test_product_100_1",
+      "product_instance": 1
+    }
+  },
+  {
+    "model": "jobs.estimatelineitem",
+    "pk": 100,
+    "fields": {
+      "estimate": 100,
+      "line_number": 1,
+      "qty": "1.00",
+      "units": "each",
+      "description": "Test Product Bundle - Complete Assembly",
+      "price_currency": "540.00",
+      "price_list_item": null,
+      "task": 100
+    }
+  },
+  {
+    "model": "jobs.estimatelineitem",
+    "pk": 103,
+    "fields": {
+      "estimate": 100,
+      "line_number": 2,
+      "qty": "2.00",
+      "units": "hours",
+      "description": "Material delivery",
+      "price_currency": "80.00",
+      "price_list_item": null,
+      "task": 103
+    }
+  },
+  {
+    "model": "jobs.estimatelineitem",
+    "pk": 104,
+    "fields": {
+      "estimate": 100,
+      "line_number": 3,
+      "qty": "1.00",
+      "units": "hours",
+      "description": "Quality check",
+      "price_currency": "60.00",
+      "price_list_item": null,
+      "task": 104
     }
   }
 ]
