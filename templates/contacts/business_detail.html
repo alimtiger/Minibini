@@ -4,6 +4,7 @@
 
 {% block content %}
 <h2>Business: {{ business.business_name }}</h2>
+<a href="{% url 'contacts:edit_business' business.business_id %}" style="display: inline-block; background-color: #ffc107; color: black; padding: 10px 20px; text-decoration: none; border-radius: 4px; margin-bottom: 20px;">Edit Business</a>
 
 <table border="1">
     <tr>

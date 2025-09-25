@@ -11,5 +11,6 @@ urlpatterns = [
     path('businesses/', views.business_list, name='business_list'),
     path('businesses/add/', views.add_business, name='add_business'),
     path('businesses/<int:business_id>/', views.business_detail, name='business_detail'),
+    path('businesses/<int:business_id>/edit/', views.edit_business, name='edit_business'),
     path('businesses/<int:business_id>/add-contact/', views.add_business_contact, name='add_business_contact'),
 ]

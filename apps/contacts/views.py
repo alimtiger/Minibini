@@ -177,7 +177,7 @@ def add_business(request):
 
 def edit_contact(request, contact_id):
     contact = get_object_or_404(Contact, contact_id=contact_id)
-   
+
     if request.method == 'POST':
         # Contact fields
         name = request.POST.get('name')
@@ -200,6 +200,56 @@ def edit_contact(request, contact_id):
         tax_cloud = request.POST.get('tax_cloud')
 
         if name:
+            # Check if contact has open jobs before allowing business change
+            from apps.jobs.models import Job
+
+            # Business association is changing if:
+            # 1. Contact currently has no business but will be assigned one
+            # 2. Contact currently has a business but will be changed to a different one or none
+            current_business_id = contact.business.business_id if contact.business else None
+            new_business_id = None
+
+            if business_selection_mode == 'existing' and existing_business_id:
+                new_business_id = int(existing_business_id)
+            elif business_selection_mode == 'new' and business_name and business_name.strip():
+                # For new business, we'll check if it's actually creating a new business later
+                # For now, we know it's changing
+                pass
+            elif business_selection_mode == 'name_search' and business_name and business_name.strip():
+                from django.db.models import Q
+                existing_business = Business.objects.filter(business_name__iexact=business_name.strip()).first()
+                if existing_business:
+                    new_business_id = existing_business.business_id
+
+            # Check if business is actually changing
+            business_changing = (
+                (current_business_id is None and (new_business_id is not None or
+                 (business_selection_mode == 'new' and business_name and business_name.strip()))) or
+                (current_business_id is not None and (new_business_id != current_business_id or
+                 business_selection_mode is None or business_selection_mode == '' or
+                 (business_selection_mode == 'new' and business_name and business_name.strip())))
+            )
+
+            if business_changing:
+                # Check for open jobs (not complete or rejected)
+                open_jobs = Job.objects.filter(
+                    contact=contact
+                ).exclude(
+                    status__in=['complete', 'rejected']
+                )
+
+                if open_jobs.exists():
+                    job_numbers = list(open_jobs.values_list('job_number', flat=True))
+                    messages.error(
+                        request,
+                        f'Cannot change business association for "{contact.name}" because they have open jobs: {", ".join(job_numbers)}. '
+                        'Complete or reject these jobs before changing the business association.'
+                    )
+                    existing_businesses = Business.objects.all().order_by('business_name')
+                    return render(request, 'contacts/edit_contact.html', {
+                        'contact': contact,
+                        'existing_businesses': existing_businesses
+                    })
 
             # Handle business association based on selection mode
             business = None
@@ -284,4 +334,47 @@ def edit_contact(request, contact_id):
     return render(request, 'contacts/edit_contact.html', {
         'contact': contact,
         'existing_businesses': existing_businesses
+    })
+
+def edit_business(request, business_id):
+    business = get_object_or_404(Business, business_id=business_id)
+
+    if request.method == 'POST':
+        # Business fields
+        business_name = request.POST.get('business_name')
+        our_reference_code = request.POST.get('our_reference_code')
+        business_number = request.POST.get('business_number')
+        business_address = request.POST.get('business_address')
+        tax_exemption_number = request.POST.get('tax_exemption_number')
+        tax_cloud = request.POST.get('tax_cloud')
+
+        if business_name and business_name.strip():
+            # Check if another business with this name already exists
+            existing_business = Business.objects.filter(
+                business_name__iexact=business_name.strip()
+            ).exclude(business_id=business.business_id).first()
+
+            if existing_business:
+                messages.error(
+                    request,
+                    f'A business with the name "{business_name.strip()}" already exists. '
+                    'Business names must be unique.'
+                )
+            else:
+                # Update business
+                business.business_name = business_name.strip()
+                business.our_reference_code = our_reference_code.strip() if our_reference_code else ''
+                business.business_number = business_number.strip() if business_number else ''
+                business.business_address = business_address.strip() if business_address else ''
+                business.tax_exemption_number = tax_exemption_number.strip() if tax_exemption_number else ''
+                business.tax_cloud = tax_cloud.strip() if tax_cloud else ''
+                business.save()
+
+                messages.success(request, f'Business "{business_name.strip()}" has been updated successfully.')
+                return redirect('contacts:business_detail', business_id=business.business_id)
+        else:
+            messages.error(request, 'Business name is required.')
+
+    return render(request, 'contacts/edit_business.html', {
+        'business': business
     })
