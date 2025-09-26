@@ -3,6 +3,7 @@ from django.contrib import messages
 from django.urls import reverse
 from django import forms
 from django.utils import timezone
+from django.db import models
 from .models import Job, Estimate, EstimateLineItem, Task, WorkOrder, WorkOrderTemplate, TaskTemplate, EstWorksheet, TaskMapping, TaskInstanceMapping
 from .forms import (
     JobCreateForm, WorkOrderTemplateForm, TaskTemplateForm, EstWorksheetForm,
@@ -193,10 +194,17 @@ def work_order_template_detail(request, template_id):
         if task_template_id:
             from .models import TemplateTaskAssociation
             task_template = get_object_or_404(TaskTemplate, template_id=task_template_id)
+
+            # Get the next sort_order value
+            max_sort_order = TemplateTaskAssociation.objects.filter(
+                work_order_template=template
+            ).aggregate(models.Max('sort_order'))['sort_order__max']
+            next_sort_order = (max_sort_order or 0) + 1
+
             association, created = TemplateTaskAssociation.objects.get_or_create(
                 work_order_template=template,
                 task_template=task_template,
-                defaults={'est_qty': est_qty}
+                defaults={'est_qty': est_qty, 'sort_order': next_sort_order}
             )
             if created:
                 messages.success(request, f'Task Template "{task_template.template_name}" associated with quantity {est_qty}.')

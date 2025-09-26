@@ -539,3 +539,95 @@ class TaskTemplateModelTest(TestCase):
         )
         self.assertEqual(template.work_order_templates.count(), 0)
         self.assertEqual(template.task_mapping, self.task_mapping)
+
+    def test_template_task_association_sort_order(self):
+        """Test that TaskTemplates added to WorkOrderTemplate maintain sort order."""
+        from apps.jobs.models import TemplateTaskAssociation
+
+        # Create multiple task templates
+        task_template1 = TaskTemplate.objects.create(
+            template_name="First Task",
+            task_mapping=self.task_mapping
+        )
+        task_template2 = TaskTemplate.objects.create(
+            template_name="Second Task",
+            task_mapping=self.task_mapping
+        )
+        task_template3 = TaskTemplate.objects.create(
+            template_name="Third Task",
+            task_mapping=self.task_mapping
+        )
+
+        # Add them to the work order template with specific sort orders
+        association1 = TemplateTaskAssociation.objects.create(
+            work_order_template=self.work_order_template,
+            task_template=task_template1,
+            est_qty=Decimal('1.00'),
+            sort_order=1
+        )
+        association2 = TemplateTaskAssociation.objects.create(
+            work_order_template=self.work_order_template,
+            task_template=task_template2,
+            est_qty=Decimal('2.00'),
+            sort_order=2
+        )
+        association3 = TemplateTaskAssociation.objects.create(
+            work_order_template=self.work_order_template,
+            task_template=task_template3,
+            est_qty=Decimal('3.00'),
+            sort_order=3
+        )
+
+        # Query associations ordered by sort_order
+        ordered_associations = TemplateTaskAssociation.objects.filter(
+            work_order_template=self.work_order_template
+        ).order_by('sort_order')
+
+        # Verify the order is maintained
+        self.assertEqual(ordered_associations[0].task_template, task_template1)
+        self.assertEqual(ordered_associations[1].task_template, task_template2)
+        self.assertEqual(ordered_associations[2].task_template, task_template3)
+
+        # Verify sort_order values
+        self.assertEqual(ordered_associations[0].sort_order, 1)
+        self.assertEqual(ordered_associations[1].sort_order, 2)
+        self.assertEqual(ordered_associations[2].sort_order, 3)
+
+    def test_template_task_association_auto_increment_sort_order(self):
+        """Test that sort_order auto-increments when adding tasks sequentially."""
+        from apps.jobs.models import TemplateTaskAssociation
+        from django.db import models as db_models
+
+        # Create multiple task templates
+        task_templates = []
+        for i in range(5):
+            template = TaskTemplate.objects.create(
+                template_name=f"Task {i+1}",
+                task_mapping=self.task_mapping
+            )
+            task_templates.append(template)
+
+        # Add them simulating the view logic for auto-incrementing sort_order
+        for i, task_template in enumerate(task_templates):
+            # Get the next sort_order value (as done in the view)
+            max_sort_order = TemplateTaskAssociation.objects.filter(
+                work_order_template=self.work_order_template
+            ).aggregate(db_models.Max('sort_order'))['sort_order__max']
+            next_sort_order = (max_sort_order or 0) + 1
+
+            TemplateTaskAssociation.objects.create(
+                work_order_template=self.work_order_template,
+                task_template=task_template,
+                est_qty=Decimal('1.00'),
+                sort_order=next_sort_order
+            )
+
+        # Verify all tasks have incrementing sort_order values
+        associations = TemplateTaskAssociation.objects.filter(
+            work_order_template=self.work_order_template
+        ).order_by('sort_order')
+
+        self.assertEqual(associations.count(), 5)
+        for i, association in enumerate(associations):
+            self.assertEqual(association.sort_order, i + 1)
+            self.assertEqual(association.task_template.template_name, f"Task {i+1}")
