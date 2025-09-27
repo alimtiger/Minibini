@@ -28,23 +28,48 @@
     </tr>
 </table>
 
-<h3>Associated Tasks</h3>
+<h3>Tasks</h3>
 {% if tasks %}
     <table border="1">
         <tr>
             <th>Task Name</th>
-            <th>Task Type</th>
-            <th>Assigned To</th>
-            <th>Parent Task</th>
+            <th>Assignee</th>
+            <th>Estimated Qty</th>
+            <th>Units</th>
+            <th>Rate</th>
+            <th>Total</th>
             <th>Actions</th>
         </tr>
-        {% for task in tasks %}
+        {% for item in tasks %}
         <tr>
-            <td>{{ task.name }}</td>
-            <td>{{ task.task_type }}</td>
-            <td>{{ task.assigned|default:"Unassigned" }}</td>
-            <td>{{ task.parent_task|default:"None" }}</td>
-            <td><a href="{% url 'jobs:task_detail' task.pk %}">View Task</a></td>
+            <td>
+                {% if item.level > 0 %}
+                    {% for i in "x"|rjust:item.level %}
+                        &nbsp;&nbsp;&nbsp;&nbsp;
+                    {% endfor %}
+                    └─ {{ item.task.name }}
+                {% else %}
+                    {{ item.task.name }}
+                {% endif %}
+            </td>
+            <td>{{ item.task.assignee.username|default:"Unassigned" }}</td>
+            <td>{{ item.task.est_qty|default:"-" }}</td>
+            <td>{{ item.task.units|default:"-" }}</td>
+            <td>
+                {% if item.task.rate %}
+                    ${{ item.task.rate }}
+                {% else %}
+                    -
+                {% endif %}
+            </td>
+            <td>
+                {% if item.task.est_qty and item.task.rate %}
+                    ${% widthratio item.task.est_qty 1 item.task.rate %}
+                {% else %}
+                    -
+                {% endif %}
+            </td>
+            <td><a href="{% url 'jobs:task_detail' item.task.pk %}">View</a></td>
         </tr>
         {% endfor %}
     </table>

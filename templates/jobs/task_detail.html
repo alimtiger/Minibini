@@ -19,24 +19,12 @@
         <td>{{ task.name }}</td>
     </tr>
     <tr>
-        <td>Task Type</td>
-        <td>{{ task.task_type }}</td>
-    </tr>
-    <tr>
-        <td>Work Order</td>
+        <td>Container</td>
         <td>
             {% if task.work_order %}
-                <a href="{% url 'jobs:work_order_detail' task.work_order.pk %}">{{ task.work_order }}</a>
-            {% else %}
-                None
-            {% endif %}
-        </td>
-    </tr>
-    <tr>
-        <td>Est Worksheet</td>
-        <td>
-            {% if task.est_worksheet %}
-                {{ task.est_worksheet }}
+                <a href="{% url 'jobs:work_order_detail' task.work_order.pk %}">Work Order {{ task.work_order.work_order_id }}</a>
+            {% elif task.est_worksheet %}
+                <a href="{% url 'jobs:estworksheet_detail' task.est_worksheet.pk %}">EstWorksheet {{ task.est_worksheet.est_worksheet_id }} (v{{ task.est_worksheet.version }})</a>
             {% else %}
                 None
             {% endif %}
@@ -46,23 +34,101 @@
         <td>Associated Job</td>
         <td>
             {% if task.work_order %}
-                <a href="{% url 'jobs:detail' task.work_order.job.pk %}">{{ task.work_order.job }}</a>
+                <a href="{% url 'jobs:detail' task.work_order.job.pk %}">{{ task.work_order.job.job_number }} - {{ task.work_order.job.description|truncatechars:50 }}</a>
             {% elif task.est_worksheet %}
-                <a href="{% url 'jobs:detail' task.est_worksheet.job.pk %}">{{ task.est_worksheet.job }}</a>
+                <a href="{% url 'jobs:detail' task.est_worksheet.job.pk %}">{{ task.est_worksheet.job.job_number }} - {{ task.est_worksheet.job.description|truncatechars:50 }}</a>
             {% else %}
                 No job assigned
             {% endif %}
         </td>
     </tr>
     <tr>
-        <td>Assigned To</td>
-        <td>{{ task.assigned|default:"Unassigned" }}</td>
+        <td>Assignee</td>
+        <td>
+            {% if task.assignee %}
+                {{ task.assignee.username }} ({{ task.assignee.get_full_name|default:task.assignee.email }})
+            {% else %}
+                Unassigned
+            {% endif %}
+        </td>
     </tr>
     <tr>
         <td>Parent Task</td>
-        <td>{{ task.parent_task|default:"No parent task" }}</td>
+        <td>
+            {% if task.parent_task %}
+                <a href="{% url 'jobs:task_detail' task.parent_task.pk %}">{{ task.parent_task.name }}</a>
+            {% else %}
+                No parent task
+            {% endif %}
+        </td>
+    </tr>
+    <tr>
+        <td>Estimated Quantity</td>
+        <td>{{ task.est_qty|default:"-" }}</td>
+    </tr>
+    <tr>
+        <td>Units</td>
+        <td>{{ task.units|default:"-" }}</td>
+    </tr>
+    <tr>
+        <td>Rate</td>
+        <td>
+            {% if task.rate %}
+                ${{ task.rate }}
+            {% else %}
+                -
+            {% endif %}
+        </td>
+    </tr>
+    <tr>
+        <td>Estimated Total</td>
+        <td>
+            {% if task.est_qty and task.rate %}
+                ${% widthratio task.est_qty 1 task.rate %}
+            {% else %}
+                -
+            {% endif %}
+        </td>
     </tr>
 </table>
+
+{% if task.subtasks.exists %}
+<h3>Subtasks</h3>
+<table border="1">
+    <tr>
+        <th>Name</th>
+        <th>Assignee</th>
+        <th>Qty</th>
+        <th>Units</th>
+        <th>Rate</th>
+        <th>Total</th>
+        <th>Actions</th>
+    </tr>
+    {% for subtask in task.subtasks.all %}
+    <tr>
+        <td>{{ subtask.name }}</td>
+        <td>{{ subtask.assignee.username|default:"Unassigned" }}</td>
+        <td>{{ subtask.est_qty|default:"-" }}</td>
+        <td>{{ subtask.units|default:"-" }}</td>
+        <td>
+            {% if subtask.rate %}
+                ${{ subtask.rate }}
+            {% else %}
+                -
+            {% endif %}
+        </td>
+        <td>
+            {% if subtask.est_qty and subtask.rate %}
+                ${% widthratio subtask.est_qty 1 subtask.rate %}
+            {% else %}
+                -
+            {% endif %}
+        </td>
+        <td><a href="{% url 'jobs:task_detail' subtask.pk %}">View</a></td>
+    </tr>
+    {% endfor %}
+</table>
+{% endif %}
 
 <p><a href="{% url 'jobs:task_list' %}">Back to Tasks List</a></p>
 {% endblock %}

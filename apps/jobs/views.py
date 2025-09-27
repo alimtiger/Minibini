@@ -95,8 +95,53 @@ def work_order_list(request):
 
 def work_order_detail(request, work_order_id):
     work_order = get_object_or_404(WorkOrder, work_order_id=work_order_id)
-    tasks = Task.objects.filter(work_order=work_order).order_by('task_id')
-    return render(request, 'jobs/work_order_detail.html', {'work_order': work_order, 'tasks': tasks})
+
+    # Get all tasks for this work order
+    all_tasks = Task.objects.filter(work_order=work_order).order_by('task_id')
+
+    # Build hierarchical task structure
+    def build_task_tree(tasks):
+        """Build a hierarchical task structure with level indicators."""
+        task_dict = {task.task_id: task for task in tasks}
+        root_tasks = []
+
+        # Find root tasks (no parent)
+        for task in tasks:
+            if not task.parent_task:
+                root_tasks.append(task)
+
+        # Recursive function to get task with its children and level
+        def get_task_with_children(task, level=0):
+            result = {'task': task, 'level': level}
+            children = []
+            for potential_child in tasks:
+                if potential_child.parent_task_id == task.task_id:
+                    children.append(get_task_with_children(potential_child, level + 1))
+            result['children'] = children
+            return result
+
+        # Build the tree
+        tree = []
+        for root_task in root_tasks:
+            tree.append(get_task_with_children(root_task))
+
+        # Flatten the tree for template display
+        def flatten_tree(tree_nodes):
+            flat_list = []
+            for node in tree_nodes:
+                flat_list.append({'task': node['task'], 'level': node['level']})
+                if node['children']:
+                    flat_list.extend(flatten_tree(node['children']))
+            return flat_list
+
+        return flatten_tree(tree)
+
+    tasks_with_levels = build_task_tree(all_tasks)
+
+    return render(request, 'jobs/work_order_detail.html', {
+        'work_order': work_order,
+        'tasks': tasks_with_levels
+    })
 
 
 def work_order_create_from_estimate(request, estimate_id):
