@@ -1,5 +1,6 @@
 from django.db import models
 from django.utils import timezone
+from django.core.exceptions import ValidationError
 
 
 class Job(models.Model):
@@ -44,10 +45,36 @@ class Estimate(models.Model):
     created_date = models.DateTimeField(default=timezone.now)
     superseded_date = models.DateTimeField(null=True, blank=True)
     
+    def clean(self):
+        """Validate estimate status changes and uniqueness constraints."""
+        super().clean()
+
+        # Check if this is an update
+        if self.pk:
+            try:
+                old_status = Estimate.objects.only('status').get(pk=self.pk).status
+
+                # Prevent approved estimates from going back to draft
+                if old_status == 'accepted' and self.status == 'draft':
+                    raise ValidationError('Cannot transition from accepted to draft')
+
+            except Estimate.DoesNotExist:
+                pass
+
+        # Only one accepted estimate per job
+        if self.status == 'accepted':
+            existing_accepted = Estimate.objects.filter(
+                job=self.job,
+                status='accepted'
+            ).exclude(pk=self.pk if self.pk else None)
+
+            if existing_accepted.exists():
+                raise ValidationError(f'Job {self.job.job_number} already has an accepted estimate')
+
     def save(self, *args, **kwargs):
         """Override save to detect status changes and send signals if needed."""
         old_status = None
-        
+
         # Check if this is an update (not a new object)
         if self.pk:
             try:
@@ -55,13 +82,17 @@ class Estimate(models.Model):
                 old_status = Estimate.objects.only('status').get(pk=self.pk).status
             except Estimate.DoesNotExist:
                 pass
-        
+
+        # Run validation
+        self.full_clean()
+
         # Call parent save
         super().save(*args, **kwargs)
-        
-        # Check if status changed and handle worksheet updates
+
+        # Check if status changed and handle updates
         if old_status and old_status != self.status:
             self._maybe_update_worksheet_statuses(old_status)
+            self._maybe_update_job_status(old_status)
     
     def _maybe_update_worksheet_statuses(self, old_status):
         """Send signal to update worksheet statuses if the change is relevant."""
@@ -87,6 +118,26 @@ class Estimate(models.Model):
         elif estimate_status == 'superseded':
             return 'superseded'
         return None
+
+    def _maybe_update_job_status(self, old_status):
+        """Send signal to update job status if the change is relevant."""
+        from apps.jobs.signals import estimate_status_changed_for_job
+
+        # Signal when estimate is accepted
+        if self.status == 'accepted' and old_status != 'accepted':
+            estimate_status_changed_for_job.send(
+                sender=self.__class__,
+                estimate=self,
+                new_job_status='approved'
+            )
+
+        # Signal when approved estimate is superseded
+        elif self.status == 'superseded' and old_status == 'accepted':
+            estimate_status_changed_for_job.send(
+                sender=self.__class__,
+                estimate=self,
+                new_job_status='blocked'
+            )
 
     def __str__(self):
         return f"Estimate {self.estimate_number}"
