@@ -45,7 +45,7 @@
         {% block navigation %}
         <strong>Main:</strong>
         <a href="{% url 'jobs:list' %}">Jobs</a> |
-        <a href="{% url 'jobs:create' %}">Add Job</a> |
+        <a href="{% url 'jobs:create' %}">New Job</a> |
         <a href="{% url 'jobs:task_list' %}">Tasks</a> |
         <a href="{% url 'contacts:contact_list' %}">Contacts</a> |
         <a href="{% url 'contacts:business_list' %}">Businesses</a> |
@@ -71,7 +71,7 @@
         {% block content %}
         {% endblock %}
     </main>
-    
+
     <hr>
     <footer>
         <a href="{% url 'home' %}">Main</a> |

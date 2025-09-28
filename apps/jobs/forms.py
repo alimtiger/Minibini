@@ -11,7 +11,7 @@ from apps.contacts.models import Contact
 class JobCreateForm(forms.ModelForm):
     """Form for creating a new Job"""
     contact = forms.ModelChoiceField(
-        queryset=Contact.objects.all(),
+        queryset=Contact.objects.all().select_related('business'),
         required=True,
         widget=forms.Select(attrs={'class': 'form-control'}),
         empty_label="-- Select Contact --"
@@ -37,6 +37,9 @@ class JobCreateForm(forms.ModelForm):
         initial_contact = kwargs.pop('initial_contact', None)
         super().__init__(*args, **kwargs)
 
+        # Customize contact field display to include business name
+        self.fields['contact'].label_from_instance = self.label_from_instance_with_business
+
         # Generate next job number
         last_job = Job.objects.order_by('-job_id').first()
         if last_job:
@@ -55,6 +58,12 @@ class JobCreateForm(forms.ModelForm):
         # Pre-select contact if provided
         if initial_contact:
             self.fields['contact'].initial = initial_contact
+
+    def label_from_instance_with_business(self, contact):
+        """Custom label for contact dropdown to include business name"""
+        if contact.business:
+            return f"{contact.name} ({contact.business.business_name})"
+        return contact.name
 
 
 class WorkOrderTemplateForm(forms.ModelForm):
