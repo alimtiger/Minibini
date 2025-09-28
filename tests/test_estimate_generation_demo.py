@@ -16,11 +16,10 @@ User = get_user_model()
 
 class EstimateGenerationDemoTestCase(TestCase):
     """Demo test showing complete EstWorksheet to Estimate conversion functionality"""
-    
+
     def test_comprehensive_estimate_generation_demo(self):
         """Test comprehensive scenario with all mapping types"""
-        print('\n=== EstWorksheet to Estimate Conversion Demo ===')
-        
+
         # Create test data
         business = Business.objects.create(business_name='Demo Company')
         contact = Contact.objects.create(name='Demo Customer', business=business)
@@ -28,8 +27,6 @@ class EstimateGenerationDemoTestCase(TestCase):
         worksheet = EstWorksheet.objects.create(job=job, status='draft')
 
         # Create tasks with different mapping strategies
-        print('\nCreating tasks with different mapping strategies...')
-
         # 1. Direct mapping task
         direct_mapping = TaskMapping.objects.create(
             step_type='labor',
@@ -139,10 +136,7 @@ class EstimateGenerationDemoTestCase(TestCase):
             include_labor=True
         )
 
-        print(f'Created {worksheet.task_set.count()} tasks in worksheet')
-
         # Generate estimate
-        print('\nGenerating estimate from worksheet...')
         service = EstimateGenerationService()
         estimate = service.generate_estimate_from_worksheet(worksheet)
 
@@ -152,33 +146,25 @@ class EstimateGenerationDemoTestCase(TestCase):
         self.assertEqual(estimate.status, 'draft')
 
         # Display and verify results
-        print(f'\n=== Generated Estimate {estimate.estimate_number} ===')
         line_items = estimate.estimatelineitem_set.all().order_by('line_number')
-        
+
         # Should have 3 line items (direct + product bundle + service bundle, excluded not included)
         self.assertEqual(line_items.count(), 3)
-        
+
         total = Decimal('0.00')
         line_descriptions = []
 
         for i, item in enumerate(line_items, 1):
             line_descriptions.append(item.description)
-            print(f'{i}. {item.description}')
             if item.qty > 0:
                 unit_price = item.price_currency / item.qty
-                print(f'   Qty: {item.qty} {item.units or "each"} @ ${unit_price:.2f} = ${item.price_currency:.2f}')
-            else:
-                print(f'   Price: ${item.price_currency:.2f}')
             total += item.price_currency
-            print()
-
-        print(f'Total Estimate: ${total:.2f}')
 
         # Verify specific line items exist
         self.assertTrue(any('Initial project consultation' in desc for desc in line_descriptions))
         self.assertTrue(any('Custom Dining Table' in desc for desc in line_descriptions))
         self.assertTrue(any('Delivery' in desc for desc in line_descriptions))
-        
+
         # Verify excluded task is NOT in estimate
         self.assertFalse(any('Quality Review' in desc for desc in line_descriptions))
 
@@ -190,14 +176,12 @@ class EstimateGenerationDemoTestCase(TestCase):
         expected_total = Decimal('3950.00')
         self.assertEqual(total, expected_total)
 
-        print('\n=== Task Processing Summary ===')
         tasks = worksheet.task_set.all()
         mapping_strategies = []
         for task in tasks:
             strategy = task.get_mapping_strategy()
             step_type = task.get_step_type()
             mapping_strategies.append(strategy)
-            print(f'- {task.name}: {strategy} ({step_type})')
 
         # Verify all mapping strategies were used
         self.assertIn('direct', mapping_strategies)
@@ -205,17 +189,15 @@ class EstimateGenerationDemoTestCase(TestCase):
         self.assertIn('bundle_to_service', mapping_strategies)
         self.assertIn('exclude', mapping_strategies)
 
-        print('\n✅ Demo completed successfully!')
-        
         # Additional detailed verifications
         direct_item = next(item for item in line_items if 'consultation' in item.description)
         self.assertEqual(direct_item.qty, Decimal('4.00'))
         self.assertEqual(direct_item.price_currency, Decimal('600.00'))
-        
+
         table_item = next(item for item in line_items if 'Table' in item.description)
         self.assertEqual(table_item.qty, Decimal('1.00'))
         self.assertEqual(table_item.price_currency, Decimal('2900.00'))
-        
+
         service_item = next(item for item in line_items if 'Delivery' in item.description)
         self.assertEqual(service_item.qty, Decimal('5.00'))  # 2 + 3 hours
         self.assertEqual(service_item.price_currency, Decimal('450.00'))
