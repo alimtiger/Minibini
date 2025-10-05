@@ -12,5 +12,6 @@ pyvenv.cfg
 .DS_Store
 minibini/settings_local.py
 Minibini.code-workspace
+Miniterminal.code-workspace
 database_commands.txt
 runserver_commands.txt

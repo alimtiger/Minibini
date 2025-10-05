@@ -190,7 +190,7 @@ class LineItemTaskGenerationTestCase(TestCase):
     def test_empty_estimate_handling(self):
         """Test WorkOrder creation from estimate with no line items"""
         # Create estimate with no line items
-        job = Job.objects.get(pk=200)
+        job = Job.objects.get(pk=100)
         empty_estimate = Estimate.objects.create(
             job=job,
             estimate_number='EST-EMPTY-001',
