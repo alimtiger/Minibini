@@ -318,6 +318,12 @@ Located in `apps/jobs/signals.py`:
 - AUTH_USER_MODEL set before first migration
 - BaseLineItem abstract inheritance pattern
 
+**IMPORTANT - Claude AI Workflow:**
+- **NEVER run `python manage.py migrate`** - Only the human user will apply migrations to the development database when ready to test on a running server
+- **OK to run `python manage.py makemigrations`** - Creating migration files is necessary for tests to pass
+- **OK to run `python manage.py test`** - Tests automatically create and migrate their own test database (separate from main db)
+- **Workflow:** Write code → Create migrations (makemigrations) → Write tests → Run tests (creates test db) → Human runs migrate on main db when ready
+
 ## Conventions and Best Practices
 
 ### Code Style
