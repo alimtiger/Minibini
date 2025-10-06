@@ -30,6 +30,10 @@ class Configuration(models.Model):
     estimate_number_sequence = models.CharField(max_length=50, blank=True)
     job_number_sequence = models.CharField(max_length=50, blank=True)
     po_number_sequence = models.CharField(max_length=50, blank=True)
+    email_retention_days = models.IntegerField(
+        default=90,
+        help_text='Number of days to retain temporary email data before deletion'
+    )
 
     def __str__(self):
         return self.key
@@ -39,10 +43,101 @@ class Configuration(models.Model):
         verbose_name_plural = "Configurations"
 
 
+class EmailRecord(models.Model):
+    """
+    Permanent record of an email's association with a job.
+    Contains only the minimum data needed to link and retrieve the email.
+    This record is never automatically deleted.
+    """
+    email_record_id = models.AutoField(primary_key=True)
+
+    # IMAP identifier - required for fetching from server
+    message_id = models.CharField(
+        max_length=255,
+        unique=True,
+        db_index=True,
+        help_text='RFC 2822 Message-ID header'
+    )
+
+    # Job association
+    job = models.ForeignKey(
+        'jobs.Job',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='email_records',
+        help_text='Associated job for this email'
+    )
+
+    # Metadata
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'email_record'
+        verbose_name = 'Email Record'
+        verbose_name_plural = 'Email Records'
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"Email {self.message_id[:50]}"
+
+
+class TempEmail(models.Model):
+    """
+    Temporary cache of email metadata fetched from IMAP server.
+    This data duplicates what's on the email server and can be deleted
+    after a configurable retention period.
+    """
+    temp_email_id = models.AutoField(primary_key=True)
+
+    # Link to permanent record
+    email_record = models.OneToOneField(
+        EmailRecord,
+        on_delete=models.CASCADE,
+        related_name='temp_data'
+    )
+
+    # IMAP UID (server-specific identifier for fetching)
+    uid = models.CharField(
+        max_length=100,
+        db_index=True,
+        help_text='IMAP UID for fetching message content'
+    )
+
+    # Email metadata (duplicated from server for display)
+    subject = models.CharField(max_length=500, blank=True)
+    from_email = models.EmailField()
+    to_email = models.TextField(help_text='Comma-separated email addresses')
+    cc_email = models.TextField(blank=True, help_text='Comma-separated email addresses')
+    date_sent = models.DateTimeField()
+
+    # Flags
+    is_read = models.BooleanField(default=False)
+    is_starred = models.BooleanField(default=False)
+    has_attachments = models.BooleanField(default=False)
+
+    # Housekeeping
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = 'temp_email'
+        verbose_name = 'Temporary Email'
+        verbose_name_plural = 'Temporary Emails'
+        ordering = ['-date_sent']
+        indexes = [
+            models.Index(fields=['-date_sent']),
+            models.Index(fields=['uid']),
+        ]
+
+    def __str__(self):
+        return f"{self.from_email}: {self.subject[:50]}"
+
+
 class BaseLineItem(models.Model):
     """
     Abstract base class for all line item types.
-    Provides shared functionality for EstimateLineItem, InvoiceLineItem, 
+    Provides shared functionality for EstimateLineItem, InvoiceLineItem,
     PurchaseOrderLineItem, and BillLineItem.
     """
     line_item_id = models.AutoField(primary_key=True)

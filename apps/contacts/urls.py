@@ -6,6 +6,7 @@ app_name = 'contacts'
 urlpatterns = [
     path('', views.contact_list, name='contact_list'),
     path('add/', views.add_contact, name='add_contact'),
+    path('confirm-create-business/', views.confirm_create_business, name='confirm_create_business'),
     path('<int:contact_id>/', views.contact_detail, name='contact_detail'),
     path('<int:contact_id>/edit/', views.edit_contact, name='edit_contact'),
     path('businesses/', views.business_list, name='business_list'),

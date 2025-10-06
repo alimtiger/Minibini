@@ -20,6 +20,17 @@ def business_detail(request, business_id):
     return render(request, 'contacts/business_detail.html', {'business': business, 'contacts': contacts})
 
 def add_contact(request):
+    # Get pre-filled data from session (from email workflow)
+    initial_name = request.session.get('contact_name', '')
+    initial_email = request.session.get('contact_email', '')
+    initial_business_name = request.session.get('contact_company', '')
+    suggested_business_id = request.session.get('suggested_business_id', None)
+    email_record_id = request.session.get('email_record_id_for_job', None)
+    email_body = request.session.get('email_body_for_job', '')
+
+    # Get all businesses for dropdown
+    all_businesses = Business.objects.all().order_by('business_name')
+
     if request.method == 'POST':
         # Contact fields
         name = request.POST.get('name')
@@ -31,26 +42,18 @@ def add_contact(request):
         city = request.POST.get('city')
         postal_code = request.POST.get('postal_code')
 
-        # Business fields
-        business_name = request.POST.get('business_name')
-        our_reference_code = request.POST.get('our_reference_code')
-        business_number = request.POST.get('business_number')
-        business_address = request.POST.get('business_address')
-        tax_exemption_number = request.POST.get('tax_exemption_number')
-        tax_cloud = request.POST.get('tax_cloud')
+        # Business selection from dropdown
+        business_id = request.POST.get('business_id')
 
         if name:
             business = None
-            # Create business only if business name is provided and not just whitespace
-            if business_name and business_name.strip():
-                business = Business.objects.create(
-                    business_name=business_name.strip(),
-                    our_reference_code=our_reference_code.strip() if our_reference_code else '',
-                    business_number=business_number.strip() if business_number else '',
-                    business_address=business_address.strip() if business_address else '',
-                    tax_exemption_number=tax_exemption_number.strip() if tax_exemption_number else '',
-                    tax_cloud=tax_cloud.strip() if tax_cloud else ''
-                )
+
+            # Get selected business from dropdown (if not "NONE")
+            if business_id and business_id != 'NONE':
+                try:
+                    business = Business.objects.get(business_id=int(business_id))
+                except (Business.DoesNotExist, ValueError):
+                    pass
 
             # Create contact
             contact = Contact.objects.create(
@@ -67,13 +70,99 @@ def add_contact(request):
 
             success_msg = f'Contact "{name}" has been added successfully.'
             if business:
-                success_msg += f' Associated with business "{business_name}".'
+                success_msg += f' Associated with business "{business.business_name}".'
             messages.success(request, success_msg)
+
+            # If NONE was selected and we came from email workflow with a company name
+            # Redirect to intermediate page to ask about creating new business
+            if business_id == 'NONE' and email_record_id and initial_business_name:
+                # Store contact_id in session for the intermediate page
+                request.session['contact_id_for_business'] = contact.contact_id
+                return redirect('contacts:confirm_create_business')
+
+            # Clear session data
+            request.session.pop('contact_name', None)
+            request.session.pop('contact_email', None)
+            request.session.pop('contact_company', None)
+            request.session.pop('suggested_business_id', None)
+
+            # If this came from email workflow, redirect to job creation
+            if email_record_id:
+                from django.urls import reverse
+                url = reverse('jobs:create') + f'?contact_id={contact.contact_id}&description={email_body[:200]}'
+                return redirect(url)
+
             return redirect('contacts:contact_list')
         else:
             messages.error(request, 'Name is required.')
 
-    return render(request, 'contacts/add_contact.html')
+    return render(request, 'contacts/add_contact.html', {
+        'initial_name': initial_name,
+        'initial_email': initial_email,
+        'initial_business_name': initial_business_name,
+        'suggested_business_id': suggested_business_id,
+        'all_businesses': all_businesses,
+    })
+
+def confirm_create_business(request):
+    """
+    Intermediate page shown when user selects NONE for business but a company
+    name was extracted from email. Asks if they want to create a new business.
+    """
+    # Get session data
+    contact_id = request.session.get('contact_id_for_business')
+    initial_business_name = request.session.get('contact_company', '')
+    email_record_id = request.session.get('email_record_id_for_job', None)
+    email_body = request.session.get('email_body_for_job', '')
+
+    if not contact_id or not initial_business_name:
+        messages.error(request, 'Session expired. Please try again.')
+        return redirect('contacts:contact_list')
+
+    try:
+        contact = Contact.objects.get(contact_id=contact_id)
+    except Contact.DoesNotExist:
+        messages.error(request, 'Contact not found.')
+        return redirect('contacts:contact_list')
+
+    if request.method == 'POST':
+        create_business = request.POST.get('create_business')
+
+        if create_business == 'yes':
+            # Create the business
+            business = Business.objects.create(
+                business_name=initial_business_name.strip(),
+                # Other fields can be left blank for now
+            )
+
+            # Associate contact with the new business
+            contact.business = business
+            contact.save()
+
+            messages.success(request, f'Business "{business.business_name}" created and associated with contact.')
+        else:
+            # User chose to skip business creation
+            messages.info(request, 'Continuing without creating a business.')
+
+        # Clear session data
+        request.session.pop('contact_id_for_business', None)
+        request.session.pop('contact_name', None)
+        request.session.pop('contact_email', None)
+        request.session.pop('contact_company', None)
+        request.session.pop('suggested_business_id', None)
+
+        # Redirect to job creation
+        if email_record_id:
+            from django.urls import reverse
+            url = reverse('jobs:create') + f'?contact_id={contact.contact_id}&description={email_body[:200]}'
+            return redirect(url)
+
+        return redirect('contacts:contact_detail', contact_id=contact.contact_id)
+
+    return render(request, 'contacts/confirm_create_business.html', {
+        'contact': contact,
+        'business_name': initial_business_name,
+    })
 
 def add_business_contact(request, business_id):
     business = get_object_or_404(Business, business_id=business_id)
