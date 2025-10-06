@@ -7,9 +7,11 @@ Minibini is a Django-based business management system designed for handling jobs
 ## Core Architecture Principles
 
 ### Design Philosophy
-- **Minimalist UI**: No CSS frameworks, no JavaScript, just plain HTML with minimal inline styles
+- **Minimalist UI**: No CSS frameworks, no JavaScript, plain semantic HTML only
+  - Inline styles should be avoided except for critical readability (e.g., borders on content)
+  - Semantic HTML (`<p>`, `<strong>`, `<em>`, `<fieldset>`) over styled `<div>` elements
 - **Function over form**: Focus on functionality rather than aesthetics
-- **Django-native**: Leverage Django's built-in features without unnecessary abstractions
+- **Django-native**: Leverage Django's built-in features (especially messages framework)
 - **Development-first**: Includes auto-login middleware and development conveniences
 
 ### Technology Stack
@@ -196,12 +198,23 @@ Key endpoints:
 - Select dropdowns for relationships
 
 ### Templates
-- Extends base.html template
-- Navigation in header/footer
-- Message display for user feedback
-- Tables for list views
-- Simple forms without fancy styling
-- Status indicators using CSS classes (e.g., .superseded)
+- **Extends base.html template** - provides standard layout and navigation
+- **Message display** - Django's messages framework is already in base.html
+  - NEVER duplicate message display in individual templates
+  - All user feedback goes through `messages.success()`, `messages.error()`, etc. in views
+- **Use semantic HTML**:
+  - `<p>` for paragraphs and form field wrappers
+  - `<strong>` and `<em>` for emphasis instead of styled spans/divs
+  - `<fieldset>` and `<legend>` for grouping related form fields
+  - `<table>` with `border="1"` for data tables (no CSS styling)
+- **Forms**:
+  - Each field in a `<p>` tag
+  - `<label>` with `<strong>` for labels, followed by `<br>` then input
+  - Plain `<button>` elements without any styling attributes
+  - Simple text links, not styled as buttons
+- **Avoid inline styles** - only use when absolutely necessary for content readability
+- Navigation provided by base template in header/footer
+- Status indicators use simple CSS classes in base.html (e.g., .superseded)
 
 ## Development Features
 
@@ -329,10 +342,93 @@ Located in `apps/jobs/signals.py`:
 - Consistent redirect patterns
 
 ### Template Conventions
-- Minimal inline CSS only
-- No external CSS frameworks
-- Simple HTML structure
-- Django template tags for logic
+- **HTML must be as clean and minimal as possible**
+- **NO inline styling except for absolutely necessary cases** (e.g., border/padding for readability of email content)
+- **Use semantic HTML**: `<p>`, `<strong>`, `<em>`, `<fieldset>` instead of styled `<div>` elements
+- **ALWAYS use Django's built-in messages system** - Never create custom message display divs
+  - Messages are displayed in `base.html` template
+  - Do NOT duplicate message handling in individual templates
+  - Use `messages.success()`, `messages.error()`, `messages.info()`, `messages.warning()` in views
+- **Form styling**:
+  - Use `<p>` tags to wrap form fields
+  - Use `<label>` with `<strong>` for field labels
+  - Use `<br>` to separate label from input
+  - Plain `<button>` elements without styling
+  - Simple `<a>` links without button styling
+- **No CSS frameworks** (Bootstrap, Tailwind, etc.)
+- **No JavaScript** except for very specific cases (datetime-local inputs)
+- Simple HTML structure - prioritize readability over appearance
+- Django template tags for logic and control flow
+
+#### Template Example - Correct Pattern
+
+```html
+{% extends 'base.html' %}
+
+{% block content %}
+<h2>Add Contact</h2>
+
+<form method="post">
+    {% csrf_token %}
+    <p>
+        <label for="name"><strong>Name *</strong></label><br>
+        <input type="text" id="name" name="name" required>
+    </p>
+
+    <p>
+        <label for="email"><strong>Email</strong></label><br>
+        <input type="email" id="email" name="email">
+    </p>
+
+    <fieldset>
+        <legend><strong>Business (Optional)</strong></legend>
+        <p>
+            <label for="business"><strong>Select Business</strong></label><br>
+            <select id="business" name="business">
+                <option value="">-- None --</option>
+                {% for biz in businesses %}
+                    <option value="{{ biz.id }}">{{ biz.name }}</option>
+                {% endfor %}
+            </select>
+        </p>
+    </fieldset>
+
+    <p>
+        <button type="submit">Save</button>
+        <a href="{% url 'contact_list' %}">Cancel</a>
+    </p>
+</form>
+{% endblock %}
+```
+
+#### Template Anti-Patterns - AVOID THESE
+
+```html
+<!-- DON'T: Duplicate message handling -->
+{% if messages %}
+    <div style="padding: 10px; background: green;">
+        {% for message in messages %}
+            {{ message }}
+        {% endfor %}
+    </div>
+{% endif %}
+
+<!-- DON'T: Inline styling on everything -->
+<div style="margin-bottom: 15px;">
+    <label style="font-weight: bold; color: #333;">Name</label>
+    <input style="width: 100%; padding: 8px; border: 1px solid #ccc;">
+</div>
+
+<!-- DON'T: Styled buttons -->
+<button style="background-color: #007bff; color: white; padding: 10px 20px;">
+    Submit
+</button>
+
+<!-- DON'T: Links styled as buttons -->
+<a href="/" style="background: #ccc; padding: 10px; text-decoration: none;">
+    Cancel
+</a>
+```
 
 ## Key Business Workflows
 
