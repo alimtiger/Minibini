@@ -16,10 +16,10 @@ class JobCreateForm(forms.ModelForm):
         widget=forms.Select(attrs={'class': 'form-control'}),
         empty_label="-- Select Contact --"
     )
-    due_date = forms.DateTimeField(
+    due_date = forms.DateField(
         required=False,
-        widget=forms.DateTimeInput(attrs={
-            'type': 'datetime-local',
+        widget=forms.DateInput(attrs={
+            'type': 'date',
             'class': 'form-control'
         })
     )

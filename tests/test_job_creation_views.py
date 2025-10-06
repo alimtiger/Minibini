@@ -63,13 +63,13 @@ class JobCreateViewTest(TestCase):
 
     def test_job_create_with_due_date(self):
         """Test creating a job with a due date"""
-        due_date = timezone.now() + timezone.timedelta(days=7)
+        due_date = timezone.now().date() + timezone.timedelta(days=7)
 
         post_data = {
             'job_number': 'JOB-2024-DUE',
             'contact': self.contact1.contact_id,
             'description': 'Job with due date',
-            'due_date': due_date.strftime('%Y-%m-%dT%H:%M'),
+            'due_date': due_date.strftime('%Y-%m-%d'),
         }
 
         response = self.client.post(self.url, data=post_data)
@@ -77,9 +77,8 @@ class JobCreateViewTest(TestCase):
 
         job = Job.objects.get(job_number='JOB-2024-DUE')
         self.assertIsNotNone(job.due_date)
-        # Check the date is approximately correct (within a minute)
-        time_diff = abs((job.due_date - due_date).total_seconds())
-        self.assertLess(time_diff, 60)
+        # Check the date matches (converted to date for comparison)
+        self.assertEqual(job.due_date.date(), due_date)
 
     def test_job_create_missing_contact_fails(self):
         """Test that job creation fails without a contact"""
