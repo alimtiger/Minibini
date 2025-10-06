@@ -6,7 +6,7 @@
 <h2>Inbox</h2>
 
 <p><strong>Fetched from server:</strong> {{ stats.new }} new, {{ stats.existing }} existing</p>
-<p>Total emails in inbox: {{ total_count }}</p>
+<p><strong>Displaying:</strong> {{ displayed_count }} of {{ total_count }} total emails (limit: {{ display_limit }})</p>
 
 {% if stats.errors %}
 <p><strong>Errors:</strong></p>

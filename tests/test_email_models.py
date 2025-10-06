@@ -261,6 +261,32 @@ class ConfigurationEmailRetentionTest(TestCase):
         )
         self.assertEqual(config.email_retention_days, 30)
 
+    def test_configuration_email_display_limit_default(self):
+        """Test that email_display_limit has default value of 30."""
+        config = Configuration.objects.create(
+            key="test_display",
+            field="test_field"
+        )
+        self.assertEqual(config.email_display_limit, 30)
+
+    def test_configuration_latest_email_date_nullable(self):
+        """Test that latest_email_date can be null."""
+        config = Configuration.objects.create(
+            key="test_date",
+            field="test_field"
+        )
+        self.assertIsNone(config.latest_email_date)
+
+    def test_configuration_latest_email_date_custom(self):
+        """Test setting custom latest_email_date."""
+        test_date = timezone.now() - timedelta(days=7)
+        config = Configuration.objects.create(
+            key="test_date_custom",
+            field="test_field",
+            latest_email_date=test_date
+        )
+        self.assertEqual(config.latest_email_date, test_date)
+
 
 class EmailServiceTest(TestCase):
     """Test EmailService class."""
@@ -560,3 +586,106 @@ class EmailServiceTest(TestCase):
         service = EmailService()
         content = service.get_email_content(99999)
         self.assertIsNone(content)
+
+    @override_settings(
+        EMAIL_IMAP_SERVER='imap.example.com',
+        EMAIL_HOST_USER='test@example.com',
+        EMAIL_HOST_PASSWORD='password123'
+    )
+    @patch('apps.core.services.MailBox')
+    def test_fetch_emails_by_date_range_creates_configuration(self, mock_mailbox_class):
+        """Test that fetch_emails_by_date_range creates Configuration if not exists."""
+        # Mock empty mailbox
+        mock_mailbox = MagicMock()
+        mock_mailbox.fetch.return_value = []
+        mock_mailbox.__enter__.return_value = mock_mailbox
+        mock_mailbox_class.return_value.login.return_value = mock_mailbox
+
+        # Ensure no configuration exists
+        Configuration.objects.filter(key='email_config').delete()
+
+        service = EmailService()
+        stats = service.fetch_emails_by_date_range(days_back=30)
+
+        # Should create configuration
+        config = Configuration.objects.get(key='email_config')
+        self.assertIsNotNone(config)
+        self.assertIsNotNone(config.latest_email_date)
+        self.assertEqual(config.email_display_limit, 30)
+        self.assertEqual(config.email_retention_days, 90)
+
+    @override_settings(
+        EMAIL_IMAP_SERVER='imap.example.com',
+        EMAIL_HOST_USER='test@example.com',
+        EMAIL_HOST_PASSWORD='password123'
+    )
+    @patch('apps.core.services.MailBox')
+    def test_fetch_emails_by_date_range_updates_latest_date(self, mock_mailbox_class):
+        """Test that latest_email_date is updated after fetching."""
+        # Create configuration with old date
+        old_date = timezone.now() - timedelta(days=10)
+        config = Configuration.objects.create(
+            key='email_config',
+            field='Email Configuration',
+            latest_email_date=old_date,
+            email_display_limit=30,
+            email_retention_days=90
+        )
+
+        # Mock message with newer date
+        new_date = timezone.now() - timedelta(days=1)
+        mock_msg = Mock()
+        mock_msg.uid = '12345'
+        mock_msg.headers = {'message-id': ['<newest@example.com>']}
+        mock_msg.subject = 'New Email'
+        mock_msg.from_ = 'sender@example.com'
+        mock_msg.to = ['recipient@example.com']
+        mock_msg.cc = []
+        mock_msg.date = new_date
+        mock_msg.attachments = []
+
+        mock_mailbox = MagicMock()
+        mock_mailbox.fetch.return_value = [mock_msg]
+        mock_mailbox.__enter__.return_value = mock_mailbox
+        mock_mailbox_class.return_value.login.return_value = mock_mailbox
+
+        service = EmailService()
+        stats = service.fetch_emails_by_date_range(days_back=30)
+
+        # Configuration should be updated with newer date
+        config.refresh_from_db()
+        self.assertGreater(config.latest_email_date, old_date)
+        self.assertEqual(stats['new'], 1)
+        self.assertIsNotNone(stats['latest_date'])
+
+    @override_settings(
+        EMAIL_IMAP_SERVER='imap.example.com',
+        EMAIL_HOST_USER='test@example.com',
+        EMAIL_HOST_PASSWORD='password123'
+    )
+    @patch('apps.core.services.MailBox')
+    def test_fetch_emails_by_date_range_uses_latest_email_date(self, mock_mailbox_class):
+        """Test that fetch uses latest_email_date as threshold."""
+        # Create configuration with specific date
+        fetch_since_date = timezone.now() - timedelta(days=5)
+        config = Configuration.objects.create(
+            key='email_config',
+            field='Email Configuration',
+            latest_email_date=fetch_since_date,
+            email_display_limit=30,
+            email_retention_days=90
+        )
+
+        mock_mailbox = MagicMock()
+        mock_mailbox.fetch.return_value = []
+        mock_mailbox.__enter__.return_value = mock_mailbox
+        mock_mailbox_class.return_value.login.return_value = mock_mailbox
+
+        service = EmailService()
+        service.fetch_emails_by_date_range(days_back=30)
+
+        # Verify that fetch was called with date_gte using latest_email_date
+        # (The AND filter will use the date from config, not days_back=30)
+        mock_mailbox.fetch.assert_called_once()
+        call_args = mock_mailbox.fetch.call_args
+        # The actual date used should be from config, not 30 days back

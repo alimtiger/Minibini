@@ -176,31 +176,54 @@ class EmailService:
 
     def fetch_emails_by_date_range(self, days_back=30):
         """
-        Fetch emails from IMAP server from the last N days and store metadata.
+        Fetch emails from IMAP server since latest_email_date or last N days.
+        Updates latest_email_date after fetching.
 
         Args:
-            days_back (int): Number of days back to fetch emails from
+            days_back (int): Number of days back to use if latest_email_date not set
 
         Returns:
-            dict: Statistics about emails fetched (new, existing, errors)
+            dict: Statistics about emails fetched (new, existing, errors, latest_date)
         """
         if not self._validate_config():
             raise ValueError("Email configuration incomplete. Check settings for IMAP server, user, and password.")
 
-        stats = {'new': 0, 'existing': 0, 'errors': []}
+        stats = {'new': 0, 'existing': 0, 'errors': [], 'latest_date': None}
 
         try:
+            # Get or create configuration
+            config, created = Configuration.objects.get_or_create(
+                key='email_config',
+                defaults={
+                    'field': 'Email Configuration',
+                    'latest_email_date': timezone.now() - timedelta(days=days_back),
+                    'email_display_limit': 30,
+                    'email_retention_days': 90,
+                }
+            )
+
+            # Determine date threshold
+            if config.latest_email_date:
+                date_threshold = config.latest_email_date
+            else:
+                date_threshold = timezone.now() - timedelta(days=days_back)
+                config.latest_email_date = date_threshold
+                config.save()
+
+            most_recent_email_date = date_threshold
+
             with MailBox(self.imap_server).login(self.email, self.password) as mailbox:
                 mailbox.folder.set(self.mailbox_folder)
 
-                # Calculate date threshold
-                date_threshold = timezone.now() - timedelta(days=days_back)
-
-                # Fetch emails from the last N days
+                # Fetch emails since date_threshold
                 for msg in mailbox.fetch(AND(date_gte=date_threshold.date())):
                     try:
                         # Get Message-ID from headers
                         message_id = msg.headers.get('message-id', [f'<{msg.uid}@unknown>'])[0]
+
+                        # Track most recent email date
+                        if msg.date and msg.date > most_recent_email_date:
+                            most_recent_email_date = msg.date
 
                         # Check if we already have this email
                         if EmailRecord.objects.filter(message_id=message_id).exists():
@@ -231,6 +254,12 @@ class EmailService:
                         # Use UID in error message if message_id not available
                         msg_identifier = msg.headers.get('message-id', [f'UID:{msg.uid}'])[0]
                         stats['errors'].append(f"Error processing {msg_identifier}: {str(e)}")
+
+            # Update latest_email_date to most recent email found
+            if most_recent_email_date > date_threshold:
+                config.latest_email_date = most_recent_email_date
+                config.save()
+                stats['latest_date'] = most_recent_email_date
 
         except Exception as e:
             stats['errors'].append(f"IMAP connection error: {str(e)}")

@@ -34,6 +34,15 @@ class Configuration(models.Model):
         default=90,
         help_text='Number of days to retain temporary email data before deletion'
     )
+    latest_email_date = models.DateTimeField(
+        null=True,
+        blank=True,
+        help_text='Most recent email date fetched from IMAP server'
+    )
+    email_display_limit = models.IntegerField(
+        default=30,
+        help_text='Number of emails to display in inbox'
+    )
 
     def __str__(self):
         return self.key

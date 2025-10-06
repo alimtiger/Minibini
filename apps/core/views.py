@@ -15,20 +15,34 @@ def user_detail(request, user_id):
     return render(request, 'core/user_detail.html', {'user': user})
 
 def email_inbox(request):
-    """Display list of emails with temporary metadata."""
-    # Fetch emails from IMAP server (last 30 days)
+    """
+    Display list of emails with temporary metadata.
+    Fetches new emails since latest_email_date, then displays up to email_display_limit emails.
+    """
+    from .models import Configuration
+
+    # Fetch new emails from IMAP server (incremental since latest_email_date)
     service = EmailService()
     try:
         stats = service.fetch_emails_by_date_range(days_back=30)
     except Exception as e:
         stats = {'new': 0, 'existing': 0, 'errors': [str(e)]}
 
-    # Get all TempEmail records ordered by date
-    emails = TempEmail.objects.select_related('email_record__job').all()
+    # Get display limit from configuration
+    try:
+        config = Configuration.objects.get(key='email_config')
+        display_limit = config.email_display_limit
+    except Configuration.DoesNotExist:
+        display_limit = 30
+
+    # Get TempEmail records ordered by most recent first, limited to display_limit
+    emails = TempEmail.objects.select_related('email_record__job').order_by('-date_sent')[:display_limit]
 
     context = {
         'emails': emails,
-        'total_count': emails.count(),
+        'total_count': TempEmail.objects.count(),
+        'displayed_count': emails.count(),
+        'display_limit': display_limit,
         'stats': stats,
     }
     return render(request, 'core/email_inbox.html', context)
