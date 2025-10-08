@@ -1,0 +1,14 @@
+# Core Django framework
+Django==5.2.6
+
+# Database connector for MySQL
+PyMySQL==1.1.2
+
+# Django dependencies (automatically installed with Django)
+asgiref==3.9.1
+sqlparse==0.5.3
+
+# Cryptography dependencies (for secure connections)
+cryptography==45.0.7
+cffi==2.0.0
+pycparser==2.23
