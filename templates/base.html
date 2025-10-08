@@ -41,6 +41,15 @@
 </head>
 <body>
     <h1>Minibini</h1>
+
+    <!-- Search Bar -->
+    <div style="margin: 10px 0;">
+        <form method="GET" action="{% url 'search:search' %}" style="display: inline-block;">
+            <input type="text" name="q" placeholder="Search..." value="{{ request.GET.q }}" style="padding: 5px; width: 300px;">
+            <button type="submit" style="padding: 5px 10px;">Search</button>
+        </form>
+    </div>
+
     <nav>
         {% block navigation %}
         <strong>Main:</strong>
