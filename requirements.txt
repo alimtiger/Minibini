@@ -4,6 +4,9 @@ Django==5.2.6
 # Database connector for MySQL
 PyMySQL==1.1.2
 
+# email integration
+imap-tools==1.11.0
+
 # Django dependencies (automatically installed with Django)
 asgiref==3.9.1
 sqlparse==0.5.3
