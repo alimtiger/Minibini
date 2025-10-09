@@ -1,5 +1,20 @@
 [
 {
+  "model": "core.configuration",
+  "pk": "invoice_config",
+  "fields": {
+    "field": "document_numbering",
+    "invoice_number_sequence": "INV-{year}-{counter:04d}",
+    "estimate_number_sequence": "EST-{year}-{counter:04d}",
+    "job_number_sequence": "JOB-{year}-{counter:04d}",
+    "po_number_sequence": "PO-{year}-{counter:04d}",
+    "invoice_counter": 0,
+    "estimate_counter": 0,
+    "job_counter": 0,
+    "po_counter": 0
+  }
+},
+{
   "model": "contacts.paymentterms",
   "pk": 1,
   "fields": {}

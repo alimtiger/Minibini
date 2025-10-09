@@ -8,6 +8,7 @@ from apps.jobs.models import (
 )
 from apps.jobs.services import EstimateGenerationService
 from apps.contacts.models import Contact
+from apps.core.models import Configuration
 
 
 class EstimateStateTests(TestCase):
@@ -15,6 +16,20 @@ class EstimateStateTests(TestCase):
 
     def setUp(self):
         """Set up test data."""
+        # Create Configuration for number generation
+        Configuration.objects.create(
+            key='invoice_config',
+            field='document_numbering',
+            job_number_sequence='JOB-{year}-{counter:04d}',
+            estimate_number_sequence='EST-{year}-{counter:04d}',
+            invoice_number_sequence='INV-{year}-{counter:04d}',
+            po_number_sequence='PO-{year}-{counter:04d}',
+            job_counter=0,
+            estimate_counter=0,
+            invoice_counter=0,
+            po_counter=0
+        )
+
         self.client = Client()
 
         # Create a test contact
@@ -107,6 +122,20 @@ class EstWorksheetStateTests(TestCase):
 
     def setUp(self):
         """Set up test data."""
+        # Create Configuration for number generation
+        Configuration.objects.create(
+            key='invoice_config',
+            field='document_numbering',
+            job_number_sequence='JOB-{year}-{counter:04d}',
+            estimate_number_sequence='EST-{year}-{counter:04d}',
+            invoice_number_sequence='INV-{year}-{counter:04d}',
+            po_number_sequence='PO-{year}-{counter:04d}',
+            job_counter=0,
+            estimate_counter=0,
+            invoice_counter=0,
+            po_counter=0
+        )
+
         self.client = Client()
 
         # Create a test contact
@@ -240,6 +269,20 @@ class EstimateGenerationServiceTests(TestCase):
 
     def setUp(self):
         """Set up test data."""
+        # Create Configuration for number generation
+        Configuration.objects.create(
+            key='invoice_config',
+            field='document_numbering',
+            job_number_sequence='JOB-{year}-{counter:04d}',
+            estimate_number_sequence='EST-{year}-{counter:04d}',
+            invoice_number_sequence='INV-{year}-{counter:04d}',
+            po_number_sequence='PO-{year}-{counter:04d}',
+            job_counter=0,
+            estimate_counter=0,
+            invoice_counter=0,
+            po_counter=0
+        )
+
         # Create a test contact
         self.contact = Contact.objects.create(
             name='Test Contact 3',
@@ -351,6 +394,20 @@ class IntegrationTests(TestCase):
 
     def setUp(self):
         """Set up test data."""
+        # Create Configuration for number generation
+        Configuration.objects.create(
+            key='invoice_config',
+            field='document_numbering',
+            job_number_sequence='JOB-{year}-{counter:04d}',
+            estimate_number_sequence='EST-{year}-{counter:04d}',
+            invoice_number_sequence='INV-{year}-{counter:04d}',
+            po_number_sequence='PO-{year}-{counter:04d}',
+            job_counter=0,
+            estimate_counter=0,
+            invoice_counter=0,
+            po_counter=0
+        )
+
         self.client = Client()
 
         # Create a test contact

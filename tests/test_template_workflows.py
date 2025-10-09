@@ -7,6 +7,7 @@ from django.core.exceptions import ValidationError
 from decimal import Decimal
 
 from apps.contacts.models import Contact
+from apps.core.models import Configuration
 from apps.jobs.models import (
     Job, WorkOrder, Estimate, Task, WorkOrderTemplate, TaskTemplate, TaskMapping
 )
@@ -18,6 +19,20 @@ class WorkOrderCreationWorkflowTest(TestCase):
     """Test WorkOrder creation workflows and status validations."""
     
     def setUp(self):
+        # Create Configuration for number generation
+        Configuration.objects.create(
+            key='invoice_config',
+            field='document_numbering',
+            job_number_sequence='JOB-{year}-{counter:04d}',
+            estimate_number_sequence='EST-{year}-{counter:04d}',
+            invoice_number_sequence='INV-{year}-{counter:04d}',
+            po_number_sequence='PO-{year}-{counter:04d}',
+            job_counter=0,
+            estimate_counter=0,
+            invoice_counter=0,
+            po_counter=0
+        )
+
         self.contact = Contact.objects.create(name="Test Customer")
         self.job = Job.objects.create(
             job_number="JOB001",
@@ -124,6 +139,20 @@ class EstimateCreationWorkflowTest(TestCase):
     """Test Estimate creation workflows and status validations."""
     
     def setUp(self):
+        # Create Configuration for number generation
+        Configuration.objects.create(
+            key='invoice_config',
+            field='document_numbering',
+            job_number_sequence='JOB-{year}-{counter:04d}',
+            estimate_number_sequence='EST-{year}-{counter:04d}',
+            invoice_number_sequence='INV-{year}-{counter:04d}',
+            po_number_sequence='PO-{year}-{counter:04d}',
+            job_counter=0,
+            estimate_counter=0,
+            invoice_counter=0,
+            po_counter=0
+        )
+
         self.contact = Contact.objects.create(name="Test Customer")
         self.job = Job.objects.create(
             job_number="JOB001",
@@ -133,11 +162,12 @@ class EstimateCreationWorkflowTest(TestCase):
     
     def test_direct_estimate_creation(self):
         """Test direct Estimate creation starts in draft status."""
-        estimate = EstimateService.create_direct(self.job, "EST001")
-        
+        estimate = EstimateService.create_direct(self.job)
+
         self.assertEqual(estimate.status, 'draft')
         self.assertEqual(estimate.job, self.job)
-        self.assertEqual(estimate.estimate_number, "EST001")
+        # Estimate number is auto-generated
+        self.assertTrue(estimate.estimate_number.startswith('EST-'))
     
     def test_estimate_from_draft_work_order(self):
         """Test Estimate creation from Draft WorkOrder."""
@@ -192,6 +222,20 @@ class TaskCreationWorkflowTest(TestCase):
     """Test Task creation workflows."""
     
     def setUp(self):
+        # Create Configuration for number generation
+        Configuration.objects.create(
+            key='invoice_config',
+            field='document_numbering',
+            job_number_sequence='JOB-{year}-{counter:04d}',
+            estimate_number_sequence='EST-{year}-{counter:04d}',
+            invoice_number_sequence='INV-{year}-{counter:04d}',
+            po_number_sequence='PO-{year}-{counter:04d}',
+            job_counter=0,
+            estimate_counter=0,
+            invoice_counter=0,
+            po_counter=0
+        )
+
         self.contact = Contact.objects.create(name="Test Customer")
         self.job = Job.objects.create(
             job_number="JOB001",
@@ -324,6 +368,20 @@ class TemplateIntegrationTest(TestCase):
     """Test full template workflow integration."""
     
     def setUp(self):
+        # Create Configuration for number generation
+        Configuration.objects.create(
+            key='invoice_config',
+            field='document_numbering',
+            job_number_sequence='JOB-{year}-{counter:04d}',
+            estimate_number_sequence='EST-{year}-{counter:04d}',
+            invoice_number_sequence='INV-{year}-{counter:04d}',
+            po_number_sequence='PO-{year}-{counter:04d}',
+            job_counter=0,
+            estimate_counter=0,
+            invoice_counter=0,
+            po_counter=0
+        )
+
         self.contact = Contact.objects.create(name="Test Customer")
         self.job = Job.objects.create(
             job_number="JOB001",
@@ -405,6 +463,20 @@ class StatusTransitionPreventionTest(TestCase):
     """Test that status transitions prevent circular creation."""
     
     def setUp(self):
+        # Create Configuration for number generation
+        Configuration.objects.create(
+            key='invoice_config',
+            field='document_numbering',
+            job_number_sequence='JOB-{year}-{counter:04d}',
+            estimate_number_sequence='EST-{year}-{counter:04d}',
+            invoice_number_sequence='INV-{year}-{counter:04d}',
+            po_number_sequence='PO-{year}-{counter:04d}',
+            job_counter=0,
+            estimate_counter=0,
+            invoice_counter=0,
+            po_counter=0
+        )
+
         self.contact = Contact.objects.create(name="Test Customer")
         self.job = Job.objects.create(
             job_number="JOB001",
@@ -461,6 +533,20 @@ class TaskMappingTranslationTest(TestCase):
     """Placeholder tests for TaskMapping translation chains."""
     
     def setUp(self):
+        # Create Configuration for number generation
+        Configuration.objects.create(
+            key='invoice_config',
+            field='document_numbering',
+            job_number_sequence='JOB-{year}-{counter:04d}',
+            estimate_number_sequence='EST-{year}-{counter:04d}',
+            invoice_number_sequence='INV-{year}-{counter:04d}',
+            po_number_sequence='PO-{year}-{counter:04d}',
+            job_counter=0,
+            estimate_counter=0,
+            invoice_counter=0,
+            po_counter=0
+        )
+
         self.contact = Contact.objects.create(name="Test Customer")
         self.job = Job.objects.create(
             job_number="JOB001",

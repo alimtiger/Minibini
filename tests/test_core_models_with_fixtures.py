@@ -119,28 +119,28 @@ class ConfigurationModelFixtureTest(FixtureTestCase):
     
     def test_configurations_exist_from_fixture(self):
         """Test that configurations from fixture exist with correct data"""
-        invoice_config = Configuration.objects.get(key="invoice_settings")
+        invoice_config = Configuration.objects.get(key="invoice_config")
         self.assertEqual(invoice_config.field, "invoice_prefix")
         self.assertEqual(invoice_config.invoice_number_sequence, "INV-{year}-{counter:04d}")
         self.assertEqual(invoice_config.estimate_number_sequence, "EST-{year}-{counter:04d}")
-        
+
         system_config = Configuration.objects.get(key="system_settings")
         self.assertEqual(system_config.field, "default_currency")
-        
+
     def test_configuration_str_method_with_fixture_data(self):
         """Test configuration string representation with fixture data"""
-        invoice_config = Configuration.objects.get(key="invoice_settings")
-        self.assertEqual(str(invoice_config), "invoice_settings")
-        
+        invoice_config = Configuration.objects.get(key="invoice_config")
+        self.assertEqual(str(invoice_config), "invoice_config")
+
     def test_update_existing_configuration(self):
         """Test updating existing configuration from fixture data"""
-        invoice_config = Configuration.objects.get(key="invoice_settings")
+        invoice_config = Configuration.objects.get(key="invoice_config")
         original_sequence = invoice_config.invoice_number_sequence
-        
+
         invoice_config.invoice_number_sequence = "INV-{year}-{month:02d}-{counter:04d}"
         invoice_config.save()
-        
-        updated_config = Configuration.objects.get(key="invoice_settings")
+
+        updated_config = Configuration.objects.get(key="invoice_config")
         self.assertNotEqual(updated_config.invoice_number_sequence, original_sequence)
         self.assertEqual(updated_config.invoice_number_sequence, "INV-{year}-{month:02d}-{counter:04d}")
         

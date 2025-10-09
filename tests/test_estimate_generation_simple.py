@@ -4,6 +4,7 @@ from django.test import TestCase
 from django.contrib.auth import get_user_model
 
 from apps.contacts.models import Contact, Business
+from apps.core.models import Configuration
 from apps.jobs.models import (
     Job, EstWorksheet, Task, TaskMapping, EstimateLineItem, ProductBundlingRule,
     TaskTemplate, TaskInstanceMapping
@@ -16,37 +17,51 @@ User = get_user_model()
 
 class SimpleEstimateGenerationTestCase(TestCase):
     """Simple tests to verify basic functionality works"""
-    
+
     def setUp(self):
         """Set up minimal test data"""
+        # Create Configuration for number generation
+        Configuration.objects.create(
+            key='invoice_config',
+            field='document_numbering',
+            job_number_sequence='JOB-{year}-{counter:04d}',
+            estimate_number_sequence='EST-{year}-{counter:04d}',
+            invoice_number_sequence='INV-{year}-{counter:04d}',
+            po_number_sequence='PO-{year}-{counter:04d}',
+            job_counter=0,
+            estimate_counter=0,
+            invoice_counter=0,
+            po_counter=0
+        )
+
         self.user = User.objects.create_user(
             username='testuser',
             email='test@example.com',
             password='testpass123'
         )
-        
+
         self.business = Business.objects.create(
             business_name='Test Company',
             business_address='123 Test St'
         )
-        
+
         self.contact = Contact.objects.create(
             name='Test Customer',
             email='customer@example.com',
             business=self.business
         )
-        
+
         self.job = Job.objects.create(
             job_number='TEST-001',
             contact=self.contact,
             description='Test Job'
         )
-        
+
         self.worksheet = EstWorksheet.objects.create(
             job=self.job,
             status='draft'
         )
-        
+
         self.service = EstimateGenerationService()
     
     def test_direct_mapping_basic(self):

@@ -4,6 +4,7 @@ from django.test import TestCase
 from django.contrib.auth import get_user_model
 
 from apps.contacts.models import Contact, Business
+from apps.core.models import Configuration
 from apps.jobs.models import (
     Job, EstWorksheet, Task, TaskMapping, ProductBundlingRule, EstimateLineItem,
     TaskTemplate, TaskInstanceMapping
@@ -19,6 +20,20 @@ class EstimateGenerationDemoTestCase(TestCase):
 
     def test_comprehensive_estimate_generation_demo(self):
         """Test comprehensive scenario with all mapping types"""
+
+        # Create Configuration for number generation
+        Configuration.objects.create(
+            key='invoice_config',
+            field='document_numbering',
+            job_number_sequence='JOB-{year}-{counter:04d}',
+            estimate_number_sequence='EST-{year}-{counter:04d}',
+            invoice_number_sequence='INV-{year}-{counter:04d}',
+            po_number_sequence='PO-{year}-{counter:04d}',
+            job_counter=0,
+            estimate_counter=0,
+            invoice_counter=0,
+            po_counter=0
+        )
 
         # Create test data
         business = Business.objects.create(business_name='Demo Company')

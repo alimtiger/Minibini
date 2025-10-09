@@ -4,6 +4,7 @@ from django.test import TestCase, Client
 from django.urls import reverse
 from django.utils import timezone
 from apps.jobs.models import Job, Estimate, EstimateLineItem
+from apps.core.models import Configuration
 from apps.contacts.models import Contact
 from apps.invoicing.models import PriceListItem
 
@@ -13,6 +14,20 @@ class EstimateCreationControlTests(TestCase):
 
     def setUp(self):
         """Set up test data."""
+        # Create Configuration for number generation
+        Configuration.objects.create(
+            key='invoice_config',
+            field='document_numbering',
+            job_number_sequence='JOB-{year}-{counter:04d}',
+            estimate_number_sequence='EST-{year}-{counter:04d}',
+            invoice_number_sequence='INV-{year}-{counter:04d}',
+            po_number_sequence='PO-{year}-{counter:04d}',
+            job_counter=0,
+            estimate_counter=0,
+            invoice_counter=0,
+            po_counter=0
+        )
+
         self.client = Client()
 
         # Create a test contact
@@ -39,7 +54,6 @@ class EstimateCreationControlTests(TestCase):
 
         # Create the estimate
         data = {
-            'estimate_number': 'EST-001',
             'status': 'draft'
         }
         response = self.client.post(url, data)
@@ -50,7 +64,7 @@ class EstimateCreationControlTests(TestCase):
         # Estimate should be created
         estimate = Estimate.objects.filter(job=self.job).first()
         self.assertIsNotNone(estimate)
-        self.assertEqual(estimate.estimate_number, 'EST-001')
+        self.assertEqual(estimate.estimate_number, 'EST-2025-0001')
 
     def test_cannot_create_second_estimate_draft(self):
         """Test that second estimate cannot be created when draft exists."""
@@ -137,6 +151,20 @@ class EstimateRevisionTests(TestCase):
 
     def setUp(self):
         """Set up test data."""
+        # Create Configuration for number generation
+        Configuration.objects.create(
+            key='invoice_config',
+            field='document_numbering',
+            job_number_sequence='JOB-{year}-{counter:04d}',
+            estimate_number_sequence='EST-{year}-{counter:04d}',
+            invoice_number_sequence='INV-{year}-{counter:04d}',
+            po_number_sequence='PO-{year}-{counter:04d}',
+            job_counter=0,
+            estimate_counter=0,
+            invoice_counter=0,
+            po_counter=0
+        )
+
         self.client = Client()
 
         # Create a test contact
@@ -352,6 +380,20 @@ class EstimateWorkflowIntegrationTests(TestCase):
 
     def setUp(self):
         """Set up test data."""
+        # Create Configuration for number generation
+        Configuration.objects.create(
+            key='invoice_config',
+            field='document_numbering',
+            job_number_sequence='JOB-{year}-{counter:04d}',
+            estimate_number_sequence='EST-{year}-{counter:04d}',
+            invoice_number_sequence='INV-{year}-{counter:04d}',
+            po_number_sequence='PO-{year}-{counter:04d}',
+            job_counter=0,
+            estimate_counter=0,
+            invoice_counter=0,
+            po_counter=0
+        )
+
         self.client = Client()
 
         # Create a test contact
@@ -372,7 +414,6 @@ class EstimateWorkflowIntegrationTests(TestCase):
         # Step 1: Create first estimate
         url = reverse('jobs:estimate_create_for_job', args=[self.job.job_id])
         data = {
-            'estimate_number': 'EST-001',
             'status': 'draft'
         }
         response = self.client.post(url, data)
