@@ -24,23 +24,20 @@ class User(AbstractUser):
 
 
 class Configuration(models.Model):
+    """
+    Simple key-value configuration storage.
+
+    Examples:
+        - key="job_number_sequence", value="JOB-{year}-{counter:04d}"
+        - key="job_counter", value="0"
+        - key="estimate_number_sequence", value="EST-{year}-{counter:04d}"
+        - key="estimate_counter", value="0"
+    """
     key = models.CharField(max_length=100, primary_key=True)
-    field = models.CharField(max_length=255)
-
-    # Number sequence patterns (e.g., "JOB-{year}-{counter:04d}")
-    invoice_number_sequence = models.CharField(max_length=50, blank=True)
-    estimate_number_sequence = models.CharField(max_length=50, blank=True)
-    job_number_sequence = models.CharField(max_length=50, blank=True)
-    po_number_sequence = models.CharField(max_length=50, blank=True)
-
-    # Current counter values for each sequence
-    invoice_counter = models.IntegerField(default=0)
-    estimate_counter = models.IntegerField(default=0)
-    job_counter = models.IntegerField(default=0)
-    po_counter = models.IntegerField(default=0)
+    value = models.TextField(blank=True)
 
     def __str__(self):
-        return self.key
+        return f"{self.key}: {self.value}"
 
     class Meta:
         verbose_name = "Configuration"

@@ -10,7 +10,7 @@ from .models import Configuration
 
 class NumberGenerationService:
     """
-    Service for generating sequential document numbers using Configuration patterns.
+    Service for generating sequential document numbers using Configuration key-value pairs.
 
     Supports patterns like:
     - "JOB-{year}-{counter:04d}" -> JOB-2025-0001
@@ -19,21 +19,27 @@ class NumberGenerationService:
 
     Thread-safe using database-level locking. Numbers are assigned atomically
     when generate_next_number() is called.
+
+    Configuration keys:
+    - job_number_sequence: Pattern for job numbers
+    - job_counter: Current counter for jobs
+    - estimate_number_sequence: Pattern for estimate numbers
+    - estimate_counter: Current counter for estimates
+    - invoice_number_sequence: Pattern for invoice numbers
+    - invoice_counter: Current counter for invoices
+    - po_number_sequence: Pattern for PO numbers
+    - po_counter: Current counter for POs
     """
 
-    # Configuration key where numbering patterns are stored
-    CONFIG_KEY = 'invoice_config'
-
-    # Map document types to their sequence field names
-    SEQUENCE_FIELDS = {
+    # Map document types to their configuration key names
+    SEQUENCE_KEYS = {
         'job': 'job_number_sequence',
         'estimate': 'estimate_number_sequence',
         'invoice': 'invoice_number_sequence',
         'po': 'po_number_sequence',
     }
 
-    # Map document types to their counter field names
-    COUNTER_FIELDS = {
+    COUNTER_KEYS = {
         'job': 'job_counter',
         'estimate': 'estimate_counter',
         'invoice': 'invoice_counter',
@@ -54,39 +60,45 @@ class NumberGenerationService:
         Raises:
             ValidationError: If document_type is invalid or configuration is missing
         """
-        if document_type not in cls.SEQUENCE_FIELDS:
+        if document_type not in cls.SEQUENCE_KEYS:
             raise ValidationError(
                 f"Invalid document_type '{document_type}'. "
-                f"Must be one of: {', '.join(cls.SEQUENCE_FIELDS.keys())}"
+                f"Must be one of: {', '.join(cls.SEQUENCE_KEYS.keys())}"
             )
 
+        sequence_key = cls.SEQUENCE_KEYS[document_type]
+        counter_key = cls.COUNTER_KEYS[document_type]
+
         with transaction.atomic():
-            # Lock the configuration row for update
+            # Get the pattern
             try:
-                config = Configuration.objects.select_for_update().get(key=cls.CONFIG_KEY)
+                pattern_config = Configuration.objects.get(key=sequence_key)
+                pattern = pattern_config.value
             except Configuration.DoesNotExist:
                 raise ValidationError(
-                    f"Configuration with key '{cls.CONFIG_KEY}' not found. "
+                    f"Configuration key '{sequence_key}' not found. "
                     "Please create it in the admin interface."
                 )
 
-            # Get the sequence pattern and counter field names
-            sequence_field = cls.SEQUENCE_FIELDS[document_type]
-            counter_field = cls.COUNTER_FIELDS[document_type]
-
-            # Get the pattern template
-            pattern = getattr(config, sequence_field, '')
             if not pattern:
                 raise ValidationError(
                     f"No sequence pattern configured for {document_type}. "
-                    f"Please set {sequence_field} in Configuration."
+                    f"Please set value for key '{sequence_key}'."
                 )
 
-            # Increment the counter
-            current_counter = getattr(config, counter_field, 0)
+            # Lock and increment the counter
+            try:
+                counter_config = Configuration.objects.select_for_update().get(key=counter_key)
+                current_counter = int(counter_config.value or '0')
+            except Configuration.DoesNotExist:
+                raise ValidationError(
+                    f"Configuration key '{counter_key}' not found. "
+                    "Please create it in the admin interface."
+                )
+
             next_counter = current_counter + 1
-            setattr(config, counter_field, next_counter)
-            config.save()
+            counter_config.value = str(next_counter)
+            counter_config.save()
 
             # Generate the number using the pattern
             number = cls._format_number(pattern, next_counter)
@@ -140,11 +152,12 @@ class NumberGenerationService:
             document_type: One of 'job', 'estimate', 'invoice', 'po'
             new_value: The value to reset the counter to (default: 0)
         """
-        if document_type not in cls.COUNTER_FIELDS:
+        if document_type not in cls.COUNTER_KEYS:
             raise ValidationError(f"Invalid document_type '{document_type}'")
 
+        counter_key = cls.COUNTER_KEYS[document_type]
+
         with transaction.atomic():
-            config = Configuration.objects.select_for_update().get(key=cls.CONFIG_KEY)
-            counter_field = cls.COUNTER_FIELDS[document_type]
-            setattr(config, counter_field, new_value)
-            config.save()
+            counter_config = Configuration.objects.select_for_update().get(key=counter_key)
+            counter_config.value = str(new_value)
+            counter_config.save()

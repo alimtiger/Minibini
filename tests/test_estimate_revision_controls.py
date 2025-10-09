@@ -15,18 +15,14 @@ class EstimateCreationControlTests(TestCase):
     def setUp(self):
         """Set up test data."""
         # Create Configuration for number generation
-        Configuration.objects.create(
-            key='invoice_config',
-            field='document_numbering',
-            job_number_sequence='JOB-{year}-{counter:04d}',
-            estimate_number_sequence='EST-{year}-{counter:04d}',
-            invoice_number_sequence='INV-{year}-{counter:04d}',
-            po_number_sequence='PO-{year}-{counter:04d}',
-            job_counter=0,
-            estimate_counter=0,
-            invoice_counter=0,
-            po_counter=0
-        )
+        Configuration.objects.create(key='job_number_sequence', value='JOB-{year}-{counter:04d}')
+        Configuration.objects.create(key='job_counter', value='0')
+        Configuration.objects.create(key='estimate_number_sequence', value='EST-{year}-{counter:04d}')
+        Configuration.objects.create(key='estimate_counter', value='0')
+        Configuration.objects.create(key='invoice_number_sequence', value='INV-{year}-{counter:04d}')
+        Configuration.objects.create(key='invoice_counter', value='0')
+        Configuration.objects.create(key='po_number_sequence', value='PO-{year}-{counter:04d}')
+        Configuration.objects.create(key='po_counter', value='0')
 
         self.client = Client()
 
@@ -152,18 +148,14 @@ class EstimateRevisionTests(TestCase):
     def setUp(self):
         """Set up test data."""
         # Create Configuration for number generation
-        Configuration.objects.create(
-            key='invoice_config',
-            field='document_numbering',
-            job_number_sequence='JOB-{year}-{counter:04d}',
-            estimate_number_sequence='EST-{year}-{counter:04d}',
-            invoice_number_sequence='INV-{year}-{counter:04d}',
-            po_number_sequence='PO-{year}-{counter:04d}',
-            job_counter=0,
-            estimate_counter=0,
-            invoice_counter=0,
-            po_counter=0
-        )
+        Configuration.objects.create(key='job_number_sequence', value='JOB-{year}-{counter:04d}')
+        Configuration.objects.create(key='job_counter', value='0')
+        Configuration.objects.create(key='estimate_number_sequence', value='EST-{year}-{counter:04d}')
+        Configuration.objects.create(key='estimate_counter', value='0')
+        Configuration.objects.create(key='invoice_number_sequence', value='INV-{year}-{counter:04d}')
+        Configuration.objects.create(key='invoice_counter', value='0')
+        Configuration.objects.create(key='po_number_sequence', value='PO-{year}-{counter:04d}')
+        Configuration.objects.create(key='po_counter', value='0')
 
         self.client = Client()
 
@@ -381,18 +373,14 @@ class EstimateWorkflowIntegrationTests(TestCase):
     def setUp(self):
         """Set up test data."""
         # Create Configuration for number generation
-        Configuration.objects.create(
-            key='invoice_config',
-            field='document_numbering',
-            job_number_sequence='JOB-{year}-{counter:04d}',
-            estimate_number_sequence='EST-{year}-{counter:04d}',
-            invoice_number_sequence='INV-{year}-{counter:04d}',
-            po_number_sequence='PO-{year}-{counter:04d}',
-            job_counter=0,
-            estimate_counter=0,
-            invoice_counter=0,
-            po_counter=0
-        )
+        Configuration.objects.create(key='job_number_sequence', value='JOB-{year}-{counter:04d}')
+        Configuration.objects.create(key='job_counter', value='0')
+        Configuration.objects.create(key='estimate_number_sequence', value='EST-{year}-{counter:04d}')
+        Configuration.objects.create(key='estimate_counter', value='0')
+        Configuration.objects.create(key='invoice_number_sequence', value='INV-{year}-{counter:04d}')
+        Configuration.objects.create(key='invoice_counter', value='0')
+        Configuration.objects.create(key='po_number_sequence', value='PO-{year}-{counter:04d}')
+        Configuration.objects.create(key='po_counter', value='0')
 
         self.client = Client()
 
