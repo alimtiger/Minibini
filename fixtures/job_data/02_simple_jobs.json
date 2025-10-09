@@ -3,7 +3,7 @@
   "model": "jobs.job",
   "pk": 1,
   "fields": {
-    "job_number": "JOB-2025-001",
+    "job_number": "JOB-2025-0001",
     "created_date": "2025-01-15T10:00:00Z",
     "due_date": null,
     "completed_date": null,
@@ -17,7 +17,7 @@
   "model": "jobs.job",
   "pk": 2,
   "fields": {
-    "job_number": "JOB-2025-002",
+    "job_number": "JOB-2025-0002",
     "created_date": "2025-02-01T14:30:00Z",
     "due_date": null,
     "completed_date": null,
@@ -31,7 +31,7 @@
   "model": "jobs.job",
   "pk": 3,
   "fields": {
-    "job_number": "JOB-2025-003",
+    "job_number": "JOB-2025-0003",
     "created_date": "2025-02-10T09:15:00Z",
     "due_date": null,
     "completed_date": null,
@@ -60,7 +60,7 @@
   "pk": 1,
   "fields": {
     "job": 1,
-    "estimate_number": "EST-2025-001",
+    "estimate_number": "EST-2025-0001",
     "version": 1,
     "status": "accepted",
     "parent": null,
@@ -73,7 +73,7 @@
   "pk": 2,
   "fields": {
     "job": 3,
-    "estimate_number": "EST-2025-003",
+    "estimate_number": "EST-2025-0003",
     "version": 1,
     "status": "superseded",
     "parent": null,
@@ -86,7 +86,7 @@
   "pk": 3,
   "fields": {
     "job": 3,
-    "estimate_number": "EST-2025-003",
+    "estimate_number": "EST-2025-0003",
     "version": 2,
     "status": "superseded",
     "parent": 2,
@@ -99,7 +99,7 @@
   "pk": 4,
   "fields": {
     "job": 3,
-    "estimate_number": "EST-2025-003",
+    "estimate_number": "EST-2025-0003",
     "version": 3,
     "status": "superseded",
     "parent": 3,
@@ -112,7 +112,7 @@
   "pk": 5,
   "fields": {
     "job": 3,
-    "estimate_number": "EST-2025-003",
+    "estimate_number": "EST-2025-0003",
     "version": 4,
     "status": "draft",
     "parent": 4,
@@ -125,7 +125,7 @@
   "pk": 6,
   "fields": {
     "job": 2,
-    "estimate_number": "1000",
+    "estimate_number": "EST-2025-0006",
     "version": 1,
     "status": "draft",
     "parent": null,

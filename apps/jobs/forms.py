@@ -6,6 +6,7 @@ from .models import (
     EstWorksheet, Task, Estimate, EstimateLineItem, Job
 )
 from apps.contacts.models import Contact
+from apps.core.services import NumberGenerationService
 
 
 class JobCreateForm(forms.ModelForm):
@@ -26,11 +27,13 @@ class JobCreateForm(forms.ModelForm):
 
     class Meta:
         model = Job
-        fields = ['job_number', 'contact', 'customer_po_number', 'description', 'due_date']
+        fields = ['contact', 'customer_po_number', 'description', 'due_date']
         widgets = {
-            'job_number': forms.TextInput(attrs={'class': 'form-control'}),
             'customer_po_number': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Optional'}),
             'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 4}),
+        }
+        help_texts = {
+            'contact': 'Job number will be assigned automatically on save.',
         }
 
     def __init__(self, *args, **kwargs):
@@ -39,21 +42,6 @@ class JobCreateForm(forms.ModelForm):
 
         # Customize contact field display to include business name
         self.fields['contact'].label_from_instance = self.label_from_instance_with_business
-
-        # Generate next job number
-        last_job = Job.objects.order_by('-job_id').first()
-        if last_job:
-            # Extract number from last job number and increment
-            try:
-                last_num = int(last_job.job_number.split('-')[-1])
-                next_num = last_num + 1
-            except (ValueError, IndexError):
-                next_num = 1
-        else:
-            next_num = 1
-
-        year = timezone.now().year
-        self.fields['job_number'].initial = f"JOB-{year}-{next_num:04d}"
 
         # Pre-select contact if provided
         if initial_contact:
@@ -64,6 +52,17 @@ class JobCreateForm(forms.ModelForm):
         if contact.business:
             return f"{contact.name} ({contact.business.business_name})"
         return contact.name
+
+    def save(self, commit=True):
+        """Override save to generate job number using NumberGenerationService"""
+        instance = super().save(commit=False)
+
+        # Generate the actual job number (increments counter)
+        instance.job_number = NumberGenerationService.generate_next_number('job')
+
+        if commit:
+            instance.save()
+        return instance
 
 
 class WorkOrderTemplateForm(forms.ModelForm):
@@ -163,24 +162,30 @@ class EstimateForm(forms.ModelForm):
     """Form for creating/editing Estimate"""
     class Meta:
         model = Estimate
-        fields = ['estimate_number', 'status']
+        fields = ['status']
         widgets = {
             'status': forms.Select(choices=Estimate.ESTIMATE_STATUS_CHOICES)
+        }
+        help_texts = {
+            'status': 'Estimate number will be assigned automatically on save.',
         }
 
     def __init__(self, *args, **kwargs):
         job = kwargs.pop('job', None)
         super().__init__(*args, **kwargs)
-        if job:
-            # Generate next estimate number for this job
-            existing_estimates = Estimate.objects.filter(job=job).order_by('-version')
-            if existing_estimates.exists():
-                latest = existing_estimates.first()
-                # Use same number but increment version will be handled in view
-                self.fields['estimate_number'].initial = latest.estimate_number
-            else:
-                # Generate new estimate number based on job
-                self.fields['estimate_number'].initial = f"EST-{job.job_number}"
+        # Store job for use in save method
+        self._job = job
+
+    def save(self, commit=True):
+        """Override save to generate estimate number using NumberGenerationService"""
+        instance = super().save(commit=False)
+
+        # Generate the actual estimate number (increments counter)
+        instance.estimate_number = NumberGenerationService.generate_next_number('estimate')
+
+        if commit:
+            instance.save()
+        return instance
 
 
 class EstimateStatusForm(forms.Form):

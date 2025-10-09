@@ -4,6 +4,7 @@ from django.test import TestCase, Client
 from django.urls import reverse
 from apps.jobs.models import Job, Estimate
 from apps.contacts.models import Contact
+from apps.core.models import Configuration
 
 
 class EstimateCreationFromJobTests(TestCase):
@@ -12,6 +13,16 @@ class EstimateCreationFromJobTests(TestCase):
     def setUp(self):
         """Set up test data."""
         self.client = Client()
+
+        # Create Configuration for number generation
+        Configuration.objects.create(key='job_number_sequence', value='JOB-{year}-{counter:04d}')
+        Configuration.objects.create(key='job_counter', value='0')
+        Configuration.objects.create(key='estimate_number_sequence', value='EST-{year}-{counter:04d}')
+        Configuration.objects.create(key='estimate_counter', value='0')
+        Configuration.objects.create(key='invoice_number_sequence', value='INV-{year}-{counter:04d}')
+        Configuration.objects.create(key='invoice_counter', value='0')
+        Configuration.objects.create(key='po_number_sequence', value='PO-{year}-{counter:04d}')
+        Configuration.objects.create(key='po_counter', value='0')
 
         # Create a test contact
         self.contact = Contact.objects.create(
@@ -39,7 +50,7 @@ class EstimateCreationFromJobTests(TestCase):
         """Test POST request to create estimate for job."""
         url = reverse('jobs:estimate_create_for_job', args=[self.job.job_id])
         data = {
-            'estimate_number': 'EST-TEST001',
+            # estimate_number is auto-generated, not posted
             'status': 'draft'
         }
         response = self.client.post(url, data)
@@ -50,7 +61,8 @@ class EstimateCreationFromJobTests(TestCase):
         # Check estimate was created
         estimate = Estimate.objects.filter(job=self.job).first()
         self.assertIsNotNone(estimate)
-        self.assertEqual(estimate.estimate_number, 'EST-TEST001')
+        # Verify auto-generated estimate number follows pattern
+        self.assertTrue(estimate.estimate_number.startswith('EST-'))
         self.assertEqual(estimate.status, 'draft')
         self.assertEqual(estimate.version, 1)
         self.assertEqual(estimate.job, self.job)
@@ -60,13 +72,14 @@ class EstimateCreationFromJobTests(TestCase):
         # Create first estimate
         url = reverse('jobs:estimate_create_for_job', args=[self.job.job_id])
         data = {
-            'estimate_number': 'EST-TEST001',
+            # estimate_number is auto-generated
             'status': 'draft'
         }
         response = self.client.post(url, data)
 
         # Get the created estimate and mark it as open
         estimate = Estimate.objects.filter(job=self.job).first()
+        estimate_number = estimate.estimate_number  # Store the auto-generated number
         estimate.status = 'open'
         estimate.save()
 
@@ -75,30 +88,18 @@ class EstimateCreationFromJobTests(TestCase):
         response = self.client.post(url)
 
         # Check both estimates exist with correct versions
-        estimates = Estimate.objects.filter(job=self.job, estimate_number='EST-TEST001').order_by('version')
+        estimates = Estimate.objects.filter(job=self.job, estimate_number=estimate_number).order_by('version')
         self.assertEqual(estimates.count(), 2)
         self.assertEqual(estimates[0].version, 1)
         self.assertEqual(estimates[1].version, 2)
 
-    def test_estimate_number_prepopulation(self):
-        """Test that estimate number is prepopulated correctly."""
-        # Test new estimate (no existing estimates)
+    def test_estimate_number_not_in_form(self):
+        """Test that estimate number is not shown on form (assigned on save)."""
+        # Test new estimate form
         url = reverse('jobs:estimate_create_for_job', args=[self.job.job_id])
         response = self.client.get(url)
 
-        # Form should contain prepopulated estimate number
-        self.assertContains(response, f'EST-{self.job.job_number}')
-
-        # Create an estimate
-        estimate = Estimate.objects.create(
-            job=self.job,
-            estimate_number='EST-CUSTOM',
-            version=1,
-            status='draft'
-        )
-
-        # Now trying to create another should redirect to existing
-        response = self.client.get(url)
-        # Should redirect to existing estimate
-        self.assertEqual(response.status_code, 302)
-        self.assertRedirects(response, reverse('jobs:estimate_detail', args=[estimate.estimate_id]))
+        # Estimate number should NOT be in the form (it's auto-generated on save)
+        self.assertNotContains(response, 'name="estimate_number"')
+        # Help text should indicate auto-generation
+        self.assertContains(response, 'automatically on save')

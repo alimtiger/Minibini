@@ -48,9 +48,73 @@ Minibini/
 - Used for task assignment and authentication
 
 #### Configuration
-- Key-value store for system settings
-- Stores sequence numbers for various document types (invoice, estimate, job, PO)
-- Stores email_retention_days for TempEmail cleanup
+**Simple key-value store for system settings.**
+
+The Configuration model has been simplified to a pure key-value pattern:
+- `key` (CharField, primary key) - The configuration setting name
+- `value` (TextField, blank=True) - The configuration value as a string
+
+**Current Configuration Keys:**
+
+*Document Numbering:*
+- `job_number_sequence` - Pattern for job numbers (e.g., "JOB-{year}-{counter:04d}")
+- `job_counter` - Current counter for jobs (e.g., "0")
+- `estimate_number_sequence` - Pattern for estimate numbers (e.g., "EST-{year}-{counter:04d}")
+- `estimate_counter` - Current counter for estimates (e.g., "0")
+- `invoice_number_sequence` - Pattern for invoice numbers (e.g., "INV-{year}-{counter:04d}")
+- `invoice_counter` - Current counter for invoices (e.g., "0")
+- `po_number_sequence` - Pattern for PO numbers (e.g., "PO-{year}-{counter:04d}")
+- `po_counter` - Current counter for POs (e.g., "0")
+
+*Email Settings:*
+- `email_retention_days` - Days to retain TempEmail records (e.g., "90")
+- `latest_email_date` - Most recent email fetched from IMAP (ISO format datetime string)
+- `email_display_limit` - Number of emails to show in inbox (e.g., "30")
+
+**Usage Patterns:**
+
+Reading a configuration value:
+```python
+from apps.core.models import Configuration
+
+# Get a configuration value
+try:
+    config = Configuration.objects.get(key='email_retention_days')
+    retention_days = int(config.value)
+except Configuration.DoesNotExist:
+    retention_days = 90  # default
+```
+
+Creating/updating a configuration value:
+```python
+# Create or update
+config, created = Configuration.objects.get_or_create(
+    key='email_display_limit',
+    defaults={'value': '30'}
+)
+if not created:
+    config.value = '30'
+    config.save()
+```
+
+**Adding New Configuration Keys:**
+
+When adding a new configuration setting:
+1. **Code**: Access via `Configuration.objects.get(key='your_key').value`
+2. **Tests**: Add to setUp() methods:
+   ```python
+   Configuration.objects.create(key='your_key', value='your_default_value')
+   ```
+3. **Fixtures**: Add to fixture files as separate entries:
+   ```json
+   {
+     "model": "core.configuration",
+     "pk": "your_key",
+     "fields": {"value": "your_default_value"}
+   }
+   ```
+
+**IMPORTANT:** Never add fields to the Configuration model. All settings must be key-value pairs. This keeps the model flexible and prevents migration bloat.
 
 #### EmailRecord
 - Permanent record linking emails to jobs
@@ -265,8 +329,42 @@ Located in `/fixtures/` directory:
 ## Business Logic Patterns
 
 ### Document Numbering
-- Automatic generation using sequences
-- Stored in Configuration model
+**Automatic generation using NumberGenerationService** (`apps.core.services.py`)
+
+The `NumberGenerationService` class handles thread-safe sequential number generation for all document types (jobs, estimates, invoices, purchase orders).
+
+**Pattern Format:**
+Document numbers use Python string formatting with available placeholders:
+- `{year}` - 4-digit year (e.g., 2025)
+- `{month:02d}` - 2-digit month with leading zero (e.g., 01-12)
+- `{day:02d}` - 2-digit day with leading zero (e.g., 01-31)
+- `{counter:04d}` - Counter with specified formatting (e.g., 0001)
+- `{counter}` - Counter with no formatting
+
+**Example Patterns:**
+- `"JOB-{year}-{counter:04d}"` → JOB-2025-0001
+- `"INV-{year}-{month:02d}-{counter:05d}"` → INV-2025-10-00001
+- `"EST-{counter:04d}"` → EST-0001
+
+**Usage in Code:**
+```python
+from apps.core.services import NumberGenerationService
+
+# Generate next job number
+job_number = NumberGenerationService.generate_next_number('job')
+# Returns: "JOB-2025-0001" (increments job_counter in Configuration)
+
+# Generate next estimate number
+estimate_number = NumberGenerationService.generate_next_number('estimate')
+```
+
+**Thread Safety:**
+Uses `select_for_update()` database locking to prevent race conditions when multiple users/processes generate numbers simultaneously.
+
+**Storage:**
+- Patterns stored in Configuration: `job_number_sequence`, `estimate_number_sequence`, etc.
+- Counters stored in Configuration: `job_counter`, `estimate_counter`, etc.
+- Both are key-value pairs in the Configuration model
 
 ### Status Workflows
 Strict status progressions enforced at model level:

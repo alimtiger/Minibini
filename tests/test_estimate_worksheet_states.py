@@ -8,6 +8,7 @@ from apps.jobs.models import (
 )
 from apps.jobs.services import EstimateGenerationService
 from apps.contacts.models import Contact
+from apps.core.models import Configuration
 
 
 class EstimateStateTests(TestCase):
@@ -15,6 +16,16 @@ class EstimateStateTests(TestCase):
 
     def setUp(self):
         """Set up test data."""
+        # Create Configuration for number generation
+        Configuration.objects.create(key='job_number_sequence', value='JOB-{year}-{counter:04d}')
+        Configuration.objects.create(key='job_counter', value='0')
+        Configuration.objects.create(key='estimate_number_sequence', value='EST-{year}-{counter:04d}')
+        Configuration.objects.create(key='estimate_counter', value='0')
+        Configuration.objects.create(key='invoice_number_sequence', value='INV-{year}-{counter:04d}')
+        Configuration.objects.create(key='invoice_counter', value='0')
+        Configuration.objects.create(key='po_number_sequence', value='PO-{year}-{counter:04d}')
+        Configuration.objects.create(key='po_counter', value='0')
+
         self.client = Client()
 
         # Create a test contact
@@ -107,6 +118,16 @@ class EstWorksheetStateTests(TestCase):
 
     def setUp(self):
         """Set up test data."""
+        # Create Configuration for number generation
+        Configuration.objects.create(key='job_number_sequence', value='JOB-{year}-{counter:04d}')
+        Configuration.objects.create(key='job_counter', value='0')
+        Configuration.objects.create(key='estimate_number_sequence', value='EST-{year}-{counter:04d}')
+        Configuration.objects.create(key='estimate_counter', value='0')
+        Configuration.objects.create(key='invoice_number_sequence', value='INV-{year}-{counter:04d}')
+        Configuration.objects.create(key='invoice_counter', value='0')
+        Configuration.objects.create(key='po_number_sequence', value='PO-{year}-{counter:04d}')
+        Configuration.objects.create(key='po_counter', value='0')
+
         self.client = Client()
 
         # Create a test contact
@@ -240,6 +261,16 @@ class EstimateGenerationServiceTests(TestCase):
 
     def setUp(self):
         """Set up test data."""
+        # Create Configuration for number generation
+        Configuration.objects.create(key='job_number_sequence', value='JOB-{year}-{counter:04d}')
+        Configuration.objects.create(key='job_counter', value='0')
+        Configuration.objects.create(key='estimate_number_sequence', value='EST-{year}-{counter:04d}')
+        Configuration.objects.create(key='estimate_counter', value='0')
+        Configuration.objects.create(key='invoice_number_sequence', value='INV-{year}-{counter:04d}')
+        Configuration.objects.create(key='invoice_counter', value='0')
+        Configuration.objects.create(key='po_number_sequence', value='PO-{year}-{counter:04d}')
+        Configuration.objects.create(key='po_counter', value='0')
+
         # Create a test contact
         self.contact = Contact.objects.create(
             name='Test Contact 3',
@@ -351,6 +382,16 @@ class IntegrationTests(TestCase):
 
     def setUp(self):
         """Set up test data."""
+        # Create Configuration for number generation
+        Configuration.objects.create(key='job_number_sequence', value='JOB-{year}-{counter:04d}')
+        Configuration.objects.create(key='job_counter', value='0')
+        Configuration.objects.create(key='estimate_number_sequence', value='EST-{year}-{counter:04d}')
+        Configuration.objects.create(key='estimate_counter', value='0')
+        Configuration.objects.create(key='invoice_number_sequence', value='INV-{year}-{counter:04d}')
+        Configuration.objects.create(key='invoice_counter', value='0')
+        Configuration.objects.create(key='po_number_sequence', value='PO-{year}-{counter:04d}')
+        Configuration.objects.create(key='po_counter', value='0')
+
         self.client = Client()
 
         # Create a test contact

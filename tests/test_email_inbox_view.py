@@ -16,12 +16,8 @@ class EmailInboxViewTest(TestCase):
     def test_email_inbox_respects_display_limit(self):
         """Test that inbox displays only up to email_display_limit emails."""
         # Create configuration with display limit of 5
-        config = Configuration.objects.create(
-            key='email_config',
-            field='Email Configuration',
-            email_display_limit=5,
-            email_retention_days=90
-        )
+        Configuration.objects.create(key='email_display_limit', value='5')
+        Configuration.objects.create(key='email_retention_days', value='90')
 
         # Create 10 emails
         for i in range(10):
@@ -63,12 +59,8 @@ class EmailInboxViewTest(TestCase):
     def test_email_inbox_orders_by_most_recent(self):
         """Test that emails are ordered by date_sent descending (most recent first)."""
         # Create configuration
-        Configuration.objects.create(
-            key='email_config',
-            field='Email Configuration',
-            email_display_limit=30,
-            email_retention_days=90
-        )
+        Configuration.objects.create(key='email_display_limit', value='30')
+        Configuration.objects.create(key='email_retention_days', value='90')
 
         # Create emails with different dates
         old_email_record = EmailRecord.objects.create(message_id='<old@example.com>')
@@ -150,12 +142,8 @@ class EmailInboxViewTest(TestCase):
     def test_email_inbox_fetches_from_imap_on_load(self):
         """Test that inbox fetches emails from IMAP server on page load."""
         # Create configuration
-        Configuration.objects.create(
-            key='email_config',
-            field='Email Configuration',
-            email_display_limit=30,
-            email_retention_days=90
-        )
+        Configuration.objects.create(key='email_display_limit', value='30')
+        Configuration.objects.create(key='email_retention_days', value='90')
 
         # Mock the EmailService
         with patch('apps.core.views.EmailService') as mock_service_class:
@@ -195,12 +183,8 @@ class EmailInboxViewTest(TestCase):
     def test_email_inbox_template_displays_counts(self):
         """Test that template displays correct count information."""
         # Create configuration
-        Configuration.objects.create(
-            key='email_config',
-            field='Email Configuration',
-            email_display_limit=10,
-            email_retention_days=90
-        )
+        Configuration.objects.create(key='email_display_limit', value='10')
+        Configuration.objects.create(key='email_retention_days', value='90')
 
         # Create 15 emails
         for i in range(15):

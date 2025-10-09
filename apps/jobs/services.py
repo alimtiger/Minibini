@@ -16,6 +16,7 @@ from .models import (
     EstWorksheet, EstimateLineItem, TaskMapping, ProductBundlingRule, TaskInstanceMapping
 )
 from apps.invoicing.models import PriceListItem
+from apps.core.services import NumberGenerationService
 
 
 class LineItemTaskService:
@@ -220,23 +221,32 @@ class EstimateService:
                 f"Only Draft WorkOrders can create Estimates. "
                 f"WorkOrder {work_order.pk} is {work_order.status}."
             )
-        
+
+        # Generate estimate number using centralized service
+        estimate_number = NumberGenerationService.generate_next_number('estimate')
+
         estimate = Estimate.objects.create(
             job=work_order.job,
-            estimate_number=f"EST-{work_order.job.job_number}-{work_order.pk}",
+            estimate_number=estimate_number,
             status='draft'
         )
-        
+
         # Convert Tasks to LineItems via TaskMapping (placeholder for now)
         from .models import EstimateLineItem
         for task in work_order.task_set.all():
             TaskService.create_line_item_from_task(task, estimate)
-            
+
         return estimate
-    
+
     @staticmethod
-    def create_direct(job, estimate_number, **kwargs):
-        """Create Estimate directly. Starts in 'draft' status."""
+    def create_direct(job, **kwargs):
+        """
+        Create Estimate directly. Starts in 'draft' status.
+        Estimate number is auto-generated.
+        """
+        # Generate estimate number using centralized service
+        estimate_number = NumberGenerationService.generate_next_number('estimate')
+
         return Estimate.objects.create(
             job=job,
             estimate_number=estimate_number,
@@ -371,7 +381,6 @@ class EstimateGenerationService:
         """Create a new estimate for the worksheet's job"""
         # Check if worksheet has a parent with an estimate
         version = 1
-
         parent_estimate = None
 
         if worksheet.parent and worksheet.parent.estimate:
@@ -385,18 +394,8 @@ class EstimateGenerationService:
             parent_estimate.superseded_date = timezone.now()
             parent_estimate.save()
         else:
-            # Generate new estimate number
-            last_estimate = Estimate.objects.filter(job=worksheet.job).order_by('-estimate_id').first()
-            if last_estimate and last_estimate.estimate_number:
-                # Simple increment logic - in production use proper sequence
-                base_num = last_estimate.estimate_number.split('-')[0]
-                try:
-                    num = int(base_num) + 1
-                except ValueError:
-                    num = 1000
-            else:
-                num = 1000
-            estimate_number = f"{num:04d}"
+            # Generate new estimate number using centralized service
+            estimate_number = NumberGenerationService.generate_next_number('estimate')
 
         # Create new estimate with parent reference
         estimate = Estimate.objects.create(
@@ -406,7 +405,7 @@ class EstimateGenerationService:
             parent=parent_estimate,
             status='draft'
         )
-        
+
         return estimate
     
     def _categorize_tasks(self, tasks: List[Task]) -> Tuple[Dict, Dict, List[Task], List[Task]]:

@@ -225,20 +225,29 @@ class ComprehensiveModelIntegrationTest(TestCase):
         self.assertEqual(task.template.task_mapping, task_mapping)
 
     def test_configuration_number_sequences(self):
-        config = Configuration.objects.create(
-            key="numbering_sequences",
-            field="all_sequences",
-            invoice_number_sequence="INV-{year}-{counter:05d}",
-            estimate_number_sequence="EST-{year}-{counter:05d}",
-            job_number_sequence="JOB-{year}-{counter:05d}",
-            po_number_sequence="PO-{year}-{counter:05d}"
+        # Create configuration entries for number sequences
+        job_seq = Configuration.objects.create(
+            key="job_number_sequence",
+            value="JOB-{year}-{counter:05d}"
         )
-        
-        self.assertIn("{year}", config.invoice_number_sequence)
-        self.assertIn("{counter:", config.invoice_number_sequence)
-        self.assertIn("{year}", config.estimate_number_sequence)
-        self.assertIn("{year}", config.job_number_sequence)
-        self.assertIn("{year}", config.po_number_sequence)
+        estimate_seq = Configuration.objects.create(
+            key="estimate_number_sequence",
+            value="EST-{year}-{counter:05d}"
+        )
+        invoice_seq = Configuration.objects.create(
+            key="invoice_number_sequence",
+            value="INV-{year}-{counter:05d}"
+        )
+        po_seq = Configuration.objects.create(
+            key="po_number_sequence",
+            value="PO-{year}-{counter:05d}"
+        )
+
+        self.assertIn("{year}", job_seq.value)
+        self.assertIn("{counter:", job_seq.value)
+        self.assertIn("{year}", estimate_seq.value)
+        self.assertIn("{year}", invoice_seq.value)
+        self.assertIn("{year}", po_seq.value)
 
     def test_model_cascade_deletions(self):
         job = Job.objects.create(

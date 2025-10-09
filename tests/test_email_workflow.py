@@ -1,7 +1,7 @@
 from django.test import TestCase, Client
 from django.urls import reverse
 from unittest.mock import patch, MagicMock
-from apps.core.models import EmailRecord, TempEmail
+from apps.core.models import EmailRecord, TempEmail, Configuration
 from apps.contacts.models import Contact, Business
 from apps.jobs.models import Job
 
@@ -13,6 +13,16 @@ class CreateJobFromEmailWorkflowTest(TestCase):
 
     def setUp(self):
         self.client = Client()
+
+        # Create Configuration for number generation
+        Configuration.objects.create(key='job_number_sequence', value='JOB-{year}-{counter:04d}')
+        Configuration.objects.create(key='job_counter', value='0')
+        Configuration.objects.create(key='estimate_number_sequence', value='EST-{year}-{counter:04d}')
+        Configuration.objects.create(key='estimate_counter', value='0')
+        Configuration.objects.create(key='invoice_number_sequence', value='INV-{year}-{counter:04d}')
+        Configuration.objects.create(key='invoice_counter', value='0')
+        Configuration.objects.create(key='po_number_sequence', value='PO-{year}-{counter:04d}')
+        Configuration.objects.create(key='po_counter', value='0')
 
     def _mock_email_content(self, from_header, subject, body_text, body_html=''):
         """Helper to create mock email content"""
@@ -223,6 +233,16 @@ class AddContactFromEmailWorkflowTest(TestCase):
         self.client = Client()
         self.url = reverse('contacts:add_contact')
 
+        # Create Configuration for number generation
+        Configuration.objects.create(key='job_number_sequence', value='JOB-{year}-{counter:04d}')
+        Configuration.objects.create(key='job_counter', value='0')
+        Configuration.objects.create(key='estimate_number_sequence', value='EST-{year}-{counter:04d}')
+        Configuration.objects.create(key='estimate_counter', value='0')
+        Configuration.objects.create(key='invoice_number_sequence', value='INV-{year}-{counter:04d}')
+        Configuration.objects.create(key='invoice_counter', value='0')
+        Configuration.objects.create(key='po_number_sequence', value='PO-{year}-{counter:04d}')
+        Configuration.objects.create(key='po_counter', value='0')
+
     def test_add_contact_with_email_session_data_no_business(self):
         """Test adding contact with session data but no business"""
         session = self.client.session
@@ -358,6 +378,16 @@ class ConfirmCreateBusinessFromEmailTest(TestCase):
         self.client = Client()
         self.url = reverse('contacts:confirm_create_business')
 
+        # Create Configuration for number generation
+        Configuration.objects.create(key='job_number_sequence', value='JOB-{year}-{counter:04d}')
+        Configuration.objects.create(key='job_counter', value='0')
+        Configuration.objects.create(key='estimate_number_sequence', value='EST-{year}-{counter:04d}')
+        Configuration.objects.create(key='estimate_counter', value='0')
+        Configuration.objects.create(key='invoice_number_sequence', value='INV-{year}-{counter:04d}')
+        Configuration.objects.create(key='invoice_counter', value='0')
+        Configuration.objects.create(key='po_number_sequence', value='PO-{year}-{counter:04d}')
+        Configuration.objects.create(key='po_counter', value='0')
+
     def test_confirm_create_business_get(self):
         """Test viewing the confirmation page"""
         # Create a contact first
@@ -464,6 +494,16 @@ class JobCreateWithEmailLinkingTest(TestCase):
         self.url = reverse('jobs:create')
         self.contact = Contact.objects.get(pk=1)
 
+        # Create Configuration for number generation
+        Configuration.objects.create(key='job_number_sequence', value='JOB-{year}-{counter:04d}')
+        Configuration.objects.create(key='job_counter', value='0')
+        Configuration.objects.create(key='estimate_number_sequence', value='EST-{year}-{counter:04d}')
+        Configuration.objects.create(key='estimate_counter', value='0')
+        Configuration.objects.create(key='invoice_number_sequence', value='INV-{year}-{counter:04d}')
+        Configuration.objects.create(key='invoice_counter', value='0')
+        Configuration.objects.create(key='po_number_sequence', value='PO-{year}-{counter:04d}')
+        Configuration.objects.create(key='po_counter', value='0')
+
     def test_job_create_with_email_session_data(self):
         """Test creating job with email data in session"""
         email_record = EmailRecord.objects.get(pk=1)
@@ -474,15 +514,16 @@ class JobCreateWithEmailLinkingTest(TestCase):
         session.save()
 
         post_data = {
-            'job_number': 'JOB-2024-EMAIL-001',
             'contact': self.contact.contact_id,
             'description': 'Website development from email',
         }
 
         response = self.client.post(self.url, data=post_data)
 
-        # Should create job
-        job = Job.objects.get(job_number='JOB-2024-EMAIL-001')
+        # Should create job with auto-generated number
+        job = Job.objects.get(contact=self.contact, description='Website development from email')
+        self.assertIsNotNone(job.job_number)
+        self.assertTrue(job.job_number.startswith('JOB-'))
         self.assertEqual(job.contact, self.contact)
 
         # Should link email to job
@@ -497,15 +538,16 @@ class JobCreateWithEmailLinkingTest(TestCase):
     def test_job_create_without_email_session_data(self):
         """Test creating job normally without email workflow"""
         post_data = {
-            'job_number': 'JOB-2024-NORMAL-001',
             'contact': self.contact.contact_id,
             'description': 'Normal job creation',
         }
 
         response = self.client.post(self.url, data=post_data)
 
-        # Should create job normally
-        job = Job.objects.get(job_number='JOB-2024-NORMAL-001')
+        # Should create job normally with auto-generated number
+        job = Job.objects.get(contact=self.contact, description='Normal job creation')
+        self.assertIsNotNone(job.job_number)
+        self.assertTrue(job.job_number.startswith('JOB-'))
         self.assertEqual(job.contact, self.contact)
 
         # No email should be linked

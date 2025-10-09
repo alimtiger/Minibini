@@ -1,7 +1,7 @@
 from django.test import TestCase, TransactionTestCase, override_settings
 from django.db import IntegrityError, transaction
 from django.utils import timezone
-from datetime import timedelta
+from datetime import timedelta, datetime
 from unittest.mock import Mock, patch, MagicMock
 from apps.core.models import EmailRecord, TempEmail, Configuration
 from apps.jobs.models import Job
@@ -245,47 +245,51 @@ class ConfigurationEmailRetentionTest(TestCase):
     """Test email retention configuration."""
 
     def test_configuration_email_retention_default(self):
-        """Test that email_retention_days has default value of 90."""
+        """Test storing email_retention_days as key-value pair."""
         config = Configuration.objects.create(
-            key="test_config",
-            field="test_field"
+            key="email_retention_days",
+            value="90"
         )
-        self.assertEqual(config.email_retention_days, 90)
+        self.assertEqual(config.value, "90")
+        self.assertEqual(int(config.value), 90)
 
     def test_configuration_email_retention_custom(self):
         """Test setting custom email retention period."""
         config = Configuration.objects.create(
-            key="custom_config",
-            field="custom_field",
-            email_retention_days=30
+            key="email_retention_days",
+            value="30"
         )
-        self.assertEqual(config.email_retention_days, 30)
+        self.assertEqual(config.value, "30")
+        self.assertEqual(int(config.value), 30)
 
-    def test_configuration_email_display_limit_default(self):
-        """Test that email_display_limit has default value of 30."""
+    def test_configuration_email_display_limit(self):
+        """Test storing email_display_limit as key-value pair."""
         config = Configuration.objects.create(
-            key="test_display",
-            field="test_field"
+            key="email_display_limit",
+            value="30"
         )
-        self.assertEqual(config.email_display_limit, 30)
+        self.assertEqual(config.value, "30")
+        self.assertEqual(int(config.value), 30)
 
     def test_configuration_latest_email_date_nullable(self):
-        """Test that latest_email_date can be null."""
+        """Test that latest_email_date can be empty string."""
         config = Configuration.objects.create(
-            key="test_date",
-            field="test_field"
+            key="latest_email_date",
+            value=""
         )
-        self.assertIsNone(config.latest_email_date)
+        self.assertEqual(config.value, "")
 
     def test_configuration_latest_email_date_custom(self):
-        """Test setting custom latest_email_date."""
+        """Test setting custom latest_email_date as ISO format."""
         test_date = timezone.now() - timedelta(days=7)
         config = Configuration.objects.create(
-            key="test_date_custom",
-            field="test_field",
-            latest_email_date=test_date
+            key="latest_email_date",
+            value=test_date.isoformat()
         )
-        self.assertEqual(config.latest_email_date, test_date)
+        self.assertEqual(config.value, test_date.isoformat())
+        # Test we can parse it back
+        parsed_date = datetime.fromisoformat(config.value)
+        self.assertEqual(parsed_date, test_date)
 
 
 class EmailServiceTest(TestCase):
@@ -418,9 +422,8 @@ class EmailServiceTest(TestCase):
     def test_cleanup_uses_configuration(self):
         """Test cleanup uses Configuration model for retention period."""
         Configuration.objects.create(
-            key="main_config",
-            field="main",
-            email_retention_days=30
+            key="email_retention_days",
+            value="30"
         )
 
         service = EmailService()
@@ -602,17 +605,23 @@ class EmailServiceTest(TestCase):
         mock_mailbox_class.return_value.login.return_value = mock_mailbox
 
         # Ensure no configuration exists
-        Configuration.objects.filter(key='email_config').delete()
+        Configuration.objects.filter(key='latest_email_date').delete()
+        Configuration.objects.filter(key='email_retention_days').delete()
+        Configuration.objects.filter(key='email_display_limit').delete()
 
         service = EmailService()
         stats = service.fetch_emails_by_date_range(days_back=30)
 
-        # Should create configuration
-        config = Configuration.objects.get(key='email_config')
-        self.assertIsNotNone(config)
-        self.assertIsNotNone(config.latest_email_date)
-        self.assertEqual(config.email_display_limit, 30)
-        self.assertEqual(config.email_retention_days, 90)
+        # Should create configuration entries
+        latest_date_config = Configuration.objects.get(key='latest_email_date')
+        self.assertIsNotNone(latest_date_config)
+        self.assertIsNotNone(latest_date_config.value)
+
+        retention_config = Configuration.objects.get(key='email_retention_days')
+        self.assertEqual(retention_config.value, '90')
+
+        display_config = Configuration.objects.get(key='email_display_limit')
+        self.assertEqual(display_config.value, '30')
 
     @override_settings(
         EMAIL_IMAP_SERVER='imap.example.com',
@@ -624,13 +633,12 @@ class EmailServiceTest(TestCase):
         """Test that latest_email_date is updated after fetching."""
         # Create configuration with old date
         old_date = timezone.now() - timedelta(days=10)
-        config = Configuration.objects.create(
-            key='email_config',
-            field='Email Configuration',
-            latest_email_date=old_date,
-            email_display_limit=30,
-            email_retention_days=90
+        Configuration.objects.create(
+            key='latest_email_date',
+            value=old_date.isoformat()
         )
+        Configuration.objects.create(key='email_retention_days', value='90')
+        Configuration.objects.create(key='email_display_limit', value='30')
 
         # Mock message with newer date
         new_date = timezone.now() - timedelta(days=1)
@@ -653,8 +661,9 @@ class EmailServiceTest(TestCase):
         stats = service.fetch_emails_by_date_range(days_back=30)
 
         # Configuration should be updated with newer date
-        config.refresh_from_db()
-        self.assertGreater(config.latest_email_date, old_date)
+        updated_config = Configuration.objects.get(key='latest_email_date')
+        updated_date = datetime.fromisoformat(updated_config.value)
+        self.assertGreater(updated_date, old_date)
         self.assertEqual(stats['new'], 1)
         self.assertIsNotNone(stats['latest_date'])
 
@@ -668,13 +677,12 @@ class EmailServiceTest(TestCase):
         """Test that fetch uses latest_email_date as threshold."""
         # Create configuration with specific date
         fetch_since_date = timezone.now() - timedelta(days=5)
-        config = Configuration.objects.create(
-            key='email_config',
-            field='Email Configuration',
-            latest_email_date=fetch_since_date,
-            email_display_limit=30,
-            email_retention_days=90
+        Configuration.objects.create(
+            key='latest_email_date',
+            value=fetch_since_date.isoformat()
         )
+        Configuration.objects.create(key='email_retention_days', value='90')
+        Configuration.objects.create(key='email_display_limit', value='30')
 
         mock_mailbox = MagicMock()
         mock_mailbox.fetch.return_value = []

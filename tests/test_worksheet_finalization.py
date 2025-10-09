@@ -6,6 +6,7 @@ from django.test import TestCase, Client
 from django.urls import reverse
 from django.contrib.auth import get_user_model
 from apps.jobs.models import Job, Estimate, EstWorksheet, Task, TaskTemplate, TaskMapping
+from apps.core.models import Configuration
 from apps.contacts.models import Contact
 from apps.jobs.services import EstimateGenerationService
 from decimal import Decimal
@@ -18,6 +19,16 @@ class WorksheetFinalizationTests(TestCase):
 
     def setUp(self):
         """Set up test data."""
+        # Create Configuration for number generation
+        Configuration.objects.create(key='job_number_sequence', value='JOB-{year}-{counter:04d}')
+        Configuration.objects.create(key='job_counter', value='0')
+        Configuration.objects.create(key='estimate_number_sequence', value='EST-{year}-{counter:04d}')
+        Configuration.objects.create(key='estimate_counter', value='0')
+        Configuration.objects.create(key='invoice_number_sequence', value='INV-{year}-{counter:04d}')
+        Configuration.objects.create(key='invoice_counter', value='0')
+        Configuration.objects.create(key='po_number_sequence', value='PO-{year}-{counter:04d}')
+        Configuration.objects.create(key='po_counter', value='0')
+
         self.client = Client()
 
         # Create user
@@ -250,6 +261,16 @@ class WorksheetEstimateIntegrationTests(TestCase):
 
     def setUp(self):
         """Set up test data."""
+        # Create Configuration for number generation
+        Configuration.objects.create(key='job_number_sequence', value='JOB-{year}-{counter:04d}')
+        Configuration.objects.create(key='job_counter', value='0')
+        Configuration.objects.create(key='estimate_number_sequence', value='EST-{year}-{counter:04d}')
+        Configuration.objects.create(key='estimate_counter', value='0')
+        Configuration.objects.create(key='invoice_number_sequence', value='INV-{year}-{counter:04d}')
+        Configuration.objects.create(key='invoice_counter', value='0')
+        Configuration.objects.create(key='po_number_sequence', value='PO-{year}-{counter:04d}')
+        Configuration.objects.create(key='po_counter', value='0')
+
         # Create contact
         self.contact = Contact.objects.create(
             name='Test Contact',

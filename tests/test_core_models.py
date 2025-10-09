@@ -92,24 +92,26 @@ class GroupModelTest(TestCase):
 class ConfigurationModelTest(TestCase):
     def test_configuration_creation(self):
         config = Configuration.objects.create(
-            key="invoice_settings",
-            field="invoice_prefix",
-            invoice_number_sequence="INV-{year}-{counter:04d}",
-            estimate_number_sequence="EST-{year}-{counter:04d}",
-            job_number_sequence="JOB-{year}-{counter:04d}",
-            po_number_sequence="PO-{year}-{counter:04d}"
+            key="job_number_sequence",
+            value="JOB-{year}-{counter:04d}"
         )
-        self.assertEqual(config.key, "invoice_settings")
-        self.assertEqual(config.field, "invoice_prefix")
-        self.assertEqual(config.invoice_number_sequence, "INV-{year}-{counter:04d}")
-        
+        self.assertEqual(config.key, "job_number_sequence")
+        self.assertEqual(config.value, "JOB-{year}-{counter:04d}")
+
     def test_configuration_str_method(self):
-        config = Configuration.objects.create(key="test_key", field="test_field")
-        self.assertEqual(str(config), "test_key")
-        
-    def test_configuration_optional_sequences(self):
-        config = Configuration.objects.create(key="basic_config", field="basic_field")
-        self.assertEqual(config.invoice_number_sequence, "")
-        self.assertEqual(config.estimate_number_sequence, "")
-        self.assertEqual(config.job_number_sequence, "")
-        self.assertEqual(config.po_number_sequence, "")
+        config = Configuration.objects.create(key="test_key", value="test_value")
+        self.assertEqual(str(config), "test_key: test_value")
+
+    def test_configuration_empty_value(self):
+        config = Configuration.objects.create(key="empty_config", value="")
+        self.assertEqual(config.key, "empty_config")
+        self.assertEqual(config.value, "")
+
+    def test_configuration_key_is_primary_key(self):
+        """Test that key is the primary key and must be unique"""
+        config1 = Configuration.objects.create(key="unique_key", value="value1")
+
+        # Trying to create another config with same key should fail
+        with self.assertRaises(IntegrityError):
+            with transaction.atomic():
+                Configuration.objects.create(key="unique_key", value="value2")

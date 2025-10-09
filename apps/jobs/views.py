@@ -677,19 +677,9 @@ def estimate_create_for_job(request, job_id):
         if form.is_valid():
             estimate = form.save(commit=False)
             estimate.job = job
+            estimate.version = 1  # First estimate for this job
 
-            # Handle versioning
-            estimate_number = form.cleaned_data['estimate_number']
-            existing_estimates = Estimate.objects.filter(
-                job=job,
-                estimate_number=estimate_number
-            ).order_by('-version')
-
-            if existing_estimates.exists():
-                estimate.version = existing_estimates.first().version + 1
-            else:
-                estimate.version = 1
-
+            # Save will generate the estimate_number
             estimate.save()
             messages.success(request, f'Estimate {estimate.estimate_number} (v{estimate.version}) created successfully')
             return redirect('jobs:estimate_detail', estimate_id=estimate.estimate_id)

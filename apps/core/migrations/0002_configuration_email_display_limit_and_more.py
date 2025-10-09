@@ -12,21 +12,7 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.AddField(
-            model_name='configuration',
-            name='email_display_limit',
-            field=models.IntegerField(default=30, help_text='Number of emails to display in inbox'),
-        ),
-        migrations.AddField(
-            model_name='configuration',
-            name='email_retention_days',
-            field=models.IntegerField(default=90, help_text='Number of days to retain temporary email data before deletion'),
-        ),
-        migrations.AddField(
-            model_name='configuration',
-            name='latest_email_date',
-            field=models.DateTimeField(blank=True, help_text='Most recent email date fetched from IMAP server', null=True),
-        ),
+        # Create EmailRecord and TempEmail models
         migrations.CreateModel(
             name='EmailRecord',
             fields=[
@@ -66,5 +52,34 @@ class Migration(migrations.Migration):
                 'ordering': ['-date_sent'],
                 'indexes': [models.Index(fields=['-date_sent'], name='temp_email_date_se_5026a4_idx'), models.Index(fields=['uid'], name='temp_email_uid_6bd42f_idx')],
             },
+        ),
+
+        # Remove all old explicit fields from Configuration
+        migrations.RemoveField(
+            model_name='configuration',
+            name='estimate_number_sequence',
+        ),
+        migrations.RemoveField(
+            model_name='configuration',
+            name='field',
+        ),
+        migrations.RemoveField(
+            model_name='configuration',
+            name='invoice_number_sequence',
+        ),
+        migrations.RemoveField(
+            model_name='configuration',
+            name='job_number_sequence',
+        ),
+        migrations.RemoveField(
+            model_name='configuration',
+            name='po_number_sequence',
+        ),
+
+        # Add the value field for key-value pairs
+        migrations.AddField(
+            model_name='configuration',
+            name='value',
+            field=models.TextField(blank=True),
         ),
     ]

@@ -200,24 +200,58 @@
   },
   {
     "model": "core.configuration",
-    "pk": "invoice_settings",
+    "pk": "job_number_sequence",
     "fields": {
-      "field": "invoice_prefix",
-      "invoice_number_sequence": "INV-{year}-{counter:04d}",
-      "estimate_number_sequence": "EST-{year}-{counter:04d}",
-      "job_number_sequence": "JOB-{year}-{counter:04d}",
-      "po_number_sequence": "PO-{year}-{counter:04d}"
+      "value": "JOB-{year}-{counter:04d}"
     }
   },
   {
     "model": "core.configuration",
-    "pk": "system_settings",
+    "pk": "job_counter",
     "fields": {
-      "field": "default_currency",
-      "invoice_number_sequence": "",
-      "estimate_number_sequence": "",
-      "job_number_sequence": "",
-      "po_number_sequence": ""
+      "value": "0"
+    }
+  },
+  {
+    "model": "core.configuration",
+    "pk": "estimate_number_sequence",
+    "fields": {
+      "value": "EST-{year}-{counter:04d}"
+    }
+  },
+  {
+    "model": "core.configuration",
+    "pk": "estimate_counter",
+    "fields": {
+      "value": "0"
+    }
+  },
+  {
+    "model": "core.configuration",
+    "pk": "invoice_number_sequence",
+    "fields": {
+      "value": "INV-{year}-{counter:04d}"
+    }
+  },
+  {
+    "model": "core.configuration",
+    "pk": "invoice_counter",
+    "fields": {
+      "value": "0"
+    }
+  },
+  {
+    "model": "core.configuration",
+    "pk": "po_number_sequence",
+    "fields": {
+      "value": "PO-{year}-{counter:04d}"
+    }
+  },
+  {
+    "model": "core.configuration",
+    "pk": "po_counter",
+    "fields": {
+      "value": "0"
     }
   },
   {

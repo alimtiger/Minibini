@@ -6,16 +6,16 @@ from decimal import Decimal
 
 class User(AbstractUser):
     """Custom user model extending Django's AbstractUser with business-specific fields."""
-    
+
     # Business-specific fields
     contact = models.OneToOneField(
-        'contacts.Contact', 
-        on_delete=models.SET_NULL, 
-        null=True, 
+        'contacts.Contact',
+        on_delete=models.SET_NULL,
+        null=True,
         blank=True,
         help_text='Associated contact record for this user'
     )
-    
+
     class Meta:
         db_table = 'auth_user'
         verbose_name = 'User'
@@ -24,28 +24,35 @@ class User(AbstractUser):
 
 
 class Configuration(models.Model):
+    """
+    Simple key-value configuration storage.
+
+    Examples:
+        - key="job_number_sequence", value="JOB-{year}-{counter:04d}"
+        - key="job_counter", value="0"
+        - key="estimate_number_sequence", value="EST-{year}-{counter:04d}"
+        - key="estimate_counter", value="0"
+    """
     key = models.CharField(max_length=100, primary_key=True)
-    field = models.CharField(max_length=255)
-    invoice_number_sequence = models.CharField(max_length=50, blank=True)
-    estimate_number_sequence = models.CharField(max_length=50, blank=True)
-    job_number_sequence = models.CharField(max_length=50, blank=True)
-    po_number_sequence = models.CharField(max_length=50, blank=True)
-    email_retention_days = models.IntegerField(
-        default=90,
-        help_text='Number of days to retain temporary email data before deletion'
-    )
-    latest_email_date = models.DateTimeField(
-        null=True,
-        blank=True,
-        help_text='Most recent email date fetched from IMAP server'
-    )
-    email_display_limit = models.IntegerField(
-        default=30,
-        help_text='Number of emails to display in inbox'
-    )
+    value = models.TextField(blank=True)
+
+#    email_retention_days = models.IntegerField(
+#        default=90,
+#        help_text='Number of days to retain temporary email data before deletion'
+#    )
+#    latest_email_date = models.DateTimeField(
+#        null=True,
+#        blank=True,
+#        help_text='Most recent email date fetched from IMAP server'
+#    )
+#    email_display_limit = models.IntegerField(
+#        default=30,
+#        help_text='Number of emails to display in inbox'
+#    )
+#
 
     def __str__(self):
-        return self.key
+        return f"{self.key}: {self.value}"
 
     class Meta:
         verbose_name = "Configuration"
@@ -166,7 +173,7 @@ class BaseLineItem(models.Model):
         super().clean()
         has_task = self.task is not None
         has_price_item = self.price_list_item is not None
-        
+
         if has_task and has_price_item:
             raise ValidationError("LineItem cannot have both task and price_list_item")
 

@@ -30,9 +30,9 @@ def email_inbox(request):
 
     # Get display limit from configuration
     try:
-        config = Configuration.objects.get(key='email_config')
-        display_limit = config.email_display_limit
-    except Configuration.DoesNotExist:
+        config = Configuration.objects.get(key='email_display_limit')
+        display_limit = int(config.value)
+    except (Configuration.DoesNotExist, ValueError):
         display_limit = 30
 
     # Get TempEmail records ordered by most recent first, limited to display_limit
