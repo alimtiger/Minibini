@@ -18,7 +18,7 @@
 
 {% if worksheet.parent %}
 <p>
-    <strong>Parent Worksheet:</strong> <a href="{% url 'jobs:estworksheet_detail' worksheet.parent.est_worksheet_id %}">Worksheet #{{ worksheet.parent.est_worksheet_id }} (v{{ worksheet.parent.version }})</a>
+    <strong>Parent Worksheet:</strong> <a href="{% url 'jobs:estworksheet_detail' worksheet.parent.est_worksheet_id %}">Worksheet (v{{ worksheet.parent.version }})</a>
 </p>
 {% endif %}
 
@@ -26,7 +26,7 @@
 <p>
     <strong>Child Worksheets:</strong>
     {% for child in worksheet.children.all %}
-        <a href="{% url 'jobs:estworksheet_detail' child.est_worksheet_id %}">Worksheet #{{ child.est_worksheet_id }} (v{{ child.version }})</a>{% if not forloop.last %}, {% endif %}
+        <a href="{% url 'jobs:estworksheet_detail' child.est_worksheet_id %}">Worksheet (v{{ child.version }})</a>{% if not forloop.last %}, {% endif %}
     {% endfor %}
 </p>
 {% endif %}

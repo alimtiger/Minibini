@@ -3,7 +3,7 @@
 {% block title %}Work Order {{ work_order.work_order_id }} - Minibini{% endblock %}
 
 {% block content %}
-<h2>Work Order: {{ work_order.work_order_id }}</h2>
+<h2>Work Order</h2>
 
 <table border="1">
     <tr>
@@ -11,16 +11,21 @@
         <th>Value</th>
     </tr>
     <tr>
-        <td>Work Order ID</td>
-        <td>{{ work_order.work_order_id }}</td>
-    </tr>
-    <tr>
         <td>Associated Job</td>
         <td><a href="{% url 'jobs:detail' work_order.job.pk %}">{{ work_order.job.job_number }} - {{ work_order.job.description }}</a></td>
     </tr>
     <tr>
         <td>Status</td>
-        <td>{{ work_order.get_status_display }}</td>
+        <td>
+            {{ work_order.get_status_display }}
+            {% if status_form %}
+                <form method="post" style="display: inline; margin-left: 20px;">
+                    {% csrf_token %}
+                    {{ status_form.status }}
+                    <button type="submit" name="update_status">Update Status</button>
+                </form>
+            {% endif %}
+        </td>
     </tr>
     <tr>
         <td>Estimated Time</td>
@@ -78,7 +83,7 @@
 {% endif %}
 
 <p>
-    <a href="{% url 'jobs:work_order_list' %}">Back to Work Orders List</a> | 
+    <a href="{% url 'jobs:work_order_list' %}">Back to Work Orders List</a> |
     <a href="{% url 'jobs:detail' work_order.job.pk %}">View Associated Job</a>
 </p>
 {% endblock %}

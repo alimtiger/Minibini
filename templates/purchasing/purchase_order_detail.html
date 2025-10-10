@@ -11,10 +11,6 @@
         <th>Value</th>
     </tr>
     <tr>
-        <td>PO ID</td>
-        <td>{{ purchase_order.po_id }}</td>
-    </tr>
-    <tr>
         <td>PO Number</td>
         <td>{{ purchase_order.po_number }}</td>
     </tr>
@@ -29,7 +25,7 @@
         </td>
     </tr>
     <tr>
-        <td>Price List Item ID</td>
+        <td>Price List Item</td>
         <td>{{ purchase_order.price_list_item|default:"No price list item" }}</td>
     </tr>
 </table>
@@ -85,7 +81,6 @@
     <table border="1" style="border-collapse: collapse; width: 100%; margin-top: 10px;">
         <thead>
             <tr>
-                <th>Bill ID</th>
                 <th>Contact</th>
                 <th>Vendor Invoice Number</th>
                 <th>Actions</th>
@@ -94,7 +89,6 @@
         <tbody>
             {% for bill in bills %}
             <tr>
-                <td>{{ bill.bill_id }}</td>
                 <td>{{ bill.contact }}</td>
                 <td>{{ bill.vendor_invoice_number }}</td>
                 <td>

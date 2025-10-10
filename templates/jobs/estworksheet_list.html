@@ -12,7 +12,6 @@
 {% if worksheets %}
     <table border="1">
         <tr>
-            <th>Worksheet ID</th>
             <th>Job</th>
             <th>Status</th>
             <th>Version</th>
@@ -22,7 +21,6 @@
         </tr>
         {% for worksheet in worksheets %}
         <tr>
-            <td>{{ worksheet.est_worksheet_id }}</td>
             <td>
                 <a href="{% url 'jobs:detail' worksheet.job.job_id %}">
                     {{ worksheet.job.job_number }} - {{ worksheet.job.description }}

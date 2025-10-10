@@ -12,12 +12,13 @@
             <th>Contact</th>
             <th>Status</th>
             <th>Created Date</th>
+            <th>Due Date</th>
+            <th>Completed Date</th>
             <th>Description</th>
-            <th>Actions</th>
         </tr>
         {% for job in jobs %}
         <tr>
-            <td>{{ job.job_number }}</td>
+            <td><a href="{% url 'jobs:detail' job.pk %}">{{ job.job_number }}</a></td>
             <td>
                 {% if job.contact %}
                     <a href="{% url 'contacts:contact_detail' job.contact.contact_id %}">{{ job.contact.name }}</a>
@@ -27,8 +28,9 @@
             </td>
             <td>{{ job.get_status_display }}</td>
             <td>{{ job.created_date|date:"Y-m-d H:i" }}</td>
+            <td>{{ job.due_date|date:"Y-m-d"|default:"—" }}</td>
+            <td>{{ job.completed_date|date:"Y-m-d"|default:"" }}</td>
             <td>{{ job.description|truncatewords:10 }}</td>
-            <td><a href="{% url 'jobs:detail' job.pk %}">View</a></td>
         </tr>
         {% endfor %}
     </table>

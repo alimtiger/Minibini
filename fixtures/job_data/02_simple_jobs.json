@@ -21,7 +21,7 @@
     "created_date": "2025-02-01T14:30:00Z",
     "due_date": null,
     "completed_date": null,
-    "status": "draft",
+    "status": "approved",
     "contact": 2,
     "customer_po_number": "DINING-SET-001",
     "description": "Design and build complete dining room set - table and 6 chairs"
@@ -38,7 +38,7 @@
     "status": "approved",
     "contact": 7,
     "customer_po_number": "PIZZA-SIGN-001",
-    "description": "Construct custom sign for Joe's Pizzeria storefront"
+    "description": "Construct custom sign for Joe's Pizzeria storefront.  Customer understands that they are responsible for installation."
   }
 },
 {
@@ -114,7 +114,7 @@
     "job": 3,
     "estimate_number": "EST-2025-0003",
     "version": 4,
-    "status": "draft",
+    "status": "accepted",
     "parent": 4,
     "created_date": "2025-09-23T04:29:03.720Z",
     "superseded_date": null
@@ -127,10 +127,28 @@
     "job": 2,
     "estimate_number": "EST-2025-0006",
     "version": 1,
-    "status": "draft",
+    "status": "accepted",
     "parent": null,
     "created_date": "2025-09-23T04:32:33.144Z",
     "superseded_date": null
+  }
+},
+{
+  "model": "jobs.workorder",
+  "pk": 1,
+  "fields": {
+    "job": 2,
+    "template": null,
+    "status": "draft"
+  }
+},
+{
+  "model": "jobs.workorder",
+  "pk": 2,
+  "fields": {
+    "job": 3,
+    "template": null,
+    "status": "draft"
   }
 },
 {
@@ -219,6 +237,156 @@
     "rate": "100.00",
     "est_qty": "22.00",
     "template": 5
+  }
+},
+{
+  "model": "jobs.task",
+  "pk": 6,
+  "fields": {
+    "parent_task": null,
+    "assignee": null,
+    "work_order": 1,
+    "est_worksheet": null,
+    "name": "Custom Furniture",
+    "units": "each",
+    "rate": "2750.00",
+    "est_qty": "1.00",
+    "template": null
+  }
+},
+{
+  "model": "jobs.task",
+  "pk": 7,
+  "fields": {
+    "parent_task": null,
+    "assignee": null,
+    "work_order": 1,
+    "est_worksheet": null,
+    "name": "Custom Furniture",
+    "units": "each",
+    "rate": "800.00",
+    "est_qty": "1.00",
+    "template": null
+  }
+},
+{
+  "model": "jobs.task",
+  "pk": 8,
+  "fields": {
+    "parent_task": null,
+    "assignee": null,
+    "work_order": 1,
+    "est_worksheet": null,
+    "name": "Custom Furniture",
+    "units": "each",
+    "rate": "2200.00",
+    "est_qty": "1.00",
+    "template": null
+  }
+},
+{
+  "model": "jobs.task",
+  "pk": 9,
+  "fields": {
+    "parent_task": null,
+    "assignee": null,
+    "work_order": 1,
+    "est_worksheet": null,
+    "name": "CAD drawing for dining set",
+    "units": "hours",
+    "rate": "100.00",
+    "est_qty": "8.00",
+    "template": 2
+  }
+},
+{
+  "model": "jobs.task",
+  "pk": 10,
+  "fields": {
+    "parent_task": null,
+    "assignee": null,
+    "work_order": 1,
+    "est_worksheet": null,
+    "name": "White oak lumber purchase",
+    "units": "board feet",
+    "rate": "7.00",
+    "est_qty": "300.00",
+    "template": null
+  }
+},
+{
+  "model": "jobs.task",
+  "pk": 11,
+  "fields": {
+    "parent_task": null,
+    "assignee": null,
+    "work_order": 2,
+    "est_worksheet": null,
+    "name": "Design drawings with client revisions",
+    "units": "hours",
+    "rate": "1500.00",
+    "est_qty": "10.00",
+    "template": null
+  }
+},
+{
+  "model": "jobs.task",
+  "pk": 12,
+  "fields": {
+    "parent_task": null,
+    "assignee": null,
+    "work_order": 2,
+    "est_worksheet": null,
+    "name": "MAT003 - HDU Material - per piece",
+    "units": "piece",
+    "rate": "300.00",
+    "est_qty": "1.00",
+    "template": null
+  }
+},
+{
+  "model": "jobs.task",
+  "pk": 13,
+  "fields": {
+    "parent_task": null,
+    "assignee": null,
+    "work_order": 2,
+    "est_worksheet": null,
+    "name": "Precision CNC cutting with detail work",
+    "units": "minutes",
+    "rate": "3300.00",
+    "est_qty": "150.00",
+    "template": null
+  }
+},
+{
+  "model": "jobs.task",
+  "pk": 14,
+  "fields": {
+    "parent_task": null,
+    "assignee": null,
+    "work_order": 2,
+    "est_worksheet": null,
+    "name": "Multi-layer painting and protective coating",
+    "units": "hours",
+    "rate": "1200.00",
+    "est_qty": "12.00",
+    "template": null
+  }
+},
+{
+  "model": "jobs.task",
+  "pk": 15,
+  "fields": {
+    "parent_task": null,
+    "assignee": null,
+    "work_order": 2,
+    "est_worksheet": null,
+    "name": "Assembly with LED lighting integration",
+    "units": "hours",
+    "rate": "600.00",
+    "est_qty": "6.00",
+    "template": null
   }
 },
 {

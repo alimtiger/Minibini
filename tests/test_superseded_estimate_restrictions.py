@@ -212,8 +212,8 @@ class SupersededEstimateRestrictionTests(TestCase):
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'Add Line Item')
-        self.assertContains(response, 'Update Status')
-        self.assertContains(response, 'Mark as Open')  # Draft status shows this
+        self.assertContains(response, 'Update Status')  # Status form submit button
+        self.assertContains(response, 'id_status')  # Status dropdown field
         self.assertNotContains(response, 'Revise Estimate')  # Not shown for draft
 
         # Test open estimate (already created as self.active_estimate)
@@ -221,8 +221,8 @@ class SupersededEstimateRestrictionTests(TestCase):
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         self.assertNotContains(response, 'Add Line Item')  # Not shown for open
-        self.assertContains(response, 'Update Status')
-        self.assertNotContains(response, 'Mark as Open')  # Not shown for open
+        self.assertContains(response, 'Update Status')  # Status form submit button
+        self.assertContains(response, 'id_status')  # Status dropdown field
         self.assertContains(response, 'Revise Estimate')  # Shown for open
 
 
