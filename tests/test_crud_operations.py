@@ -359,7 +359,7 @@ class NavigationLinksTests(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'Parent Worksheet:')
-        self.assertContains(response, f'Worksheet #{self.parent_worksheet.est_worksheet_id}')
+        self.assertContains(response, f'Worksheet (v{self.parent_worksheet.version})')
 
     def test_worksheet_shows_child_links(self):
         """Test that parent worksheet shows links to children."""
@@ -368,7 +368,7 @@ class NavigationLinksTests(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'Child Worksheets:')
-        self.assertContains(response, f'Worksheet #{self.child_worksheet.est_worksheet_id}')
+        self.assertContains(response, f'Worksheet (v{self.child_worksheet.version})')
 
 
 class SupersededStylingTests(TestCase):

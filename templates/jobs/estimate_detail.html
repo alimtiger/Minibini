@@ -11,10 +11,6 @@
         <th>Value</th>
     </tr>
     <tr>
-        <td>Estimate ID</td>
-        <td>{{ estimate.estimate_id }}</td>
-    </tr>
-    <tr>
         <td>Estimate Number</td>
         <td>{{ estimate.estimate_number }}</td>
     </tr>
@@ -28,7 +24,16 @@
     </tr>
     <tr>
         <td>Status</td>
-        <td>{{ estimate.get_status_display }}</td>
+        <td>
+            {{ estimate.get_status_display }}
+            {% if status_form %}
+                <form method="post" style="display: inline; margin-left: 20px;">
+                    {% csrf_token %}
+                    {{ status_form.status }}
+                    <button type="submit" name="update_status">Update Status</button>
+                </form>
+            {% endif %}
+        </td>
     </tr>
 </table>
 
@@ -47,27 +52,24 @@
 </p>
 {% endif %}
 
-<p>
-    {% if estimate.status != 'superseded' %}
+{% if estimate.status != 'superseded' %}
+    <p>
         {% if estimate.status == 'draft' %}
-            <a href="{% url 'jobs:estimate_add_line_item' estimate.estimate_id %}">Add Line Item</a> |
+            <a href="{% url 'jobs:estimate_add_line_item' estimate.estimate_id %}">Add Line Item</a>
         {% endif %}
-        <a href="{% url 'jobs:estimate_update_status' estimate.estimate_id %}">Update Status</a>
-        {% if estimate.status == 'draft' %}
-            | <form method="post" action="{% url 'jobs:estimate_mark_open' estimate.estimate_id %}" style="display: inline;">
-                {% csrf_token %}
-                <button type="submit">Mark as Open</button>
-            </form>
-        {% else %}
-            | <a href="{% url 'jobs:estimate_revise' estimate.estimate_id %}">Revise Estimate</a>
+        {% if estimate.status != 'draft' %}
+            <a href="{% url 'jobs:estimate_revise' estimate.estimate_id %}">Revise Estimate</a>
         {% endif %}
         {% if estimate.status == 'accepted' %}
-            | <a href="{% url 'jobs:work_order_create_from_estimate' estimate.estimate_id %}">Create Work Order</a>
+            {% if estimate.status != 'draft' %} | {% endif %}
+            <a href="{% url 'jobs:work_order_create_from_estimate' estimate.estimate_id %}">Create Work Order</a>
         {% endif %}
-    {% else %}
+    </p>
+{% else %}
+    <p>
         <span style="color: #666; font-style: italic;">This estimate has been superseded and cannot be modified.</span>
-    {% endif %}
-</p>
+    </p>
+{% endif %}
 
 <h3>Line Items</h3>
 {% if line_items %}

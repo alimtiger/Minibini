@@ -231,7 +231,7 @@
     "qty": "3.00",
     "units": "hours",
     "description": "CAD design and template creation",
-    "price_currency": "3800.00",
+    "price_currency": "200.00",
     "estimate": 1
   }
 },
@@ -245,7 +245,7 @@
     "qty": "1.00",
     "units": "job",
     "description": "CNC cutting of concrete forms",
-    "price_currency": "3800.00",
+    "price_currency": "38.00",
     "estimate": 1
   }
 },
@@ -259,7 +259,7 @@
     "qty": "20.00",
     "units": "sheets",
     "description": "Plywood sheets for form construction",
-    "price_currency": "2000.00",
+    "price_currency": "92.50",
     "estimate": 1
   }
 },
@@ -273,7 +273,7 @@
     "qty": "6.00",
     "units": "hours",
     "description": "Design drawings",
-    "price_currency": "900.00",
+    "price_currency": "150.00",
     "estimate": 2
   }
 },
@@ -301,7 +301,7 @@
     "qty": "120.00",
     "units": "minutes",
     "description": "CNC cutting of sign",
-    "price_currency": "2640.00",
+    "price_currency": "26.00",
     "estimate": 2
   }
 },
@@ -315,7 +315,7 @@
     "qty": "8.00",
     "units": "hours",
     "description": "Painting and finishing",
-    "price_currency": "800.00",
+    "price_currency": "100.00",
     "estimate": 2
   }
 },
@@ -329,7 +329,7 @@
     "qty": "4.00",
     "units": "hours",
     "description": "Assembly and hardware installation",
-    "price_currency": "400.00",
+    "price_currency": "100.00",
     "estimate": 2
   }
 },
@@ -343,7 +343,7 @@
     "qty": "8.00",
     "units": "hours",
     "description": "Design drawings",
-    "price_currency": "1200.00",
+    "price_currency": "120.00",
     "estimate": 3
   }
 },
@@ -355,7 +355,7 @@
     "price_list_item": 5,
     "line_number": 10,
     "qty": "1.00",
-    "units": "piece",
+    "units": "sheets",
     "description": "HDU material for sign",
     "price_currency": "300.00",
     "estimate": 3
@@ -371,7 +371,7 @@
     "qty": "140.00",
     "units": "minutes",
     "description": "CNC cutting of sign",
-    "price_currency": "3080.00",
+    "price_currency": "38.00",
     "estimate": 3
   }
 },
@@ -385,7 +385,7 @@
     "qty": "10.00",
     "units": "hours",
     "description": "Painting and finishing",
-    "price_currency": "1000.00",
+    "price_currency": "100.00",
     "estimate": 3
   }
 },
@@ -399,7 +399,7 @@
     "qty": "5.00",
     "units": "hours",
     "description": "Assembly and hardware installation",
-    "price_currency": "500.00",
+    "price_currency": "100.00",
     "estimate": 3
   }
 },
@@ -413,7 +413,7 @@
     "qty": "10.00",
     "units": "hours",
     "description": "Design drawings with client revisions",
-    "price_currency": "1500.00",
+    "price_currency": "150.00",
     "estimate": 4
   }
 },
@@ -425,7 +425,7 @@
     "price_list_item": 5,
     "line_number": 15,
     "qty": "1.00",
-    "units": "piece",
+    "units": "sheets",
     "description": "Premium HDU material for sign",
     "price_currency": "300.00",
     "estimate": 4
@@ -441,7 +441,7 @@
     "qty": "150.00",
     "units": "minutes",
     "description": "Precision CNC cutting with detail work",
-    "price_currency": "3300.00",
+    "price_currency": "33.00",
     "estimate": 4
   }
 },
@@ -455,7 +455,7 @@
     "qty": "12.00",
     "units": "hours",
     "description": "Multi-layer painting and protective coating",
-    "price_currency": "1200.00",
+    "price_currency": "100.00",
     "estimate": 4
   }
 },
@@ -469,7 +469,7 @@
     "qty": "6.00",
     "units": "hours",
     "description": "Assembly with LED lighting integration",
-    "price_currency": "600.00",
+    "price_currency": "100.00",
     "estimate": 4
   }
 },
@@ -483,7 +483,7 @@
     "qty": "10.00",
     "units": "hours",
     "description": "Design drawings with client revisions",
-    "price_currency": "1500.00",
+    "price_currency": "150.00",
     "estimate": 5
   }
 },
@@ -511,7 +511,7 @@
     "qty": "150.00",
     "units": "minutes",
     "description": "Precision CNC cutting with detail work",
-    "price_currency": "3300.00",
+    "price_currency": "33.00",
     "estimate": 5
   }
 },
@@ -525,7 +525,7 @@
     "qty": "12.00",
     "units": "hours",
     "description": "Multi-layer painting and protective coating",
-    "price_currency": "1200.00",
+    "price_currency": "120.00",
     "estimate": 5
   }
 },
@@ -539,7 +539,7 @@
     "qty": "6.00",
     "units": "hours",
     "description": "Assembly with LED lighting integration",
-    "price_currency": "600.00",
+    "price_currency": "100.00",
     "estimate": 5
   }
 },
@@ -553,7 +553,7 @@
     "qty": "1.00",
     "units": "each",
     "description": "Custom Furniture",
-    "price_currency": "2750.00",
+    "price_currency": "5750.00",
     "estimate": 6
   }
 },
@@ -567,7 +567,7 @@
     "qty": "1.00",
     "units": "each",
     "description": "Custom Furniture",
-    "price_currency": "800.00",
+    "price_currency": "8000.00",
     "estimate": 6
   }
 },
@@ -595,7 +595,7 @@
     "qty": "8.00",
     "units": "hours",
     "description": "CAD drawings and technical documentation",
-    "price_currency": "800.00",
+    "price_currency": "200.00",
     "estimate": 6
   }
 },
@@ -609,7 +609,7 @@
     "qty": "300.00",
     "units": "board feet",
     "description": "White oak lumber purchase",
-    "price_currency": "2100.00",
+    "price_currency": "5.00",
     "estimate": 6
   }
 }

@@ -8,7 +8,6 @@
 {% if work_orders %}
     <table border="1">
         <tr>
-            <th>Work Order ID</th>
             <th>Job</th>
             <th>Status</th>
             <th>Estimated Time</th>
@@ -16,7 +15,6 @@
         </tr>
         {% for work_order in work_orders %}
         <tr>
-            <td>{{ work_order.work_order_id }}</td>
             <td><a href="{% url 'jobs:detail' work_order.job.pk %}">{{ work_order.job.job_number }}</a></td>
             <td>{{ work_order.get_status_display }}</td>
             <td>{{ work_order.estimated_time|default:"Not specified" }}</td>

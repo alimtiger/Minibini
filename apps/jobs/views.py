@@ -88,16 +88,38 @@ def estimate_list(request):
 
 def estimate_detail(request, estimate_id):
     estimate = get_object_or_404(Estimate, estimate_id=estimate_id)
+
+    # Handle status update POST request
+    if request.method == 'POST' and 'update_status' in request.POST:
+        if estimate.status != 'superseded':
+            form = EstimateStatusForm(request.POST, current_status=estimate.status)
+            if form.is_valid():
+                new_status = form.cleaned_data['status']
+                if new_status != estimate.status:
+                    estimate.status = new_status
+                    estimate.save()
+                    messages.success(request, f'Estimate status updated to {new_status.title()}')
+                return redirect('jobs:estimate_detail', estimate_id=estimate.estimate_id)
+        else:
+            messages.error(request, 'Cannot update the status of a superseded estimate.')
+            return redirect('jobs:estimate_detail', estimate_id=estimate.estimate_id)
+
+    # Get line items and calculate total
     line_items = EstimateLineItem.objects.filter(estimate=estimate).order_by('line_item_id')
-    # Calculate total amount
     total_amount = sum(item.total_amount for item in line_items)
+
     # Check for associated worksheet
     worksheet = EstWorksheet.objects.filter(estimate=estimate).first()
+
+    # Create status form for display
+    status_form = EstimateStatusForm(current_status=estimate.status) if estimate.status != 'superseded' else None
+
     return render(request, 'jobs/estimate_detail.html', {
         'estimate': estimate,
         'line_items': line_items,
         'total_amount': total_amount,
-        'worksheet': worksheet
+        'worksheet': worksheet,
+        'status_form': status_form
     })
 
 def task_list(request):

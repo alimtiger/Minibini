@@ -3,16 +3,12 @@
 {% block title %}Work Order {{ work_order.work_order_id }} - Minibini{% endblock %}
 
 {% block content %}
-<h2>Work Order: {{ work_order.work_order_id }}</h2>
+<h2>Work Order</h2>
 
 <table border="1">
     <tr>
         <th>Field</th>
         <th>Value</th>
-    </tr>
-    <tr>
-        <td>Work Order ID</td>
-        <td>{{ work_order.work_order_id }}</td>
     </tr>
     <tr>
         <td>Associated Job</td>
@@ -78,7 +74,7 @@
 {% endif %}
 
 <p>
-    <a href="{% url 'jobs:work_order_list' %}">Back to Work Orders List</a> | 
+    <a href="{% url 'jobs:work_order_list' %}">Back to Work Orders List</a> |
     <a href="{% url 'jobs:detail' work_order.job.pk %}">View Associated Job</a>
 </p>
 {% endblock %}

@@ -13,8 +13,7 @@
 {% if mappings %}
     <table border="1">
         <tr>
-            <th>Mapping ID</th>
-            <th>Task Type ID</th>
+            <th>Task Type</th>
             <th>Step Type</th>
             <th>Mapping Strategy</th>
             <th>Default Product Type</th>
@@ -24,7 +23,6 @@
         </tr>
         {% for mapping in mappings %}
         <tr>
-            <td>{{ mapping.task_mapping_id }}</td>
             <td>{{ mapping.task_type_id }}</td>
             <td>{{ mapping.get_step_type_display }}</td>
             <td>{{ mapping.get_mapping_strategy_display }}</td>
