@@ -16,15 +16,13 @@
             <th>Job</th>
             <th>Version</th>
             <th>Status</th>
-            <th>Actions</th>
         </tr>
         {% for estimate in estimates %}
         <tr>
-            <td>{{ estimate.estimate_number }}</td>
+            <td><a href="{% url 'jobs:estimate_detail' estimate.pk %}">{{ estimate.estimate_number }}</a></td>
             <td><a href="{% url 'jobs:detail' estimate.job.pk %}">{{ estimate.job }}</a></td>
             <td>{{ estimate.version }}</td>
             <td>{{ estimate.get_status_display }}</td>
-            <td><a href="{% url 'jobs:estimate_detail' estimate.pk %}">View</a></td>
         </tr>
         {% endfor %}
     </table>

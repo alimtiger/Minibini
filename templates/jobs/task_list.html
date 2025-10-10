@@ -8,23 +8,39 @@
 {% if tasks %}
     <table border="1">
         <tr>
-            <th>Task Name</th>
-            <th>Task Type</th>
+            <th>Name</th>
+            <th>Job</th>
+            <th>Est. Qty</th>
+            <th>Units</th>
+            <th>Rate</th>
+            <th>Assignee</th>
             <th>Work Order</th>
-            <th>Assigned To</th>
-            <th>Actions</th>
         </tr>
         {% for task in tasks %}
         <tr>
-            <td>{{ task.name }}</td>
-            <td>{{ task.task_type }}</td>
-            <td>{{ task.work_order }}</td>
-            <td>{{ task.assigned|default:"Unassigned" }}</td>
-            <td><a href="{% url 'jobs:task_detail' task.pk %}">View</a></td>
+            <td><a href="{% url 'jobs:task_detail' task.pk %}">{{ task.name }}</a></td>
+            <td>
+                {% if task.work_order.job %}
+                    <a href="{% url 'jobs:detail' task.work_order.job.pk %}">{{ task.work_order.job.job_number }}</a>
+                {% else %}
+                    —
+                {% endif %}
+            </td>
+            <td>{{ task.est_qty|floatformat:2|default:"—" }}</td>
+            <td>{{ task.units|default:"—" }}</td>
+            <td>
+                {% if task.rate %}
+                    ${{ task.rate|floatformat:2 }}
+                {% else %}
+                    —
+                {% endif %}
+            </td>
+            <td>{{ task.assignee.username|default:"Unassigned" }}</td>
+            <td><a href="{% url 'jobs:work_order_detail' task.work_order.pk %}">WO-{{ task.work_order.work_order_id }}</a></td>
         </tr>
         {% endfor %}
     </table>
 {% else %}
-    <p>No tasks found.</p>
+    <p>No incomplete tasks with work orders found.</p>
 {% endif %}
 {% endblock %}

@@ -8,7 +8,7 @@ from .models import Job, Estimate, EstimateLineItem, Task, WorkOrder, WorkOrderT
 from .forms import (
     JobCreateForm, JobEditForm, WorkOrderTemplateForm, TaskTemplateForm, EstWorksheetForm,
     TaskForm, TaskFromTemplateForm,
-    EstimateLineItemForm, EstimateStatusForm, EstimateForm
+    EstimateLineItemForm, EstimateStatusForm, EstimateForm, WorkOrderStatusForm
 )
 from apps.purchasing.models import PurchaseOrder
 from apps.invoicing.models import Invoice
@@ -123,7 +123,13 @@ def estimate_detail(request, estimate_id):
     })
 
 def task_list(request):
-    tasks = Task.objects.all().order_by('-task_id')
+    # Only show incomplete tasks with WorkOrders (not EstWorksheets)
+    tasks = Task.objects.filter(
+        work_order__isnull=False,
+        est_worksheet__isnull=True
+    ).exclude(
+        work_order__status='complete'
+    ).select_related('work_order', 'work_order__job', 'assignee').order_by('-task_id')
     return render(request, 'jobs/task_list.html', {'tasks': tasks})
 
 def task_detail(request, task_id):
@@ -136,6 +142,21 @@ def work_order_list(request):
 
 def work_order_detail(request, work_order_id):
     work_order = get_object_or_404(WorkOrder, work_order_id=work_order_id)
+
+    # Handle status update POST request
+    if request.method == 'POST' and 'update_status' in request.POST:
+        if work_order.status != 'complete':
+            form = WorkOrderStatusForm(request.POST, current_status=work_order.status)
+            if form.is_valid():
+                new_status = form.cleaned_data['status']
+                if new_status != work_order.status:
+                    work_order.status = new_status
+                    work_order.save()
+                    messages.success(request, f'Work Order status updated to {new_status.title()}')
+            return redirect('jobs:work_order_detail', work_order_id=work_order.work_order_id)
+        else:
+            messages.error(request, 'Cannot update the status of a completed work order.')
+            return redirect('jobs:work_order_detail', work_order_id=work_order.work_order_id)
 
     # Get all tasks for this work order
     all_tasks = Task.objects.filter(work_order=work_order).order_by('task_id')
@@ -179,9 +200,13 @@ def work_order_detail(request, work_order_id):
 
     tasks_with_levels = build_task_tree(all_tasks)
 
+    # Create status form for display (unless completed)
+    status_form = WorkOrderStatusForm(current_status=work_order.status) if work_order.status != 'complete' else None
+
     return render(request, 'jobs/work_order_detail.html', {
         'work_order': work_order,
-        'tasks': tasks_with_levels
+        'tasks': tasks_with_levels,
+        'status_form': status_form
     })
 
 
