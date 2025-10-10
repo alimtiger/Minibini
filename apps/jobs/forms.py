@@ -65,6 +65,93 @@ class JobCreateForm(forms.ModelForm):
         return instance
 
 
+class JobEditForm(forms.ModelForm):
+    """
+    Form for editing an existing Job with state-based field restrictions.
+
+    Field editability by status:
+    - Draft: All fields except job_number and completed_date
+    - Approved/Needs Attention/Blocked: status, description, due_date, customer_po_number
+      (NOT contact, NOT created_date)
+    - Rejected: status only
+    - Complete: Not yet implemented (no changes allowed)
+    """
+    contact = forms.ModelChoiceField(
+        queryset=Contact.objects.all().select_related('business'),
+        required=True,
+        widget=forms.Select(attrs={'class': 'form-control'}),
+        empty_label="-- Select Contact --"
+    )
+    created_date = forms.DateTimeField(
+        required=True,
+        widget=forms.DateTimeInput(attrs={
+            'type': 'datetime-local',
+            'class': 'form-control'
+        })
+    )
+    due_date = forms.DateField(
+        required=False,
+        widget=forms.DateInput(attrs={
+            'type': 'date',
+            'class': 'form-control'
+        })
+    )
+    status = forms.ChoiceField(
+        choices=Job.JOB_STATUS_CHOICES,
+        widget=forms.Select(attrs={'class': 'form-control'})
+    )
+
+    class Meta:
+        model = Job
+        fields = ['contact', 'status', 'created_date', 'description', 'due_date', 'customer_po_number']
+        widgets = {
+            'customer_po_number': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Optional'}),
+            'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 4}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Customize contact field display to include business name
+        self.fields['contact'].label_from_instance = self.label_from_instance_with_business
+
+        # Get current job status from instance
+        if self.instance and self.instance.pk:
+            current_status = self.instance.status
+
+            # Apply field restrictions based on status
+            if current_status == 'draft':
+                # Draft: Can edit everything except job_number and completed_date
+                pass  # All fields already available
+
+            elif current_status in ['approved', 'needs_attention', 'blocked']:
+                # Can't change contact or created_date
+                self.fields['contact'].disabled = True
+                self.fields['contact'].help_text = 'Contact cannot be changed in this status'
+                self.fields['created_date'].disabled = True
+                self.fields['created_date'].help_text = 'Created date cannot be changed in this status'
+
+            elif current_status == 'rejected':
+                # Can only change status
+                self.fields['contact'].disabled = True
+                self.fields['created_date'].disabled = True
+                self.fields['description'].disabled = True
+                self.fields['due_date'].disabled = True
+                self.fields['customer_po_number'].disabled = True
+                self.fields['contact'].help_text = 'Only status can be changed for rejected jobs'
+
+            elif current_status == 'complete':
+                # Complete jobs cannot be edited (not yet fully implemented)
+                for field_name in self.fields:
+                    self.fields[field_name].disabled = True
+
+    def label_from_instance_with_business(self, contact):
+        """Custom label for contact dropdown to include business name"""
+        if contact.business:
+            return f"{contact.name} ({contact.business.business_name})"
+        return contact.name
+
+
 class WorkOrderTemplateForm(forms.ModelForm):
     class Meta:
         model = WorkOrderTemplate

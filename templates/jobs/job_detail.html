@@ -5,6 +5,10 @@
 {% block content %}
 <h2>Job {{ job.job_number }}</h2>
 
+<p>
+    <a href="{% url 'jobs:edit' job.job_id %}">Edit Job</a>
+</p>
+
 <table border="1">
     <tr>
         <th>Field</th>

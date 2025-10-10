@@ -6,7 +6,7 @@ from django.utils import timezone
 from django.db import models
 from .models import Job, Estimate, EstimateLineItem, Task, WorkOrder, WorkOrderTemplate, TaskTemplate, EstWorksheet, TaskMapping, TaskInstanceMapping
 from .forms import (
-    JobCreateForm, WorkOrderTemplateForm, TaskTemplateForm, EstWorksheetForm,
+    JobCreateForm, JobEditForm, WorkOrderTemplateForm, TaskTemplateForm, EstWorksheetForm,
     TaskForm, TaskFromTemplateForm,
     EstimateLineItemForm, EstimateStatusForm, EstimateForm
 )
@@ -60,6 +60,25 @@ def job_create(request):
     return render(request, 'jobs/job_create.html', {
         'form': form,
         'initial_contact': initial_contact
+    })
+
+
+def job_edit(request, job_id):
+    """Edit an existing Job with state-based field restrictions"""
+    job = get_object_or_404(Job, job_id=job_id)
+
+    if request.method == 'POST':
+        form = JobEditForm(request.POST, instance=job)
+        if form.is_valid():
+            job = form.save()
+            messages.success(request, f'Job {job.job_number} updated successfully.')
+            return redirect('jobs:detail', job_id=job.job_id)
+    else:
+        form = JobEditForm(instance=job)
+
+    return render(request, 'jobs/job_edit.html', {
+        'form': form,
+        'job': job
     })
 
 
