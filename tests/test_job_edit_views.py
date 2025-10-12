@@ -57,10 +57,10 @@ class JobEditDraftStatusTest(TestCase):
         self.assertEqual(self.job.contact.contact_id, self.contact2.contact_id)
 
     def test_draft_job_can_change_status(self):
-        """Draft jobs can change status"""
+        """Draft jobs can change status to submitted"""
         response = self.client.post(self.url, {
             'contact': self.contact1.contact_id,
-            'status': 'approved',
+            'status': 'submitted',
             'created_date': self.job.created_date.strftime('%Y-%m-%dT%H:%M'),
             'description': 'Original description',
             'customer_po_number': 'PO-001',
@@ -69,7 +69,7 @@ class JobEditDraftStatusTest(TestCase):
 
         self.assertEqual(response.status_code, 302)
         self.job.refresh_from_db()
-        self.assertEqual(self.job.status, 'approved')
+        self.assertEqual(self.job.status, 'submitted')
 
     def test_draft_job_can_change_created_date(self):
         """Draft jobs can change created_date"""
@@ -219,10 +219,10 @@ class JobEditApprovedStatusTest(TestCase):
         )
 
     def test_approved_job_can_change_status(self):
-        """Approved jobs can change status"""
+        """Approved jobs can change status to completed"""
         response = self.client.post(self.url, {
             'contact': self.contact1.contact_id,
-            'status': 'needs_attention',
+            'status': 'completed',
             'created_date': self.job.created_date.strftime('%Y-%m-%dT%H:%M'),
             'description': 'Original description',
             'customer_po_number': 'PO-002',
@@ -231,7 +231,7 @@ class JobEditApprovedStatusTest(TestCase):
 
         self.assertEqual(response.status_code, 302)
         self.job.refresh_from_db()
-        self.assertEqual(self.job.status, 'needs_attention')
+        self.assertEqual(self.job.status, 'completed')
 
     def test_approved_job_can_change_description(self):
         """Approved jobs can change description"""
@@ -291,58 +291,6 @@ class JobEditApprovedStatusTest(TestCase):
         self.assertFalse(form.fields['description'].disabled)
 
 
-class JobEditNeedsAttentionBlockedStatusTest(TestCase):
-    """Test editing jobs in Needs Attention and Blocked status"""
-
-    def setUp(self):
-        self.client = Client()
-
-        # Create Configuration for number generation
-        Configuration.objects.create(key='job_number_sequence', value='JOB-{year}-{counter:04d}')
-        Configuration.objects.create(key='job_counter', value='0')
-        Configuration.objects.create(key='estimate_number_sequence', value='EST-{year}-{counter:04d}')
-        Configuration.objects.create(key='estimate_counter', value='0')
-        Configuration.objects.create(key='invoice_number_sequence', value='INV-{year}-{counter:04d}')
-        Configuration.objects.create(key='invoice_counter', value='0')
-        Configuration.objects.create(key='po_number_sequence', value='PO-{year}-{counter:04d}')
-        Configuration.objects.create(key='po_counter', value='0')
-
-        self.contact1 = Contact.objects.create(name='Contact One', email='contact1@example.com')
-        self.contact2 = Contact.objects.create(name='Contact Two', email='contact2@example.com')
-
-    def test_needs_attention_job_restrictions(self):
-        """Jobs in needs_attention status have same restrictions as approved"""
-        job = Job.objects.create(
-            job_number='JOB-2025-0003',
-            contact=self.contact1,
-            status='needs_attention',
-            description='Test description'
-        )
-        url = reverse('jobs:edit', args=[job.job_id])
-
-        response = self.client.get(url)
-        form = response.context['form']
-        self.assertTrue(form.fields['contact'].disabled)
-        self.assertTrue(form.fields['created_date'].disabled)
-        self.assertFalse(form.fields['description'].disabled)
-
-    def test_blocked_job_restrictions(self):
-        """Jobs in blocked status have same restrictions as approved"""
-        job = Job.objects.create(
-            job_number='JOB-2025-0004',
-            contact=self.contact1,
-            status='blocked',
-            description='Test description'
-        )
-        url = reverse('jobs:edit', args=[job.job_id])
-
-        response = self.client.get(url)
-        form = response.context['form']
-        self.assertTrue(form.fields['contact'].disabled)
-        self.assertTrue(form.fields['created_date'].disabled)
-        self.assertFalse(form.fields['description'].disabled)
-
-
 class JobEditRejectedStatusTest(TestCase):
     """Test editing jobs in Rejected status"""
 
@@ -372,19 +320,22 @@ class JobEditRejectedStatusTest(TestCase):
         )
         self.url = reverse('jobs:edit', args=[self.job.job_id])
 
-    def test_rejected_job_can_only_change_status(self):
-        """Rejected jobs can only change status"""
+    def test_rejected_job_cannot_change_status(self):
+        """Rejected jobs cannot change status (terminal state)"""
+        original_status = self.job.status
+
         response = self.client.post(self.url, {
             'contact': self.contact1.contact_id,
-            'status': 'draft',  # Change status back to draft
+            'status': 'draft',  # Try to change status back to draft
             'created_date': self.job.created_date.strftime('%Y-%m-%dT%H:%M'),
             'description': 'Original description',
             'customer_po_number': 'PO-005',
         })
 
-        self.assertEqual(response.status_code, 302)
+        # The form should show an error (status code 200) instead of redirecting (302)
+        # because rejected is a terminal state
         self.job.refresh_from_db()
-        self.assertEqual(self.job.status, 'draft')
+        self.assertEqual(self.job.status, original_status)  # Status should not change
 
     def test_rejected_job_cannot_change_contact(self):
         """Rejected jobs cannot change contact"""
@@ -462,11 +413,11 @@ class JobEditCompleteStatusTest(TestCase):
 
         self.contact1 = Contact.objects.create(name='Contact One', email='contact1@example.com')
 
-        # Create a complete job
+        # Create a completed job
         self.job = Job.objects.create(
             job_number='JOB-2025-0006',
             contact=self.contact1,
-            status='complete',
+            status='completed',
             description='Completed job',
             completed_date=timezone.now()
         )

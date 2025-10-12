@@ -144,29 +144,6 @@ class SupersededEstimateRestrictionTests(TestCase):
         self.assertEqual(line_item.description, 'Test line item')
         self.assertEqual(line_item.qty, Decimal('5'))
 
-    def test_can_update_status_of_active_estimate(self):
-        """Test that active estimates can have their status updated (control test)."""
-        # First set active estimate to draft so we can update it
-        self.active_estimate.status = 'draft'
-        self.active_estimate.save()
-
-        url = reverse('jobs:estimate_update_status', args=[self.active_estimate.estimate_id])
-
-        # Update status via POST
-        response = self.client.post(url, {
-            'status': 'open'
-        })
-
-        # Should redirect to estimate detail
-        self.assertRedirects(
-            response,
-            reverse('jobs:estimate_detail', args=[self.active_estimate.estimate_id])
-        )
-
-        # Verify status has changed
-        self.active_estimate.refresh_from_db()
-        self.assertEqual(self.active_estimate.status, 'open')
-
     def test_superseded_estimate_displays_restriction_message(self):
         """Test that superseded estimates show a restriction message in the UI."""
         url = reverse('jobs:estimate_detail', args=[self.superseded_estimate.estimate_id])

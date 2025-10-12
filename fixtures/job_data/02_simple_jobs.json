@@ -65,7 +65,7 @@
     "status": "accepted",
     "parent": null,
     "created_date": "2025-01-15T11:00:00Z",
-    "superseded_date": null
+    "closed_date": null
   }
 },
 {
@@ -78,7 +78,7 @@
     "status": "superseded",
     "parent": null,
     "created_date": "2025-02-10T10:00:00Z",
-    "superseded_date": "2025-02-12T14:00:00Z"
+    "closed_date": "2025-02-12T14:00:00Z"
   }
 },
 {
@@ -91,7 +91,7 @@
     "status": "superseded",
     "parent": 2,
     "created_date": "2025-02-12T14:00:00Z",
-    "superseded_date": "2025-02-15T16:30:00Z"
+    "closed_date": "2025-02-15T16:30:00Z"
   }
 },
 {
@@ -104,7 +104,7 @@
     "status": "superseded",
     "parent": 3,
     "created_date": "2025-02-15T16:30:00Z",
-    "superseded_date": "2025-09-23T04:29:03.735Z"
+    "closed_date": "2025-09-23T04:29:03.735Z"
   }
 },
 {
@@ -117,7 +117,7 @@
     "status": "accepted",
     "parent": 4,
     "created_date": "2025-09-23T04:29:03.720Z",
-    "superseded_date": null
+    "closed_date": null
   }
 },
 {
@@ -130,7 +130,7 @@
     "status": "accepted",
     "parent": null,
     "created_date": "2025-09-23T04:32:33.144Z",
-    "superseded_date": null
+    "closed_date": null
   }
 },
 {

@@ -71,10 +71,11 @@ class JobEditForm(forms.ModelForm):
 
     Field editability by status:
     - Draft: All fields except job_number and completed_date
-    - Approved/Needs Attention/Blocked: status, description, due_date, customer_po_number
+    - Submitted/Approved: status, description, due_date, customer_po_number
       (NOT contact, NOT created_date)
-    - Rejected: status only
-    - Complete: Not yet implemented (no changes allowed)
+    - Rejected: status only (terminal state, but form allows status field)
+    - Completed: All fields disabled (terminal state)
+    - Cancelled: All fields disabled (terminal state)
     """
     contact = forms.ModelChoiceField(
         queryset=Contact.objects.all().select_related('business'),
@@ -124,7 +125,7 @@ class JobEditForm(forms.ModelForm):
                 # Draft: Can edit everything except job_number and completed_date
                 pass  # All fields already available
 
-            elif current_status in ['approved', 'needs_attention', 'blocked']:
+            elif current_status in ['submitted', 'approved']:
                 # Can't change contact or created_date
                 self.fields['contact'].disabled = True
                 self.fields['contact'].help_text = 'Contact cannot be changed in this status'
@@ -132,7 +133,7 @@ class JobEditForm(forms.ModelForm):
                 self.fields['created_date'].help_text = 'Created date cannot be changed in this status'
 
             elif current_status == 'rejected':
-                # Can only change status
+                # Can only change status (but rejected is terminal, so this shouldn't work)
                 self.fields['contact'].disabled = True
                 self.fields['created_date'].disabled = True
                 self.fields['description'].disabled = True
@@ -140,8 +141,8 @@ class JobEditForm(forms.ModelForm):
                 self.fields['customer_po_number'].disabled = True
                 self.fields['contact'].help_text = 'Only status can be changed for rejected jobs'
 
-            elif current_status == 'complete':
-                # Complete jobs cannot be edited (not yet fully implemented)
+            elif current_status in ['completed', 'cancelled']:
+                # Terminal states: All fields disabled
                 for field_name in self.fields:
                     self.fields[field_name].disabled = True
 

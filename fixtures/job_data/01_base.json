@@ -203,6 +203,13 @@
   }
 },
 {
+  "model": "core.configuration",
+  "pk": "est_expire_days",
+  "fields": {
+    "value": "30"
+  }
+},
+{
   "model": "core.user",
   "pk": 1,
   "fields": {

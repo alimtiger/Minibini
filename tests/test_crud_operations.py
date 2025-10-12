@@ -263,8 +263,8 @@ class EstimateCRUDTests(TestCase):
 
     def test_update_status_invalid_transition(self):
         """Test that invalid status transitions are handled."""
-        # Set estimate to superseded
-        self.estimate.status = 'superseded'
+        # Set estimate to open (superseded isn't allowed directly after draft)
+        self.estimate.status = 'open'
         self.estimate.save()
 
         url = reverse('jobs:estimate_update_status', args=[self.estimate.estimate_id])
@@ -275,7 +275,7 @@ class EstimateCRUDTests(TestCase):
 
         # Status should not change for invalid transitions
         self.estimate.refresh_from_db()
-        self.assertEqual(self.estimate.status, 'superseded')
+        self.assertEqual(self.estimate.status, 'open')
 
 
 class NavigationLinksTests(TestCase):

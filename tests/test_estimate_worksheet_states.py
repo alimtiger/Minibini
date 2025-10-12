@@ -309,9 +309,8 @@ class EstimateGenerationServiceTests(TestCase):
             status='final',
             version=1
         )
-
-        parent_task = Task.objects.create(
-            name='Parent Task',
+        task = Task.objects.create(
+            name='Task',
             est_worksheet=parent_worksheet,
             template=self.task_template,
             est_qty=5.0,
@@ -321,6 +320,8 @@ class EstimateGenerationServiceTests(TestCase):
 
         # Generate parent estimate
         parent_estimate = self.service.generate_estimate_from_worksheet(parent_worksheet)
+        parent_estimate.status = 'open'
+        parent_estimate.save();
         parent_estimate_number = parent_estimate.estimate_number
 
         # Create child worksheet (revision)
@@ -330,13 +331,12 @@ class EstimateGenerationServiceTests(TestCase):
             status='draft',
             version=2
         )
-
-        child_task = Task.objects.create(
-            name='Child Task',
+        task2 = Task.objects.create(
+            name='Task',
             est_worksheet=child_worksheet,
             template=self.task_template,
-            est_qty=10.0,
-            rate=75.0,
+            est_qty=5.0,
+            rate=50.0,
             units='hours'
         )
 

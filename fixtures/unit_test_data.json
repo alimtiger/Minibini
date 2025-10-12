@@ -274,7 +274,7 @@
       "job_number": "JOB-2024-0002",
       "created_date": "2024-01-20T10:30:00Z",
       "completed_date": "2024-02-15T16:00:00Z",
-      "status": "complete",
+      "status": "completed",
       "contact": 2,
       "customer_po_number": "",
       "description": "Office electrical upgrade"
@@ -330,7 +330,7 @@
       "status": "draft",
       "parent": null,
       "created_date": "2024-01-15T09:30:00Z",
-      "superseded_date": null
+      "closed_date": null
     }
   },
   {
@@ -343,7 +343,7 @@
       "status": "superseded",
       "parent": null,
       "created_date": "2024-01-20T10:30:00Z",
-      "superseded_date": "2024-01-21T14:00:00Z"
+      "closed_date": "2024-01-21T14:00:00Z"
     }
   },
   {
@@ -356,7 +356,7 @@
       "status": "accepted",
       "parent": 2,
       "created_date": "2024-01-21T14:00:00Z",
-      "superseded_date": null
+      "closed_date": null
     }
   },
   {

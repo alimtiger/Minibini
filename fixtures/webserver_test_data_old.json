@@ -193,7 +193,7 @@
       "job_number": "JOB-2024-001",
       "created_date": "2025-07-02T21:45:16.554Z",
       "completed_date": "2025-08-11T21:45:16.554Z",
-      "status": "complete",
+      "status": "completed",
       "contact": 1,
       "customer_po_number": "ABC-PO-001",
       "description": "Office renovation project - replaced flooring, painted walls, updated lighting"

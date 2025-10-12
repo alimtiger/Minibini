@@ -56,6 +56,14 @@
   }
 },
 {
+  "model": "core.configuration",
+  "pk": "est_expire_days",
+  "fields": {
+    "value": "30"
+  }
+},
+{
+
   "model": "contacts.paymentterms",
   "pk": 1,
   "fields": {}
