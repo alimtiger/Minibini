@@ -17,6 +17,7 @@ class Job(models.Model):
     job_number = models.CharField(max_length=50, unique=True)
     name = models.CharField(max_length=50, default='', blank=True)
     created_date = models.DateTimeField(default=timezone.now)
+    start_date = models.DateTimeField(null=True, blank=True)
     due_date = models.DateTimeField(null=True, blank=True)
     completed_date = models.DateTimeField(null=True, blank=True)
     status = models.CharField(max_length=20, choices=JOB_STATUS_CHOICES, default='draft')
@@ -25,7 +26,7 @@ class Job(models.Model):
     description = models.TextField(blank=True)
 
     def clean(self):
-        """Validate Job state transitions."""
+        """Validate Job state transitions and protect immutable date fields."""
         super().clean()
 
         # Define valid transitions for each state
@@ -41,7 +42,18 @@ class Job(models.Model):
         # Check if this is an update
         if self.pk:
             try:
-                old_status = Job.objects.only('status').get(pk=self.pk).status
+                old_job = Job.objects.get(pk=self.pk)
+                old_status = old_job.status
+
+                # Protect immutable date fields
+                if old_job.created_date and self.created_date != old_job.created_date:
+                    self.created_date = old_job.created_date
+
+                if old_job.start_date and self.start_date != old_job.start_date:
+                    self.start_date = old_job.start_date
+
+                if old_job.completed_date and self.completed_date != old_job.completed_date:
+                    self.completed_date = old_job.completed_date
 
                 # If status hasn't changed, no validation needed
                 if old_status == self.status:
@@ -59,7 +71,28 @@ class Job(models.Model):
                 pass
 
     def save(self, *args, **kwargs):
-        """Override save to validate state transitions."""
+        """Override save to validate state transitions and set dates."""
+        old_status = None
+
+        # Check if this is an update (not a new object)
+        if self.pk:
+            try:
+                old_job = Job.objects.get(pk=self.pk)
+                old_status = old_job.status
+
+                # Handle state transition date setting
+                if old_status != self.status:
+                    # Transitioning to 'approved' - set start_date
+                    if self.status == 'approved' and not self.start_date:
+                        self.start_date = timezone.now()
+
+                    # Transitioning to terminal states - set completed_date
+                    if self.status in ['completed', 'cancelled'] and not self.completed_date:
+                        self.completed_date = timezone.now()
+
+            except Job.DoesNotExist:
+                pass
+
         # Run validation
         self.full_clean()
 

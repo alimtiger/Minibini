@@ -44,23 +44,15 @@ class EstimateCreationControlTests(TestCase):
         url = reverse('jobs:estimate_create_for_job', args=[self.job.job_id])
         response = self.client.get(url)
 
-        # Should show the create form
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'Create New Estimate')
-
-        # Create the estimate
-        data = {
-            'status': 'draft'
-        }
-        response = self.client.post(url, data)
-
-        # Should redirect to estimate detail
+        # Should create directly and redirect to estimate detail
         self.assertEqual(response.status_code, 302)
 
-        # Estimate should be created
+        # Estimate should be created with defaults
         estimate = Estimate.objects.filter(job=self.job).first()
         self.assertIsNotNone(estimate)
         self.assertEqual(estimate.estimate_number, 'EST-2025-0001')
+        self.assertEqual(estimate.status, 'draft')
+        self.assertEqual(estimate.version, 1)
 
     def test_cannot_create_second_estimate_draft(self):
         """Test that second estimate cannot be created when draft exists."""
@@ -109,13 +101,17 @@ class EstimateCreationControlTests(TestCase):
             closed_date=timezone.now()
         )
 
-        # Should be able to create new estimate
+        # Should be able to create new estimate directly
         url = reverse('jobs:estimate_create_for_job', args=[self.job.job_id])
         response = self.client.get(url)
 
-        # Should show the create form
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'Create New Estimate')
+        # Should create directly and redirect to estimate detail
+        self.assertEqual(response.status_code, 302)
+
+        # New estimate should be created
+        new_estimate = Estimate.objects.filter(job=self.job).exclude(status='superseded').first()
+        self.assertIsNotNone(new_estimate)
+        self.assertEqual(new_estimate.status, 'draft')
 
     def test_job_detail_shows_create_button_when_no_estimates(self):
         """Test job detail shows create button when no estimates exist."""
@@ -408,14 +404,15 @@ class EstimateWorkflowIntegrationTests(TestCase):
 
     def test_complete_workflow(self):
         """Test complete workflow from creation through multiple revisions."""
-        # Step 1: Create first estimate
+        # Step 1: Create first estimate directly
         url = reverse('jobs:estimate_create_for_job', args=[self.job.job_id])
-        data = {
-            'status': 'draft'
-        }
-        response = self.client.post(url, data)
+        response = self.client.get(url)
+
+        # Should redirect after creation
+        self.assertEqual(response.status_code, 302)
 
         estimate_v1 = Estimate.objects.filter(job=self.job).first()
+        self.assertIsNotNone(estimate_v1)
         self.assertEqual(estimate_v1.version, 1)
         self.assertEqual(estimate_v1.status, 'draft')
 

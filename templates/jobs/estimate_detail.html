@@ -35,6 +35,22 @@
             {% endif %}
         </td>
     </tr>
+    <tr>
+        <td>Created Date</td>
+        <td>{{ estimate.created_date|date:"Y-m-d H:i" }}</td>
+    </tr>
+    <tr>
+        <td>Sent Date</td>
+        <td>{{ estimate.sent_date|date:"Y-m-d H:i"|default:"Not sent yet" }}</td>
+    </tr>
+    <tr>
+        <td>Expiration Date</td>
+        <td>{{ estimate.expiration_date|date:"Y-m-d H:i"|default:"Not set" }}</td>
+    </tr>
+    <tr>
+        <td>Closed Date</td>
+        <td>{{ estimate.closed_date|date:"Y-m-d H:i"|default:"Not closed yet" }}</td>
+    </tr>
 </table>
 
 {% if estimate.parent %}

@@ -71,8 +71,9 @@ class JobEditDraftStatusTest(TestCase):
         self.job.refresh_from_db()
         self.assertEqual(self.job.status, 'submitted')
 
-    def test_draft_job_can_change_created_date(self):
-        """Draft jobs can change created_date"""
+    def test_draft_job_cannot_change_created_date(self):
+        """Draft jobs cannot change created_date (it's immutable)"""
+        original_created_date = self.job.created_date
         new_created_date = timezone.now() - timedelta(days=5)
         response = self.client.post(self.url, {
             'contact': self.contact1.contact_id,
@@ -85,10 +86,10 @@ class JobEditDraftStatusTest(TestCase):
 
         self.assertEqual(response.status_code, 302)
         self.job.refresh_from_db()
-        # Compare dates only (ignoring microseconds)
+        # created_date should not have changed (protected by model)
         self.assertEqual(
             self.job.created_date.strftime('%Y-%m-%d %H:%M'),
-            new_created_date.strftime('%Y-%m-%d %H:%M')
+            original_created_date.strftime('%Y-%m-%d %H:%M')
         )
 
     def test_draft_job_can_change_description(self):

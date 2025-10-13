@@ -280,10 +280,11 @@ class EstimateStatusForm(forms.Form):
     """Form for changing Estimate status"""
     VALID_TRANSITIONS = {
         'draft': ['open', 'rejected'],
-        'open': ['accepted', 'rejected', 'superseded'],
-        'accepted': ['superseded'],
-        'rejected': [],
-        'superseded': []
+        'open': ['accepted', 'superseded', 'rejected', 'expired'],
+        'accepted': [],  # Terminal state
+        'rejected': [],  # Terminal state
+        'expired': [],  # Terminal state
+        'superseded': []  # Terminal state
     }
 
     status = forms.ChoiceField(choices=[], required=True)
@@ -299,6 +300,11 @@ class EstimateStatusForm(forms.Form):
 
         self.fields['status'].choices = choices
         self.fields['status'].initial = current_status
+
+    @staticmethod
+    def has_valid_transitions(current_status):
+        """Check if the current status has any valid transitions."""
+        return len(EstimateStatusForm.VALID_TRANSITIONS.get(current_status, [])) > 0
 
     def clean_status(self):
         status = self.cleaned_data['status']

@@ -91,17 +91,21 @@ def estimate_detail(request, estimate_id):
 
     # Handle status update POST request
     if request.method == 'POST' and 'update_status' in request.POST:
-        if estimate.status != 'superseded':
+        # Check if status transitions are allowed
+        if EstimateStatusForm.has_valid_transitions(estimate.status):
             form = EstimateStatusForm(request.POST, current_status=estimate.status)
             if form.is_valid():
                 new_status = form.cleaned_data['status']
                 if new_status != estimate.status:
-                    estimate.status = new_status
-                    estimate.save()
-                    messages.success(request, f'Estimate status updated to {new_status.title()}')
+                    try:
+                        estimate.status = new_status
+                        estimate.save()
+                        messages.success(request, f'Estimate status updated to {new_status.title()}')
+                    except Exception as e:
+                        messages.error(request, f'Error updating status: {str(e)}')
                 return redirect('jobs:estimate_detail', estimate_id=estimate.estimate_id)
         else:
-            messages.error(request, 'Cannot update the status of a superseded estimate.')
+            messages.error(request, f'Cannot update status from {estimate.get_status_display()} (terminal state).')
             return redirect('jobs:estimate_detail', estimate_id=estimate.estimate_id)
 
     # Get line items and calculate total
@@ -111,8 +115,10 @@ def estimate_detail(request, estimate_id):
     # Check for associated worksheet
     worksheet = EstWorksheet.objects.filter(estimate=estimate).first()
 
-    # Create status form for display
-    status_form = EstimateStatusForm(current_status=estimate.status) if estimate.status != 'superseded' else None
+    # Create status form for display only if there are valid transitions
+    status_form = None
+    if EstimateStatusForm.has_valid_transitions(estimate.status):
+        status_form = EstimateStatusForm(current_status=estimate.status)
 
     return render(request, 'jobs/estimate_detail.html', {
         'estimate': estimate,
@@ -701,7 +707,9 @@ def estimate_update_status(request, estimate_id):
 
 
 def estimate_create_for_job(request, job_id):
-    """Create a new Estimate for a specific Job"""
+    """Create a new Estimate for a specific Job - creates directly with defaults"""
+    from apps.core.services import NumberGenerationService
+
     job = get_object_or_404(Job, job_id=job_id)
 
     # Check if an estimate already exists for this job
@@ -716,24 +724,16 @@ def estimate_create_for_job(request, job_id):
             messages.error(request, f'An estimate already exists for this job. Use the Revise option to create a new version.')
             return redirect('jobs:estimate_detail', estimate_id=existing_estimate.estimate_id)
 
-    if request.method == 'POST':
-        form = EstimateForm(request.POST, job=job)
-        if form.is_valid():
-            estimate = form.save(commit=False)
-            estimate.job = job
-            estimate.version = 1  # First estimate for this job
+    # Create estimate directly with defaults
+    estimate = Estimate.objects.create(
+        job=job,
+        estimate_number=NumberGenerationService.generate_next_number('estimate'),
+        version=1,
+        status='draft'
+    )
 
-            # Save will generate the estimate_number
-            estimate.save()
-            messages.success(request, f'Estimate {estimate.estimate_number} (v{estimate.version}) created successfully')
-            return redirect('jobs:estimate_detail', estimate_id=estimate.estimate_id)
-    else:
-        form = EstimateForm(job=job)
-
-    return render(request, 'jobs/estimate_create_for_job.html', {
-        'form': form,
-        'job': job
-    })
+    messages.success(request, f'Estimate {estimate.estimate_number} (v{estimate.version}) created successfully')
+    return redirect('jobs:estimate_detail', estimate_id=estimate.estimate_id)
 
 
 def estimate_revise(request, estimate_id):

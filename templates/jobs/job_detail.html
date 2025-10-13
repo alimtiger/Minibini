@@ -28,15 +28,19 @@
     </tr>
     <tr>
         <td>Created Date</td>
-        <td>{{ job.created_date }}</td>
+        <td>{{ job.created_date|date:"Y-m-d H:i" }}</td>
+    </tr>
+    <tr>
+        <td>Start Date</td>
+        <td>{{ job.start_date|date:"Y-m-d H:i"|default:"Not started yet" }}</td>
     </tr>
     <tr>
         <td>Due Date</td>
-        <td>{{ job.due_date|default:"No due date" }}</td>
+        <td>{{ job.due_date|date:"Y-m-d H:i"|default:"No due date set" }}</td>
     </tr>
     <tr>
         <td>Completed Date</td>
-        <td>{{ job.completed_date|default:"Not completed" }}</td>
+        <td>{{ job.completed_date|date:"Y-m-d H:i"|default:"Not completed yet" }}</td>
     </tr>
     <tr>
         <td>Contact</td>
@@ -113,8 +117,10 @@
                 <th>Estimate Number</th>
                 <th>Version</th>
                 <th>Status</th>
-                <th>Created Date</th>
-                <th>Superseded Date</th>
+                <th>Created</th>
+                <th>Sent</th>
+                <th>Expiration</th>
+                <th>Closed</th>
                 <th>Actions</th>
             </tr>
         </thead>
@@ -125,7 +131,9 @@
                 <td>{{ estimate.version }}</td>
                 <td>{{ estimate.get_status_display }}</td>
                 <td>{{ estimate.created_date|date:"M d, Y" }}</td>
-                <td>{{ estimate.superseded_date|date:"M d, Y"|default:"—" }}</td>
+                <td>{{ estimate.sent_date|date:"M d, Y"|default:"—" }}</td>
+                <td>{{ estimate.expiration_date|date:"M d, Y"|default:"—" }}</td>
+                <td>{{ estimate.closed_date|date:"M d, Y"|default:"—" }}</td>
                 <td>
                     <a href="{% url 'jobs:estimate_detail' estimate.pk %}">View Details</a>
                 </td>

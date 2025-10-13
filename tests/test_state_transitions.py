@@ -290,6 +290,156 @@ class JobStateTransitionTest(TestCase):
         job.save()
         self.assertEqual(job.status, 'rejected')
 
+    # Job Date Field Tests
+    def test_created_date_set_on_creation(self):
+        """Test that created_date is set when Job is created."""
+        before_creation = timezone.now()
+        job = Job.objects.create(
+            job_number="JOB200",
+            contact=self.contact
+        )
+        after_creation = timezone.now()
+
+        self.assertIsNotNone(job.created_date)
+        self.assertGreaterEqual(job.created_date, before_creation)
+        self.assertLessEqual(job.created_date, after_creation)
+
+    def test_created_date_immutable(self):
+        """Test that created_date cannot be changed after creation."""
+        job = Job.objects.create(
+            job_number="JOB201",
+            contact=self.contact
+        )
+        original_date = job.created_date
+
+        # Try to change it
+        new_date = timezone.now() + timedelta(days=10)
+        job.created_date = new_date
+        job.save()
+
+        job.refresh_from_db()
+        self.assertEqual(job.created_date, original_date)
+
+    def test_start_date_set_when_approved(self):
+        """Test that start_date is set when Job moves to approved status."""
+        job = Job.objects.create(
+            job_number="JOB202",
+            contact=self.contact,
+            status='submitted'
+        )
+        self.assertIsNone(job.start_date)
+
+        before_transition = timezone.now()
+        job.status = 'approved'
+        job.save()
+        after_transition = timezone.now()
+
+        job.refresh_from_db()
+        self.assertIsNotNone(job.start_date)
+        self.assertGreaterEqual(job.start_date, before_transition)
+        self.assertLessEqual(job.start_date, after_transition)
+
+    def test_start_date_immutable(self):
+        """Test that start_date cannot be changed once set."""
+        job = Job.objects.create(
+            job_number="JOB203",
+            contact=self.contact,
+            status='submitted'
+        )
+        job.status = 'approved'
+        job.save()
+        job.refresh_from_db()
+
+        original_start_date = job.start_date
+
+        # Try to change it
+        job.start_date = timezone.now() + timedelta(days=5)
+        job.save()
+
+        job.refresh_from_db()
+        self.assertEqual(job.start_date, original_start_date)
+
+    def test_completed_date_set_when_completed(self):
+        """Test that completed_date is set when Job moves to completed status."""
+        job = Job.objects.create(
+            job_number="JOB204",
+            contact=self.contact,
+            status='approved'
+        )
+        self.assertIsNone(job.completed_date)
+
+        before_transition = timezone.now()
+        job.status = 'completed'
+        job.save()
+        after_transition = timezone.now()
+
+        job.refresh_from_db()
+        self.assertIsNotNone(job.completed_date)
+        self.assertGreaterEqual(job.completed_date, before_transition)
+        self.assertLessEqual(job.completed_date, after_transition)
+
+    def test_completed_date_set_when_cancelled(self):
+        """Test that completed_date is set when Job moves to cancelled status."""
+        job = Job.objects.create(
+            job_number="JOB205",
+            contact=self.contact,
+            status='approved'
+        )
+        self.assertIsNone(job.completed_date)
+
+        before_transition = timezone.now()
+        job.status = 'cancelled'
+        job.save()
+        after_transition = timezone.now()
+
+        job.refresh_from_db()
+        self.assertIsNotNone(job.completed_date)
+        self.assertGreaterEqual(job.completed_date, before_transition)
+        self.assertLessEqual(job.completed_date, after_transition)
+
+    def test_completed_date_immutable(self):
+        """Test that completed_date cannot be changed once set."""
+        job = Job.objects.create(
+            job_number="JOB206",
+            contact=self.contact,
+            status='approved'
+        )
+        job.status = 'completed'
+        job.save()
+        job.refresh_from_db()
+
+        original_completed_date = job.completed_date
+
+        # Try to change it
+        job.completed_date = timezone.now() + timedelta(days=10)
+        job.save()
+
+        job.refresh_from_db()
+        self.assertEqual(job.completed_date, original_completed_date)
+
+    def test_due_date_can_be_changed(self):
+        """Test that due_date can be changed by users with permissions."""
+        job = Job.objects.create(
+            job_number="JOB207",
+            contact=self.contact
+        )
+
+        # Set initial due_date
+        initial_due_date = timezone.now() + timedelta(days=30)
+        job.due_date = initial_due_date
+        job.save()
+
+        job.refresh_from_db()
+        self.assertEqual(job.due_date, initial_due_date)
+
+        # Change due_date
+        new_due_date = timezone.now() + timedelta(days=60)
+        job.due_date = new_due_date
+        job.save()
+
+        job.refresh_from_db()
+        self.assertEqual(job.due_date, new_due_date)
+
 
 class EstimateStateTransitionTest(TestCase):
     """Test Estimate state transitions and date field handling."""
