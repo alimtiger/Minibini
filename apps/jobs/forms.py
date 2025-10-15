@@ -71,7 +71,7 @@ class JobEditForm(forms.ModelForm):
 
     Field editability by status:
     - Draft: All fields except job_number and completed_date
-    - Submitted/Approved: status, description, due_date, customer_po_number
+    - Submitted/Approved: status, name, description, due_date, customer_po_number
       (NOT contact, NOT created_date)
     - Rejected: status only (terminal state, but form allows status field)
     - Completed: All fields disabled (terminal state)
@@ -104,7 +104,7 @@ class JobEditForm(forms.ModelForm):
 
     class Meta:
         model = Job
-        fields = ['contact', 'status', 'created_date', 'description', 'due_date', 'customer_po_number']
+        fields = ['contact', 'status', 'created_date', 'name', 'description', 'due_date', 'customer_po_number']
         widgets = {
             'customer_po_number': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Optional'}),
             'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 4}),
@@ -136,6 +136,7 @@ class JobEditForm(forms.ModelForm):
                 # Can only change status (but rejected is terminal, so this shouldn't work)
                 self.fields['contact'].disabled = True
                 self.fields['created_date'].disabled = True
+                self.fields['name'].disabled = True
                 self.fields['description'].disabled = True
                 self.fields['due_date'].disabled = True
                 self.fields['customer_po_number'].disabled = True
@@ -169,7 +170,7 @@ class TaskTemplateForm(forms.ModelForm):
         widget=forms.Select(attrs={'class': 'form-control'}),
         empty_label="-- Select Task Mapping (Optional) --"
     )
-    
+
     class Meta:
         model = TaskTemplate
         fields = ['template_name', 'description', 'units', 'rate', 'task_mapping', 'is_active']
@@ -225,25 +226,37 @@ class TaskFromTemplateForm(forms.Form):
     )
 
 
-class EstimateLineItemForm(forms.ModelForm):
-    """Form for creating/editing EstimateLineItem"""
+class ManualLineItemForm(forms.ModelForm):
+    """Form for creating a manual line item (not linked to a Price List Item)"""
     class Meta:
         model = EstimateLineItem
-        fields = ['description', 'qty', 'units', 'price_currency', 'task', 'price_list_item']
+        fields = ['description', 'qty', 'units', 'price_currency']
         widgets = {
             'qty': forms.NumberInput(attrs={'step': '0.01'}),
             'price_currency': forms.NumberInput(attrs={'step': '0.01'}),
             'description': forms.Textarea(attrs={'rows': 3}),
         }
+        labels = {
+            'price_currency': 'Price',
+        }
 
-    def __init__(self, *args, **kwargs):
-        estimate = kwargs.pop('estimate', None)
-        super().__init__(*args, **kwargs)
-        if estimate:
-            # Only show tasks from the estimate's job
-            self.fields['task'].queryset = Task.objects.filter(
-                est_worksheet__job=estimate.job
-            )
+
+class PriceListLineItemForm(forms.Form):
+    """Form for creating a line item from a Price List Item"""
+    from apps.invoicing.models import PriceListItem
+
+    price_list_item = forms.ModelChoiceField(
+        queryset=PriceListItem.objects.all(),
+        required=True,
+        label="Price List Item"
+    )
+    qty = forms.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        initial=1.0,
+        widget=forms.NumberInput(attrs={'step': '0.01'}),
+        label="Qty"
+    )
 
 
 class EstimateForm(forms.ModelForm):

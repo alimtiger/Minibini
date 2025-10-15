@@ -41,6 +41,22 @@
     </p>
 
     <p>
+        <label for="{{ form.name.id_for_label }}"><strong>{{ form.name.label }}</strong></label><br>
+        {{ form.name }}
+        {% if form.name.errors %}
+            <br><strong style="color: red;">{{ form.name.errors.0 }}</strong>
+        {% endif %}
+    </p>
+
+    <p>
+        <label for="{{ form.description.id_for_label }}"><strong>{{ form.description.label }}</strong></label><br>
+        {{ form.description }}
+        {% if form.description.errors %}
+            <br><strong style="color: red;">{{ form.description.errors.0 }}</strong>
+        {% endif %}
+    </p>
+
+    <p>
         <label for="{{ form.due_date.id_for_label }}"><strong>{{ form.due_date.label }}</strong></label><br>
         {{ form.due_date }}
         {% if form.due_date.errors %}
@@ -53,14 +69,6 @@
         {{ form.customer_po_number }}
         {% if form.customer_po_number.errors %}
             <br><strong style="color: red;">{{ form.customer_po_number.errors.0 }}</strong>
-        {% endif %}
-    </p>
-
-    <p>
-        <label for="{{ form.description.id_for_label }}"><strong>{{ form.description.label }}</strong></label><br>
-        {{ form.description }}
-        {% if form.description.errors %}
-            <br><strong style="color: red;">{{ form.description.errors.0 }}</strong>
         {% endif %}
     </p>
 

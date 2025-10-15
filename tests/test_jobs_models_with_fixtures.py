@@ -29,7 +29,7 @@ class JobModelFixtureTest(FixtureTestCase):
     def test_job_str_method_with_fixture_data(self):
         """Test job string representation with fixture data"""
         job = Job.objects.get(job_number="JOB-2024-0001")
-        self.assertEqual(str(job), "Job JOB-2024-0001")
+        self.assertEqual(str(job), "JOB-2024-0001")
 
     def test_job_contact_relationships(self):
         """Test that jobs are properly linked to contacts"""

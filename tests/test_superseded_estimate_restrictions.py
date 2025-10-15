@@ -121,13 +121,11 @@ class SupersededEstimateRestrictionTests(TestCase):
         """Test that active estimates can still be modified (control test)."""
         url = reverse('jobs:estimate_add_line_item', args=[self.active_estimate.estimate_id])
 
-        # Add a line item via POST
+        # Add a line item via POST using the price list form
         response = self.client.post(url, {
             'price_list_item': self.price_list_item.pk,
             'qty': '5',
-            'units': 'each',
-            'description': 'Test line item',
-            'price_currency': '20.00'
+            'pricelist_submit': 'Add from Price List'
         })
 
         # Should redirect to estimate detail
@@ -141,7 +139,8 @@ class SupersededEstimateRestrictionTests(TestCase):
         self.assertEqual(line_items.count(), 1)
 
         line_item = line_items.first()
-        self.assertEqual(line_item.description, 'Test line item')
+        # Description should come from price list item
+        self.assertEqual(line_item.description, self.price_list_item.description)
         self.assertEqual(line_item.qty, Decimal('5'))
 
     def test_superseded_estimate_displays_restriction_message(self):

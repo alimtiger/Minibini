@@ -100,7 +100,7 @@ class Job(models.Model):
         super().save(*args, **kwargs)
 
     def __str__(self):
-        return f"Job {self.job_number}"
+        return f"{self.job_number}"
 
 
 class Estimate(models.Model):

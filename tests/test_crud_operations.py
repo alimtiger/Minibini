@@ -223,7 +223,8 @@ class EstimateCRUDTests(TestCase):
             'description': 'Test Line Item',
             'qty': 5.0,
             'price_currency': 100.0,
-            'units': 'each'
+            'units': 'each',
+            'manual_submit': 'Add Manual Line Item'
         }
         response = self.client.post(url, data)
 

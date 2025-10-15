@@ -332,7 +332,7 @@ class ComprehensiveModelIntegrationTest(TestCase):
         invoice = Invoice.objects.create(job=job, invoice_number="INV_STR")
         po = PurchaseOrder.objects.create(po_number="PO_STR")
 
-        self.assertEqual(str(job), "Job STR_TEST")
+        self.assertEqual(str(job), "STR_TEST")
         self.assertEqual(str(estimate), "Estimate EST_STR")
         self.assertEqual(str(invoice), "Invoice INV_STR")
         self.assertEqual(str(po), "PO PO_STR")

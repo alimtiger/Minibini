@@ -30,7 +30,7 @@ class JobModelTest(TestCase):
             job_number="JOB002",
             contact=self.contact
         )
-        self.assertEqual(str(job), "Job JOB002")
+        self.assertEqual(str(job), "JOB002")
 
     def test_job_default_values(self):
         job = Job.objects.create(
