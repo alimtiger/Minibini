@@ -102,47 +102,108 @@
     <p>No estimate worksheets found for this job.</p>
 {% endif %}
 
-<h3>Associated Estimates</h3>
 
-{% if not estimates %}
+{% if not current_estimate %}
 <p>
     <a href="{% url 'jobs:estimate_create_for_job' job.job_id %}">Create New Estimate</a>
 </p>
+<p>No current estimate found for this job.</p>
+{% else %}
+<h3>Current Estimate <a href="{% url 'jobs:estimate_detail' current_estimate.pk %}">{{ current_estimate.estimate_number }} v{{ current_estimate.version }}</a> -
+    {{current_estimate.get_status_display }}</h3>
+    <p>Created {{ current_estimate.created_date|date:"Y-m-d H:i" }},
+       Sent: {{ current_estimate.sent_date|date:"Y-m-d H:i"|default:"Not sent yet" }},
+       Expiration: {{ current_estimate.expiration_date|date:"Y-m-d H:i"|default:"Not set" }},
+       {{current_estimate.get_status_display }}: {{ current_estimate.closed_date|date:"Y-m-d H:i"|default:"Not closed yet" }}
+    </p>
+
+    {% if current_estimate_line_items %}
+        <table border="1" style="border-collapse: collapse; width: 100%; margin-top: 10px;">
+            <thead>
+                <tr>
+                    <th>Line #</th>
+                    <th>Description</th>
+                    <th>Task/Price List Item</th>
+                    <th>Quantity</th>
+                    <th>Unit</th>
+                    <th>Price</th>
+                    <th>Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in current_estimate_line_items %}
+                <tr>
+                    <td>{{ item.line_number|default:item.line_number }}</td>
+                    <td>{{ item.description|default:"No description" }}</td>
+                    <td>
+                        {% if item.task %}
+                            Task: {{ item.task.name }}
+                        {% elif item.price_list_item %}
+                            {{ item.price_list_item.code }} - {{ item.price_list_item.description|truncatewords:5 }}
+                        {% else %}
+                            No source
+                        {% endif %}
+                    </td>
+                    <td>{{ item.qty }}</td>
+                    <td>{{ item.unit_parts_labor|default:"—" }}</td>
+                    <td>${{ item.price_currency|floatformat:2 }}</td>
+                    <td>${{ item.total_amount|floatformat:2 }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+            <tfoot>
+                <tr style="background-color: #f0f0f0; font-weight: bold;">
+                    <td colspan="6">Total Estimate Amount:</td>
+                    <td>${{ current_estimate_total|floatformat:2 }}</td>
+                </tr>
+            </tfoot>
+        </table>
+    {% else %}
+        <p>No line items found for this estimate.</p>
+    {% endif %}
+
+    <p style="margin-top: 10px;">
+        {% if current_estimate.status == 'draft' %}
+            <a href="{% url 'jobs:estimate_add_line_item' current_estimate.estimate_id %}">Add Line Item</a>
+        {% endif %}
+        {% if current_estimate.status != 'draft' %}
+            <a href="{% url 'jobs:estimate_revise' current_estimate.estimate_id %}">Revise Estimate</a>
+        {% endif %}
+        {% if current_estimate.status == 'accepted' %}
+            {% if current_estimate.status != 'draft' %} | {% endif %}
+            <a href="{% url 'jobs:work_order_create_from_estimate' current_estimate.estimate_id %}">Create Work Order</a>
+        {% endif %}
+    </p>
 {% endif %}
 
-{% if estimates %}
+<h3>Superseded Estimates</h3>
+{% if superseded_estimates %}
     <table border="1" style="border-collapse: collapse; width: 100%; margin-top: 10px;">
         <thead>
             <tr>
                 <th>Estimate Number</th>
-                <th>Version</th>
                 <th>Status</th>
                 <th>Created</th>
                 <th>Sent</th>
                 <th>Expiration</th>
                 <th>Closed</th>
-                <th>Actions</th>
             </tr>
         </thead>
         <tbody>
-            {% for estimate in estimates %}
+            {% for estimate in superseded_estimates %}
             <tr>
-                <td>{{ estimate.estimate_number }}</td>
-                <td>{{ estimate.version }}</td>
+                <td><a href="{% url 'jobs:estimate_detail' estimate.pk %}">{{ estimate.estimate_number }} v{{ estimate.version }}</a></td>
                 <td>{{ estimate.get_status_display }}</td>
                 <td>{{ estimate.created_date|date:"M d, Y" }}</td>
                 <td>{{ estimate.sent_date|date:"M d, Y"|default:"—" }}</td>
                 <td>{{ estimate.expiration_date|date:"M d, Y"|default:"—" }}</td>
                 <td>{{ estimate.closed_date|date:"M d, Y"|default:"—" }}</td>
-                <td>
-                    <a href="{% url 'jobs:estimate_detail' estimate.pk %}">View Details</a>
-                </td>
             </tr>
             {% endfor %}
         </tbody>
     </table>
 {% else %}
-    <p>No estimates found for this job.</p>
+    <p>No superseded estimates.</p>
 {% endif %}
 
 <h3>Associated Work Orders</h3>

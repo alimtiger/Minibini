@@ -19,14 +19,31 @@ def job_list(request):
 
 def job_detail(request, job_id):
     job = get_object_or_404(Job, job_id=job_id)
-    estimates = Estimate.objects.filter(job=job).order_by('-created_date')
+
+    # Get current estimate (highest version, non-superseded)
+    current_estimate = Estimate.objects.filter(job=job).exclude(status='superseded').order_by('-version').first()
+
+    # Get superseded estimates
+    superseded_estimates = Estimate.objects.filter(job=job, status='superseded').order_by('-version')
+
+    # If there's a current estimate, get its line items and total
+    current_estimate_line_items = []
+    current_estimate_total = 0
+    if current_estimate:
+        current_estimate_line_items = EstimateLineItem.objects.filter(estimate=current_estimate).order_by('line_item_id')
+        current_estimate_total = sum(item.total_amount for item in current_estimate_line_items)
+
     work_orders = WorkOrder.objects.filter(job=job).order_by('-work_order_id')
     worksheets = EstWorksheet.objects.filter(job=job).order_by('-created_date')
     purchase_orders = PurchaseOrder.objects.filter(job=job).order_by('-po_id')
     invoices = Invoice.objects.filter(job=job).order_by('-invoice_id')
+
     return render(request, 'jobs/job_detail.html', {
         'job': job,
-        'estimates': estimates,
+        'current_estimate': current_estimate,
+        'current_estimate_line_items': current_estimate_line_items,
+        'current_estimate_total': current_estimate_total,
+        'superseded_estimates': superseded_estimates,
         'work_orders': work_orders,
         'worksheets': worksheets,
         'purchase_orders': purchase_orders,
