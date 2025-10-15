@@ -197,9 +197,6 @@ class EstWorksheetForm(forms.ModelForm):
         self.fields['template'].empty_label = "-- No Template (Manual) --"
 
 
-# Removed EstWorksheetFromTemplateForm - functionality merged into EstWorksheetForm
-
-
 class TaskForm(forms.ModelForm):
     """Form for creating/editing Task"""
     class Meta:
