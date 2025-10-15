@@ -26,6 +26,7 @@ urlpatterns = [
     path('estimates/<int:estimate_id>/mark-open/', views.estimate_mark_open, name='estimate_mark_open'),
     path('estimates/<int:estimate_id>/update-status/', views.estimate_update_status, name='estimate_update_status'),
     path('estimates/<int:estimate_id>/add-line-item/', views.estimate_add_line_item, name='estimate_add_line_item'),
+    path('estimates/<int:estimate_id>/delete-line-item/<int:line_item_id>/', views.estimate_delete_line_item, name='estimate_delete_line_item'),
     path('estimates/<int:estimate_id>/revise/', views.estimate_revise, name='estimate_revise'),
     path('estimates/<int:estimate_id>/create-work-order/', views.work_order_create_from_estimate, name='work_order_create_from_estimate'),
     path('worksheets/create/', views.estworksheet_create, name='estworksheet_create'),

@@ -8,7 +8,7 @@ from .models import Job, Estimate, EstimateLineItem, Task, WorkOrder, WorkOrderT
 from .forms import (
     JobCreateForm, JobEditForm, WorkOrderTemplateForm, TaskTemplateForm, EstWorksheetForm,
     TaskForm, TaskFromTemplateForm,
-    EstimateLineItemForm, EstimateStatusForm, EstimateForm, WorkOrderStatusForm
+    ManualLineItemForm, PriceListLineItemForm, EstimateStatusForm, EstimateForm, WorkOrderStatusForm
 )
 from apps.purchasing.models import PurchaseOrder
 from apps.invoicing.models import Invoice
@@ -113,17 +113,21 @@ def estimate_detail(request, estimate_id):
 
     # Handle status update POST request
     if request.method == 'POST' and 'update_status' in request.POST:
-        if estimate.status != 'superseded':
+        # Check if status transitions are allowed
+        if EstimateStatusForm.has_valid_transitions(estimate.status):
             form = EstimateStatusForm(request.POST, current_status=estimate.status)
             if form.is_valid():
                 new_status = form.cleaned_data['status']
                 if new_status != estimate.status:
-                    estimate.status = new_status
-                    estimate.save()
-                    messages.success(request, f'Estimate status updated to {new_status.title()}')
+                    try:
+                        estimate.status = new_status
+                        estimate.save()
+                        messages.success(request, f'Estimate status updated to {new_status.title()}')
+                    except Exception as e:
+                        messages.error(request, f'Error updating status: {str(e)}')
                 return redirect('jobs:estimate_detail', estimate_id=estimate.estimate_id)
         else:
-            messages.error(request, 'Cannot update the status of a superseded estimate.')
+            messages.error(request, f'Cannot update status from {estimate.get_status_display()} (terminal state).')
             return redirect('jobs:estimate_detail', estimate_id=estimate.estimate_id)
 
     # Get line items and calculate total
@@ -133,8 +137,10 @@ def estimate_detail(request, estimate_id):
     # Check for associated worksheet
     worksheet = EstWorksheet.objects.filter(estimate=estimate).first()
 
-    # Create status form for display
-    status_form = EstimateStatusForm(current_status=estimate.status) if estimate.status != 'superseded' else None
+    # Create status form for display only if there are valid transitions
+    status_form = None
+    if EstimateStatusForm.has_valid_transitions(estimate.status):
+        status_form = EstimateStatusForm(current_status=estimate.status)
 
     return render(request, 'jobs/estimate_detail.html', {
         'estimate': estimate,
@@ -668,8 +674,43 @@ def task_add_manual(request, worksheet_id):
     })
 
 
+def estimate_delete_line_item(request, estimate_id, line_item_id):
+    """Delete a line item from an estimate and renumber remaining items"""
+    estimate = get_object_or_404(Estimate, estimate_id=estimate_id)
+    line_item = get_object_or_404(EstimateLineItem, line_item_id=line_item_id, estimate=estimate)
+
+    # Prevent modifications to superseded estimates
+    if estimate.status == 'superseded':
+        messages.error(request, 'Cannot delete line items from a superseded estimate.')
+        return redirect('jobs:estimate_detail', estimate_id=estimate.estimate_id)
+
+    if request.method == 'POST':
+        # Store the line number before deleting
+        deleted_line_number = line_item.line_number
+
+        # Delete the line item
+        line_item.delete()
+
+        # Renumber remaining line items
+        remaining_items = EstimateLineItem.objects.filter(
+            estimate=estimate
+        ).order_by('line_number', 'line_item_id')
+
+        # Reassign line numbers sequentially
+        for index, item in enumerate(remaining_items, start=1):
+            if item.line_number != index:
+                item.line_number = index
+                item.save()
+
+        messages.success(request, f'Line item deleted and remaining items renumbered.')
+        return redirect('jobs:estimate_detail', estimate_id=estimate.estimate_id)
+
+    # GET request - show confirmation (optional, can skip for simple delete)
+    return redirect('jobs:estimate_detail', estimate_id=estimate.estimate_id)
+
+
 def estimate_add_line_item(request, estimate_id):
-    """Add line item to Estimate manually"""
+    """Add line item to Estimate - either manually or from Price List"""
     estimate = get_object_or_404(Estimate, estimate_id=estimate_id)
 
     # Prevent modifications to superseded estimates
@@ -678,19 +719,55 @@ def estimate_add_line_item(request, estimate_id):
         return redirect('jobs:estimate_detail', estimate_id=estimate.estimate_id)
 
     if request.method == 'POST':
-        form = EstimateLineItemForm(request.POST, estimate=estimate)
-        if form.is_valid():
-            line_item = form.save(commit=False)
-            line_item.estimate = estimate
-            line_item.save()
+        # Determine which form was submitted
+        if 'manual_submit' in request.POST:
+            # Manual line item form submitted
+            manual_form = ManualLineItemForm(request.POST)
+            if manual_form.is_valid():
+                line_item = manual_form.save(commit=False)
+                line_item.estimate = estimate
+                line_item.save()
 
-            messages.success(request, f'Line item "{line_item.description}" added')
-            return redirect('jobs:estimate_detail', estimate_id=estimate.estimate_id)
+                messages.success(request, f'Line item "{line_item.description}" added')
+                return redirect('jobs:estimate_detail', estimate_id=estimate.estimate_id)
+            else:
+                # Manual form has errors, create empty price list form
+                pricelist_form = PriceListLineItemForm()
+
+        elif 'pricelist_submit' in request.POST:
+            # Price list line item form submitted
+            pricelist_form = PriceListLineItemForm(request.POST)
+            if pricelist_form.is_valid():
+                price_list_item = pricelist_form.cleaned_data['price_list_item']
+                qty = pricelist_form.cleaned_data['qty']
+
+                # Create line item from price list item
+                line_item = EstimateLineItem.objects.create(
+                    estimate=estimate,
+                    price_list_item=price_list_item,
+                    description=price_list_item.description,
+                    qty=qty,
+                    units=price_list_item.units,
+                    price_currency=price_list_item.selling_price
+                )
+
+                messages.success(request, f'Line item "{line_item.description}" added from price list')
+                return redirect('jobs:estimate_detail', estimate_id=estimate.estimate_id)
+            else:
+                # Price list form has errors, create empty manual form
+                manual_form = ManualLineItemForm()
+        else:
+            # Neither form submitted (shouldn't happen)
+            manual_form = ManualLineItemForm()
+            pricelist_form = PriceListLineItemForm()
     else:
-        form = EstimateLineItemForm(estimate=estimate)
+        # GET request - create both empty forms
+        manual_form = ManualLineItemForm()
+        pricelist_form = PriceListLineItemForm()
 
     return render(request, 'jobs/estimate_add_line_item.html', {
-        'form': form,
+        'manual_form': manual_form,
+        'pricelist_form': pricelist_form,
         'estimate': estimate
     })
 
@@ -723,7 +800,9 @@ def estimate_update_status(request, estimate_id):
 
 
 def estimate_create_for_job(request, job_id):
-    """Create a new Estimate for a specific Job"""
+    """Create a new Estimate for a specific Job - creates directly with defaults"""
+    from apps.core.services import NumberGenerationService
+
     job = get_object_or_404(Job, job_id=job_id)
 
     # Check if an estimate already exists for this job
@@ -738,24 +817,16 @@ def estimate_create_for_job(request, job_id):
             messages.error(request, f'An estimate already exists for this job. Use the Revise option to create a new version.')
             return redirect('jobs:estimate_detail', estimate_id=existing_estimate.estimate_id)
 
-    if request.method == 'POST':
-        form = EstimateForm(request.POST, job=job)
-        if form.is_valid():
-            estimate = form.save(commit=False)
-            estimate.job = job
-            estimate.version = 1  # First estimate for this job
+    # Create estimate directly with defaults
+    estimate = Estimate.objects.create(
+        job=job,
+        estimate_number=NumberGenerationService.generate_next_number('estimate'),
+        version=1,
+        status='draft'
+    )
 
-            # Save will generate the estimate_number
-            estimate.save()
-            messages.success(request, f'Estimate {estimate.estimate_number} (v{estimate.version}) created successfully')
-            return redirect('jobs:estimate_detail', estimate_id=estimate.estimate_id)
-    else:
-        form = EstimateForm(job=job)
-
-    return render(request, 'jobs/estimate_create_for_job.html', {
-        'form': form,
-        'job': job
-    })
+    messages.success(request, f'Estimate {estimate.estimate_number} (v{estimate.version}) created successfully')
+    return redirect('jobs:estimate_detail', estimate_id=estimate.estimate_id)
 
 
 def estimate_revise(request, estimate_id):

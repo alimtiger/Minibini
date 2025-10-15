@@ -44,23 +44,15 @@ class EstimateCreationControlTests(TestCase):
         url = reverse('jobs:estimate_create_for_job', args=[self.job.job_id])
         response = self.client.get(url)
 
-        # Should show the create form
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'Create New Estimate')
-
-        # Create the estimate
-        data = {
-            'status': 'draft'
-        }
-        response = self.client.post(url, data)
-
-        # Should redirect to estimate detail
+        # Should create directly and redirect to estimate detail
         self.assertEqual(response.status_code, 302)
 
-        # Estimate should be created
+        # Estimate should be created with defaults
         estimate = Estimate.objects.filter(job=self.job).first()
         self.assertIsNotNone(estimate)
         self.assertEqual(estimate.estimate_number, 'EST-2025-0001')
+        self.assertEqual(estimate.status, 'draft')
+        self.assertEqual(estimate.version, 1)
 
     def test_cannot_create_second_estimate_draft(self):
         """Test that second estimate cannot be created when draft exists."""
@@ -106,16 +98,20 @@ class EstimateCreationControlTests(TestCase):
             estimate_number='EST-001',
             version=1,
             status='superseded',
-            superseded_date=timezone.now()
+            closed_date=timezone.now()
         )
 
-        # Should be able to create new estimate
+        # Should be able to create new estimate directly
         url = reverse('jobs:estimate_create_for_job', args=[self.job.job_id])
         response = self.client.get(url)
 
-        # Should show the create form
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'Create New Estimate')
+        # Should create directly and redirect to estimate detail
+        self.assertEqual(response.status_code, 302)
+
+        # New estimate should be created
+        new_estimate = Estimate.objects.filter(job=self.job).exclude(status='superseded').first()
+        self.assertIsNotNone(new_estimate)
+        self.assertEqual(new_estimate.status, 'draft')
 
     def test_job_detail_shows_create_button_when_no_estimates(self):
         """Test job detail shows create button when no estimates exist."""
@@ -240,31 +236,35 @@ class EstimateRevisionTests(TestCase):
         # Check parent marked as superseded
         self.estimate.refresh_from_db()
         self.assertEqual(self.estimate.status, 'superseded')
-        self.assertIsNotNone(self.estimate.superseded_date)
+        self.assertIsNotNone(self.estimate.closed_date)
 
     def test_cannot_revise_draft_estimate(self):
         """Test that draft estimate cannot be revised."""
-        # Change estimate to draft
-        self.estimate.status = 'draft'
-        self.estimate.save()
+        # Create a draft estimate (can't transition from open to draft)
+        draft_estimate = Estimate.objects.create(
+            job=self.job,
+            estimate_number='EST-002',
+            version=1,
+            status='draft'
+        )
 
-        url = reverse('jobs:estimate_revise', args=[self.estimate.estimate_id])
+        url = reverse('jobs:estimate_revise', args=[draft_estimate.estimate_id])
         response = self.client.post(url)
 
         # Should redirect back to estimate
         self.assertEqual(response.status_code, 302)
-        self.assertRedirects(response, reverse('jobs:estimate_detail', args=[self.estimate.estimate_id]))
+        self.assertRedirects(response, reverse('jobs:estimate_detail', args=[draft_estimate.estimate_id]))
 
         # No new estimate should be created
         new_estimate = Estimate.objects.filter(
             job=self.job,
-            parent=self.estimate
+            parent=draft_estimate
         ).first()
         self.assertIsNone(new_estimate)
 
         # Original should remain draft
-        self.estimate.refresh_from_db()
-        self.assertEqual(self.estimate.status, 'draft')
+        draft_estimate.refresh_from_db()
+        self.assertEqual(draft_estimate.status, 'draft')
 
     def test_line_items_copied_during_revision(self):
         """Test that line items are copied to new revision."""
@@ -306,10 +306,15 @@ class EstimateRevisionTests(TestCase):
 
     def test_revise_button_hidden_for_draft(self):
         """Test that revise button is hidden for draft estimates."""
-        self.estimate.status = 'draft'
-        self.estimate.save()
+        # Create a draft estimate (can't transition from open to draft)
+        draft_estimate = Estimate.objects.create(
+            job=self.job,
+            estimate_number='EST-003',
+            version=1,
+            status='draft'
+        )
 
-        url = reverse('jobs:estimate_detail', args=[self.estimate.estimate_id])
+        url = reverse('jobs:estimate_detail', args=[draft_estimate.estimate_id])
         response = self.client.get(url)
 
         self.assertEqual(response.status_code, 200)
@@ -399,14 +404,15 @@ class EstimateWorkflowIntegrationTests(TestCase):
 
     def test_complete_workflow(self):
         """Test complete workflow from creation through multiple revisions."""
-        # Step 1: Create first estimate
+        # Step 1: Create first estimate directly
         url = reverse('jobs:estimate_create_for_job', args=[self.job.job_id])
-        data = {
-            'status': 'draft'
-        }
-        response = self.client.post(url, data)
+        response = self.client.get(url)
+
+        # Should redirect after creation
+        self.assertEqual(response.status_code, 302)
 
         estimate_v1 = Estimate.objects.filter(job=self.job).first()
+        self.assertIsNotNone(estimate_v1)
         self.assertEqual(estimate_v1.version, 1)
         self.assertEqual(estimate_v1.status, 'draft')
 

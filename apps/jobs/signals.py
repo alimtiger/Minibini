@@ -38,19 +38,29 @@ def update_job_status(sender, estimate, new_job_status, **kwargs):
     Business rules:
     - When estimate is accepted, job becomes approved (unless already complete)
     - When approved estimate is superseded, job becomes blocked (unless already complete)
+    - Respects state transition rules: must go through intermediate states
     """
     from apps.jobs.models import Job
 
     job = estimate.job
 
-    # Don't update completed jobs
-    if job.status == 'complete':
+    # Don't update completed or cancelled jobs
+    if job.status in ['completed', 'cancelled']:
         return 0
 
-    # Update job status if needed
+    # Update job status if needed, respecting state transition rules
     if job.status != new_job_status:
-        job.status = new_job_status
-        job.save()
-        return 1
+        # If trying to go to 'approved' from 'draft', first go through 'submitted'
+        if new_job_status == 'approved' and job.status == 'draft':
+            job.status = 'submitted'
+            job.save()
+            # Now transition to approved
+            job.status = 'approved'
+            job.save()
+            return 2  # Two transitions made
+        else:
+            job.status = new_job_status
+            job.save()
+            return 1
 
     return 0

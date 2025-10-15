@@ -1,18 +1,29 @@
 from django.db import models
+from django.utils import timezone
 from decimal import Decimal
 from apps.core.models import BaseLineItem
 
 
 class Invoice(models.Model):
     INVOICE_STATUS_CHOICES = [
-        ('active', 'Active'),
+        ('draft', 'Draft'),
+        ('open', 'Open'),
         ('cancelled', 'Cancelled'),
+        ('superseded', 'Superseded'),
+        ('partly-paid', 'Partly Paid'),
+        ('paid', 'Paid in Full'),
+        ('defaulted', 'Defaulted'),
     ]
 
     invoice_id = models.AutoField(primary_key=True)
     job = models.ForeignKey('jobs.Job', on_delete=models.CASCADE)
     invoice_number = models.CharField(max_length=50, unique=True)
     status = models.CharField(max_length=20, choices=INVOICE_STATUS_CHOICES, default='active')
+    created_date = models.DateTimeField(default=timezone.now)
+    # date the invoice was sent to the customer and stopped being editable
+    sent_date = models.DateTimeField(null=True, blank=True)
+    # date the estimate was Paid in Full, or marked Defaulted
+    closed_date = models.DateTimeField(null=True, blank=True)
 
     @property
     def customer_po_number(self):

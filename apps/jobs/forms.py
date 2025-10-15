@@ -71,10 +71,11 @@ class JobEditForm(forms.ModelForm):
 
     Field editability by status:
     - Draft: All fields except job_number and completed_date
-    - Approved/Needs Attention/Blocked: status, description, due_date, customer_po_number
+    - Submitted/Approved: status, name, description, due_date, customer_po_number
       (NOT contact, NOT created_date)
-    - Rejected: status only
-    - Complete: Not yet implemented (no changes allowed)
+    - Rejected: status only (terminal state, but form allows status field)
+    - Completed: All fields disabled (terminal state)
+    - Cancelled: All fields disabled (terminal state)
     """
     contact = forms.ModelChoiceField(
         queryset=Contact.objects.all().select_related('business'),
@@ -103,7 +104,7 @@ class JobEditForm(forms.ModelForm):
 
     class Meta:
         model = Job
-        fields = ['contact', 'status', 'created_date', 'description', 'due_date', 'customer_po_number']
+        fields = ['contact', 'status', 'created_date', 'name', 'description', 'due_date', 'customer_po_number']
         widgets = {
             'customer_po_number': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Optional'}),
             'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 4}),
@@ -124,7 +125,7 @@ class JobEditForm(forms.ModelForm):
                 # Draft: Can edit everything except job_number and completed_date
                 pass  # All fields already available
 
-            elif current_status in ['approved', 'needs_attention', 'blocked']:
+            elif current_status in ['submitted', 'approved']:
                 # Can't change contact or created_date
                 self.fields['contact'].disabled = True
                 self.fields['contact'].help_text = 'Contact cannot be changed in this status'
@@ -132,16 +133,17 @@ class JobEditForm(forms.ModelForm):
                 self.fields['created_date'].help_text = 'Created date cannot be changed in this status'
 
             elif current_status == 'rejected':
-                # Can only change status
+                # Can only change status (but rejected is terminal, so this shouldn't work)
                 self.fields['contact'].disabled = True
                 self.fields['created_date'].disabled = True
+                self.fields['name'].disabled = True
                 self.fields['description'].disabled = True
                 self.fields['due_date'].disabled = True
                 self.fields['customer_po_number'].disabled = True
                 self.fields['contact'].help_text = 'Only status can be changed for rejected jobs'
 
-            elif current_status == 'complete':
-                # Complete jobs cannot be edited (not yet fully implemented)
+            elif current_status in ['completed', 'cancelled']:
+                # Terminal states: All fields disabled
                 for field_name in self.fields:
                     self.fields[field_name].disabled = True
 
@@ -168,7 +170,7 @@ class TaskTemplateForm(forms.ModelForm):
         widget=forms.Select(attrs={'class': 'form-control'}),
         empty_label="-- Select Task Mapping (Optional) --"
     )
-    
+
     class Meta:
         model = TaskTemplate
         fields = ['template_name', 'description', 'units', 'rate', 'task_mapping', 'is_active']
@@ -193,9 +195,6 @@ class EstWorksheetForm(forms.ModelForm):
         # Template is optional
         self.fields['template'].required = False
         self.fields['template'].empty_label = "-- No Template (Manual) --"
-
-
-# Removed EstWorksheetFromTemplateForm - functionality merged into EstWorksheetForm
 
 
 class TaskForm(forms.ModelForm):
@@ -224,25 +223,37 @@ class TaskFromTemplateForm(forms.Form):
     )
 
 
-class EstimateLineItemForm(forms.ModelForm):
-    """Form for creating/editing EstimateLineItem"""
+class ManualLineItemForm(forms.ModelForm):
+    """Form for creating a manual line item (not linked to a Price List Item)"""
     class Meta:
         model = EstimateLineItem
-        fields = ['description', 'qty', 'units', 'price_currency', 'task', 'price_list_item']
+        fields = ['description', 'qty', 'units', 'price_currency']
         widgets = {
             'qty': forms.NumberInput(attrs={'step': '0.01'}),
             'price_currency': forms.NumberInput(attrs={'step': '0.01'}),
             'description': forms.Textarea(attrs={'rows': 3}),
         }
+        labels = {
+            'price_currency': 'Price',
+        }
 
-    def __init__(self, *args, **kwargs):
-        estimate = kwargs.pop('estimate', None)
-        super().__init__(*args, **kwargs)
-        if estimate:
-            # Only show tasks from the estimate's job
-            self.fields['task'].queryset = Task.objects.filter(
-                est_worksheet__job=estimate.job
-            )
+
+class PriceListLineItemForm(forms.Form):
+    """Form for creating a line item from a Price List Item"""
+    from apps.invoicing.models import PriceListItem
+
+    price_list_item = forms.ModelChoiceField(
+        queryset=PriceListItem.objects.all(),
+        required=True,
+        label="Price List Item"
+    )
+    qty = forms.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        initial=1.0,
+        widget=forms.NumberInput(attrs={'step': '0.01'}),
+        label="Qty"
+    )
 
 
 class EstimateForm(forms.ModelForm):
@@ -279,10 +290,11 @@ class EstimateStatusForm(forms.Form):
     """Form for changing Estimate status"""
     VALID_TRANSITIONS = {
         'draft': ['open', 'rejected'],
-        'open': ['accepted', 'rejected', 'superseded'],
-        'accepted': ['superseded'],
-        'rejected': [],
-        'superseded': []
+        'open': ['accepted', 'superseded', 'rejected', 'expired'],
+        'accepted': [],  # Terminal state
+        'rejected': [],  # Terminal state
+        'expired': [],  # Terminal state
+        'superseded': []  # Terminal state
     }
 
     status = forms.ChoiceField(choices=[], required=True)
@@ -298,6 +310,11 @@ class EstimateStatusForm(forms.Form):
 
         self.fields['status'].choices = choices
         self.fields['status'].initial = current_status
+
+    @staticmethod
+    def has_valid_transitions(current_status):
+        """Check if the current status has any valid transitions."""
+        return len(EstimateStatusForm.VALID_TRANSITIONS.get(current_status, [])) > 0
 
     def clean_status(self):
         status = self.cleaned_data['status']

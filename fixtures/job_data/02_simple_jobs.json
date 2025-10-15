@@ -3,8 +3,10 @@
   "model": "jobs.job",
   "pk": 1,
   "fields": {
-    "job_number": "JOB-2025-0001",
+    "job_number": "J2025-0001",
+    "name": "Concrete forms",
     "created_date": "2025-01-15T10:00:00Z",
+    "start_date": null,
     "due_date": null,
     "completed_date": null,
     "status": "approved",
@@ -17,8 +19,10 @@
   "model": "jobs.job",
   "pk": 2,
   "fields": {
-    "job_number": "JOB-2025-0002",
+    "job_number": "J2025-0002",
+    "name": "Dining table and chairs",
     "created_date": "2025-02-01T14:30:00Z",
+    "start_date": null,
     "due_date": null,
     "completed_date": null,
     "status": "approved",
@@ -31,8 +35,10 @@
   "model": "jobs.job",
   "pk": 3,
   "fields": {
-    "job_number": "JOB-2025-0003",
+    "job_number": "J2025-0003",
+    "name": "Pizzeria sign",
     "created_date": "2025-02-10T09:15:00Z",
+    "start_date": null,
     "due_date": null,
     "completed_date": null,
     "status": "approved",
@@ -45,8 +51,10 @@
   "model": "jobs.job",
   "pk": 4,
   "fields": {
-    "job_number": "JOB-2025-0004",
+    "job_number": "J2025-0004",
+    "name": "Museum desk with monitors",
     "created_date": "2025-09-24T04:45:46.002Z",
+    "start_date": null,
     "due_date": "2025-10-31T21:45:00Z",
     "completed_date": null,
     "status": "draft",
@@ -56,16 +64,34 @@
   }
 },
 {
+  "model": "jobs.job",
+  "pk": 5,
+  "fields": {
+    "job_number": "J2025-0005",
+    "name": "",
+    "created_date": "2025-10-13T16:54:41.008Z",
+    "start_date": null,
+    "due_date": "2025-12-05T00:00:00Z",
+    "completed_date": null,
+    "status": "draft",
+    "contact": 7,
+    "customer_po_number": "",
+    "description": "six 2-top tables from that pile of partial 1-1/4\" prefin BB ply"
+  }
+},
+{
   "model": "jobs.estimate",
   "pk": 1,
   "fields": {
     "job": 1,
-    "estimate_number": "EST-2025-0001",
+    "estimate_number": "E2025-0001",
     "version": 1,
     "status": "accepted",
     "parent": null,
     "created_date": "2025-01-15T11:00:00Z",
-    "superseded_date": null
+    "sent_date": "2025-02-16T10:30:00Z",
+    "closed_date": "2025-02-20T07:30:00Z",
+    "expiration_date": "2026-11-15T11:00:00Z"
   }
 },
 {
@@ -73,12 +99,14 @@
   "pk": 2,
   "fields": {
     "job": 3,
-    "estimate_number": "EST-2025-0003",
+    "estimate_number": "E2025-0003",
     "version": 1,
     "status": "superseded",
     "parent": null,
     "created_date": "2025-02-10T10:00:00Z",
-    "superseded_date": "2025-02-12T14:00:00Z"
+    "sent_date": null,
+    "closed_date": "2025-02-12T14:00:00Z",
+    "expiration_date": "2025-02-12T14:00:00Z"
   }
 },
 {
@@ -86,12 +114,14 @@
   "pk": 3,
   "fields": {
     "job": 3,
-    "estimate_number": "EST-2025-0003",
+    "estimate_number": "E2025-0003",
     "version": 2,
     "status": "superseded",
     "parent": 2,
     "created_date": "2025-02-12T14:00:00Z",
-    "superseded_date": "2025-02-15T16:30:00Z"
+    "sent_date": null,
+    "closed_date": "2025-02-15T16:30:00Z",
+    "expiration_date": "2025-02-15T16:30:00Z"
   }
 },
 {
@@ -99,12 +129,14 @@
   "pk": 4,
   "fields": {
     "job": 3,
-    "estimate_number": "EST-2025-0003",
+    "estimate_number": "E2025-0003",
     "version": 3,
     "status": "superseded",
     "parent": 3,
     "created_date": "2025-02-15T16:30:00Z",
-    "superseded_date": "2025-09-23T04:29:03.735Z"
+    "sent_date": null,
+    "closed_date": "2025-09-23T04:29:03.735Z",
+    "expiration_date": "2025-02-16T16:30:00Z"
   }
 },
 {
@@ -112,12 +144,14 @@
   "pk": 5,
   "fields": {
     "job": 3,
-    "estimate_number": "EST-2025-0003",
+    "estimate_number": "E2025-0003",
     "version": 4,
     "status": "accepted",
     "parent": 4,
     "created_date": "2025-09-23T04:29:03.720Z",
-    "superseded_date": null
+    "sent_date": "2025-09-26T16:30:00Z",
+    "closed_date": "2025-09-27T16:30:00Z",
+    "expiration_date": "2025-10-16T16:30:00Z"
   }
 },
 {
@@ -125,12 +159,29 @@
   "pk": 6,
   "fields": {
     "job": 2,
-    "estimate_number": "EST-2025-0006",
+    "estimate_number": "E2025-0006",
     "version": 1,
     "status": "accepted",
     "parent": null,
     "created_date": "2025-09-23T04:32:33.144Z",
-    "superseded_date": null
+    "sent_date": "2025-09-26T16:30:00Z",
+    "closed_date": "2025-09-27T16:30:00Z",
+    "expiration_date": "2025-10-16T16:30:00Z"
+  }
+},
+{
+  "model": "jobs.estimate",
+  "pk": 7,
+  "fields": {
+    "job": 5,
+    "estimate_number": "EST-2025-0007",
+    "version": 1,
+    "status": "draft",
+    "parent": null,
+    "created_date": "2025-10-13T16:56:09.651Z",
+    "sent_date": null,
+    "closed_date": null,
+    "expiration_date": null
   }
 },
 {

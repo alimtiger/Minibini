@@ -38,27 +38,29 @@ class EstimateCreationFromJobTests(TestCase):
         )
 
     def test_estimate_create_for_job_get(self):
-        """Test GET request to create estimate for job form."""
+        """Test GET request creates estimate directly and redirects."""
         url = reverse('jobs:estimate_create_for_job', args=[self.job.job_id])
         response = self.client.get(url)
 
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'Create New Estimate')
-        self.assertContains(response, self.job.job_number)
+        # Should redirect to estimate detail page after creation
+        self.assertEqual(response.status_code, 302)
+
+        # Check estimate was created
+        estimate = Estimate.objects.filter(job=self.job).first()
+        self.assertIsNotNone(estimate)
+        self.assertTrue(estimate.estimate_number.startswith('EST-'))
+        self.assertEqual(estimate.status, 'draft')
+        self.assertEqual(estimate.version, 1)
 
     def test_estimate_create_for_job_post(self):
-        """Test POST request to create estimate for job."""
+        """Test POST request creates estimate directly (same as GET)."""
         url = reverse('jobs:estimate_create_for_job', args=[self.job.job_id])
-        data = {
-            # estimate_number is auto-generated, not posted
-            'status': 'draft'
-        }
-        response = self.client.post(url, data)
+        response = self.client.post(url)
 
         # Check redirect after successful creation
         self.assertEqual(response.status_code, 302)
 
-        # Check estimate was created
+        # Check estimate was created with defaults
         estimate = Estimate.objects.filter(job=self.job).first()
         self.assertIsNotNone(estimate)
         # Verify auto-generated estimate number follows pattern
@@ -69,13 +71,9 @@ class EstimateCreationFromJobTests(TestCase):
 
     def test_estimate_versioning(self):
         """Test that versioning works when revising an estimate."""
-        # Create first estimate
+        # Create first estimate directly
         url = reverse('jobs:estimate_create_for_job', args=[self.job.job_id])
-        data = {
-            # estimate_number is auto-generated
-            'status': 'draft'
-        }
-        response = self.client.post(url, data)
+        response = self.client.get(url)
 
         # Get the created estimate and mark it as open
         estimate = Estimate.objects.filter(job=self.job).first()
@@ -93,13 +91,15 @@ class EstimateCreationFromJobTests(TestCase):
         self.assertEqual(estimates[0].version, 1)
         self.assertEqual(estimates[1].version, 2)
 
-    def test_estimate_number_not_in_form(self):
-        """Test that estimate number is not shown on form (assigned on save)."""
-        # Test new estimate form
+    def test_estimate_number_auto_generated(self):
+        """Test that estimate number is auto-generated (not user-provided)."""
+        # Create estimate directly
         url = reverse('jobs:estimate_create_for_job', args=[self.job.job_id])
         response = self.client.get(url)
 
-        # Estimate number should NOT be in the form (it's auto-generated on save)
-        self.assertNotContains(response, 'name="estimate_number"')
-        # Help text should indicate auto-generation
-        self.assertContains(response, 'automatically on save')
+        # Verify estimate was created with auto-generated number
+        estimate = Estimate.objects.filter(job=self.job).first()
+        self.assertIsNotNone(estimate)
+        self.assertTrue(estimate.estimate_number.startswith('EST-'))
+        # Verify it follows the pattern EST-YYYY-NNNN
+        self.assertRegex(estimate.estimate_number, r'^EST-\d{4}-\d{4}$')

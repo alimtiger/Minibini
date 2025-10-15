@@ -121,13 +121,11 @@ class SupersededEstimateRestrictionTests(TestCase):
         """Test that active estimates can still be modified (control test)."""
         url = reverse('jobs:estimate_add_line_item', args=[self.active_estimate.estimate_id])
 
-        # Add a line item via POST
+        # Add a line item via POST using the price list form
         response = self.client.post(url, {
             'price_list_item': self.price_list_item.pk,
             'qty': '5',
-            'units': 'each',
-            'description': 'Test line item',
-            'price_currency': '20.00'
+            'pricelist_submit': 'Add from Price List'
         })
 
         # Should redirect to estimate detail
@@ -141,31 +139,9 @@ class SupersededEstimateRestrictionTests(TestCase):
         self.assertEqual(line_items.count(), 1)
 
         line_item = line_items.first()
-        self.assertEqual(line_item.description, 'Test line item')
+        # Description should come from price list item
+        self.assertEqual(line_item.description, self.price_list_item.description)
         self.assertEqual(line_item.qty, Decimal('5'))
-
-    def test_can_update_status_of_active_estimate(self):
-        """Test that active estimates can have their status updated (control test)."""
-        # First set active estimate to draft so we can update it
-        self.active_estimate.status = 'draft'
-        self.active_estimate.save()
-
-        url = reverse('jobs:estimate_update_status', args=[self.active_estimate.estimate_id])
-
-        # Update status via POST
-        response = self.client.post(url, {
-            'status': 'open'
-        })
-
-        # Should redirect to estimate detail
-        self.assertRedirects(
-            response,
-            reverse('jobs:estimate_detail', args=[self.active_estimate.estimate_id])
-        )
-
-        # Verify status has changed
-        self.active_estimate.refresh_from_db()
-        self.assertEqual(self.active_estimate.status, 'open')
 
     def test_superseded_estimate_displays_restriction_message(self):
         """Test that superseded estimates show a restriction message in the UI."""

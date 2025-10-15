@@ -16,6 +16,10 @@
             <th>Job</th>
             <th>Version</th>
             <th>Status</th>
+            <th>Created</th>
+            <th>Sent</th>
+            <th>Expiration</th>
+            <th>Closed</th>
         </tr>
         {% for estimate in estimates %}
         <tr>
@@ -23,6 +27,10 @@
             <td><a href="{% url 'jobs:detail' estimate.job.pk %}">{{ estimate.job }}</a></td>
             <td>{{ estimate.version }}</td>
             <td>{{ estimate.get_status_display }}</td>
+            <td>{{ estimate.created_date|date:"Y-m-d" }}</td>
+            <td>{{ estimate.sent_date|date:"Y-m-d"|default:"—" }}</td>
+            <td>{{ estimate.expiration_date|date:"Y-m-d"|default:"—" }}</td>
+            <td>{{ estimate.closed_date|date:"Y-m-d"|default:"—" }}</td>
         </tr>
         {% endfor %}
     </table>
