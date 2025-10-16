@@ -25,13 +25,12 @@
             <th>Subject</th>
             <th>Job</th>
             <th>Attachments</th>
-            <th>Actions</th>
         </tr>
         {% for email in emails %}
         <tr>
             <td>{{ email.date_sent|date:"Y-m-d H:i" }}</td>
             <td>{{ email.from_email }}</td>
-            <td>{{ email.subject|truncatewords:10 }}</td>
+            <td><a href="{% url 'core:email_detail' email.email_record.email_record_id %}">{{ email.subject|truncatewords:10 }}</a></td>
             <td>
                 {% if email.email_record.job %}
                     <a href="{% url 'jobs:detail' email.email_record.job.job_id %}">{{ email.email_record.job.job_number }}</a>
@@ -40,7 +39,6 @@
                 {% endif %}
             </td>
             <td>{% if email.has_attachments %}Yes{% else %}No{% endif %}</td>
-            <td><a href="{% url 'core:email_detail' email.email_record.email_record_id %}">View</a></td>
         </tr>
         {% endfor %}
     </table>
