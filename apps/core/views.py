@@ -5,6 +5,7 @@ from .models import User, EmailRecord, TempEmail
 from .services import EmailService
 from .email_utils import parse_email_address, extract_company_from_signature, extract_email_body
 from apps.contacts.models import Contact, Business
+from apps.jobs.models import Job
 
 def user_list(request):
     users = User.objects.all().order_by('username')
@@ -146,3 +147,75 @@ def create_job_from_email(request, email_record_id):
         contact = contacts.first()
         url = reverse('jobs:create') + f'?contact_id={contact.contact_id}&description={email_body[:200]}'
         return redirect(url)
+
+
+def associate_email_with_job(request, email_record_id):
+    """
+    Associate an email with an existing job.
+
+    GET: Display form with job selection dropdown
+    POST: Link the email to the selected job
+    """
+    email_record = get_object_or_404(EmailRecord, pk=email_record_id)
+
+    if request.method == 'POST':
+        job_id = request.POST.get('job_id')
+
+        if not job_id:
+            messages.error(request, 'Please select a job.')
+            return redirect('core:associate_email_with_job', email_record_id=email_record_id)
+
+        try:
+            job = Job.objects.get(pk=job_id)
+            email_record.job = job
+            email_record.save()
+            messages.success(request, f'Email associated with job {job.job_number}.')
+            return redirect('core:email_detail', email_record_id=email_record_id)
+        except Job.DoesNotExist:
+            messages.error(request, 'Selected job does not exist.')
+            return redirect('core:associate_email_with_job', email_record_id=email_record_id)
+
+    # GET request - show form
+    # Get all jobs ordered by most recent first
+    jobs = Job.objects.all().order_by('-created_date')
+
+    # Fetch email content for display
+    service = EmailService()
+    email_content = service.get_email_content(email_record_id)
+
+    # Get temp data if available for metadata
+    temp_data = None
+    if hasattr(email_record, 'temp_data'):
+        temp_data = email_record.temp_data
+
+    context = {
+        'email_record': email_record,
+        'temp_data': temp_data,
+        'email_content': email_content,
+        'jobs': jobs,
+    }
+    return render(request, 'core/associate_email_with_job.html', context)
+
+
+def disassociate_email_from_job(request, email_record_id):
+    """
+    Remove the job association from an email.
+
+    POST only: Unlink the email from its associated job
+    """
+    if request.method != 'POST':
+        messages.error(request, 'Invalid request method.')
+        return redirect('core:email_detail', email_record_id=email_record_id)
+
+    email_record = get_object_or_404(EmailRecord, pk=email_record_id)
+
+    if not email_record.job:
+        messages.warning(request, 'Email is not associated with any job.')
+        return redirect('core:email_detail', email_record_id=email_record_id)
+
+    job_number = email_record.job.job_number
+    email_record.job = None
+    email_record.save()
+
+    messages.success(request, f'Email disassociated from job {job_number}.')
+    return redirect('core:email_detail', email_record_id=email_record_id)

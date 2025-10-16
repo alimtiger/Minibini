@@ -566,3 +566,248 @@ class JobCreateWithEmailLinkingTest(TestCase):
         # Check form has pre-selected contact
         form = response.context['form']
         self.assertEqual(form.fields['contact'].initial, self.contact)
+
+
+class EmailJobAssociationTest(TestCase):
+    """Test associating and disassociating emails with jobs"""
+
+    fixtures = ['email_workflow_test_data.json']
+
+    def setUp(self):
+        self.client = Client()
+
+        # Create Configuration for number generation
+        Configuration.objects.create(key='job_number_sequence', value='JOB-{year}-{counter:04d}')
+        Configuration.objects.create(key='job_counter', value='0')
+        Configuration.objects.create(key='estimate_number_sequence', value='EST-{year}-{counter:04d}')
+        Configuration.objects.create(key='estimate_counter', value='0')
+        Configuration.objects.create(key='invoice_number_sequence', value='INV-{year}-{counter:04d}')
+        Configuration.objects.create(key='invoice_counter', value='0')
+        Configuration.objects.create(key='po_number_sequence', value='PO-{year}-{counter:04d}')
+        Configuration.objects.create(key='po_counter', value='0')
+
+    def _mock_email_content(self, from_header, subject, body_text):
+        """Helper to create mock email content"""
+        return {
+            'from': from_header,
+            'to': ['info@minibini.com'],
+            'cc': [],
+            'date': '2024-01-15 10:00:00',
+            'subject': subject,
+            'text': body_text,
+            'html': '',
+            'attachments': []
+        }
+
+    @patch('apps.core.views.EmailService')
+    def test_associate_email_get_shows_job_list(self, mock_service_class):
+        """Test GET request shows form with job dropdown"""
+        # Setup mock
+        mock_service = MagicMock()
+        mock_service_class.return_value = mock_service
+
+        email_content = self._mock_email_content(
+            from_header='Alice Johnson <alice@acme.com>',
+            subject='Request for Quote',
+            body_text='Hi, I need a quote.'
+        )
+        mock_service.get_email_content.return_value = email_content
+
+        # Create a couple of jobs
+        contact = Contact.objects.get(pk=1)
+        job1 = Job.objects.create(
+            job_number='JOB-2024-001',
+            contact=contact,
+            description='First job',
+            status='draft'
+        )
+        job2 = Job.objects.create(
+            job_number='JOB-2024-002',
+            contact=contact,
+            description='Second job',
+            status='submitted'
+        )
+
+        email_record = EmailRecord.objects.get(pk=1)
+        url = reverse('core:associate_email_with_job', args=[email_record.email_record_id])
+
+        response = self.client.get(url)
+
+        # Should show the form
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Select Job')
+        self.assertContains(response, job1.job_number)
+        self.assertContains(response, job2.job_number)
+        self.assertContains(response, 'Associate Email with Job')
+
+    @patch('apps.core.views.EmailService')
+    def test_associate_email_post_success(self, mock_service_class):
+        """Test POST request successfully associates email with job"""
+        # Create a job
+        contact = Contact.objects.get(pk=1)
+        job = Job.objects.create(
+            job_number='JOB-2024-001',
+            contact=contact,
+            description='Test job',
+            status='draft'
+        )
+
+        email_record = EmailRecord.objects.get(pk=1)
+        self.assertIsNone(email_record.job)
+
+        url = reverse('core:associate_email_with_job', args=[email_record.email_record_id])
+
+        response = self.client.post(url, data={'job_id': job.job_id})
+
+        # Should redirect to email detail
+        self.assertEqual(response.status_code, 302)
+        self.assertIn(f'inbox/{email_record.email_record_id}', response.url)
+
+        # Email should now be associated with job
+        email_record.refresh_from_db()
+        self.assertEqual(email_record.job, job)
+
+    @patch('apps.core.views.EmailService')
+    def test_associate_email_post_no_job_selected(self, mock_service_class):
+        """Test POST request without selecting a job shows error"""
+        email_record = EmailRecord.objects.get(pk=1)
+        url = reverse('core:associate_email_with_job', args=[email_record.email_record_id])
+
+        response = self.client.post(url, data={'job_id': ''})
+
+        # Should redirect back to form
+        self.assertEqual(response.status_code, 302)
+        self.assertIn('associate-job', response.url)
+
+        # Email should still not be associated
+        email_record.refresh_from_db()
+        self.assertIsNone(email_record.job)
+
+    @patch('apps.core.views.EmailService')
+    def test_associate_email_post_invalid_job_id(self, mock_service_class):
+        """Test POST request with invalid job ID shows error"""
+        email_record = EmailRecord.objects.get(pk=1)
+        url = reverse('core:associate_email_with_job', args=[email_record.email_record_id])
+
+        response = self.client.post(url, data={'job_id': 99999})
+
+        # Should redirect back to form
+        self.assertEqual(response.status_code, 302)
+        self.assertIn('associate-job', response.url)
+
+        # Email should still not be associated
+        email_record.refresh_from_db()
+        self.assertIsNone(email_record.job)
+
+    def test_disassociate_email_success(self):
+        """Test disassociating email from job"""
+        # Create a job and associate it with email
+        contact = Contact.objects.get(pk=1)
+        job = Job.objects.create(
+            job_number='JOB-2024-001',
+            contact=contact,
+            description='Test job',
+            status='draft'
+        )
+
+        email_record = EmailRecord.objects.get(pk=1)
+        email_record.job = job
+        email_record.save()
+
+        url = reverse('core:disassociate_email_from_job', args=[email_record.email_record_id])
+
+        response = self.client.post(url)
+
+        # Should redirect to email detail
+        self.assertEqual(response.status_code, 302)
+        self.assertIn(f'inbox/{email_record.email_record_id}', response.url)
+
+        # Email should no longer be associated with job
+        email_record.refresh_from_db()
+        self.assertIsNone(email_record.job)
+
+    def test_disassociate_email_not_associated(self):
+        """Test disassociating email that is not associated with any job"""
+        email_record = EmailRecord.objects.get(pk=1)
+        self.assertIsNone(email_record.job)
+
+        url = reverse('core:disassociate_email_from_job', args=[email_record.email_record_id])
+
+        response = self.client.post(url)
+
+        # Should still redirect to email detail
+        self.assertEqual(response.status_code, 302)
+        self.assertIn(f'inbox/{email_record.email_record_id}', response.url)
+
+    def test_disassociate_email_get_request_fails(self):
+        """Test that GET request to disassociate endpoint fails"""
+        email_record = EmailRecord.objects.get(pk=1)
+        url = reverse('core:disassociate_email_from_job', args=[email_record.email_record_id])
+
+        response = self.client.get(url)
+
+        # Should redirect back to email detail
+        self.assertEqual(response.status_code, 302)
+        self.assertIn(f'inbox/{email_record.email_record_id}', response.url)
+
+    @patch('apps.core.views.EmailService')
+    def test_email_detail_shows_associate_link_when_not_associated(self, mock_service_class):
+        """Test email detail page shows associate link when email is not linked to job"""
+        # Setup mock
+        mock_service = MagicMock()
+        mock_service_class.return_value = mock_service
+
+        email_content = self._mock_email_content(
+            from_header='Alice Johnson <alice@acme.com>',
+            subject='Request for Quote',
+            body_text='Hi, I need a quote.'
+        )
+        mock_service.get_email_content.return_value = email_content
+
+        email_record = EmailRecord.objects.get(pk=1)
+        self.assertIsNone(email_record.job)
+
+        url = reverse('core:email_detail', args=[email_record.email_record_id])
+        response = self.client.get(url)
+
+        # Should show associate link
+        self.assertContains(response, 'Associate with Existing Job')
+        self.assertContains(response, 'associate-job')
+
+    @patch('apps.core.views.EmailService')
+    def test_email_detail_shows_disassociate_button_when_associated(self, mock_service_class):
+        """Test email detail page shows disassociate button when email is linked to job"""
+        # Setup mock
+        mock_service = MagicMock()
+        mock_service_class.return_value = mock_service
+
+        email_content = self._mock_email_content(
+            from_header='Alice Johnson <alice@acme.com>',
+            subject='Request for Quote',
+            body_text='Hi, I need a quote.'
+        )
+        mock_service.get_email_content.return_value = email_content
+
+        # Create a job and associate it with email
+        contact = Contact.objects.get(pk=1)
+        job = Job.objects.create(
+            job_number='JOB-2024-001',
+            contact=contact,
+            description='Test job',
+            status='draft'
+        )
+
+        email_record = EmailRecord.objects.get(pk=1)
+        email_record.job = job
+        email_record.save()
+
+        url = reverse('core:email_detail', args=[email_record.email_record_id])
+        response = self.client.get(url)
+
+        # Should show job link and disassociate button
+        self.assertContains(response, job.job_number)
+        self.assertContains(response, 'Disassociate')
+        self.assertContains(response, 'disassociate-job')
+        # Should NOT show create job or associate links
+        self.assertNotContains(response, 'Create Job from this Email')
+        self.assertNotContains(response, 'Associate with Existing Job')

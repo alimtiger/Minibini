@@ -9,6 +9,7 @@
     <a href="{% url 'core:email_inbox' %}">&larr; Back to Inbox</a>
     {% if not email_record.job %}
         | <strong><a href="{% url 'core:create_job_from_email' email_record.email_record_id %}">Create Job from this Email</a></strong>
+        | <a href="{% url 'core:associate_email_with_job' email_record.email_record_id %}">Associate with Existing Job</a>
     {% endif %}
 </p>
 
@@ -41,6 +42,10 @@
             <td>
                 {% if email_record.job %}
                     <a href="{% url 'jobs:detail' email_record.job.job_id %}">{{ email_record.job.job_number }}</a> - {{ email_record.job.description|truncatewords:10 }}
+                    <form method="post" action="{% url 'core:disassociate_email_from_job' email_record.email_record_id %}" style="display: inline; margin-left: 10px;">
+                        {% csrf_token %}
+                        <button type="submit" onclick="return confirm('Are you sure you want to disassociate this email from the job?');">Disassociate</button>
+                    </form>
                 {% else %}
                     <em>Not linked to any job</em>
                 {% endif %}
