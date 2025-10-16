@@ -465,6 +465,7 @@
   "pk": 1,
   "fields": {}
 },
+
 {
   "model": "jobs.tasktemplate",
   "pk": 1,
@@ -705,6 +706,86 @@
     "line_item_description": "",
     "task_type_id": "QA",
     "breakdown_of_task": "Quality assurance and inspection"
+  }
+},
+{
+  "model": "jobs.templatetaskassociation",
+  "pk": 1,
+  "fields": {
+    "work_order_template": 4,
+    "task_template": 7,
+    "est_qty": "1.00",
+    "sort_order": 1
+  }
+},
+{
+  "model": "jobs.templatetaskassociation",
+  "pk": 2,
+  "fields": {
+    "work_order_template": 4,
+    "task_template": 2,
+    "est_qty": "3.00",
+    "sort_order": 2
+  }
+},
+{
+  "model": "jobs.templatetaskassociation",
+  "pk": 3,
+  "fields": {
+    "work_order_template": 4,
+    "task_template": 3,
+    "est_qty": "85.00",
+    "sort_order": 3
+  }
+},
+{
+  "model": "jobs.templatetaskassociation",
+  "pk": 4,
+  "fields": {
+    "work_order_template": 4,
+    "task_template": 5,
+    "est_qty": "5.00",
+    "sort_order": 4
+  }
+},
+{
+  "model": "jobs.templatetaskassociation",
+  "pk": 5,
+  "fields": {
+    "work_order_template": 3,
+    "task_template": 2,
+    "est_qty": "10.00",
+    "sort_order": 1
+  }
+},
+{
+  "model": "jobs.templatetaskassociation",
+  "pk": 6,
+  "fields": {
+    "work_order_template": 3,
+    "task_template": 3,
+    "est_qty": "125.00",
+    "sort_order": 2
+  }
+},
+{
+  "model": "jobs.templatetaskassociation",
+  "pk": 7,
+  "fields": {
+    "work_order_template": 3,
+    "task_template": 4,
+    "est_qty": "3.00",
+    "sort_order": 3
+  }
+},
+{
+  "model": "jobs.templatetaskassociation",
+  "pk": 8,
+  "fields": {
+    "work_order_template": 3,
+    "task_template": 5,
+    "est_qty": "12.00",
+    "sort_order": 4
   }
 },
 {

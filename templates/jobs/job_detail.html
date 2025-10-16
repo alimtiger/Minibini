@@ -45,10 +45,9 @@
     <tr>
         <td>Contact</td>
         <td>
-            {% if job.contact %}
-                <a href="{% url 'contacts:contact_detail' job.contact.contact_id %}">{{ job.contact.name }}</a>
-            {% else %}
-                No contact
+            <a href="{% url 'contacts:contact_detail' job.contact.contact_id %}">{{ job.contact.name }}</a>
+            {% if job.contact.business %}
+                - <a href="{% url 'contacts:business_detail' job.contact.business.business_id %}">{{ job.contact.business.business_name }}</a>
             {% endif %}
         </td>
     </tr>
@@ -83,7 +82,7 @@
                 <td>{{ worksheet.created_date|date:"M d, Y" }}</td>
                 <td>
                     {% if worksheet.estimate %}
-                        <a href="{% url 'jobs:estimate_detail' worksheet.estimate.estimate_id %}">{{ worksheet.estimate.estimate_number }}</a>
+                        <a href="{% url 'jobs:estimate_detail' worksheet.estimate.estimate_id %}">{{ worksheet.estimate.estimate_number }} -v{{ worksheet.estimate.version }}</a>
                     {% else %}
                         <em>Not generated</em>
                     {% endif %}
