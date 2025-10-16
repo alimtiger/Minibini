@@ -33,8 +33,8 @@ class Configuration(models.Model):
         - key="estimate_number_sequence", value="EST-{year}-{counter:04d}"
         - key="estimate_counter", value="0"
     """
-    key = models.CharField(max_length=100, primary_key=True)
-    value = models.TextField(blank=True)
+    key = models.CharField(max_length=100, primary_key=True, db_column='config_key')
+    value = models.TextField(blank=True, db_column='config_value')
 
     def __str__(self):
         return f"{self.key}: {self.value}"
