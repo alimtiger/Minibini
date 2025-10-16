@@ -16,10 +16,22 @@ def search_view(request):
     """
     query = request.GET.get('q', '').strip()
 
+    # Get filter parameters
+    filter_category = request.GET.get('category', '').strip()
+    date_from = request.GET.get('date_from', '').strip()
+    date_to = request.GET.get('date_to', '').strip()
+    price_min = request.GET.get('price_min', '').strip()
+    price_max = request.GET.get('price_max', '').strip()
+
     context = {
         'query': query,
         'categories': {},
         'total_count': 0,
+        'filter_category': filter_category,
+        'date_from': date_from,
+        'date_to': date_to,
+        'price_min': price_min,
+        'price_max': price_max,
     }
 
     if not query:
@@ -27,6 +39,20 @@ def search_view(request):
 
     # Initialize categories
     categories = {}
+
+    # Parse price filter values
+    price_min_value = None
+    price_max_value = None
+    if price_min:
+        try:
+            price_min_value = float(price_min)
+        except ValueError:
+            pass
+    if price_max:
+        try:
+            price_max_value = float(price_max)
+        except ValueError:
+            pass
 
     # BUSINESSES
     businesses = Business.objects.filter(
@@ -296,11 +322,114 @@ def search_view(request):
             'grouped_items': list(po_dict.values())
         }
 
-    context['categories'] = categories
+    # Apply category filter
+    if filter_category and filter_category != 'all':
+        if filter_category in categories:
+            categories = {filter_category: categories[filter_category]}
+        else:
+            categories = {}
+
+    # Apply date and price filters for items with dates/prices
+    from datetime import datetime
+    from decimal import Decimal
+
+    filtered_categories = {}
+    for category_name, category_data in categories.items():
+        if 'grouped_items' in category_data:
+            # Filter grouped items (Invoices, Estimates, POs, Bills, Work Orders)
+            filtered_groups = []
+            for group in category_data['grouped_items']:
+                parent = group['parent']
+
+                # Apply date filter
+                date_passes = True
+                if date_from or date_to:
+                    parent_date = None
+                    if hasattr(parent, 'created_date'):
+                        parent_date = parent.created_date
+
+                    if parent_date:
+                        if date_from:
+                            try:
+                                date_from_obj = datetime.strptime(date_from, '%Y-%m-%d').date()
+                                if parent_date.date() < date_from_obj:
+                                    date_passes = False
+                            except ValueError:
+                                pass
+                        if date_to:
+                            try:
+                                date_to_obj = datetime.strptime(date_to, '%Y-%m-%d').date()
+                                if parent_date.date() > date_to_obj:
+                                    date_passes = False
+                            except ValueError:
+                                pass
+
+                # Apply price filter on line items
+                if 'line_items' in group and (price_min_value is not None or price_max_value is not None):
+                    filtered_line_items = []
+                    for line_item in group['line_items']:
+                        total = line_item.total_amount
+                        price_passes = True
+                        if price_min_value is not None and total < Decimal(str(price_min_value)):
+                            price_passes = False
+                        if price_max_value is not None and total > Decimal(str(price_max_value)):
+                            price_passes = False
+                        if price_passes:
+                            filtered_line_items.append(line_item)
+                    group['line_items'] = filtered_line_items
+                    # Only include parent if it has matching line items or if no price filter
+                    if date_passes and (filtered_line_items or not (price_min_value or price_max_value)):
+                        filtered_groups.append(group)
+                elif date_passes:
+                    filtered_groups.append(group)
+
+            if filtered_groups:
+                filtered_categories[category_name] = {
+                    'grouped_items': filtered_groups
+                }
+        elif 'items' in category_data:
+            # For simple item categories (Jobs, Contacts, Businesses, Price List Items)
+            # Apply date filter if applicable
+            if date_from or date_to:
+                filtered_items = []
+                for item in category_data['items']:
+                    date_passes = True
+                    item_date = None
+                    if hasattr(item, 'created_date'):
+                        item_date = item.created_date
+
+                    if item_date:
+                        if date_from:
+                            try:
+                                date_from_obj = datetime.strptime(date_from, '%Y-%m-%d').date()
+                                if item_date.date() < date_from_obj:
+                                    date_passes = False
+                            except ValueError:
+                                pass
+                        if date_to:
+                            try:
+                                date_to_obj = datetime.strptime(date_to, '%Y-%m-%d').date()
+                                if item_date.date() > date_to_obj:
+                                    date_passes = False
+                            except ValueError:
+                                pass
+
+                    if date_passes:
+                        filtered_items.append(item)
+
+                if filtered_items:
+                    filtered_categories[category_name] = {
+                        'items': filtered_items,
+                        'subcategories': category_data.get('subcategories', {})
+                    }
+            else:
+                filtered_categories[category_name] = category_data
+
+    context['categories'] = filtered_categories
 
     # Calculate total count
     total = 0
-    for category_data in categories.values():
+    for category_data in filtered_categories.values():
         if 'items' in category_data:
             # Old structure (Jobs, Contacts, etc.)
             total += len(category_data['items'])
@@ -317,5 +446,10 @@ def search_view(request):
                     total += len(group['tasks'])  # Count the tasks
 
     context['total_count'] = total
+
+    # Add available categories for the filter dropdown
+    all_category_names = ['Businesses', 'Price List Items', 'Contacts', 'Invoices', 'Jobs',
+                          'Estimates', 'Work Orders', 'Bills', 'Purchase Orders']
+    context['available_categories'] = all_category_names
 
     return render(request, 'search/search_results.html', context)
