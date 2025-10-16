@@ -178,7 +178,7 @@
   "model": "core.configuration",
   "pk": "invoice_number_sequence",
   "fields": {
-    "value": "INV-{year}-{counter:04d}"
+    "value": "I{year}-{counter:04d}"
   }
 },
 {
