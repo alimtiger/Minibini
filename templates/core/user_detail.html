@@ -2,6 +2,10 @@
 
 {% block title %}User {{ user.username }} - Minibini{% endblock %}
 
+{% block navigation %}
+{% include 'includes/settings_navigation.html' %}
+{% endblock %}
+
 {% block content %}
 <h2>User: {{ user.username }}</h2>
 
