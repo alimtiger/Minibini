@@ -157,7 +157,7 @@
   "model": "core.configuration",
   "pk": "job_counter",
   "fields": {
-    "value": "4"
+    "value": "5"
   }
 },
 {
