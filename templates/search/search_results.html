@@ -57,6 +57,7 @@
                                     <strong>{{ line_item.description|truncatewords:15 }}</strong>
                                     - Qty: {{ line_item.qty }} {% if line_item.units %}{{ line_item.units }}{% endif %}
                                     - ${{ line_item.price_currency }} each
+                                    - Total: ${{ line_item.total_amount|floatformat:2 }}
                                 </li>
                                 {% endfor %}
                             </ul>
@@ -70,7 +71,9 @@
                                 <li style="margin-bottom: 8px;">
                                     <strong><a href="{% url 'jobs:task_detail' task.task_id %}">{{ task.name }}</a></strong>
                                     {% if task.assignee %} - Assigned to: {{ task.assignee.username }}{% endif %}
-                                    {% if task.units %} - {{ task.units }}{% endif %}
+                                    {% if task.est_qty %} - Qty: {{ task.est_qty }}{% endif %}
+                                    {% if task.units %} {{ task.units }}{% endif %}
+                                    {% if task.rate %} - ${{ task.rate }} each{% endif %}
                                     {% if task.status %} - Status: {{ task.status }}{% endif %}
                                 </li>
                                 {% endfor %}

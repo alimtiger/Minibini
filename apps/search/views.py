@@ -1,7 +1,7 @@
 from django.shortcuts import render
-from django.db.models import Q, Value
+from django.db.models import Q, Value, F
 from django.db.models.functions import Cast, Concat
-from django.db.models import CharField
+from django.db.models import CharField, DecimalField
 from apps.jobs.models import Job, Estimate, Task, WorkOrder, EstWorksheet, EstimateLineItem
 from apps.contacts.models import Contact, Business
 from apps.invoicing.models import Invoice, InvoiceLineItem, PriceListItem
@@ -84,13 +84,16 @@ def search_view(request):
 
     invoice_line_items = InvoiceLineItem.objects.annotate(
         price_text=Cast('price_currency', CharField()),
-        qty_text=Cast('qty', CharField())
+        qty_text=Cast('qty', CharField()),
+        total_amount_calc=F('qty') * F('price_currency'),
+        total_amount_text=Cast(F('qty') * F('price_currency'), CharField())
     ).filter(
         Q(description__icontains=query) |
         Q(invoice__invoice_number__icontains=query) |
         Q(price_text__icontains=query) |
         Q(qty_text__icontains=query) |
-        Q(units__icontains=query)
+        Q(units__icontains=query) |
+        Q(total_amount_text__icontains=query)
     ).select_related('invoice', 'invoice__job')
 
     # Build a dict of invoices with their matching line items
@@ -136,13 +139,16 @@ def search_view(request):
 
     estimate_line_items = EstimateLineItem.objects.annotate(
         price_text=Cast('price_currency', CharField()),
-        qty_text=Cast('qty', CharField())
+        qty_text=Cast('qty', CharField()),
+        total_amount_calc=F('qty') * F('price_currency'),
+        total_amount_text=Cast(F('qty') * F('price_currency'), CharField())
     ).filter(
         Q(description__icontains=query) |
         Q(estimate__estimate_number__icontains=query) |
         Q(price_text__icontains=query) |
         Q(qty_text__icontains=query) |
-        Q(units__icontains=query)
+        Q(units__icontains=query) |
+        Q(total_amount_text__icontains=query)
     ).select_related('estimate', 'estimate__job')
 
     # Build a dict of estimates with their matching line items
@@ -173,9 +179,12 @@ def search_view(request):
         Q(job__description__icontains=query)
     ).select_related('job').prefetch_related('task_set')
 
-    tasks = Task.objects.filter(
+    tasks = Task.objects.annotate(
+        rate_text=Cast('rate', CharField())
+    ).filter(
         Q(name__icontains=query) |
         Q(units__icontains=query) |
+        Q(rate_text__icontains=query) |
         Q(work_order__job__job_number__icontains=query)
     ).select_related('assignee', 'work_order', 'work_order__job', 'est_worksheet')
 
@@ -211,13 +220,16 @@ def search_view(request):
 
     bill_line_items = BillLineItem.objects.annotate(
         price_text=Cast('price_currency', CharField()),
-        qty_text=Cast('qty', CharField())
+        qty_text=Cast('qty', CharField()),
+        total_amount_calc=F('qty') * F('price_currency'),
+        total_amount_text=Cast(F('qty') * F('price_currency'), CharField())
     ).filter(
         Q(description__icontains=query) |
         Q(bill__vendor_invoice_number__icontains=query) |
         Q(price_text__icontains=query) |
         Q(qty_text__icontains=query) |
-        Q(units__icontains=query)
+        Q(units__icontains=query) |
+        Q(total_amount_text__icontains=query)
     ).select_related('bill', 'bill__purchase_order', 'bill__contact')
 
     # Build a dict of bills with their matching line items
@@ -250,13 +262,16 @@ def search_view(request):
 
     po_line_items = PurchaseOrderLineItem.objects.annotate(
         price_text=Cast('price_currency', CharField()),
-        qty_text=Cast('qty', CharField())
+        qty_text=Cast('qty', CharField()),
+        total_amount_calc=F('qty') * F('price_currency'),
+        total_amount_text=Cast(F('qty') * F('price_currency'), CharField())
     ).filter(
         Q(description__icontains=query) |
         Q(purchase_order__po_number__icontains=query) |
         Q(price_text__icontains=query) |
         Q(qty_text__icontains=query) |
-        Q(units__icontains=query)
+        Q(units__icontains=query) |
+        Q(total_amount_text__icontains=query)
     ).select_related('purchase_order', 'purchase_order__job')
 
     # Build a dict of purchase orders with their matching line items
