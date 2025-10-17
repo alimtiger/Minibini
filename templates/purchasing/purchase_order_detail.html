@@ -15,6 +15,16 @@
         <td>{{ purchase_order.po_number }}</td>
     </tr>
     <tr>
+        <td>Business</td>
+        <td>
+            {% if purchase_order.business %}
+                {{ purchase_order.business.business_name }}
+            {% else %}
+                No business assigned
+            {% endif %}
+        </td>
+    </tr>
+    <tr>
         <td>Job</td>
         <td>
             {% if purchase_order.job %}
@@ -24,13 +34,10 @@
             {% endif %}
         </td>
     </tr>
-    <tr>
-        <td>Price List Item</td>
-        <td>{{ purchase_order.price_list_item|default:"No price list item" }}</td>
-    </tr>
 </table>
 
 <h3>Line Items</h3>
+<p><a href="{% url 'purchasing:purchase_order_add_line_item' purchase_order.po_id %}">Add Line Item</a></p>
 {% if line_items %}
     <table border="1" style="border-collapse: collapse; width: 100%; margin-top: 10px;">
         <thead>

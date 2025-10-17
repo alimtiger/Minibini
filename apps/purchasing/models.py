@@ -4,6 +4,7 @@ from apps.core.models import BaseLineItem
 
 class PurchaseOrder(models.Model):
     po_id = models.AutoField(primary_key=True)
+    business = models.ForeignKey('contacts.Business', on_delete=models.CASCADE, null=True, blank=True)
     job = models.ForeignKey('jobs.Job', on_delete=models.CASCADE, null=True, blank=True)
     po_number = models.CharField(max_length=50, unique=True)
 

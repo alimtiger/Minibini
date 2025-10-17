@@ -1,14 +1,22 @@
 from django import forms
-from .models import PurchaseOrder
+from .models import PurchaseOrder, PurchaseOrderLineItem
+from apps.contacts.models import Business
+from apps.invoicing.models import PriceListItem
 from apps.core.services import NumberGenerationService
 
 
 class PurchaseOrderForm(forms.ModelForm):
     """Form for creating/editing PurchaseOrder"""
+    business = forms.ModelChoiceField(
+        queryset=Business.objects.all(),
+        required=True,
+        widget=forms.Select(attrs={'class': 'form-control'}),
+        empty_label="-- Select Business --"
+    )
 
     class Meta:
         model = PurchaseOrder
-        fields = ['job']
+        fields = ['business', 'job']
         help_texts = {
             'job': 'PO number will be assigned automatically on save.',
         }
@@ -32,3 +40,19 @@ class PurchaseOrderForm(forms.ModelForm):
         if commit:
             instance.save()
         return instance
+
+
+class PurchaseOrderLineItemForm(forms.Form):
+    """Form for creating a PO line item from a Price List Item"""
+    price_list_item = forms.ModelChoiceField(
+        queryset=PriceListItem.objects.all(),
+        required=True,
+        label="Price List Item"
+    )
+    qty = forms.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        initial=1.0,
+        widget=forms.NumberInput(attrs={'step': '0.01'}),
+        label="Quantity"
+    )
