@@ -27,8 +27,9 @@ class JobCreateForm(forms.ModelForm):
 
     class Meta:
         model = Job
-        fields = ['contact', 'customer_po_number', 'description', 'due_date']
+        fields = ['contact', 'name', 'customer_po_number', 'description', 'due_date']
         widgets = {
+            'name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Job name'}),
             'customer_po_number': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Optional'}),
             'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 4}),
         }
