@@ -20,7 +20,7 @@
             <ul>
                 {% for job in results.jobs %}
                 <li>
-                    <a href="{% url 'jobs:detail' job.job_id %}">{{ job.job_number }}</a>
+                    <a href="{% url 'jobs:detail' job.job_id %}">{{ job.job_number }}{% if job.name %}: {{ job.name }}{% endif %}</a>
                     - {{ job.status }} - {{ job.contact.name }}
                     {% if job.description %}<br><em>{{ job.description|truncatewords:20 }}</em>{% endif %}
                 </li>
@@ -37,7 +37,7 @@
                 {% for estimate in results.estimates %}
                 <li>
                     <a href="{% url 'jobs:estimate_detail' estimate.estimate_id %}">{{ estimate.estimate_number }}</a>
-                    v{{ estimate.version }} - {{ estimate.status }} - Job: {{ estimate.job.job_number }}
+                    v{{ estimate.version }} - {{ estimate.status }} - Job: {{ estimate.job.job_number }}{% if estimate.job.name %}: {{ estimate.job.name }}{% endif %}
                 </li>
                 {% endfor %}
             </ul>
@@ -68,7 +68,7 @@
                 {% for work_order in results.work_orders %}
                 <li>
                     <a href="{% url 'jobs:work_order_detail' work_order.work_order_id %}">Work Order {{ work_order.work_order_id }}</a>
-                    - {{ work_order.status }} - Job: {{ work_order.job.job_number }}
+                    - {{ work_order.status }} - Job: {{ work_order.job.job_number }}{% if work_order.job.name %}: {{ work_order.job.name }}{% endif %}
                 </li>
                 {% endfor %}
             </ul>
@@ -84,7 +84,7 @@
                 <li>
                     <a href="{% url 'jobs:estworksheet_detail' worksheet.est_worksheet_id %}">Worksheet {{ worksheet.est_worksheet_id }}</a>
                     v{{ worksheet.version }} - {{ worksheet.status }}
-                    - Job: {{ worksheet.job.job_number }}
+                    - Job: {{ worksheet.job.job_number }}{% if worksheet.job.name %}: {{ worksheet.job.name }}{% endif %}
                     {% if worksheet.estimate %} - Estimate: {{ worksheet.estimate.estimate_number }}{% endif %}
                 </li>
                 {% endfor %}
@@ -133,7 +133,7 @@
                 {% for invoice in results.invoices %}
                 <li>
                     <a href="{% url 'invoicing:invoice_detail' invoice.invoice_id %}">{{ invoice.invoice_number }}</a>
-                    - {{ invoice.status }} - Job: {{ invoice.job.job_number }}
+                    - {{ invoice.status }} - Job: {{ invoice.job.job_number }}{% if invoice.job.name %}: {{ invoice.job.name }}{% endif %}
                     {% if invoice.customer_po_number %} - PO: {{ invoice.customer_po_number }}{% endif %}
                 </li>
                 {% endfor %}
@@ -165,7 +165,7 @@
                 {% for po in results.purchase_orders %}
                 <li>
                     <a href="{% url 'purchasing:purchase_order_detail' po.po_id %}">{{ po.po_number }}</a>
-                    {% if po.job %} - Job: {{ po.job.job_number }}{% endif %}
+                    {% if po.job %} - Job: {{ po.job.job_number }}{% if po.job.name %}: {{ po.job.name }}{% endif %}{% endif %}
                 </li>
                 {% endfor %}
             </ul>

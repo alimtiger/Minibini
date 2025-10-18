@@ -17,7 +17,7 @@
         </tr>
         {% for po in purchase_orders %}
         <tr>
-            <td>{{ po.po_number }}</td>
+            <td><a href="{% url 'purchasing:purchase_order_detail' po.po_id %}">{{ po.po_number }}</a></td>
             <td>
                 {% if po.business %}
                     {{ po.business.business_name }}
@@ -32,7 +32,7 @@
                     No job
                 {% endif %}
             </td>
-            <td><a href="{% url 'purchasing:purchase_order_detail' po.po_id %}">View</a></td>
+            <td>Delete</td>
         </tr>
         {% endfor %}
     </table>

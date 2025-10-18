@@ -1,9 +1,9 @@
 {% extends 'base.html' %}
 
-{% block title %}Job {{ job.job_number }} - Minibini{% endblock %}
+{% block title %}Job {{ job.job_number }}{% if job.name %}: {{ job.name }}{% endif %} - Minibini{% endblock %}
 
 {% block content %}
-<h2>Job {{ job.job_number }}</h2>
+<h2>Job {{ job.job_number }}{% if job.name %}: {{ job.name }}{% endif %}</h2>
 
 <p>
     <a href="{% url 'jobs:edit' job.job_id %}">Edit Job</a>
@@ -237,24 +237,37 @@
         <thead>
             <tr>
                 <th>PO Number</th>
-                <th>Price List Item</th>
-                <th>Actions</th>
+                <th>Business</th>
+                <th>Status</th>
+                <th>Created Date</th>
+                <th>Requested Date</th>
             </tr>
         </thead>
         <tbody>
             {% for purchase_order in purchase_orders %}
             <tr>
-                <td>{{ purchase_order.po_number }}</td>
-                <td>{{ purchase_order.price_list_item|default:"—" }}</td>
+                <td><a href="{% url 'purchasing:purchase_order_detail' purchase_order.po_id %}">{{ purchase_order.po_number }}</a></td>
                 <td>
-                    <a href="{% url 'purchasing:purchase_order_detail' purchase_order.po_id %}">View Details</a>
+                    {% if purchase_order.business %}
+                        {{ purchase_order.business.business_name }}
+                    {% else %}
+                        —
+                    {% endif %}
                 </td>
+                <td>{{ purchase_order.get_status_display }}</td>
+                <td>{{ purchase_order.created_date|date:"Y-m-d H:i" }}</td>
+                <td>{{ purchase_order.requested_date|date:"Y-m-d"|default:"—" }}</td>
             </tr>
             {% endfor %}
         </tbody>
     </table>
 {% else %}
     <p>No purchase orders found for this job.</p>
+{% endif %}
+{% if job.status == 'approved' %}
+<p>
+    <a href="{% url 'purchasing:purchase_order_create_for_job' job.job_id %}">Create New Purchase Order</a>
+</p>
 {% endif %}
 
 <h3>Associated Invoices</h3>

@@ -12,7 +12,7 @@
     </tr>
     <tr>
         <td>Associated Job</td>
-        <td><a href="{% url 'jobs:detail' work_order.job.pk %}">{{ work_order.job.job_number }} - {{ work_order.job.description }}</a></td>
+        <td><a href="{% url 'jobs:detail' work_order.job.pk %}">{{ work_order.job.job_number }}{% if work_order.job.name %}: {{ work_order.job.name }}{% endif %}</a></td>
     </tr>
     <tr>
         <td>Status</td>

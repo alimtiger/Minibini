@@ -1,7 +1,7 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
 from .models import PurchaseOrder, Bill, BillLineItem, PurchaseOrderLineItem
-from .forms import PurchaseOrderForm, PurchaseOrderLineItemForm
+from .forms import PurchaseOrderForm, PurchaseOrderLineItemForm, PurchaseOrderStatusForm
 
 def purchase_order_list(request):
     purchase_orders = PurchaseOrder.objects.all().order_by('-po_id')
@@ -9,15 +9,42 @@ def purchase_order_list(request):
 
 def purchase_order_detail(request, po_id):
     purchase_order = get_object_or_404(PurchaseOrder, po_id=po_id)
+
+    # Handle status update POST request
+    if request.method == 'POST' and 'update_status' in request.POST:
+        # Check if status transitions are allowed
+        if PurchaseOrderStatusForm.has_valid_transitions(purchase_order.status):
+            form = PurchaseOrderStatusForm(request.POST, current_status=purchase_order.status)
+            if form.is_valid():
+                new_status = form.cleaned_data['status']
+                if new_status != purchase_order.status:
+                    try:
+                        purchase_order.status = new_status
+                        purchase_order.save()
+                        messages.success(request, f'Purchase Order status updated to {purchase_order.get_status_display()}')
+                    except Exception as e:
+                        messages.error(request, f'Error updating status: {str(e)}')
+            return redirect('purchasing:purchase_order_detail', po_id=purchase_order.po_id)
+        else:
+            messages.error(request, f'Cannot update status from {purchase_order.get_status_display()} (terminal state).')
+            return redirect('purchasing:purchase_order_detail', po_id=purchase_order.po_id)
+
     bills = Bill.objects.filter(purchase_order=purchase_order).order_by('-bill_id')
     line_items = PurchaseOrderLineItem.objects.filter(purchase_order=purchase_order).order_by('line_item_id')
     # Calculate total amount
     total_amount = sum(item.total_amount for item in line_items)
+
+    # Create status form for display only if there are valid transitions
+    status_form = None
+    if PurchaseOrderStatusForm.has_valid_transitions(purchase_order.status):
+        status_form = PurchaseOrderStatusForm(current_status=purchase_order.status)
+
     return render(request, 'purchasing/purchase_order_detail.html', {
         'purchase_order': purchase_order,
         'bills': bills,
         'line_items': line_items,
-        'total_amount': total_amount
+        'total_amount': total_amount,
+        'status_form': status_form
     })
 
 def purchase_order_create(request):
@@ -32,6 +59,22 @@ def purchase_order_create(request):
         form = PurchaseOrderForm()
 
     return render(request, 'purchasing/purchase_order_create.html', {'form': form})
+
+def purchase_order_create_for_job(request, job_id):
+    """Create a new PurchaseOrder for a specific job"""
+    from apps.jobs.models import Job
+    job = get_object_or_404(Job, job_id=job_id)
+
+    if request.method == 'POST':
+        form = PurchaseOrderForm(request.POST, job=job)
+        if form.is_valid():
+            purchase_order = form.save()
+            messages.success(request, f'Purchase Order {purchase_order.po_number} created successfully for Job {job.job_number}.')
+            return redirect('purchasing:purchase_order_detail', po_id=purchase_order.po_id)
+    else:
+        form = PurchaseOrderForm(job=job)
+
+    return render(request, 'purchasing/purchase_order_create.html', {'form': form, 'job': job})
 
 def purchase_order_add_line_item(request, po_id):
     """Add line item to PurchaseOrder from Price List"""
@@ -76,4 +119,60 @@ def bill_detail(request, bill_id):
         'bill': bill,
         'line_items': line_items,
         'total_amount': total_amount
+    })
+
+def purchase_order_edit(request, po_id):
+    """Edit an existing PurchaseOrder (job and requested_date only)"""
+    purchase_order = get_object_or_404(PurchaseOrder, po_id=po_id)
+
+    if request.method == 'POST':
+        form = PurchaseOrderForm(request.POST, instance=purchase_order)
+        if form.is_valid():
+            form.save()
+            messages.success(request, f'Purchase Order {purchase_order.po_number} updated successfully.')
+            return redirect('purchasing:purchase_order_detail', po_id=purchase_order.po_id)
+    else:
+        form = PurchaseOrderForm(instance=purchase_order)
+
+    return render(request, 'purchasing/purchase_order_edit.html', {
+        'form': form,
+        'purchase_order': purchase_order
+    })
+
+def purchase_order_delete(request, po_id):
+    """Delete a PurchaseOrder (only allowed in Draft status)"""
+    purchase_order = get_object_or_404(PurchaseOrder, po_id=po_id)
+
+    # Only allow deletion if PO is in Draft status
+    if purchase_order.status != 'draft':
+        messages.error(request, f'Cannot delete Purchase Order {purchase_order.po_number}. Only Draft POs can be deleted.')
+        return redirect('purchasing:purchase_order_detail', po_id=purchase_order.po_id)
+
+    if request.method == 'POST':
+        po_number = purchase_order.po_number
+        purchase_order.delete()
+        messages.success(request, f'Purchase Order {po_number} deleted successfully.')
+        return redirect('purchasing:purchase_order_list')
+
+    return render(request, 'purchasing/purchase_order_delete.html', {
+        'purchase_order': purchase_order
+    })
+
+def purchase_order_cancel(request, po_id):
+    """Cancel a PurchaseOrder (only allowed in Issued status)"""
+    purchase_order = get_object_or_404(PurchaseOrder, po_id=po_id)
+
+    # Only allow cancellation if PO is in Issued status
+    if purchase_order.status != 'issued':
+        messages.error(request, f'Cannot cancel Purchase Order {purchase_order.po_number}. Only Issued POs can be cancelled.')
+        return redirect('purchasing:purchase_order_detail', po_id=purchase_order.po_id)
+
+    if request.method == 'POST':
+        purchase_order.status = 'cancelled'
+        purchase_order.save()
+        messages.success(request, f'Purchase Order {purchase_order.po_number} has been cancelled.')
+        return redirect('purchasing:purchase_order_detail', po_id=purchase_order.po_id)
+
+    return render(request, 'purchasing/purchase_order_cancel.html', {
+        'purchase_order': purchase_order
     })

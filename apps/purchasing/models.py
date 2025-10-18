@@ -1,12 +1,110 @@
 from django.db import models
+from django.utils import timezone
+from django.core.exceptions import ValidationError
 from apps.core.models import BaseLineItem
 
 
 class PurchaseOrder(models.Model):
+    PO_STATUS_CHOICES = [
+        ('draft', 'Draft'),
+        ('issued', 'Issued'),
+        ('partly_received', 'Partly Received'),
+        ('received_in_full', 'Received in Full'),
+        ('cancelled', 'Cancelled'),
+    ]
+
     po_id = models.AutoField(primary_key=True)
     business = models.ForeignKey('contacts.Business', on_delete=models.CASCADE, null=True, blank=True)
     job = models.ForeignKey('jobs.Job', on_delete=models.CASCADE, null=True, blank=True)
     po_number = models.CharField(max_length=50, unique=True)
+    status = models.CharField(max_length=20, choices=PO_STATUS_CHOICES, default='draft')
+
+    # Date fields
+    created_date = models.DateTimeField(default=timezone.now)
+    requested_date = models.DateTimeField(null=True, blank=True)
+    issued_date = models.DateTimeField(null=True, blank=True)
+    received_date = models.DateTimeField(null=True, blank=True)
+    cancel_date = models.DateTimeField(null=True, blank=True)
+
+    def clean(self):
+        """Validate PurchaseOrder state transitions and protect immutable date fields."""
+        super().clean()
+
+        # Define valid transitions for each state
+        VALID_TRANSITIONS = {
+            'draft': ['issued'],
+            'issued': ['partly_received', 'received_in_full', 'cancelled'],
+            'partly_received': ['received_in_full'],
+            'received_in_full': [],  # Terminal state
+            'cancelled': [],  # Terminal state
+        }
+
+        # Check if this is an update
+        if self.pk:
+            try:
+                old_po = PurchaseOrder.objects.get(pk=self.pk)
+                old_status = old_po.status
+
+                # Protect immutable date fields
+                if old_po.created_date and self.created_date != old_po.created_date:
+                    self.created_date = old_po.created_date
+
+                if old_po.issued_date and self.issued_date != old_po.issued_date:
+                    self.issued_date = old_po.issued_date
+
+                if old_po.received_date and self.received_date != old_po.received_date:
+                    self.received_date = old_po.received_date
+
+                if old_po.cancel_date and self.cancel_date != old_po.cancel_date:
+                    self.cancel_date = old_po.cancel_date
+
+                # If status hasn't changed, no validation needed
+                if old_status == self.status:
+                    return
+
+                # Check if the transition is valid
+                valid_next_states = VALID_TRANSITIONS.get(old_status, [])
+                if self.status not in valid_next_states:
+                    raise ValidationError(
+                        f'Cannot transition PurchaseOrder from {old_status} to {self.status}. '
+                        f'Valid transitions from {old_status} are: {", ".join(valid_next_states) if valid_next_states else "none (terminal state)"}'
+                    )
+
+            except PurchaseOrder.DoesNotExist:
+                pass
+
+    def save(self, *args, **kwargs):
+        """Override save to validate state transitions and set dates."""
+        old_status = None
+
+        # Check if this is an update (not a new object)
+        if self.pk:
+            try:
+                old_po = PurchaseOrder.objects.get(pk=self.pk)
+                old_status = old_po.status
+
+                # Handle state transition date setting
+                if old_status != self.status:
+                    # Transitioning to 'issued' - set issued_date
+                    if self.status == 'issued' and not self.issued_date:
+                        self.issued_date = timezone.now()
+
+                    # Transitioning to 'received_in_full' - set received_date
+                    if self.status == 'received_in_full' and not self.received_date:
+                        self.received_date = timezone.now()
+
+                    # Transitioning to 'cancelled' - set cancel_date
+                    if self.status == 'cancelled' and not self.cancel_date:
+                        self.cancel_date = timezone.now()
+
+            except PurchaseOrder.DoesNotExist:
+                pass
+
+        # Run validation
+        self.full_clean()
+
+        # Call parent save
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return f"PO {self.po_number}"

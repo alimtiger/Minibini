@@ -14,7 +14,7 @@
     </tr>
     <tr>
         <th>Job</th>
-        <td>{{ estimate.job.job_number }} - {{ estimate.job.description|default:"No description" }}</td>
+        <td>{{ estimate.job.job_number }}{% if estimate.job.name %}: {{ estimate.job.name }}{% endif %}</td>
     </tr>
     <tr>
         <th>Estimate Status</th>
@@ -63,7 +63,7 @@
 <p>The new Work Order will be created with:</p>
 <ul>
     <li>Status: Draft</li>
-    <li>Job: {{ estimate.job.job_number }}</li>
+    <li>Job: {{ estimate.job.job_number }}{% if estimate.job.name %}: {{ estimate.job.name }}{% endif %}</li>
     <li>Tasks generated from all line items above</li>
     {% if worksheet %}
     <li>Template: {{ worksheet.template.template_name|default:"No template" }}</li>

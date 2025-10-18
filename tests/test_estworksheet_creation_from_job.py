@@ -26,7 +26,6 @@ class EstWorksheetCreateFromJobTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'jobs/estworksheet_create_for_job.html')
         self.assertContains(response, self.job.job_number)
-        self.assertContains(response, self.job.description)
 
         # Check that form has job pre-selected and hidden
         form = response.context['form']
