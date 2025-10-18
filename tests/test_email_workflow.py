@@ -171,6 +171,129 @@ class CreateJobFromEmailWorkflowTest(TestCase):
         self.assertNotIn('suggested_business_id', session)
 
     @patch('apps.core.views.EmailService')
+    def test_create_job_from_email_unsigned_see_attached(self, mock_service_class):
+        """Test email with just 'see attached' and no signature - should not extract company"""
+        # Setup mock
+        mock_service = MagicMock()
+        mock_service_class.return_value = mock_service
+
+        # Email with minimal body and no signature
+        email_content = self._mock_email_content(
+            from_header='Emma Wilson <emma@somecompany.com>',
+            subject='Quote Request',
+            body_text='See attached.'
+        )
+        mock_service.get_email_content.return_value = email_content
+
+        # Email record 4 for testing
+        email_record = EmailRecord.objects.get(pk=4)
+        url = reverse('core:create_job_from_email', args=[email_record.email_record_id])
+
+        response = self.client.get(url)
+
+        # Should redirect to add contact
+        self.assertEqual(response.status_code, 302)
+        self.assertIn('contacts/add', response.url)
+
+        # Check session - no company should be detected
+        session = self.client.session
+        self.assertEqual(session['contact_name'], 'Emma Wilson')
+        self.assertEqual(session['contact_email'], 'emma@somecompany.com')
+        self.assertEqual(session['contact_company'], '')  # No company detected from unsigned email
+        self.assertEqual(session['email_record_id_for_job'], email_record.email_record_id)
+
+    @patch('apps.core.views.EmailService')
+    def test_create_job_from_email_forwarded_chain_no_signature(self, mock_service_class):
+        """Test forwarded email chain without signature - should not extract company from body"""
+        # Setup mock
+        mock_service = MagicMock()
+        mock_service_class.return_value = mock_service
+
+        # Long forwarded chain without sender's signature
+        email_content = self._mock_email_content(
+            from_header='Frank Chen <frank@email.com>',
+            subject='FW: RE: RE: Project discussion',
+            body_text='''Please see the conversation below.
+
+---------- Forwarded message ----------
+From: Jane Doe <jane@acme.com>
+Date: Mon, Jan 1, 2024 at 10:00 AM
+Subject: RE: RE: Project discussion
+
+We at Acme Corp would be happy to help with your project.
+
+Best regards,
+Jane Doe
+Acme Corp
+
+---------- Original message ----------
+From: Bob Smith <bob@techcorp.com>
+Date: Sun, Dec 31, 2023 at 3:00 PM
+
+Looking for vendors for our upcoming project at TechCorp Inc.
+
+Bob Smith
+TechCorp Inc'''
+        )
+        mock_service.get_email_content.return_value = email_content
+
+        # Email record 4 for testing
+        email_record = EmailRecord.objects.get(pk=4)
+        url = reverse('core:create_job_from_email', args=[email_record.email_record_id])
+
+        response = self.client.get(url)
+
+        # Should redirect to add contact
+        self.assertEqual(response.status_code, 302)
+        self.assertIn('contacts/add', response.url)
+
+        # Check session - should NOT extract Acme Corp or TechCorp from forwarded content
+        session = self.client.session
+        self.assertEqual(session['contact_name'], 'Frank Chen')
+        self.assertEqual(session['contact_email'], 'frank@email.com')
+        self.assertEqual(session['contact_company'], '')  # No company detected - Frank didn't sign
+        self.assertEqual(session['email_record_id_for_job'], email_record.email_record_id)
+
+    @patch('apps.core.views.EmailService')
+    def test_create_job_from_email_with_body_company_mention_no_sig(self, mock_service_class):
+        """Test email mentioning companies in body but without signature - should not extract"""
+        # Setup mock
+        mock_service = MagicMock()
+        mock_service_class.return_value = mock_service
+
+        # Email mentioning companies in body but sender didn't sign
+        email_content = self._mock_email_content(
+            from_header='George Martinez <george@email.net>',
+            subject='Partnership opportunity',
+            body_text='''Hi,
+
+I wanted to discuss a potential partnership between Microsoft Corporation and Apple Inc.
+Both companies have expressed interest in this collaboration.
+
+GlobalTech LLC has also shown some interest in participating.
+
+Let me know your thoughts.'''
+        )
+        mock_service.get_email_content.return_value = email_content
+
+        # Email record 4 for testing
+        email_record = EmailRecord.objects.get(pk=4)
+        url = reverse('core:create_job_from_email', args=[email_record.email_record_id])
+
+        response = self.client.get(url)
+
+        # Should redirect to add contact
+        self.assertEqual(response.status_code, 302)
+        self.assertIn('contacts/add', response.url)
+
+        # Should NOT extract Microsoft, Apple, or GlobalTech from body
+        session = self.client.session
+        self.assertEqual(session['contact_name'], 'George Martinez')
+        self.assertEqual(session['contact_email'], 'george@email.net')
+        self.assertEqual(session['contact_company'], '')  # No company from unsigned email
+        self.assertEqual(session['email_record_id_for_job'], email_record.email_record_id)
+
+    @patch('apps.core.views.EmailService')
     def test_create_job_from_email_imap_connection_error(self, mock_service_class):
         """Test handling when email content cannot be retrieved from server"""
         # Setup mock to return None (simulating connection error)
