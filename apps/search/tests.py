@@ -133,8 +133,11 @@ class SearchViewTests(TestCase):
         # Create purchase orders
         self.po1 = PurchaseOrder.objects.create(
             job=self.job1,
-            po_number='PO-2024-001'
+            po_number='PO-2024-001',
+            status='draft'
         )
+        self.po1.status = 'issued'
+        self.po1.save()
 
         # Create bills
         self.bill1 = Bill.objects.create(

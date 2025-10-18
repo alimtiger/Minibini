@@ -127,8 +127,11 @@ class ComprehensiveModelIntegrationTest(TestCase):
 
         purchase_order = PurchaseOrder.objects.create(
             job=job,
-            po_number="PO001"
+            po_number="PO001",
+            status='draft'
         )
+        purchase_order.status = 'issued'
+        purchase_order.save()
 
         bill = Bill.objects.create(
             purchase_order=purchase_order,
@@ -362,8 +365,12 @@ class LineItemValidationTest(TestCase):
         )
         self.purchase_order = PurchaseOrder.objects.create(
             job=self.job,
-            po_number="PO_VALID001"
+            po_number="PO_VALID001",
+            status='draft'
         )
+        self.purchase_order.status = 'issued'
+        self.purchase_order.save()
+
         self.bill = Bill.objects.create(
             purchase_order=self.purchase_order,
             contact=self.contact,

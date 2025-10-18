@@ -56,8 +56,11 @@ class BillModelTest(TestCase):
         )
         self.purchase_order = PurchaseOrder.objects.create(
             job=self.job,
-            po_number="PO001"
+            po_number="PO001",
+            status='draft'
         )
+        self.purchase_order.status = 'issued'
+        self.purchase_order.save()
         
     def test_bill_creation(self):
         bill = Bill.objects.create(
@@ -77,20 +80,20 @@ class BillModelTest(TestCase):
         )
         self.assertEqual(str(bill), f"Bill {bill.bill_id}")
         
-    def test_bill_cascade_delete_with_po(self):
+    def test_bill_set_null_on_po_delete(self):
         bill = Bill.objects.create(
             purchase_order=self.purchase_order,
             contact=self.contact,
             vendor_invoice_number="VIN003"
         )
         bill_id = bill.bill_id
-        
+
         # Delete the purchase order
         self.purchase_order.delete()
-        
-        # Bill should be deleted due to CASCADE
-        with self.assertRaises(Bill.DoesNotExist):
-            Bill.objects.get(bill_id=bill_id)
+
+        # Bill should still exist but with purchase_order set to None due to SET_NULL
+        bill.refresh_from_db()
+        self.assertIsNone(bill.purchase_order)
             
     def test_bill_with_contact_deletion(self):
         bill = Bill.objects.create(

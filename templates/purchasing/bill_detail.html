@@ -3,12 +3,16 @@
 {% block title %}Bill {{ bill.bill_id }} - Minibini{% endblock %}
 
 {% block content %}
-<h2>Bill: {{ bill.bill_id }}</h2>
+<h2>Bill: {{ bill.bill_id }} - <strong>{{ bill.get_status_display }}</strong></h2>
 
 <table border="1">
     <tr>
         <th>Field</th>
         <th>Value</th>
+    </tr>
+    <tr>
+        <td>Status</td>
+        <td>{{ bill.get_status_display }}</td>
     </tr>
     <tr>
         <td>Purchase Order</td>
@@ -23,7 +27,7 @@
     <tr>
         <td>Associated Job</td>
         <td>
-            {% if bill.purchase_order.job %}
+            {% if bill.purchase_order and bill.purchase_order.job %}
                 <a href="{% url 'jobs:detail' bill.purchase_order.job.pk %}">{{ bill.purchase_order.job }}</a>
             {% else %}
                 No job assigned
@@ -38,9 +42,42 @@
         <td>Vendor Invoice Number</td>
         <td>{{ bill.vendor_invoice_number }}</td>
     </tr>
+    <tr>
+        <td>Created Date</td>
+        <td>{{ bill.created_date|date:"Y-m-d H:i" }}</td>
+    </tr>
+    <tr>
+        <td>Due Date</td>
+        <td>
+            {% if bill.due_date %}
+                {{ bill.due_date|date:"Y-m-d" }}
+            {% else %}
+                Not specified
+            {% endif %}
+        </td>
+    </tr>
+    {% if bill.received_date %}
+    <tr>
+        <td>Received Date</td>
+        <td>{{ bill.received_date|date:"Y-m-d H:i" }}</td>
+    </tr>
+    {% endif %}
+    {% if bill.paid_date %}
+    <tr>
+        <td>Paid Date</td>
+        <td>{{ bill.paid_date|date:"Y-m-d H:i" }}</td>
+    </tr>
+    {% endif %}
+    {% if bill.cancelled_date %}
+    <tr>
+        <td>Cancelled Date</td>
+        <td>{{ bill.cancelled_date|date:"Y-m-d H:i" }}</td>
+    </tr>
+    {% endif %}
 </table>
 
 <h3>Line Items</h3>
+<p><a href="{% url 'purchasing:bill_add_line_item' bill.bill_id %}">Add Line Item</a></p>
 {% if line_items %}
     <table border="1" style="border-collapse: collapse; width: 100%; margin-top: 10px;">
         <thead>

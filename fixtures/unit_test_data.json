@@ -364,7 +364,8 @@
     "pk": 1,
     "fields": {
       "job": 1,
-      "po_number": "PO-2024-0001"
+      "po_number": "PO-2024-0001",
+      "status": "issued"
     }
   },
   {
@@ -372,7 +373,8 @@
     "pk": 2,
     "fields": {
       "job": 2,
-      "po_number": "PO-2024-0002"
+      "po_number": "PO-2024-0002",
+      "status": "issued"
     }
   },
   {

@@ -204,6 +204,20 @@
 },
 {
   "model": "core.configuration",
+  "pk": "bill_number_sequence",
+  "fields": {
+    "value": "B{year}-{counter:04d}"
+  }
+},
+{
+  "model": "core.configuration",
+  "pk": "bill_counter",
+  "fields": {
+    "value": "0"
+  }
+},
+{
+  "model": "core.configuration",
   "pk": "est_expire_days",
   "fields": {
     "value": "30"

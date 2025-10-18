@@ -1,6 +1,6 @@
 from django import forms
-from .models import PurchaseOrder, PurchaseOrderLineItem
-from apps.contacts.models import Business
+from .models import PurchaseOrder, PurchaseOrderLineItem, Bill
+from apps.contacts.models import Business, Contact
 from apps.jobs.models import Job
 from apps.invoicing.models import PriceListItem
 from apps.core.services import NumberGenerationService
@@ -74,6 +74,22 @@ class PurchaseOrderLineItemForm(forms.Form):
     )
 
 
+class BillLineItemForm(forms.Form):
+    """Form for creating a Bill line item from a Price List Item"""
+    price_list_item = forms.ModelChoiceField(
+        queryset=PriceListItem.objects.all(),
+        required=True,
+        label="Price List Item"
+    )
+    qty = forms.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        initial=1.0,
+        widget=forms.NumberInput(attrs={'step': '0.01'}),
+        label="Quantity"
+    )
+
+
 class PurchaseOrderStatusForm(forms.Form):
     """Form for changing PurchaseOrder status"""
     VALID_TRANSITIONS = {
@@ -110,3 +126,42 @@ class PurchaseOrderStatusForm(forms.Form):
     def clean_status(self):
         """Validate that the status transition is valid."""
         return self.cleaned_data['status']
+
+
+class BillForm(forms.ModelForm):
+    """Form for creating/editing Bill"""
+    purchase_order = forms.ModelChoiceField(
+        queryset=PurchaseOrder.objects.all(),
+        required=False,
+        widget=forms.Select(attrs={'class': 'form-control'}),
+        empty_label="-- Select Purchase Order (optional) --"
+    )
+    contact = forms.ModelChoiceField(
+        queryset=Contact.objects.all(),
+        required=True,
+        widget=forms.Select(attrs={'class': 'form-control'}),
+        empty_label="-- Select Vendor Contact --"
+    )
+    vendor_invoice_number = forms.CharField(
+        max_length=50,
+        required=True,
+        widget=forms.TextInput(attrs={'class': 'form-control'}),
+        help_text='The invoice number from the vendor'
+    )
+    due_date = forms.DateField(
+        required=False,
+        widget=forms.DateInput(attrs={'type': 'date'}),
+        help_text='Optional payment due date'
+    )
+
+    class Meta:
+        model = Bill
+        fields = ['purchase_order', 'contact', 'vendor_invoice_number', 'due_date']
+
+    def __init__(self, *args, **kwargs):
+        purchase_order = kwargs.pop('purchase_order', None)
+        super().__init__(*args, **kwargs)
+
+        # If purchase_order provided, pre-select it
+        if purchase_order:
+            self.fields['purchase_order'].initial = purchase_order

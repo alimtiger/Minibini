@@ -90,6 +90,9 @@
     {% if purchase_order.status == 'issued' %}
         | <a href="{% url 'purchasing:purchase_order_cancel' purchase_order.po_id %}">Cancel PO</a>
     {% endif %}
+    {% if purchase_order.status != 'draft' %}
+        | <a href="{% url 'purchasing:bill_create_for_po' purchase_order.po_id %}">Add Bill</a>
+    {% endif %}
 </p>
 
 <h3>Line Items</h3>
@@ -140,6 +143,9 @@
 {% endif %}
 
 <h3>Associated Bills</h3>
+{% if purchase_order.status != 'draft' %}
+<p><a href="{% url 'purchasing:bill_create_for_po' purchase_order.po_id %}">Create New Bill for this PO</a></p>
+{% endif %}
 {% if bills %}
     <table border="1" style="border-collapse: collapse; width: 100%; margin-top: 10px;">
         <thead>

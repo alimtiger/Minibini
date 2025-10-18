@@ -129,19 +129,19 @@ class BillModelFixtureTest(FixtureTestCase):
         self.assertEqual(new_bill.contact, vendor)
         self.assertEqual(Bill.objects.count(), 3)  # 2 from fixture + 1 new
         
-    def test_bill_cascade_delete_with_purchase_order(self):
-        """Test that bill is deleted when purchase order is deleted (CASCADE)"""
+    def test_bill_set_null_on_purchase_order_delete(self):
+        """Test that bill purchase_order is set to None when purchase order is deleted (SET_NULL)"""
         # Get existing bill and its PO
         bill = Bill.objects.get(vendor_invoice_number="ACME-INV-001")
         po = bill.purchase_order
         bill_id = bill.bill_id
-        
+
         # Delete the purchase order
         po.delete()
-        
-        # Bill should be deleted due to CASCADE
-        with self.assertRaises(Bill.DoesNotExist):
-            Bill.objects.get(bill_id=bill_id)
+
+        # Bill should still exist but with purchase_order set to None due to SET_NULL
+        bill.refresh_from_db()
+        self.assertIsNone(bill.purchase_order)
             
     def test_bill_cascade_delete_with_contact(self):
         """Test that bill is deleted when vendor contact is deleted (CASCADE)"""
