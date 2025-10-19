@@ -32,6 +32,7 @@ class BillLineItemAdditionTests(TestCase):
         self.bill = Bill.objects.create(
             purchase_order=self.purchase_order,
             contact=self.contact,
+            bill_number='BILL-TEST',
             vendor_invoice_number='INV-TEST-001'
         )
 
@@ -262,6 +263,7 @@ class BillLineItemAdditionTests(TestCase):
         bill_no_po = Bill.objects.create(
             purchase_order=None,
             contact=self.contact,
+            bill_number='BILL-TEST2',
             vendor_invoice_number='INV-NO-PO-001'
         )
 

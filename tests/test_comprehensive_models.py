@@ -134,6 +134,7 @@ class ComprehensiveModelIntegrationTest(TestCase):
         purchase_order.save()
 
         bill = Bill.objects.create(
+            bill_number="BILL-TEST-001",
             purchase_order=purchase_order,
             contact=self.contact,
             vendor_invoice_number="VENDOR001"
@@ -372,6 +373,7 @@ class LineItemValidationTest(TestCase):
         self.purchase_order.save()
 
         self.bill = Bill.objects.create(
+            bill_number="BILL-TEST-002",
             purchase_order=self.purchase_order,
             contact=self.contact,
             vendor_invoice_number="VIN_VALID001"

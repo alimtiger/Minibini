@@ -122,6 +122,7 @@ class InvoiceLineItemModelTest(TestCase):
         self.purchase_order.save()
 
         self.bill = Bill.objects.create(
+            bill_number="BILL-INV-001",
             purchase_order=self.purchase_order,
             contact=self.contact,
             vendor_invoice_number="VIN001"

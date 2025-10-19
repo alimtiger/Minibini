@@ -206,7 +206,7 @@ def bill_create_for_po(request, po_id):
     return render(request, 'purchasing/bill_create.html', {'form': form, 'purchase_order': purchase_order})
 
 def bill_add_line_item(request, bill_id):
-    """Add line item to Bill from Price List"""
+    """Add line item to Bill - either from Price List or manual entry"""
     bill = get_object_or_404(Bill, bill_id=bill_id)
 
     if request.method == 'POST':
@@ -215,17 +215,32 @@ def bill_add_line_item(request, bill_id):
             price_list_item = form.cleaned_data['price_list_item']
             qty = form.cleaned_data['qty']
 
-            # Create line item from price list item, copying purchase_price
-            line_item = BillLineItem.objects.create(
-                bill=bill,
-                price_list_item=price_list_item,
-                description=price_list_item.description,
-                qty=qty,
-                units=price_list_item.units,
-                price_currency=price_list_item.purchase_price  # Use purchase_price
-            )
+            if price_list_item:
+                # Create line item from price list item, copying purchase_price
+                line_item = BillLineItem.objects.create(
+                    bill=bill,
+                    price_list_item=price_list_item,
+                    description=price_list_item.description,
+                    qty=qty,
+                    units=price_list_item.units,
+                    price_currency=price_list_item.purchase_price  # Use purchase_price
+                )
+                messages.success(request, f'Line item "{line_item.description}" added from price list')
+            else:
+                # Create line item from manual entry
+                description = form.cleaned_data['description']
+                units = form.cleaned_data['units']
+                price_currency = form.cleaned_data['price_currency']
 
-            messages.success(request, f'Line item "{line_item.description}" added from price list')
+                line_item = BillLineItem.objects.create(
+                    bill=bill,
+                    description=description,
+                    qty=qty,
+                    units=units,
+                    price_currency=price_currency
+                )
+                messages.success(request, f'Line item "{line_item.description}" added manually')
+
             return redirect('purchasing:bill_detail', bill_id=bill.bill_id)
     else:
         form = BillLineItemForm()

@@ -121,8 +121,10 @@ class Bill(models.Model):
     ]
 
     bill_id = models.AutoField(primary_key=True)
+    bill_number = models.CharField(max_length=50, unique=True)
     purchase_order = models.ForeignKey(PurchaseOrder, on_delete=models.SET_NULL, null=True, blank=True)
     contact = models.ForeignKey('contacts.Contact', on_delete=models.CASCADE)
+    business = models.ForeignKey('contacts.Business', on_delete=models.SET_NULL, null=True, blank=True)
     vendor_invoice_number = models.CharField(max_length=50)
     status = models.CharField(max_length=20, choices=BILL_STATUS_CHOICES, default='draft')
 
@@ -134,7 +136,7 @@ class Bill(models.Model):
     cancelled_date = models.DateTimeField(null=True, blank=True)
 
     def clean(self):
-        """Validate Bill state transitions and protect immutable date fields."""
+        """Validate Bill state transitions, protect immutable date fields, and enforce line item requirement."""
         super().clean()
 
         # Validate that PO is in issued or later status (not draft)
@@ -185,12 +187,26 @@ class Bill(models.Model):
                         f'Valid transitions from {old_status} are: {", ".join(valid_next_states) if valid_next_states else "none (terminal state)"}'
                     )
 
+                # If transitioning out of draft, ensure at least one line item exists
+                if old_status == 'draft' and self.status != 'draft':
+                    line_item_count = BillLineItem.objects.filter(bill=self).count()
+                    if line_item_count == 0:
+                        raise ValidationError(
+                            'Cannot change Bill status from Draft without at least one line item. '
+                            'Please add at least one line item before changing the status.'
+                        )
+
             except Bill.DoesNotExist:
                 pass
 
     def save(self, *args, **kwargs):
-        """Override save to validate state transitions and set dates."""
+        """Override save to validate state transitions, set dates, and auto-associate Business from Contact."""
         old_status = None
+        is_new = not self.pk
+
+        # If this is a new Bill and no business is set, auto-associate from contact's business
+        if is_new and not self.business and self.contact and self.contact.business:
+            self.business = self.contact.business
 
         # Check if this is an update (not a new object)
         if self.pk:
@@ -222,7 +238,7 @@ class Bill(models.Model):
         super().save(*args, **kwargs)
 
     def __str__(self):
-        return f"Bill {self.pk}"
+        return f"Bill {self.bill_number}"
 
 
 class PurchaseOrderLineItem(BaseLineItem):

@@ -64,6 +64,7 @@ class BillModelTest(TestCase):
         
     def test_bill_creation(self):
         bill = Bill.objects.create(
+            bill_number="BILL-001",
             purchase_order=self.purchase_order,
             contact=self.contact,
             vendor_invoice_number="VIN001"
@@ -74,14 +75,16 @@ class BillModelTest(TestCase):
         
     def test_bill_str_method(self):
         bill = Bill.objects.create(
+            bill_number="BILL-002",
             purchase_order=self.purchase_order,
             contact=self.contact,
             vendor_invoice_number="VIN002"
         )
-        self.assertEqual(str(bill), f"Bill {bill.bill_id}")
+        self.assertEqual(str(bill), f"Bill {bill.bill_number}")
         
     def test_bill_set_null_on_po_delete(self):
         bill = Bill.objects.create(
+            bill_number="BILL-003",
             purchase_order=self.purchase_order,
             contact=self.contact,
             vendor_invoice_number="VIN003"
@@ -97,6 +100,7 @@ class BillModelTest(TestCase):
             
     def test_bill_with_contact_deletion(self):
         bill = Bill.objects.create(
+            bill_number="BILL-004",
             purchase_order=self.purchase_order,
             contact=self.contact,
             vendor_invoice_number="VIN004"

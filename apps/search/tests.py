@@ -143,6 +143,7 @@ class SearchViewTests(TestCase):
         self.bill1 = Bill.objects.create(
             purchase_order=self.po1,
             contact=self.contact1,
+            bill_number='BILL-1',
             vendor_invoice_number='VENDOR-INV-001'
         )
 

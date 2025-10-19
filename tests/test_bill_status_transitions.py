@@ -18,9 +18,10 @@ Business Rules:
 from django.test import TestCase
 from django.core.exceptions import ValidationError
 from django.utils import timezone
-from apps.purchasing.models import Bill, PurchaseOrder
+from apps.purchasing.models import Bill, PurchaseOrder, BillLineItem
 from apps.contacts.models import Contact
 from datetime import timedelta
+from decimal import Decimal
 
 
 class BillStatusTransitionTest(TestCase):
@@ -41,9 +42,19 @@ class BillStatusTransitionTest(TestCase):
         self.purchase_order.status = 'issued'
         self.purchase_order.save()
 
+    def _add_line_item_to_bill(self, bill):
+        """Helper method to add a line item to a bill."""
+        BillLineItem.objects.create(
+            bill=bill,
+            description="Test item",
+            qty=Decimal('1.00'),
+            price_currency=Decimal('100.00')
+        )
+
     def test_bill_default_status_is_draft(self):
         """Test that a new Bill starts in draft status."""
         bill = Bill.objects.create(
+            bill_number="BILL-001",
             purchase_order=self.purchase_order,
             contact=self.contact,
             vendor_invoice_number='INV-001'
@@ -54,6 +65,7 @@ class BillStatusTransitionTest(TestCase):
         """Test that created_date is automatically set on creation."""
         before_creation = timezone.now()
         bill = Bill.objects.create(
+            bill_number="BILL-002",
             purchase_order=self.purchase_order,
             contact=self.contact,
             vendor_invoice_number='INV-001'
@@ -67,11 +79,13 @@ class BillStatusTransitionTest(TestCase):
     def test_transition_draft_to_received(self):
         """Test valid transition from draft to received."""
         bill = Bill.objects.create(
+            bill_number="BILL-003",
             purchase_order=self.purchase_order,
             contact=self.contact,
             vendor_invoice_number='INV-001',
             status='draft'
         )
+        self._add_line_item_to_bill(bill)
 
         bill.status = 'received'
         bill.save()
@@ -83,11 +97,13 @@ class BillStatusTransitionTest(TestCase):
     def test_received_date_set_automatically(self):
         """Test that received_date is automatically set when transitioning to received."""
         bill = Bill.objects.create(
+            bill_number="BILL-004",
             purchase_order=self.purchase_order,
             contact=self.contact,
             vendor_invoice_number='INV-001',
             status='draft'
         )
+        self._add_line_item_to_bill(bill)
 
         self.assertIsNone(bill.received_date)
 
@@ -104,11 +120,14 @@ class BillStatusTransitionTest(TestCase):
     def test_transition_received_to_partly_paid(self):
         """Test valid transition from received to partly_paid."""
         bill = Bill.objects.create(
+            bill_number="BILL-005",
             purchase_order=self.purchase_order,
             contact=self.contact,
             vendor_invoice_number='INV-001',
             status='draft'
         )
+        self._add_line_item_to_bill(bill)
+
         bill.status = 'received'
         bill.save()
 
@@ -121,11 +140,14 @@ class BillStatusTransitionTest(TestCase):
     def test_transition_received_to_paid_in_full(self):
         """Test valid transition from received to paid_in_full."""
         bill = Bill.objects.create(
+            bill_number="BILL-006",
             purchase_order=self.purchase_order,
             contact=self.contact,
             vendor_invoice_number='INV-001',
             status='draft'
         )
+        self._add_line_item_to_bill(bill)
+
         bill.status = 'received'
         bill.save()
 
@@ -139,11 +161,14 @@ class BillStatusTransitionTest(TestCase):
     def test_transition_received_to_cancelled(self):
         """Test valid transition from received to cancelled."""
         bill = Bill.objects.create(
+            bill_number="BILL-007",
             purchase_order=self.purchase_order,
             contact=self.contact,
             vendor_invoice_number='INV-001',
             status='draft'
         )
+        self._add_line_item_to_bill(bill)
+
         bill.status = 'received'
         bill.save()
 
@@ -157,11 +182,14 @@ class BillStatusTransitionTest(TestCase):
     def test_transition_partly_paid_to_paid_in_full(self):
         """Test valid transition from partly_paid to paid_in_full."""
         bill = Bill.objects.create(
+            bill_number="BILL-008",
             purchase_order=self.purchase_order,
             contact=self.contact,
             vendor_invoice_number='INV-001',
             status='draft'
         )
+        self._add_line_item_to_bill(bill)
+
         bill.status = 'received'
         bill.save()
         bill.status = 'partly_paid'
@@ -177,11 +205,14 @@ class BillStatusTransitionTest(TestCase):
     def test_transition_paid_in_full_to_refunded(self):
         """Test valid transition from paid_in_full to refunded."""
         bill = Bill.objects.create(
+            bill_number="BILL-009",
             purchase_order=self.purchase_order,
             contact=self.contact,
             vendor_invoice_number='INV-001',
             status='draft'
         )
+        self._add_line_item_to_bill(bill)
+
         bill.status = 'received'
         bill.save()
         bill.status = 'paid_in_full'
@@ -196,11 +227,14 @@ class BillStatusTransitionTest(TestCase):
     def test_paid_date_set_automatically(self):
         """Test that paid_date is automatically set when transitioning to paid_in_full."""
         bill = Bill.objects.create(
+            bill_number="BILL-010",
             purchase_order=self.purchase_order,
             contact=self.contact,
             vendor_invoice_number='INV-001',
             status='draft'
         )
+        self._add_line_item_to_bill(bill)
+
         bill.status = 'received'
         bill.save()
 
@@ -219,11 +253,14 @@ class BillStatusTransitionTest(TestCase):
     def test_cancelled_date_set_automatically(self):
         """Test that cancelled_date is automatically set when transitioning to cancelled."""
         bill = Bill.objects.create(
+            bill_number="BILL-011",
             purchase_order=self.purchase_order,
             contact=self.contact,
             vendor_invoice_number='INV-001',
             status='draft'
         )
+        self._add_line_item_to_bill(bill)
+
         bill.status = 'received'
         bill.save()
 
@@ -242,6 +279,7 @@ class BillStatusTransitionTest(TestCase):
     def test_invalid_transition_draft_to_partly_paid(self):
         """Test that draft cannot transition to partly_paid."""
         bill = Bill.objects.create(
+            bill_number="BILL-012",
             purchase_order=self.purchase_order,
             contact=self.contact,
             vendor_invoice_number='INV-001',
@@ -257,6 +295,7 @@ class BillStatusTransitionTest(TestCase):
     def test_invalid_transition_draft_to_paid_in_full(self):
         """Test that draft cannot transition to paid_in_full."""
         bill = Bill.objects.create(
+            bill_number="BILL-013",
             purchase_order=self.purchase_order,
             contact=self.contact,
             vendor_invoice_number='INV-001',
@@ -272,6 +311,7 @@ class BillStatusTransitionTest(TestCase):
     def test_invalid_transition_draft_to_cancelled(self):
         """Test that draft cannot transition to cancelled."""
         bill = Bill.objects.create(
+            bill_number="BILL-014",
             purchase_order=self.purchase_order,
             contact=self.contact,
             vendor_invoice_number='INV-001',
@@ -287,6 +327,7 @@ class BillStatusTransitionTest(TestCase):
     def test_invalid_transition_draft_to_refunded(self):
         """Test that draft cannot transition to refunded."""
         bill = Bill.objects.create(
+            bill_number="BILL-015",
             purchase_order=self.purchase_order,
             contact=self.contact,
             vendor_invoice_number='INV-001',
@@ -302,11 +343,14 @@ class BillStatusTransitionTest(TestCase):
     def test_invalid_transition_partly_paid_to_cancelled(self):
         """Test that partly_paid cannot transition to cancelled."""
         bill = Bill.objects.create(
+            bill_number="BILL-016",
             purchase_order=self.purchase_order,
             contact=self.contact,
             vendor_invoice_number='INV-001',
             status='draft'
         )
+        self._add_line_item_to_bill(bill)
+
         bill.status = 'received'
         bill.save()
         bill.status = 'partly_paid'
@@ -321,11 +365,14 @@ class BillStatusTransitionTest(TestCase):
     def test_invalid_transition_partly_paid_to_received(self):
         """Test that partly_paid cannot transition back to received."""
         bill = Bill.objects.create(
+            bill_number="BILL-017",
             purchase_order=self.purchase_order,
             contact=self.contact,
             vendor_invoice_number='INV-001',
             status='draft'
         )
+        self._add_line_item_to_bill(bill)
+
         bill.status = 'received'
         bill.save()
         bill.status = 'partly_paid'
@@ -340,11 +387,14 @@ class BillStatusTransitionTest(TestCase):
     def test_invalid_transition_paid_in_full_to_partly_paid(self):
         """Test that paid_in_full cannot transition to partly_paid."""
         bill = Bill.objects.create(
+            bill_number="BILL-018",
             purchase_order=self.purchase_order,
             contact=self.contact,
             vendor_invoice_number='INV-001',
             status='draft'
         )
+        self._add_line_item_to_bill(bill)
+
         bill.status = 'received'
         bill.save()
         bill.status = 'paid_in_full'
@@ -359,11 +409,14 @@ class BillStatusTransitionTest(TestCase):
     def test_terminal_state_cancelled_cannot_transition(self):
         """Test that cancelled is a terminal state."""
         bill = Bill.objects.create(
+            bill_number="BILL-019",
             purchase_order=self.purchase_order,
             contact=self.contact,
             vendor_invoice_number='INV-001',
             status='draft'
         )
+        self._add_line_item_to_bill(bill)
+
         bill.status = 'received'
         bill.save()
         bill.status = 'cancelled'
@@ -379,11 +432,14 @@ class BillStatusTransitionTest(TestCase):
     def test_terminal_state_refunded_cannot_transition(self):
         """Test that refunded is a terminal state."""
         bill = Bill.objects.create(
+            bill_number="BILL-020",
             purchase_order=self.purchase_order,
             contact=self.contact,
             vendor_invoice_number='INV-001',
             status='draft'
         )
+        self._add_line_item_to_bill(bill)
+
         bill.status = 'received'
         bill.save()
         bill.status = 'paid_in_full'
@@ -401,6 +457,7 @@ class BillStatusTransitionTest(TestCase):
     def test_created_date_is_immutable(self):
         """Test that created_date cannot be changed after creation."""
         bill = Bill.objects.create(
+            bill_number="BILL-021",
             purchase_order=self.purchase_order,
             contact=self.contact,
             vendor_invoice_number='INV-001'
@@ -419,11 +476,14 @@ class BillStatusTransitionTest(TestCase):
     def test_received_date_is_immutable(self):
         """Test that received_date cannot be changed after being set."""
         bill = Bill.objects.create(
+            bill_number="BILL-022",
             purchase_order=self.purchase_order,
             contact=self.contact,
             vendor_invoice_number='INV-001',
             status='draft'
         )
+        self._add_line_item_to_bill(bill)
+
         bill.status = 'received'
         bill.save()
 
@@ -441,11 +501,14 @@ class BillStatusTransitionTest(TestCase):
     def test_paid_date_is_immutable(self):
         """Test that paid_date cannot be changed after being set."""
         bill = Bill.objects.create(
+            bill_number="BILL-023",
             purchase_order=self.purchase_order,
             contact=self.contact,
             vendor_invoice_number='INV-001',
             status='draft'
         )
+        self._add_line_item_to_bill(bill)
+
         bill.status = 'received'
         bill.save()
         bill.status = 'paid_in_full'
@@ -465,11 +528,14 @@ class BillStatusTransitionTest(TestCase):
     def test_cancelled_date_is_immutable(self):
         """Test that cancelled_date cannot be changed after being set."""
         bill = Bill.objects.create(
+            bill_number="BILL-024",
             purchase_order=self.purchase_order,
             contact=self.contact,
             vendor_invoice_number='INV-001',
             status='draft'
         )
+        self._add_line_item_to_bill(bill)
+
         bill.status = 'received'
         bill.save()
         bill.status = 'cancelled'
@@ -489,6 +555,7 @@ class BillStatusTransitionTest(TestCase):
     def test_due_date_is_optional_and_editable(self):
         """Test that due_date is optional and can be edited."""
         bill = Bill.objects.create(
+            bill_number="BILL-025",
             purchase_order=self.purchase_order,
             contact=self.contact,
             vendor_invoice_number='INV-001'
@@ -516,11 +583,15 @@ class BillStatusTransitionTest(TestCase):
     def test_valid_path_draft_received_partly_paid_full(self):
         """Test the path: draft -> received -> partly_paid -> paid_in_full."""
         bill = Bill.objects.create(
+            bill_number="BILL-026",
             purchase_order=self.purchase_order,
             contact=self.contact,
             vendor_invoice_number='INV-001',
             status='draft'
         )
+
+        self._add_line_item_to_bill(bill)
+
 
         bill.status = 'received'
         bill.save()
@@ -539,11 +610,15 @@ class BillStatusTransitionTest(TestCase):
     def test_valid_path_draft_received_partly_paid_full_refunded(self):
         """Test the path: draft -> received -> partly_paid -> paid_in_full -> refunded."""
         bill = Bill.objects.create(
+            bill_number="BILL-027",
             purchase_order=self.purchase_order,
             contact=self.contact,
             vendor_invoice_number='INV-001',
             status='draft'
         )
+
+        self._add_line_item_to_bill(bill)
+
 
         bill.status = 'received'
         bill.save()
@@ -564,11 +639,15 @@ class BillStatusTransitionTest(TestCase):
     def test_valid_path_draft_received_full(self):
         """Test the path: draft -> received -> paid_in_full."""
         bill = Bill.objects.create(
+            bill_number="BILL-028",
             purchase_order=self.purchase_order,
             contact=self.contact,
             vendor_invoice_number='INV-001',
             status='draft'
         )
+
+        self._add_line_item_to_bill(bill)
+
 
         bill.status = 'received'
         bill.save()
@@ -581,11 +660,15 @@ class BillStatusTransitionTest(TestCase):
     def test_valid_path_draft_received_full_refunded(self):
         """Test the path: draft -> received -> paid_in_full -> refunded."""
         bill = Bill.objects.create(
+            bill_number="BILL-029",
             purchase_order=self.purchase_order,
             contact=self.contact,
             vendor_invoice_number='INV-001',
             status='draft'
         )
+
+        self._add_line_item_to_bill(bill)
+
 
         bill.status = 'received'
         bill.save()
@@ -602,11 +685,15 @@ class BillStatusTransitionTest(TestCase):
     def test_valid_path_draft_received_cancelled(self):
         """Test the path: draft -> received -> cancelled."""
         bill = Bill.objects.create(
+            bill_number="BILL-030",
             purchase_order=self.purchase_order,
             contact=self.contact,
             vendor_invoice_number='INV-001',
             status='draft'
         )
+
+        self._add_line_item_to_bill(bill)
+
 
         bill.status = 'received'
         bill.save()

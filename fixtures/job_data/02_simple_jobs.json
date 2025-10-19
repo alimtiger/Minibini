@@ -68,7 +68,7 @@
   "pk": 5,
   "fields": {
     "job_number": "J2025-0005",
-    "name": "",
+    "name": "2-top tables",
     "created_date": "2025-10-13T16:54:41.008Z",
     "start_date": null,
     "due_date": "2025-12-05T00:00:00Z",
@@ -213,6 +213,19 @@
     "version": 1,
     "parent": null,
     "created_date": "2025-02-01T15:00:00Z"
+  }
+},
+{
+  "model": "jobs.estworksheet",
+  "pk": 2,
+  "fields": {
+    "job": 5,
+    "template": null,
+    "estimate": null,
+    "status": "draft",
+    "version": 1,
+    "parent": null,
+    "created_date": "2025-10-17T15:09:06.143Z"
   }
 },
 {
@@ -437,6 +450,81 @@
     "units": "hours",
     "rate": "600.00",
     "est_qty": "6.00",
+    "template": null
+  }
+},
+{
+  "model": "jobs.task",
+  "pk": 16,
+  "fields": {
+    "parent_task": null,
+    "assignee": null,
+    "work_order": null,
+    "est_worksheet": 2,
+    "name": "Buy Leg bases",
+    "units": "pc",
+    "rate": "85.00",
+    "est_qty": "6.00",
+    "template": null
+  }
+},
+{
+  "model": "jobs.task",
+  "pk": 17,
+  "fields": {
+    "parent_task": null,
+    "assignee": null,
+    "work_order": null,
+    "est_worksheet": 2,
+    "name": "CAD",
+    "units": "hours",
+    "rate": "150.00",
+    "est_qty": "1.00",
+    "template": 2
+  }
+},
+{
+  "model": "jobs.task",
+  "pk": 18,
+  "fields": {
+    "parent_task": null,
+    "assignee": null,
+    "work_order": null,
+    "est_worksheet": 2,
+    "name": "CUT",
+    "units": "minutes",
+    "rate": "22.00",
+    "est_qty": "10.00",
+    "template": 3
+  }
+},
+{
+  "model": "jobs.task",
+  "pk": 19,
+  "fields": {
+    "parent_task": null,
+    "assignee": null,
+    "work_order": null,
+    "est_worksheet": 2,
+    "name": "FINISH",
+    "units": "hours",
+    "rate": "100.00",
+    "est_qty": "3.00",
+    "template": 5
+  }
+},
+{
+  "model": "jobs.task",
+  "pk": 20,
+  "fields": {
+    "parent_task": null,
+    "assignee": null,
+    "work_order": null,
+    "est_worksheet": 2,
+    "name": "screw on legs",
+    "units": "hours",
+    "rate": "75.00",
+    "est_qty": "1.00",
     "template": null
   }
 },
