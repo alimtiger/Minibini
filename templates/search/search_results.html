@@ -5,6 +5,15 @@
 {% block content %}
 <h2>Search Results</h2>
 
+<style>
+    mark.search-highlight {
+        background-color: #ffeb3b;
+        padding: 2px 4px;
+        border-radius: 2px;
+        font-weight: 500;
+    }
+</style>
+
 {% if query %}
     <div style="display: flex; gap: 20px;">
         <!-- Left Sidebar - Filters -->
@@ -224,5 +233,42 @@
 {% endif %}
 
 <p><a href="{% url 'home' %}">Back to Home</a></p>
+
+{% if query %}
+<script>
+(function() {
+    // Get the search query
+    const searchQuery = "{{ query|escapejs }}";
+
+    if (!searchQuery) return;
+
+    // Function to highlight text in a node
+    function highlightText(node) {
+        if (node.nodeType === 3) { // Text node
+            const text = node.nodeValue;
+            const regex = new RegExp(`(${searchQuery.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+
+            if (regex.test(text)) {
+                const span = document.createElement('span');
+                span.innerHTML = text.replace(regex, '<mark class="search-highlight">$1</mark>');
+                node.parentNode.replaceChild(span, node);
+
+                // Merge adjacent text nodes
+                span.normalize();
+            }
+        } else if (node.nodeType === 1 && node.nodeName !== 'SCRIPT' && node.nodeName !== 'STYLE' && node.nodeName !== 'MARK') {
+            // Element node (but not script, style, or mark tags)
+            Array.from(node.childNodes).forEach(highlightText);
+        }
+    }
+
+    // Get the main content area and highlight
+    const mainContent = document.querySelector('main');
+    if (mainContent) {
+        highlightText(mainContent);
+    }
+})();
+</script>
+{% endif %}
 
 {% endblock %}
