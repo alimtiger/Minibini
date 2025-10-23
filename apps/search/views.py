@@ -86,7 +86,9 @@ def search_view(request):
 
     # CONTACTS
     contacts = Contact.objects.filter(
-        Q(name__icontains=query) |
+        Q(first_name__icontains=query) |
+        Q(middle_initial__icontains=query) |
+        Q(last_name__icontains=query) |
         Q(email__icontains=query) |
         Q(mobile_number__icontains=query) |
         Q(work_number__icontains=query) |
@@ -149,7 +151,9 @@ def search_view(request):
         Q(job_number__icontains=query) |
         Q(customer_po_number__icontains=query) |
         Q(description__icontains=query) |
-        Q(contact__name__icontains=query)
+        Q(contact__first_name__icontains=query) |
+        Q(contact__middle_initial__icontains=query) |
+        Q(contact__last_name__icontains=query)
     ).select_related('contact')
     if jobs.exists():
         categories['Jobs'] = {
@@ -241,7 +245,9 @@ def search_view(request):
     bills = Bill.objects.filter(
         Q(vendor_invoice_number__icontains=query) |
         Q(purchase_order__po_number__icontains=query) |
-        Q(contact__name__icontains=query)
+        Q(contact__first_name__icontains=query) |
+        Q(contact__middle_initial__icontains=query) |
+        Q(contact__last_name__icontains=query)
     ).select_related('purchase_order', 'contact').prefetch_related('billlineitem_set')
 
     bill_line_items = BillLineItem.objects.annotate(

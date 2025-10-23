@@ -166,7 +166,7 @@
                     <li>
                         <a href="{% url 'contacts:contact_detail' contact.contact_id %}">{{ contact.name }}</a>
                         {% if contact.email %} - {{ contact.email }}{% endif %}
-                        {% if contact.mobile_number %} - {{ contact.mobile_number }}{% endif %}
+                        {% if contact.phone %} - {{ contact.phone }}{% endif %}
                         {% if contact.business %}<br>Business: {{ contact.business.business_name }}{% endif %}
                     </li>
                     {% endfor %}
