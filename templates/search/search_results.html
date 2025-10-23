@@ -8,8 +8,8 @@
 <style>
     mark.search-highlight {
         background-color: #ffeb3b;
-        padding: 2px 4px;
-        border-radius: 2px;
+        padding: 0;
+        border-radius: 0;
         font-weight: 500;
     }
 </style>
@@ -17,7 +17,7 @@
 {% if query %}
     <div style="display: flex; gap: 20px;">
         <!-- Left Sidebar - Filters -->
-        <aside style="width: 250px; flex-shrink: 0;">
+        <aside style="width: 250px; flex-shrink: 0;" class="no-highlight">
             <div style="background-color: #f5f5f5; padding: 15px; border-radius: 5px; border: 1px solid #ddd; position: sticky; top: 20px;">
                 <h3 style="margin-top: 0; font-size: 1.1em;">Refine Results</h3>
                 <form method="get" action="{% url 'search:search' %}">
@@ -63,8 +63,8 @@
 
         <!-- Main Content Area -->
         <main style="flex: 1; min-width: 0;">
-            <p><strong>Search query:</strong> "{{ query }}"</p>
-            <p><strong>Total results:</strong> {{ total_count }}</p>
+            <p class="no-highlight"><strong>Search query:</strong> "{{ query }}"</p>
+            <p class="no-highlight"><strong>Total results:</strong> {{ total_count }}</p>
 
     {% if total_count == 0 %}
         <p>No results found for "{{ query }}" with the current filters.</p>
@@ -249,14 +249,43 @@
             const regex = new RegExp(`(${searchQuery.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
 
             if (regex.test(text)) {
-                const span = document.createElement('span');
-                span.innerHTML = text.replace(regex, '<mark class="search-highlight">$1</mark>');
-                node.parentNode.replaceChild(span, node);
+                // Create a document fragment to hold the new nodes
+                const fragment = document.createDocumentFragment();
+                let lastIndex = 0;
+                let match;
 
-                // Merge adjacent text nodes
-                span.normalize();
+                // Reset regex lastIndex
+                regex.lastIndex = 0;
+
+                while ((match = regex.exec(text)) !== null) {
+                    // Add text before the match
+                    if (match.index > lastIndex) {
+                        fragment.appendChild(document.createTextNode(text.substring(lastIndex, match.index)));
+                    }
+
+                    // Add highlighted text
+                    const mark = document.createElement('mark');
+                    mark.className = 'search-highlight';
+                    mark.textContent = match[0];
+                    fragment.appendChild(mark);
+
+                    lastIndex = regex.lastIndex;
+                }
+
+                // Add remaining text after the last match
+                if (lastIndex < text.length) {
+                    fragment.appendChild(document.createTextNode(text.substring(lastIndex)));
+                }
+
+                // Replace the original text node with the fragment
+                node.parentNode.replaceChild(fragment, node);
             }
         } else if (node.nodeType === 1 && node.nodeName !== 'SCRIPT' && node.nodeName !== 'STYLE' && node.nodeName !== 'MARK') {
+            // Skip elements with no-highlight class
+            if (node.classList && node.classList.contains('no-highlight')) {
+                return;
+            }
+
             // Element node (but not script, style, or mark tags)
             Array.from(node.childNodes).forEach(highlightText);
         }

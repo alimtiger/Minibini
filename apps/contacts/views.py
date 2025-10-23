@@ -3,7 +3,7 @@ from django.contrib import messages
 from .models import Contact, Business
 
 def contact_list(request):
-    contacts = Contact.objects.all().order_by('name')
+    contacts = Contact.objects.all().order_by('last_name', 'first_name')
     return render(request, 'contacts/contact_list.html', {'contacts': contacts})
 
 def contact_detail(request, contact_id):
@@ -16,13 +16,15 @@ def business_list(request):
 
 def business_detail(request, business_id):
     business = get_object_or_404(Business, business_id=business_id)
-    contacts = Contact.objects.filter(business=business).order_by('name')
+    contacts = Contact.objects.filter(business=business).order_by('last_name', 'first_name')
     return render(request, 'contacts/business_detail.html', {'business': business, 'contacts': contacts})
 
 def add_contact(request):
     if request.method == 'POST':
         # Contact fields
-        name = request.POST.get('name')
+        first_name = request.POST.get('first_name')
+        middle_initial = request.POST.get('middle_initial')
+        last_name = request.POST.get('last_name')
         email = request.POST.get('email')
         work_number = request.POST.get('work_number')
         mobile_number = request.POST.get('mobile_number')
@@ -39,7 +41,17 @@ def add_contact(request):
         tax_exemption_number = request.POST.get('tax_exemption_number')
         tax_cloud = request.POST.get('tax_cloud')
 
-        if name:
+        if first_name and last_name:
+            # Validate email is provided
+            if not email or not email.strip():
+                messages.error(request, 'Email address is required.')
+                return render(request, 'contacts/add_contact.html')
+
+            # Validate at least one phone number is provided
+            if not any([work_number, mobile_number, home_number]):
+                messages.error(request, 'At least one phone number (work, mobile, or home) is required.')
+                return render(request, 'contacts/add_contact.html')
+
             business = None
             # Create business only if business name is provided and not just whitespace
             if business_name and business_name.strip():
@@ -54,8 +66,10 @@ def add_contact(request):
 
             # Create contact
             contact = Contact.objects.create(
-                name=name,
-                email=email or '',
+                first_name=first_name,
+                middle_initial=middle_initial or '',
+                last_name=last_name,
+                email=email.strip(),
                 work_number=work_number or '',
                 mobile_number=mobile_number or '',
                 home_number=home_number or '',
@@ -65,13 +79,13 @@ def add_contact(request):
                 business=business
             )
 
-            success_msg = f'Contact "{name}" has been added successfully.'
+            success_msg = f'Contact "{contact.name}" has been added successfully.'
             if business:
                 success_msg += f' Associated with business "{business_name}".'
             messages.success(request, success_msg)
             return redirect('contacts:contact_list')
         else:
-            messages.error(request, 'Name is required.')
+            messages.error(request, 'First name and last name are required.')
 
     return render(request, 'contacts/add_contact.html')
 
@@ -79,7 +93,9 @@ def add_business_contact(request, business_id):
     business = get_object_or_404(Business, business_id=business_id)
 
     if request.method == 'POST':
-        name = request.POST.get('name')
+        first_name = request.POST.get('first_name')
+        middle_initial = request.POST.get('middle_initial')
+        last_name = request.POST.get('last_name')
         email = request.POST.get('email')
         work_number = request.POST.get('work_number')
         mobile_number = request.POST.get('mobile_number')
@@ -88,10 +104,22 @@ def add_business_contact(request, business_id):
         city = request.POST.get('city')
         postal_code = request.POST.get('postal_code')
 
-        if name:
+        if first_name and last_name:
+            # Validate email is provided
+            if not email or not email.strip():
+                messages.error(request, 'Email address is required.')
+                return render(request, 'contacts/add_business_contact.html', {'business': business})
+
+            # Validate at least one phone number is provided
+            if not any([work_number, mobile_number, home_number]):
+                messages.error(request, 'At least one phone number (work, mobile, or home) is required.')
+                return render(request, 'contacts/add_business_contact.html', {'business': business})
+
             contact = Contact.objects.create(
-                name=name,
-                email=email or '',
+                first_name=first_name,
+                middle_initial=middle_initial or '',
+                last_name=last_name,
+                email=email.strip(),
                 work_number=work_number or '',
                 mobile_number=mobile_number or '',
                 home_number=home_number or '',
@@ -100,10 +128,10 @@ def add_business_contact(request, business_id):
                 postal_code=postal_code or '',
                 business=business
             )
-            messages.success(request, f'Contact "{name}" has been added to {business.business_name}.')
+            messages.success(request, f'Contact "{contact.name}" has been added to {business.business_name}.')
             return redirect('contacts:business_detail', business_id=business.business_id)
         else:
-            messages.error(request, 'Name is required.')
+            messages.error(request, 'First name and last name are required.')
 
     return render(request, 'contacts/add_business_contact.html', {'business': business})
 
@@ -124,7 +152,9 @@ def add_business(request):
         contacts_data = []
         for i in range(contact_count):
             contact_data = {
-                'name': request.POST.get(f'contact_{i}_name'),
+                'first_name': request.POST.get(f'contact_{i}_first_name'),
+                'middle_initial': request.POST.get(f'contact_{i}_middle_initial'),
+                'last_name': request.POST.get(f'contact_{i}_last_name'),
                 'email': request.POST.get(f'contact_{i}_email'),
                 'work_number': request.POST.get(f'contact_{i}_work_number'),
                 'mobile_number': request.POST.get(f'contact_{i}_mobile_number'),
@@ -133,15 +163,15 @@ def add_business(request):
                 'city': request.POST.get(f'contact_{i}_city'),
                 'postal_code': request.POST.get(f'contact_{i}_postal_code')
             }
-            # Only add contact if name is provided
-            if contact_data['name'] and contact_data['name'].strip():
+            # Only add contact if first and last name are provided
+            if contact_data['first_name'] and contact_data['first_name'].strip() and contact_data['last_name'] and contact_data['last_name'].strip():
                 contacts_data.append(contact_data)
 
         # Validate: business name and at least one contact required
         if not business_name or not business_name.strip():
             messages.error(request, 'Business name is required.')
         elif not contacts_data:
-            messages.error(request, 'At least one contact with a name is required.')
+            messages.error(request, 'At least one contact with first and last name is required.')
         else:
             # Create business
             business = Business.objects.create(
@@ -153,12 +183,24 @@ def add_business(request):
                 tax_cloud=tax_cloud.strip() if tax_cloud else ''
             )
 
-            # Create contacts
+            # Validate and create contacts
             created_contacts = []
-            for contact_data in contacts_data:
+            for i, contact_data in enumerate(contacts_data):
+                # Validate email
+                if not contact_data['email'] or not contact_data['email'].strip():
+                    messages.error(request, f'Email address is required for contact {i + 1}.')
+                    return render(request, 'contacts/add_business.html')
+
+                # Validate at least one phone number
+                if not any([contact_data['work_number'], contact_data['mobile_number'], contact_data['home_number']]):
+                    messages.error(request, f'At least one phone number is required for contact {i + 1}.')
+                    return render(request, 'contacts/add_business.html')
+
                 contact = Contact.objects.create(
-                    name=contact_data['name'].strip(),
-                    email=contact_data['email'].strip() if contact_data['email'] else '',
+                    first_name=contact_data['first_name'].strip(),
+                    middle_initial=contact_data['middle_initial'].strip() if contact_data['middle_initial'] else '',
+                    last_name=contact_data['last_name'].strip(),
+                    email=contact_data['email'].strip(),
                     work_number=contact_data['work_number'].strip() if contact_data['work_number'] else '',
                     mobile_number=contact_data['mobile_number'].strip() if contact_data['mobile_number'] else '',
                     home_number=contact_data['home_number'].strip() if contact_data['home_number'] else '',
@@ -180,7 +222,9 @@ def edit_contact(request, contact_id):
 
     if request.method == 'POST':
         # Contact fields
-        name = request.POST.get('name')
+        first_name = request.POST.get('first_name')
+        middle_initial = request.POST.get('middle_initial')
+        last_name = request.POST.get('last_name')
         email = request.POST.get('email')
         work_number = request.POST.get('work_number')
         mobile_number = request.POST.get('mobile_number')
@@ -199,7 +243,25 @@ def edit_contact(request, contact_id):
         tax_exemption_number = request.POST.get('tax_exemption_number')
         tax_cloud = request.POST.get('tax_cloud')
 
-        if name:
+        if first_name and last_name:
+            # Validate email is provided
+            if not email or not email.strip():
+                messages.error(request, 'Email address is required.')
+                existing_businesses = Business.objects.all().order_by('business_name')
+                return render(request, 'contacts/edit_contact.html', {
+                    'contact': contact,
+                    'existing_businesses': existing_businesses
+                })
+
+            # Validate at least one phone number is provided
+            if not any([work_number, mobile_number, home_number]):
+                messages.error(request, 'At least one phone number (work, mobile, or home) is required.')
+                existing_businesses = Business.objects.all().order_by('business_name')
+                return render(request, 'contacts/edit_contact.html', {
+                    'contact': contact,
+                    'existing_businesses': existing_businesses
+                })
+
             # Check if contact has open jobs before allowing business change
             from apps.jobs.models import Job
 
@@ -314,8 +376,10 @@ def edit_contact(request, contact_id):
             # business remains None if no selection mode or empty fields
 
             # Update contact
-            contact.name = name
-            contact.email = email or ''
+            contact.first_name = first_name
+            contact.middle_initial = middle_initial or ''
+            contact.last_name = last_name
+            contact.email = email.strip()
             contact.work_number = work_number or ''
             contact.mobile_number = mobile_number or ''
             contact.home_number = home_number or ''
@@ -325,10 +389,10 @@ def edit_contact(request, contact_id):
             contact.business = business
             contact.save()
 
-            messages.success(request, f'Contact "{name}" has been updated successfully.')
+            messages.success(request, f'Contact "{contact.name}" has been updated successfully.')
             return redirect('contacts:contact_detail', contact_id=contact.contact_id)
         else:
-            messages.error(request, 'Name is required.')
+            messages.error(request, 'First name and last name are required.')
 
     existing_businesses = Business.objects.all().order_by('business_name')
     return render(request, 'contacts/edit_contact.html', {

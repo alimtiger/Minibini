@@ -16,6 +16,18 @@
         <td>{{ contact.name }}</td>
     </tr>
     <tr>
+        <td>First Name</td>
+        <td>{{ contact.first_name }}</td>
+    </tr>
+    <tr>
+        <td>Middle Initial</td>
+        <td>{{ contact.middle_initial|default:"N/A" }}</td>
+    </tr>
+    <tr>
+        <td>Last Name</td>
+        <td>{{ contact.last_name }}</td>
+    </tr>
+    <tr>
         <td>Email</td>
         <td>{{ contact.email|default:"No email" }}</td>
     </tr>

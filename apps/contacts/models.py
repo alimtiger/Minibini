@@ -1,10 +1,14 @@
 from django.db import models
+from django.core.exceptions import ValidationError
+from django.core.validators import EmailValidator
 
 
 class Contact(models.Model):
     contact_id = models.AutoField(primary_key=True)
-    name = models.CharField(max_length=255)
-    email = models.EmailField(blank=True)
+    first_name = models.CharField(max_length=100)
+    middle_initial = models.CharField(max_length=10, blank=True)
+    last_name = models.CharField(max_length=100)
+    email = models.EmailField(validators=[EmailValidator()])
     addr1 = models.CharField(max_length=255, blank=True)
     addr2 = models.CharField(max_length=255, blank=True)
     addr3 = models.CharField(max_length=255, blank=True)
@@ -19,6 +23,25 @@ class Contact(models.Model):
 
     def __str__(self):
         return self.name
+
+    @property
+    def name(self):
+        """Combine name parts with proper spacing"""
+        parts = [self.first_name]
+        if self.middle_initial:
+            parts.append(self.middle_initial)
+        parts.append(self.last_name)
+        return ' '.join(parts)
+
+    def clean(self):
+        """Validate that email and at least one phone number is provided"""
+        # Validate email is not empty
+        if not self.email or not self.email.strip():
+            raise ValidationError('Email address is required.')
+
+        # Validate at least one phone number is provided
+        if not any([self.work_number, self.mobile_number, self.home_number]):
+            raise ValidationError('At least one phone number (work, mobile, or home) is required.')
 
     def phone(self):
         # Return highest priority phone number: work > mobile > home
