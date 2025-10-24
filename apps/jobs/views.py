@@ -68,7 +68,7 @@ def job_detail(request, job_id):
     current_estimate_line_items = []
     current_estimate_total = 0
     if current_estimate:
-        current_estimate_line_items = EstimateLineItem.objects.filter(estimate=current_estimate).order_by('line_item_id')
+        current_estimate_line_items = EstimateLineItem.objects.filter(estimate=current_estimate).order_by('line_number', 'line_item_id')
         current_estimate_total = sum(item.total_amount for item in current_estimate_line_items)
 
     work_orders = WorkOrder.objects.filter(job=job).order_by('-work_order_id')
@@ -173,7 +173,7 @@ def estimate_detail(request, estimate_id):
             return redirect('jobs:estimate_detail', estimate_id=estimate.estimate_id)
 
     # Get line items and calculate total
-    line_items = EstimateLineItem.objects.filter(estimate=estimate).order_by('line_item_id')
+    line_items = EstimateLineItem.objects.filter(estimate=estimate).order_by('line_number', 'line_item_id')
     total_amount = sum(item.total_amount for item in line_items)
 
     # Check for associated worksheet

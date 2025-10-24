@@ -852,29 +852,29 @@
 },
 {
   "model": "jobs.estimatelineitem",
-  "pk": 24,
+  "pk": 27,
   "fields": {
-    "task": null,
+    "task": 1,
     "price_list_item": null,
     "line_number": 1,
-    "qty": "1.00",
-    "units": "each",
-    "description": "Custom Furniture",
-    "price_currency": "2750.00",
+    "qty": "8.00",
+    "units": "hours",
+    "description": "CAD drawings and technical documentation",
+    "price_currency": "800.00",
     "estimate": 6
   }
 },
 {
   "model": "jobs.estimatelineitem",
-  "pk": 25,
+  "pk": 28,
   "fields": {
-    "task": null,
+    "task": 2,
     "price_list_item": null,
     "line_number": 2,
-    "qty": "1.00",
-    "units": "each",
-    "description": "Custom Furniture",
-    "price_currency": "800.00",
+    "qty": "300.00",
+    "units": "board feet",
+    "description": "White oak lumber purchase",
+    "price_currency": "2100.00",
     "estimate": 6
   }
 },
@@ -894,29 +894,29 @@
 },
 {
   "model": "jobs.estimatelineitem",
-  "pk": 27,
+  "pk": 24,
   "fields": {
-    "task": 1,
+    "task": null,
     "price_list_item": null,
     "line_number": 4,
-    "qty": "8.00",
-    "units": "hours",
-    "description": "CAD drawings and technical documentation",
-    "price_currency": "800.00",
+    "qty": "1.00",
+    "units": "each",
+    "description": "Custom Furniture",
+    "price_currency": "2750.00",
     "estimate": 6
   }
 },
 {
   "model": "jobs.estimatelineitem",
-  "pk": 28,
+  "pk": 25,
   "fields": {
-    "task": 2,
+    "task": null,
     "price_list_item": null,
     "line_number": 5,
-    "qty": "300.00",
-    "units": "board feet",
-    "description": "White oak lumber purchase",
-    "price_currency": "2100.00",
+    "qty": "1.00",
+    "units": "each",
+    "description": "Custom Furniture",
+    "price_currency": "800.00",
     "estimate": 6
   }
 }
