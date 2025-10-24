@@ -205,7 +205,16 @@
     <p>No superseded estimates.</p>
 {% endif %}
 
-<h3>Associated Work Orders</h3>
+{% if current_work_order %}
+<h3>Current Work Order <a href="{% url 'jobs:work_order_detail' current_work_order.work_order_id %}">Work Order {{ current_work_order.work_order_id }}</a> -
+    {{ current_work_order.get_status_display }}</h3>
+    <p>Template: {{ current_work_order.template.template_name|default:"—" }}</p>
+
+    <h4>Tasks</h4>
+    {% include 'jobs/_task_list.html' with tasks=current_work_order_tasks %}
+{% endif %}
+
+<h3>All Work Orders</h3>
 {% if work_orders %}
     <table border="1" style="border-collapse: collapse; width: 100%; margin-top: 10px;">
         <thead>
@@ -217,7 +226,7 @@
         </thead>
         <tbody>
             {% for work_order in work_orders %}
-            <tr>
+            <tr{% if work_order == current_work_order %} style="background-color: #f0f0f0; font-weight: bold;"{% endif %}>
                 <td>{{ work_order.get_status_display }}</td>
                 <td>{{ work_order.template.template_name|default:"—" }}</td>
                 <td>

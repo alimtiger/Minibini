@@ -13,6 +13,44 @@ from .forms import (
 from apps.purchasing.models import PurchaseOrder
 from apps.invoicing.models import Invoice
 
+
+def _build_task_hierarchy(tasks):
+    """Build a hierarchical task structure with level indicators."""
+    task_dict = {task.task_id: task for task in tasks}
+    root_tasks = []
+
+    # Find root tasks (no parent)
+    for task in tasks:
+        if not task.parent_task:
+            root_tasks.append(task)
+
+    # Recursive function to get task with its children and level
+    def get_task_with_children(task, level=0):
+        result = {'task': task, 'level': level}
+        children = []
+        for potential_child in tasks:
+            if potential_child.parent_task_id == task.task_id:
+                children.append(get_task_with_children(potential_child, level + 1))
+        result['children'] = children
+        return result
+
+    # Build the tree
+    tree = []
+    for root_task in root_tasks:
+        tree.append(get_task_with_children(root_task))
+
+    # Flatten the tree for template display
+    def flatten_tree(tree_nodes):
+        flat_list = []
+        for node in tree_nodes:
+            flat_list.append({'task': node['task'], 'level': node['level']})
+            if node['children']:
+                flat_list.extend(flatten_tree(node['children']))
+        return flat_list
+
+    return flatten_tree(tree)
+
+
 def job_list(request):
     jobs = Job.objects.all().order_by('-created_date')
     return render(request, 'jobs/job_list.html', {'jobs': jobs})
@@ -38,6 +76,13 @@ def job_detail(request, job_id):
     purchase_orders = PurchaseOrder.objects.filter(job=job).order_by('-po_id')
     invoices = Invoice.objects.filter(job=job).order_by('-invoice_id')
 
+    # Get current work order (most recent non-complete)
+    current_work_order = work_orders.exclude(status='complete').first()
+    current_work_order_tasks = []
+    if current_work_order:
+        all_tasks = Task.objects.filter(work_order=current_work_order).order_by('task_id')
+        current_work_order_tasks = _build_task_hierarchy(all_tasks)
+
     return render(request, 'jobs/job_detail.html', {
         'job': job,
         'current_estimate': current_estimate,
@@ -45,6 +90,8 @@ def job_detail(request, job_id):
         'current_estimate_total': current_estimate_total,
         'superseded_estimates': superseded_estimates,
         'work_orders': work_orders,
+        'current_work_order': current_work_order,
+        'current_work_order_tasks': current_work_order_tasks,
         'worksheets': worksheets,
         'purchase_orders': purchase_orders,
         'invoices': invoices
@@ -183,45 +230,7 @@ def work_order_detail(request, work_order_id):
 
     # Get all tasks for this work order
     all_tasks = Task.objects.filter(work_order=work_order).order_by('task_id')
-
-    # Build hierarchical task structure
-    def build_task_tree(tasks):
-        """Build a hierarchical task structure with level indicators."""
-        task_dict = {task.task_id: task for task in tasks}
-        root_tasks = []
-
-        # Find root tasks (no parent)
-        for task in tasks:
-            if not task.parent_task:
-                root_tasks.append(task)
-
-        # Recursive function to get task with its children and level
-        def get_task_with_children(task, level=0):
-            result = {'task': task, 'level': level}
-            children = []
-            for potential_child in tasks:
-                if potential_child.parent_task_id == task.task_id:
-                    children.append(get_task_with_children(potential_child, level + 1))
-            result['children'] = children
-            return result
-
-        # Build the tree
-        tree = []
-        for root_task in root_tasks:
-            tree.append(get_task_with_children(root_task))
-
-        # Flatten the tree for template display
-        def flatten_tree(tree_nodes):
-            flat_list = []
-            for node in tree_nodes:
-                flat_list.append({'task': node['task'], 'level': node['level']})
-                if node['children']:
-                    flat_list.extend(flatten_tree(node['children']))
-            return flat_list
-
-        return flatten_tree(tree)
-
-    tasks_with_levels = build_task_tree(all_tasks)
+    tasks_with_levels = _build_task_hierarchy(all_tasks)
 
     # Create status form for display (unless completed)
     status_form = WorkOrderStatusForm(current_status=work_order.status) if work_order.status != 'complete' else None
