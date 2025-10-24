@@ -4,13 +4,13 @@ from datetime import timedelta
 from apps.jobs.models import Job, Estimate, WorkOrder, Task, Blep, TaskMapping, TaskTemplate
 from apps.contacts.models import Contact
 from apps.core.models import User
-from .base import FixtureTestCase
 
 
-class JobModelFixtureTest(FixtureTestCase):
+class JobModelFixtureTest(TestCase):
     """
-    Test Job model using fixture data loaded from unit_test_data.json
+    Test Job model using fixture data
     """
+    fixtures = ['core_base_data.json', 'contacts_base_data.json', 'jobs_basic_data.json']
 
     def test_jobs_exist_from_fixture(self):
         """Test that jobs from fixture data exist and have correct properties"""
@@ -61,10 +61,11 @@ class JobModelFixtureTest(FixtureTestCase):
         self.assertEqual(Job.objects.count(), 3)  # 2 from fixture + 1 new
 
 
-class EstimateModelFixtureTest(FixtureTestCase):
+class EstimateModelFixtureTest(TestCase):
     """
     Test Estimate model using fixture data
     """
+    fixtures = ['core_base_data.json', 'contacts_base_data.json', 'jobs_basic_data.json']
 
     def test_estimates_exist_from_fixture(self):
         """Test that estimates from fixture data exist and have correct properties"""
@@ -90,10 +91,11 @@ class EstimateModelFixtureTest(FixtureTestCase):
         self.assertEqual(estimate.job, job)
 
 
-class WorkOrderModelFixtureTest(FixtureTestCase):
+class WorkOrderModelFixtureTest(TestCase):
     """
     Test WorkOrder model using fixture data
     """
+    fixtures = ['core_base_data.json', 'contacts_base_data.json', 'jobs_basic_data.json']
 
     def test_work_orders_exist_from_fixture(self):
         """Test that work orders from fixture data exist and have correct properties"""
@@ -117,10 +119,11 @@ class WorkOrderModelFixtureTest(FixtureTestCase):
         self.assertEqual(work_order.job, job)
 
 
-class TaskModelFixtureTest(FixtureTestCase):
+class TaskModelFixtureTest(TestCase):
     """
     Test Task model using fixture data
     """
+    fixtures = ['core_base_data.json', 'contacts_base_data.json', 'jobs_basic_data.json']
 
     def test_tasks_exist_from_fixture(self):
         """Test that tasks from fixture data exist and have correct properties"""
@@ -162,10 +165,11 @@ class TaskModelFixtureTest(FixtureTestCase):
         self.assertEqual(Task.objects.count(), 3)  # 2 from fixture + 1 new
 
 
-class BlepModelFixtureTest(FixtureTestCase):
+class BlepModelFixtureTest(TestCase):
     """
     Test Blep model using fixture data
     """
+    fixtures = ['core_base_data.json', 'contacts_base_data.json', 'jobs_basic_data.json']
 
     def test_create_blep_for_existing_task(self):
         """Test creating bleps for existing tasks from fixtures"""
@@ -195,10 +199,11 @@ class BlepModelFixtureTest(FixtureTestCase):
         self.assertEqual(str(blep), expected_str)
 
 
-class TaskMappingModelFixtureTest(FixtureTestCase):
+class TaskMappingModelFixtureTest(TestCase):
     """
     Test TaskMapping model using fixture data
     """
+    fixtures = ['core_base_data.json', 'contacts_base_data.json', 'jobs_basic_data.json', 'template_system_data.json']
 
     def test_create_task_mapping_for_existing_task(self):
         """Test creating task mapping template that can be used by tasks"""

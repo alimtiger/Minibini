@@ -4,14 +4,13 @@ from apps.invoicing.models import Invoice, InvoiceLineItem, PriceListItem
 from apps.jobs.models import EstimateLineItem
 from apps.purchasing.models import PurchaseOrderLineItem, BillLineItem
 from apps.jobs.models import Job, Estimate, Task
-from .base import FixtureTestCase
 
 
-
-class PriceListItemModelFixtureTest(FixtureTestCase):
+class PriceListItemModelFixtureTest(TestCase):
     """
     Test PriceListItem model using fixture data
     """
+    fixtures = ['core_base_data.json', 'contacts_base_data.json', 'jobs_basic_data.json', 'invoicing_data.json']
     
     def test_price_list_items_exist_from_fixture(self):
         """Test that price list items from fixture data exist and have correct properties"""
@@ -50,10 +49,11 @@ class PriceListItemModelFixtureTest(FixtureTestCase):
         self.assertEqual(PriceListItem.objects.count(), 3)  # 2 from fixture + 1 new
 
 
-class InvoiceModelFixtureTest(FixtureTestCase):
+class InvoiceModelFixtureTest(TestCase):
     """
     Test Invoice model using fixture data
     """
+    fixtures = ['core_base_data.json', 'contacts_base_data.json', 'jobs_basic_data.json', 'invoicing_data.json']
     
     def test_invoices_exist_from_fixture(self):
         """Test that invoices from fixture data exist and have correct properties"""
@@ -99,10 +99,11 @@ class InvoiceModelFixtureTest(FixtureTestCase):
         self.assertEqual(Invoice.objects.count(), 3)  # 2 from fixture + 1 new
 
 
-class LineItemModelFixtureTest(FixtureTestCase):
+class LineItemModelFixtureTest(TestCase):
     """
     Test LineItem submodels using fixture data
     """
+    fixtures = ['core_base_data.json', 'contacts_base_data.json', 'jobs_basic_data.json', 'invoicing_data.json', 'purchasing_data.json']
     
     def test_estimate_line_items_exist_from_fixture(self):
         """Test that estimate line items from fixture data exist and have correct properties"""
