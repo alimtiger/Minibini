@@ -2,13 +2,13 @@ from django.test import TestCase
 from apps.purchasing.models import PurchaseOrder, Bill
 from apps.jobs.models import Job
 from apps.contacts.models import Contact
-from .base import FixtureTestCase
 
 
-class PurchaseOrderModelFixtureTest(FixtureTestCase):
+class PurchaseOrderModelFixtureTest(TestCase):
     """
-    Test PurchaseOrder model using fixture data loaded from unit_test_data.json
+    Test PurchaseOrder model using fixture data
     """
+    fixtures = ['core_base_data.json', 'contacts_base_data.json', 'jobs_basic_data.json', 'invoicing_data.json', 'purchasing_data.json']
 
     def test_purchase_orders_exist_from_fixture(self):
         """Test that purchase orders from fixture data exist and have correct properties"""
@@ -81,10 +81,11 @@ class PurchaseOrderModelFixtureTest(FixtureTestCase):
             PurchaseOrder.objects.get(po_id=po_id)
 
 
-class BillModelFixtureTest(FixtureTestCase):
+class BillModelFixtureTest(TestCase):
     """
     Test Bill model using fixture data
     """
+    fixtures = ['core_base_data.json', 'contacts_base_data.json', 'jobs_basic_data.json', 'invoicing_data.json', 'purchasing_data.json']
 
     def test_bills_exist_from_fixture(self):
         """Test that bills from fixture data exist and have correct properties"""
