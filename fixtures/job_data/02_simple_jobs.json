@@ -170,21 +170,6 @@
   }
 },
 {
-  "model": "jobs.estimate",
-  "pk": 7,
-  "fields": {
-    "job": 5,
-    "estimate_number": "EST-2025-0007",
-    "version": 1,
-    "status": "draft",
-    "parent": null,
-    "created_date": "2025-10-13T16:56:09.651Z",
-    "sent_date": null,
-    "closed_date": null,
-    "expiration_date": null
-  }
-},
-{
   "model": "jobs.workorder",
   "pk": 1,
   "fields": {

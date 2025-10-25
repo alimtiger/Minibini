@@ -223,6 +223,24 @@ class TaskFromTemplateForm(forms.Form):
         widget=forms.NumberInput(attrs={'step': '0.01'})
     )
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Customize the display of task templates to show more information
+        self.fields['template'].label_from_instance = self._template_label
+
+    @staticmethod
+    def _template_label(obj):
+        """Custom label showing template name, rate, and units"""
+        parts = [obj.template_name]
+
+        if obj.rate:
+            parts.append(f"${obj.rate}")
+
+        if obj.units:
+            parts.append(f"{obj.units}")
+
+        return " - ".join(parts)
+
 
 class ManualLineItemForm(forms.ModelForm):
     """Form for creating a manual line item (not linked to a Price List Item)"""
