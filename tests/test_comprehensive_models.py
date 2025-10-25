@@ -100,7 +100,7 @@ class ComprehensiveModelIntegrationTest(TestCase):
             price_list_item=price_list_item,
             qty=Decimal('5.00'),
             description="Test estimate line item",
-            price_currency=Decimal('75.00')
+            price=Decimal('75.00')
         )
 
         invoice_line_item = InvoiceLineItem.objects.create(
@@ -108,7 +108,7 @@ class ComprehensiveModelIntegrationTest(TestCase):
             price_list_item=price_list_item,
             qty=Decimal('5.00'),
             description="Test invoice line item",
-            price_currency=Decimal('75.00')
+            price=Decimal('75.00')
         )
 
         self.assertEqual(estimate_line_item.estimate, estimate)
@@ -152,7 +152,7 @@ class ComprehensiveModelIntegrationTest(TestCase):
             price_list_item=price_item,
             qty=Decimal('2.00'),
             description="Purchase order item",
-            price_currency=Decimal('50.00')
+            price=Decimal('50.00')
         )
 
         bill_line_item = BillLineItem.objects.create(
@@ -160,7 +160,7 @@ class ComprehensiveModelIntegrationTest(TestCase):
             price_list_item=price_item,
             qty=Decimal('2.00'),
             description="Bill item",
-            price_currency=Decimal('50.00')
+            price=Decimal('50.00')
         )
 
         self.assertEqual(bill.purchase_order, purchase_order)
@@ -305,11 +305,11 @@ class ComprehensiveModelIntegrationTest(TestCase):
             invoice=invoice,
             price_list_item=price_list_item,
             qty=Decimal('10.00'),
-            price_currency=Decimal('22.50')
+            price=Decimal('22.50')
         )
 
         expected_total = line_item.qty * price_list_item.selling_price
-        self.assertEqual(line_item.price_currency, expected_total)
+        self.assertEqual(line_item.price, expected_total)
 
     def test_unique_constraints(self):
         job = Job.objects.create(job_number="UNIQUE001", contact=self.contact)

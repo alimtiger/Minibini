@@ -105,7 +105,7 @@ class BillLineItemForm(forms.Form):
         label="Units",
         help_text="e.g., ea, hr, kg"
     )
-    price_currency = forms.DecimalField(
+    price = forms.DecimalField(
         max_digits=10,
         decimal_places=2,
         required=False,
@@ -120,7 +120,7 @@ class BillLineItemForm(forms.Form):
         cleaned_data = super().clean()
         price_list_item = cleaned_data.get('price_list_item')
         description = cleaned_data.get('description')
-        price_currency = cleaned_data.get('price_currency')
+        price = cleaned_data.get('price')
 
         # If no price list item, description and price are required
         if not price_list_item:
@@ -128,7 +128,7 @@ class BillLineItemForm(forms.Form):
                 raise forms.ValidationError(
                     'Either select a Price List Item or provide a Description for manual entry'
                 )
-            if price_currency is None:
+            if price is None:
                 raise forms.ValidationError(
                     'Price is required when entering a line item manually'
                 )

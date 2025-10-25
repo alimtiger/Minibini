@@ -37,8 +37,6 @@ class PurchaseOrderBillCreationLinkTests(TestCase):
         response = self.client.get(url)
 
         self.assertEqual(response.status_code, 200)
-        # Should NOT contain the "Create New Bill for this PO" link
-        self.assertNotContains(response, 'Create New Bill for this PO')
         # Should NOT contain the "Add Bill" link in Actions section
         self.assertNotContains(response, '>Add Bill</a>')
         self.assertNotContains(response, reverse('purchasing:bill_create_for_po', args=[po.po_id]))
@@ -57,8 +55,6 @@ class PurchaseOrderBillCreationLinkTests(TestCase):
         response = self.client.get(url)
 
         self.assertEqual(response.status_code, 200)
-        # SHOULD contain the "Create New Bill for this PO" link
-        self.assertContains(response, 'Create New Bill for this PO')
         # SHOULD contain the "Add Bill" link in Actions section
         self.assertContains(response, '>Add Bill</a>')
         self.assertContains(response, reverse('purchasing:bill_create_for_po', args=[po.po_id]))
@@ -79,8 +75,8 @@ class PurchaseOrderBillCreationLinkTests(TestCase):
         response = self.client.get(url)
 
         self.assertEqual(response.status_code, 200)
-        # SHOULD contain the "Create New Bill for this PO" link
-        self.assertContains(response, 'Create New Bill for this PO')
+        # SHOULD contain the "Add Bill" link
+        self.assertContains(response, 'Add Bill')
         self.assertContains(response, reverse('purchasing:bill_create_for_po', args=[po.po_id]))
 
     def test_bill_creation_link_shown_for_received_in_full_po(self):
@@ -99,12 +95,12 @@ class PurchaseOrderBillCreationLinkTests(TestCase):
         response = self.client.get(url)
 
         self.assertEqual(response.status_code, 200)
-        # SHOULD contain the "Create New Bill for this PO" link
-        self.assertContains(response, 'Create New Bill for this PO')
+        # SHOULD contain the "Add Bill" link
+        self.assertContains(response, 'Add Bill')
         self.assertContains(response, reverse('purchasing:bill_create_for_po', args=[po.po_id]))
 
-    def test_bill_creation_link_shown_for_cancelled_po(self):
-        """Test that bill creation link IS shown for cancelled POs."""
+    def test_bill_creation_link_not_shown_for_cancelled_po(self):
+        """Test that bill creation link isn't shown for cancelled POs."""
         po = PurchaseOrder.objects.create(
             business=self.business,
             po_number='PO-CANCEL-001',
@@ -119,9 +115,9 @@ class PurchaseOrderBillCreationLinkTests(TestCase):
         response = self.client.get(url)
 
         self.assertEqual(response.status_code, 200)
-        # SHOULD contain the "Create New Bill for this PO" link
-        self.assertContains(response, 'Create New Bill for this PO')
-        self.assertContains(response, reverse('purchasing:bill_create_for_po', args=[po.po_id]))
+        # should not contain the "Add Bill" link
+        self.assertNotContains(response, 'Add Bill')
+        self.assertNotContains(response, reverse('purchasing:bill_create_for_po', args=[po.po_id]))
 
     def test_associated_bills_section_always_shown(self):
         """Test that 'Associated Bills' section header is always shown regardless of status."""

@@ -93,7 +93,7 @@ def purchase_order_add_line_item(request, po_id):
                 description=price_list_item.description,
                 qty=qty,
                 units=price_list_item.units,
-                price_currency=price_list_item.purchase_price  # Use purchase_price
+                price=price_list_item.purchase_price  # Use purchase_price
             )
 
             messages.success(request, f'Line item "{line_item.description}" added from price list')
@@ -223,21 +223,21 @@ def bill_add_line_item(request, bill_id):
                     description=price_list_item.description,
                     qty=qty,
                     units=price_list_item.units,
-                    price_currency=price_list_item.purchase_price  # Use purchase_price
+                    price=price_list_item.purchase_price  # Use purchase_price
                 )
                 messages.success(request, f'Line item "{line_item.description}" added from price list')
             else:
                 # Create line item from manual entry
                 description = form.cleaned_data['description']
                 units = form.cleaned_data['units']
-                price_currency = form.cleaned_data['price_currency']
+                price = form.cleaned_data['price']
 
                 line_item = BillLineItem.objects.create(
                     bill=bill,
                     description=description,
                     qty=qty,
                     units=units,
-                    price_currency=price_currency
+                    price=price
                 )
                 messages.success(request, f'Line item "{line_item.description}" added manually')
 

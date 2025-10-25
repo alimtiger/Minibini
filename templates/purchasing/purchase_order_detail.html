@@ -74,28 +74,28 @@
     {% endif %}
 </table>
 
-<h3>Actions</h3>
 <p>
-    <a href="{% url 'purchasing:purchase_order_edit' purchase_order.po_id %}">Edit PO</a>
+    {% if purchase_order.status != 'cancelled' %}
+        <a href="{% url 'purchasing:purchase_order_edit' purchase_order.po_id %}">Edit PO</a>
+    {% endif %}
     {% if purchase_order.status == 'draft' %}
         | <a href="{% url 'purchasing:purchase_order_delete' purchase_order.po_id %}">Delete PO</a>
     {% endif %}
     {% if purchase_order.status == 'issued' %}
         | <a href="{% url 'purchasing:purchase_order_cancel' purchase_order.po_id %}">Cancel PO</a>
     {% endif %}
-    {% if purchase_order.status != 'draft' %}
+    {% if purchase_order.status != 'draft' and purchase_order.status != 'cancelled' %}
         | <a href="{% url 'purchasing:bill_create_for_po' purchase_order.po_id %}">Add Bill</a>
     {% endif %}
 </p>
 
 <h3>Line Items</h3>
-<p><a href="{% url 'purchasing:purchase_order_add_line_item' purchase_order.po_id %}">Add Line Item</a></p>
+{% if purchase_order.status != 'cancelled' %}
+    <p><a href="{% url 'purchasing:purchase_order_add_line_item' purchase_order.po_id %}">Add Line Item</a></p>
+{% endif %}
 {% include 'includes/_line_items_table.html' with total_label="Total Purchase Order Amount" %}
 
 <h3>Associated Bills</h3>
-{% if purchase_order.status != 'draft' %}
-<p><a href="{% url 'purchasing:bill_create_for_po' purchase_order.po_id %}">Create New Bill for this PO</a></p>
-{% endif %}
 {% if bills %}
     <table border="1" style="border-collapse: collapse; width: 100%; margin-top: 10px;">
         <thead>

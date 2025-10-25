@@ -47,7 +47,7 @@ class Configuration(models.Model):
 class BaseLineItem(models.Model):
     """
     Abstract base class for all line item types.
-    Provides shared functionality for EstimateLineItem, InvoiceLineItem, 
+    Provides shared functionality for EstimateLineItem, InvoiceLineItem,
     PurchaseOrderLineItem, and BillLineItem.
     """
     line_item_id = models.AutoField(primary_key=True)
@@ -57,7 +57,7 @@ class BaseLineItem(models.Model):
     qty = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal('0.00'))
     units = models.CharField(max_length=50, blank=True)
     description = models.TextField(blank=True)
-    price_currency = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal('0.00'))
+    price = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal('0.00'))
 
     class Meta:
         abstract = True
@@ -105,7 +105,7 @@ class BaseLineItem(models.Model):
     @property
     def total_amount(self):
         """Calculate total amount (quantity * price)."""
-        return self.qty * self.price_currency
+        return self.qty * self.price
 
     @property
     def source_name(self):

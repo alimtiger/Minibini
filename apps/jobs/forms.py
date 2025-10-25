@@ -228,14 +228,14 @@ class ManualLineItemForm(forms.ModelForm):
     """Form for creating a manual line item (not linked to a Price List Item)"""
     class Meta:
         model = EstimateLineItem
-        fields = ['description', 'qty', 'units', 'price_currency']
+        fields = ['description', 'qty', 'units', 'price']
         widgets = {
             'qty': forms.NumberInput(attrs={'step': '0.01'}),
-            'price_currency': forms.NumberInput(attrs={'step': '0.01'}),
+            'price': forms.NumberInput(attrs={'step': '0.01'}),
             'description': forms.Textarea(attrs={'rows': 3}),
         }
         labels = {
-            'price_currency': 'Price',
+            'price': 'Price',
         }
 
 

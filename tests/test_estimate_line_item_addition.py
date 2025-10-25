@@ -76,7 +76,7 @@ class EstimateLineItemAdditionTests(TestCase):
             'description': 'Custom line item',
             'qty': '5.00',
             'units': 'hours',
-            'price_currency': '75.50',
+            'price': '75.50',
             'manual_submit': 'Add Manual Line Item'
         }
 
@@ -92,7 +92,7 @@ class EstimateLineItemAdditionTests(TestCase):
         self.assertEqual(line_item.description, 'Custom line item')
         self.assertEqual(line_item.qty, Decimal('5.00'))
         self.assertEqual(line_item.units, 'hours')
-        self.assertEqual(line_item.price_currency, Decimal('75.50'))
+        self.assertEqual(line_item.price, Decimal('75.50'))
         self.assertIsNone(line_item.task)
         self.assertIsNone(line_item.price_list_item)
 
@@ -119,7 +119,7 @@ class EstimateLineItemAdditionTests(TestCase):
         # Verify values were copied from price list item
         self.assertEqual(line_item.description, self.price_list_item.description)
         self.assertEqual(line_item.units, self.price_list_item.units)
-        self.assertEqual(line_item.price_currency, self.price_list_item.selling_price)
+        self.assertEqual(line_item.price, self.price_list_item.selling_price)
 
         # Verify qty came from form, not from price list item
         self.assertEqual(line_item.qty, Decimal('10.00'))
@@ -138,7 +138,7 @@ class EstimateLineItemAdditionTests(TestCase):
             'description': '',  # Missing description
             'qty': '',  # Missing qty
             'units': 'hours',
-            'price_currency': '',  # Missing price
+            'price': '',  # Missing price
             'manual_submit': 'Add Manual Line Item'
         }
 
@@ -190,7 +190,7 @@ class EstimateLineItemAdditionTests(TestCase):
             'description': 'Should not be added',
             'qty': '1.00',
             'units': 'each',
-            'price_currency': '10.00',
+            'price': '10.00',
             'manual_submit': 'Add Manual Line Item'
         }
 
@@ -212,7 +212,7 @@ class EstimateLineItemAdditionTests(TestCase):
             'description': 'First item',
             'qty': '1.00',
             'units': 'each',
-            'price_currency': '100.00',
+            'price': '100.00',
             'manual_submit': 'Add Manual Line Item'
         }
         self.client.post(url, data=form_data_1)
@@ -245,7 +245,7 @@ class EstimateLineItemAdditionTests(TestCase):
             'description': 'Test item',
             'qty': '3.00',
             'units': 'hours',
-            'price_currency': '50.00',
+            'price': '50.00',
             'manual_submit': 'Add Manual Line Item'
         }
 
@@ -303,7 +303,7 @@ class EstimateLineItemDeletionTests(TestCase):
             description='Test item',
             qty=Decimal('1.00'),
             units='each',
-            price_currency=Decimal('10.00')
+            price=Decimal('10.00')
         )
 
         url = reverse('jobs:estimate_delete_line_item', args=[self.estimate.estimate_id, line_item.line_item_id])
@@ -324,21 +324,21 @@ class EstimateLineItemDeletionTests(TestCase):
             description='Item 1',
             qty=Decimal('1.00'),
             units='each',
-            price_currency=Decimal('10.00')
+            price=Decimal('10.00')
         )
         item2 = EstimateLineItem.objects.create(
             estimate=self.estimate,
             description='Item 2',
             qty=Decimal('2.00'),
             units='each',
-            price_currency=Decimal('20.00')
+            price=Decimal('20.00')
         )
         item3 = EstimateLineItem.objects.create(
             estimate=self.estimate,
             description='Item 3',
             qty=Decimal('3.00'),
             units='each',
-            price_currency=Decimal('30.00')
+            price=Decimal('30.00')
         )
 
         # Verify initial line numbers
@@ -376,21 +376,21 @@ class EstimateLineItemDeletionTests(TestCase):
             description='Item 1',
             qty=Decimal('1.00'),
             units='each',
-            price_currency=Decimal('10.00')
+            price=Decimal('10.00')
         )
         item2 = EstimateLineItem.objects.create(
             estimate=self.estimate,
             description='Item 2',
             qty=Decimal('2.00'),
             units='each',
-            price_currency=Decimal('20.00')
+            price=Decimal('20.00')
         )
         item3 = EstimateLineItem.objects.create(
             estimate=self.estimate,
             description='Item 3',
             qty=Decimal('3.00'),
             units='each',
-            price_currency=Decimal('30.00')
+            price=Decimal('30.00')
         )
 
         # Delete item 1
@@ -416,21 +416,21 @@ class EstimateLineItemDeletionTests(TestCase):
             description='Item 1',
             qty=Decimal('1.00'),
             units='each',
-            price_currency=Decimal('10.00')
+            price=Decimal('10.00')
         )
         item2 = EstimateLineItem.objects.create(
             estimate=self.estimate,
             description='Item 2',
             qty=Decimal('2.00'),
             units='each',
-            price_currency=Decimal('20.00')
+            price=Decimal('20.00')
         )
         item3 = EstimateLineItem.objects.create(
             estimate=self.estimate,
             description='Item 3',
             qty=Decimal('3.00'),
             units='each',
-            price_currency=Decimal('30.00')
+            price=Decimal('30.00')
         )
 
         # Delete item 3
@@ -454,7 +454,7 @@ class EstimateLineItemDeletionTests(TestCase):
             description='Test item',
             qty=Decimal('1.00'),
             units='each',
-            price_currency=Decimal('10.00')
+            price=Decimal('10.00')
         )
 
         # Mark estimate as open first (valid transition)
@@ -489,7 +489,7 @@ class EstimateLineItemDeletionTests(TestCase):
                 description=f'Item {i}',
                 qty=Decimal('1.00'),
                 units='each',
-                price_currency=Decimal('10.00')
+                price=Decimal('10.00')
             )
             items.append(item)
 
@@ -516,7 +516,7 @@ class EstimateLineItemDeletionTests(TestCase):
             description='Test item',
             qty=Decimal('1.00'),
             units='each',
-            price_currency=Decimal('10.00')
+            price=Decimal('10.00')
         )
 
         # Check draft estimate shows delete button

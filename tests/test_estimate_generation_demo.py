@@ -168,8 +168,8 @@ class EstimateGenerationDemoTestCase(TestCase):
         for i, item in enumerate(line_items, 1):
             line_descriptions.append(item.description)
             if item.qty > 0:
-                unit_price = item.price_currency / item.qty
-            total += item.price_currency
+                unit_price = item.price
+            total += item.total_amount
 
         # Verify specific line items exist
         self.assertTrue(any('Initial project consultation' in desc for desc in line_descriptions))
@@ -203,12 +203,15 @@ class EstimateGenerationDemoTestCase(TestCase):
         # Additional detailed verifications
         direct_item = next(item for item in line_items if 'consultation' in item.description)
         self.assertEqual(direct_item.qty, Decimal('4.00'))
-        self.assertEqual(direct_item.price_currency, Decimal('600.00'))
+        self.assertEqual(direct_item.price, Decimal('150.00'))  # Unit price (rate)
+        self.assertEqual(direct_item.total_amount, Decimal('600.00'))  # qty * price
 
         table_item = next(item for item in line_items if 'Table' in item.description)
         self.assertEqual(table_item.qty, Decimal('1.00'))
-        self.assertEqual(table_item.price_currency, Decimal('2900.00'))
+        self.assertEqual(table_item.price, Decimal('2900.00'))  # Unit price (for qty=1)
+        self.assertEqual(table_item.total_amount, Decimal('2900.00'))  # qty * price
 
         service_item = next(item for item in line_items if 'Delivery' in item.description)
         self.assertEqual(service_item.qty, Decimal('5.00'))  # 2 + 3 hours
-        self.assertEqual(service_item.price_currency, Decimal('450.00'))
+        self.assertEqual(service_item.price, Decimal('90.00'))  # Average rate: 450/5 hours
+        self.assertEqual(service_item.total_amount, Decimal('450.00'))  # qty * price

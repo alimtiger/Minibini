@@ -115,7 +115,7 @@ class BillLineItemManualEntryTest(TestCase):
             description="Custom service",
             qty=Decimal('5.00'),
             units="hours",
-            price_currency=Decimal('100.00')
+            price=Decimal('100.00')
         )
 
         # Verify line item was created
@@ -123,7 +123,7 @@ class BillLineItemManualEntryTest(TestCase):
         self.assertEqual(line_item.description, "Custom service")
         self.assertEqual(line_item.qty, Decimal('5.00'))
         self.assertEqual(line_item.units, "hours")
-        self.assertEqual(line_item.price_currency, Decimal('100.00'))
+        self.assertEqual(line_item.price, Decimal('100.00'))
         self.assertIsNone(line_item.price_list_item)
         self.assertIsNone(line_item.task)
 
@@ -134,7 +134,7 @@ class BillLineItemManualEntryTest(TestCase):
             description="Custom parts",
             qty=Decimal('10.00'),
             units="ea",
-            price_currency=Decimal('25.50')
+            price=Decimal('25.50')
         )
 
         # Verify total_amount calculation
@@ -146,7 +146,7 @@ class BillLineItemManualEntryTest(TestCase):
             'description': 'Manual labor',
             'qty': '8.00',
             'units': 'hours',
-            'price_currency': '75.00'
+            'price': '75.00'
         })
 
         self.assertTrue(form.is_valid())
@@ -156,7 +156,7 @@ class BillLineItemManualEntryTest(TestCase):
         form = BillLineItemForm(data={
             'qty': '5.00',
             'units': 'ea',
-            'price_currency': '10.00'
+            'price': '10.00'
             # Missing description and price_list_item
         })
 
@@ -169,14 +169,14 @@ class BillLineItemManualEntryTest(TestCase):
             bill=self.bill,
             description="Item 1",
             qty=Decimal('2.00'),
-            price_currency=Decimal('50.00')
+            price=Decimal('50.00')
         )
 
         line_item2 = BillLineItem.objects.create(
             bill=self.bill,
             description="Item 2",
             qty=Decimal('3.00'),
-            price_currency=Decimal('30.00')
+            price=Decimal('30.00')
         )
 
         # Verify both were created
@@ -221,7 +221,7 @@ class BillDraftStateValidationTest(TestCase):
             bill=self.bill,
             description="Test item",
             qty=Decimal('1.00'),
-            price_currency=Decimal('100.00')
+            price=Decimal('100.00')
         )
 
         # Verify line item was added
@@ -256,7 +256,7 @@ class BillDraftStateValidationTest(TestCase):
             bill=self.bill,
             description="Test item",
             qty=Decimal('1.00'),
-            price_currency=Decimal('100.00')
+            price=Decimal('100.00')
         )
 
         # Transition to received

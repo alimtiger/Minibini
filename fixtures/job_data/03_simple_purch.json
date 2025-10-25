@@ -41,7 +41,7 @@
     "qty": "60.00",
     "units": "board foot",
     "description": "White Oak Lumber - per board foot",
-    "price_currency": "5.50",
+    "price": "5.50",
     "purchase_order": 2
   }
 },
@@ -55,7 +55,7 @@
     "qty": "1.00",
     "units": "months",
     "description": "Rental of use of location",
-    "price_currency": "1500.00",
+    "price": "1500.00",
     "bill": 1
   }
 }
