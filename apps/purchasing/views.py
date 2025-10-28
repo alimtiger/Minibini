@@ -44,7 +44,10 @@ def purchase_order_detail(request, po_id):
         'bills': bills,
         'line_items': line_items,
         'total_amount': total_amount,
-        'status_form': status_form
+        'status_form': status_form,
+        'show_reorder': purchase_order.status == 'draft',
+        'reorder_url_name': 'purchasing:purchase_order_reorder_line_item',
+        'parent_id': purchase_order.po_id
     })
 
 def purchase_order_create(request):
@@ -118,7 +121,10 @@ def bill_detail(request, bill_id):
     return render(request, 'purchasing/bill_detail.html', {
         'bill': bill,
         'line_items': line_items,
-        'total_amount': total_amount
+        'total_amount': total_amount,
+        'show_reorder': bill.status == 'draft',
+        'reorder_url_name': 'purchasing:bill_reorder_line_item',
+        'parent_id': bill.bill_id
     })
 
 def purchase_order_edit(request, po_id):
@@ -249,3 +255,83 @@ def bill_add_line_item(request, bill_id):
         'form': form,
         'bill': bill
     })
+
+
+def purchase_order_reorder_line_item(request, po_id, line_item_id, direction):
+    """Reorder line items within a PurchaseOrder by swapping line numbers."""
+    purchase_order = get_object_or_404(PurchaseOrder, po_id=po_id)
+    line_item = get_object_or_404(PurchaseOrderLineItem, line_item_id=line_item_id, purchase_order=purchase_order)
+
+    # Prevent reordering non-draft purchase orders
+    if purchase_order.status != 'draft':
+        messages.error(request, f'Cannot reorder line items in a {purchase_order.get_status_display().lower()} purchase order.')
+        return redirect('purchasing:purchase_order_detail', po_id=po_id)
+
+    # Get all line items for this purchase order ordered by line_number
+    all_items = list(PurchaseOrderLineItem.objects.filter(purchase_order=purchase_order).order_by('line_number', 'line_item_id'))
+
+    # Find the index of the current line item
+    try:
+        current_index = next(i for i, item in enumerate(all_items) if item.line_item_id == line_item.line_item_id)
+    except StopIteration:
+        messages.error(request, 'Line item not found in purchase order.')
+        return redirect('purchasing:purchase_order_detail', po_id=po_id)
+
+    # Determine the swap target
+    if direction == 'up' and current_index > 0:
+        swap_index = current_index - 1
+    elif direction == 'down' and current_index < len(all_items) - 1:
+        swap_index = current_index + 1
+    else:
+        messages.error(request, 'Cannot move line item in that direction.')
+        return redirect('purchasing:purchase_order_detail', po_id=po_id)
+
+    # Swap line numbers
+    current_item = all_items[current_index]
+    swap_item = all_items[swap_index]
+    current_item.line_number, swap_item.line_number = swap_item.line_number, current_item.line_number
+
+    current_item.save()
+    swap_item.save()
+
+    return redirect('purchasing:purchase_order_detail', po_id=po_id)
+
+
+def bill_reorder_line_item(request, bill_id, line_item_id, direction):
+    """Reorder line items within a Bill by swapping line numbers."""
+    bill = get_object_or_404(Bill, bill_id=bill_id)
+    line_item = get_object_or_404(BillLineItem, line_item_id=line_item_id, bill=bill)
+
+    # Prevent reordering non-draft bills
+    if bill.status != 'draft':
+        messages.error(request, f'Cannot reorder line items in a {bill.get_status_display().lower()} bill.')
+        return redirect('purchasing:bill_detail', bill_id=bill_id)
+
+    # Get all line items for this bill ordered by line_number
+    all_items = list(BillLineItem.objects.filter(bill=bill).order_by('line_number', 'line_item_id'))
+
+    # Find the index of the current line item
+    try:
+        current_index = next(i for i, item in enumerate(all_items) if item.line_item_id == line_item.line_item_id)
+    except StopIteration:
+        messages.error(request, 'Line item not found in bill.')
+        return redirect('purchasing:bill_detail', bill_id=bill_id)
+
+    # Determine the swap target
+    if direction == 'up' and current_index > 0:
+        swap_index = current_index - 1
+    elif direction == 'down' and current_index < len(all_items) - 1:
+        swap_index = current_index + 1
+    else:
+        messages.error(request, 'Cannot move line item in that direction.')
+        return redirect('purchasing:bill_detail', bill_id=bill_id)
+
+    # Swap line numbers
+    current_item = all_items[current_index]
+    swap_item = all_items[swap_index]
+    current_item.line_number, swap_item.line_number = swap_item.line_number, current_item.line_number
+
+    current_item.save()
+    swap_item.save()
+
+    return redirect('purchasing:bill_detail', bill_id=bill_id)

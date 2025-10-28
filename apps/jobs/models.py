@@ -376,6 +376,7 @@ class Task(models.Model):
     work_order = models.ForeignKey(WorkOrder, on_delete=models.CASCADE, null=True, blank=True)
     est_worksheet = models.ForeignKey(EstWorksheet, on_delete=models.CASCADE, null=True, blank=True)
     name = models.CharField(max_length=255)
+    line_number = models.PositiveIntegerField(blank=True, null=True)
     units = models.CharField(max_length=50, blank=True)
     rate = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     est_qty = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
@@ -388,6 +389,30 @@ class Task(models.Model):
             raise ValidationError("Task cannot be attached to both WorkOrder and EstWorksheet")
         if not self.work_order and not self.est_worksheet:
             raise ValidationError("Task must be attached to either WorkOrder or EstWorksheet")
+
+    def save(self, *args, **kwargs):
+        """Override save to auto-generate line numbers."""
+        from django.db import transaction
+
+        if self.line_number is None:
+            with transaction.atomic():
+                container = self.work_order or self.est_worksheet
+                if container:
+                    # Determine the filter based on container type
+                    if self.work_order:
+                        filter_kwargs = {'work_order': container}
+                    else:
+                        filter_kwargs = {'est_worksheet': container}
+
+                    # Get max line number for this container
+                    max_line = Task.objects.filter(**filter_kwargs).aggregate(
+                        models.Max('line_number')
+                    )['line_number__max']
+
+                    self.line_number = (max_line or 0) + 1
+
+        self.full_clean()
+        super().save(*args, **kwargs)
 
     def get_container(self):
         """Return the container (WorkOrder or EstWorksheet) this task belongs to."""

@@ -2,6 +2,9 @@
     <table border="1" style="border-collapse: collapse; width: 100%; margin-top: 10px;">
         <thead>
             <tr>
+                {% if reorder_url_name %}
+                <th>Order</th>
+                {% endif %}
                 <th>Line #</th>
                 <th>Description</th>
                 <th>Task/Price List Item</th>
@@ -17,6 +20,18 @@
         <tbody>
             {% for item in line_items %}
             <tr>
+                {% if reorder_url_name %}
+                <td>
+                    {% if show_reorder %}
+                        {% if not forloop.first %}
+                            <a href="{% url reorder_url_name parent_id item.line_item_id 'up' %}">↑</a>
+                        {% endif %}
+                        {% if not forloop.last %}
+                            <a href="{% url reorder_url_name parent_id item.line_item_id 'down' %}">↓</a>
+                        {% endif %}
+                    {% endif %}
+                </td>
+                {% endif %}
                 <td>{{ item.line_number|default:item.line_item_id }}</td>
                 <td>{{ item.description|default:"No description" }}</td>
                 <td>
@@ -45,7 +60,7 @@
         </tbody>
         <tfoot>
             <tr style="background-color: #f0f0f0; font-weight: bold;">
-                <td colspan="{% if show_actions %}7{% else %}6{% endif %}">{{ total_label|default:"Total Amount" }}:</td>
+                <td colspan="{% if show_actions %}{% if reorder_url_name %}8{% else %}7{% endif %}{% else %}{% if reorder_url_name %}7{% else %}6{% endif %}{% endif %}">{{ total_label|default:"Total Amount" }}:</td>
                 <td>${{ total_amount|floatformat:2 }}</td>
             </tr>
         </tfoot>

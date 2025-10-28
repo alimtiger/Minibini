@@ -90,7 +90,7 @@
 </p>
 
 <h3>Line Items</h3>
-{% if purchase_order.status != 'cancelled' %}
+{% if purchase_order.status == 'draft' %}
     <p><a href="{% url 'purchasing:purchase_order_add_line_item' purchase_order.po_id %}">Add Line Item</a></p>
 {% endif %}
 {% include 'includes/_line_items_table.html' with total_label="Total Purchase Order Amount" %}

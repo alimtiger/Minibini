@@ -40,6 +40,44 @@
   }
 },
 {
+  "model": "core.user",
+  "pk": 3,
+  "fields": {
+    "password": "pbkdf2_sha256$870000$test$hash",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "employee1",
+    "first_name": "Employee",
+    "last_name": "One",
+    "email": "employee1@example.com",
+    "is_staff": true,
+    "is_active": true,
+    "date_joined": "2024-01-01T00:00:00Z",
+    "contact": null,
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "core.user",
+  "pk": 4,
+  "fields": {
+    "password": "pbkdf2_sha256$870000$test$hash",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "employee2",
+    "first_name": "Worker",
+    "last_name": "Two",
+    "email": "employee2@example.com",
+    "is_staff": true,
+    "is_active": true,
+    "date_joined": "2024-01-01T00:00:00Z",
+    "contact": null,
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
   "model": "core.configuration",
   "pk": "est_expire_days",
   "fields": {
@@ -78,7 +116,7 @@
   "model": "core.configuration",
   "pk": "job_counter",
   "fields": {
-    "value": "4"
+    "value": "6"
   }
 },
 {

@@ -15,14 +15,17 @@ from apps.invoicing.models import Invoice
 
 
 def _build_task_hierarchy(tasks):
-    """Build a hierarchical task structure with level indicators."""
+    """Build a hierarchical task structure with level indicators, preserving line_number order."""
     task_dict = {task.task_id: task for task in tasks}
     root_tasks = []
 
-    # Find root tasks (no parent)
+    # Find root tasks (no parent) and maintain line_number order
     for task in tasks:
         if not task.parent_task:
             root_tasks.append(task)
+
+    # Sort root tasks by line_number to ensure proper order
+    root_tasks.sort(key=lambda t: t.line_number if t.line_number is not None else float('inf'))
 
     # Recursive function to get task with its children and level
     def get_task_with_children(task, level=0):
@@ -30,8 +33,13 @@ def _build_task_hierarchy(tasks):
         children = []
         for potential_child in tasks:
             if potential_child.parent_task_id == task.task_id:
-                children.append(get_task_with_children(potential_child, level + 1))
-        result['children'] = children
+                children.append(potential_child)
+
+        # Sort children by line_number to ensure proper order
+        children.sort(key=lambda t: t.line_number if t.line_number is not None else float('inf'))
+
+        # Recursively build the tree for each child
+        result['children'] = [get_task_with_children(child, level + 1) for child in children]
         return result
 
     # Build the tree
@@ -80,7 +88,7 @@ def job_detail(request, job_id):
     current_work_order = work_orders.exclude(status='complete').first()
     current_work_order_tasks = []
     if current_work_order:
-        all_tasks = Task.objects.filter(work_order=current_work_order).order_by('task_id')
+        all_tasks = Task.objects.filter(work_order=current_work_order).order_by('line_number', 'task_id')
         current_work_order_tasks = _build_task_hierarchy(all_tasks)
 
     return render(request, 'jobs/job_detail.html', {
@@ -189,7 +197,10 @@ def estimate_detail(request, estimate_id):
         'line_items': line_items,
         'total_amount': total_amount,
         'worksheet': worksheet,
-        'status_form': status_form
+        'status_form': status_form,
+        'show_reorder': estimate.status == 'draft',
+        'reorder_url_name': 'jobs:estimate_reorder_line_item',
+        'parent_id': estimate.estimate_id
     })
 
 def task_list(request):
@@ -229,7 +240,7 @@ def work_order_detail(request, work_order_id):
             return redirect('jobs:work_order_detail', work_order_id=work_order.work_order_id)
 
     # Get all tasks for this work order
-    all_tasks = Task.objects.filter(work_order=work_order).order_by('task_id')
+    all_tasks = Task.objects.filter(work_order=work_order).order_by('line_number', 'task_id')
     tasks_with_levels = _build_task_hierarchy(all_tasks)
 
     # Create status form for display (unless completed)
@@ -238,7 +249,10 @@ def work_order_detail(request, work_order_id):
     return render(request, 'jobs/work_order_detail.html', {
         'work_order': work_order,
         'tasks': tasks_with_levels,
-        'status_form': status_form
+        'status_form': status_form,
+        'show_reorder': True,
+        'reorder_url_name': 'jobs:task_reorder_work_order',
+        'container_id': work_order.work_order_id
     })
 
 
@@ -395,21 +409,27 @@ def estworksheet_list(request):
 def estworksheet_detail(request, worksheet_id):
     """Show details of a specific EstWorksheet with its tasks"""
     worksheet = get_object_or_404(EstWorksheet, est_worksheet_id=worksheet_id)
-    tasks = Task.objects.filter(est_worksheet=worksheet).select_related(
+    all_tasks = Task.objects.filter(est_worksheet=worksheet).select_related(
         'template', 'template__task_mapping'
-    ).prefetch_related('taskinstancemapping')
+    ).prefetch_related('taskinstancemapping').order_by('line_number', 'task_id')
+
+    # Build task hierarchy
+    tasks_with_levels = _build_task_hierarchy(all_tasks)
 
     # Add calculated total for each task
-    for task in tasks:
+    total_cost = 0
+    for item in tasks_with_levels:
+        task = item['task']
         task.calculated_total = (task.rate * task.est_qty) if task.rate and task.est_qty else 0
-
-    # Calculate worksheet totals
-    total_cost = sum(task.calculated_total for task in tasks)
+        total_cost += task.calculated_total
 
     return render(request, 'jobs/estworksheet_detail.html', {
         'worksheet': worksheet,
-        'tasks': tasks,
-        'total_cost': total_cost
+        'tasks': tasks_with_levels,
+        'total_cost': total_cost,
+        'show_reorder': worksheet.status == 'draft',
+        'reorder_url_name': 'jobs:task_reorder_worksheet',
+        'container_id': worksheet.est_worksheet_id
     })
 
 
@@ -671,6 +691,8 @@ def task_add_manual(request, worksheet_id):
         form = TaskForm(initial={'est_worksheet': worksheet})
         # Hide the worksheet field since it's already set
         form.fields['est_worksheet'].widget = forms.HiddenInput()
+        # Hide the template field since user chose to add manually
+        form.fields['template'].widget = forms.HiddenInput()
 
     return render(request, 'jobs/task_add_manual.html', {
         'form': form,
@@ -875,4 +897,119 @@ def estimate_revise(request, estimate_id):
     return render(request, 'jobs/estimate_revise_confirm.html', {
         'estimate': parent_estimate
     })
+
+
+def task_reorder_worksheet(request, worksheet_id, task_id, direction):
+    """Reorder tasks within an EstWorksheet by swapping line numbers."""
+    worksheet = get_object_or_404(EstWorksheet, est_worksheet_id=worksheet_id)
+    task = get_object_or_404(Task, task_id=task_id, est_worksheet=worksheet)
+
+    # Prevent reordering non-draft worksheets
+    if worksheet.status != 'draft':
+        messages.error(request, f'Cannot reorder tasks in a {worksheet.get_status_display().lower()} worksheet.')
+        return redirect('jobs:estworksheet_detail', worksheet_id=worksheet_id)
+
+    # Get all tasks for this worksheet ordered by line_number
+    all_tasks = list(Task.objects.filter(est_worksheet=worksheet).order_by('line_number', 'task_id'))
+
+    # Find the index of the current task
+    try:
+        current_index = next(i for i, t in enumerate(all_tasks) if t.task_id == task.task_id)
+    except StopIteration:
+        messages.error(request, 'Task not found in worksheet.')
+        return redirect('jobs:estworksheet_detail', worksheet_id=worksheet_id)
+
+    # Determine the swap target
+    if direction == 'up' and current_index > 0:
+        swap_index = current_index - 1
+    elif direction == 'down' and current_index < len(all_tasks) - 1:
+        swap_index = current_index + 1
+    else:
+        messages.error(request, 'Cannot move task in that direction.')
+        return redirect('jobs:estworksheet_detail', worksheet_id=worksheet_id)
+
+    # Swap line numbers
+    current_task = all_tasks[current_index]
+    swap_task = all_tasks[swap_index]
+    current_task.line_number, swap_task.line_number = swap_task.line_number, current_task.line_number
+
+    current_task.save()
+    swap_task.save()
+
+    return redirect('jobs:estworksheet_detail', worksheet_id=worksheet_id)
+
+
+def task_reorder_work_order(request, work_order_id, task_id, direction):
+    """Reorder tasks within a WorkOrder by swapping line numbers."""
+    work_order = get_object_or_404(WorkOrder, work_order_id=work_order_id)
+    task = get_object_or_404(Task, task_id=task_id, work_order=work_order)
+
+    # Get all tasks for this work order ordered by line_number
+    all_tasks = list(Task.objects.filter(work_order=work_order).order_by('line_number', 'task_id'))
+
+    # Find the index of the current task
+    try:
+        current_index = next(i for i, t in enumerate(all_tasks) if t.task_id == task.task_id)
+    except StopIteration:
+        messages.error(request, 'Task not found in work order.')
+        return redirect('jobs:work_order_detail', work_order_id=work_order_id)
+
+    # Determine the swap target
+    if direction == 'up' and current_index > 0:
+        swap_index = current_index - 1
+    elif direction == 'down' and current_index < len(all_tasks) - 1:
+        swap_index = current_index + 1
+    else:
+        messages.error(request, 'Cannot move task in that direction.')
+        return redirect('jobs:work_order_detail', work_order_id=work_order_id)
+
+    # Swap line numbers
+    current_task = all_tasks[current_index]
+    swap_task = all_tasks[swap_index]
+    current_task.line_number, swap_task.line_number = swap_task.line_number, current_task.line_number
+
+    current_task.save()
+    swap_task.save()
+
+    return redirect('jobs:work_order_detail', work_order_id=work_order_id)
+
+
+def estimate_reorder_line_item(request, estimate_id, line_item_id, direction):
+    """Reorder line items within an Estimate by swapping line numbers."""
+    estimate = get_object_or_404(Estimate, estimate_id=estimate_id)
+    line_item = get_object_or_404(EstimateLineItem, line_item_id=line_item_id, estimate=estimate)
+
+    # Prevent reordering non-draft estimates
+    if estimate.status != 'draft':
+        messages.error(request, f'Cannot reorder line items in a {estimate.get_status_display().lower()} estimate.')
+        return redirect('jobs:estimate_detail', estimate_id=estimate_id)
+
+    # Get all line items for this estimate ordered by line_number
+    all_items = list(EstimateLineItem.objects.filter(estimate=estimate).order_by('line_number', 'line_item_id'))
+
+    # Find the index of the current line item
+    try:
+        current_index = next(i for i, item in enumerate(all_items) if item.line_item_id == line_item.line_item_id)
+    except StopIteration:
+        messages.error(request, 'Line item not found in estimate.')
+        return redirect('jobs:estimate_detail', estimate_id=estimate_id)
+
+    # Determine the swap target
+    if direction == 'up' and current_index > 0:
+        swap_index = current_index - 1
+    elif direction == 'down' and current_index < len(all_items) - 1:
+        swap_index = current_index + 1
+    else:
+        messages.error(request, 'Cannot move line item in that direction.')
+        return redirect('jobs:estimate_detail', estimate_id=estimate_id)
+
+    # Swap line numbers
+    current_item = all_items[current_index]
+    swap_item = all_items[swap_index]
+    current_item.line_number, swap_item.line_number = swap_item.line_number, current_item.line_number
+
+    current_item.save()
+    swap_item.save()
+
+    return redirect('jobs:estimate_detail', estimate_id=estimate_id)
 

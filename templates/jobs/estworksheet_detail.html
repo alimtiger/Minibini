@@ -59,39 +59,10 @@
 </p>
 {% endif %}
 
+{% include 'jobs/_task_list.html' %}
+
 {% if tasks %}
-    <table border="1">
-        <tr>
-            <th>Est. Qty</th>
-            <th>Units</th>
-            <th>Task Name</th>
-            <th>Template</th>
-            <th>Rate</th>
-            <th>Total</th>
-        </tr>
-        {% for task in tasks %}
-        <tr>
-            <td>{{ task.est_qty|floatformat:2 }}</td>
-            <td>{{ task.units }}</td>
-            <td><a href="{% url 'jobs:task_detail' task.task_id %}">{{ task.name }}</a></td>
-            <td>
-                {% if task.template %}
-                    {{ task.template.template_name }}
-                {% else %}
-                    No template
-                {% endif %}
-            </td>
-            <td>${{ task.rate|floatformat:2 }}</td>
-            <td>${{ task.calculated_total|floatformat:2 }}</td>
-        </tr>
-        {% endfor %}
-        <tr>
-            <td colspan="5"><strong>Total:</strong></td>
-            <td><strong>${{ total_cost|floatformat:2 }}</strong></td>
-        </tr>
-    </table>
-{% else %}
-    <p>No tasks found in this worksheet.</p>
+<p><strong>Total Cost: ${{ total_cost|floatformat:2 }}</strong></p>
 {% endif %}
 
 {% endblock %}

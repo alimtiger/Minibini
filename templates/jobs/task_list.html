@@ -35,7 +35,13 @@
                     —
                 {% endif %}
             </td>
-            <td>{{ task.assignee.username|default:"Unassigned" }}</td>
+            <td>
+                {% if task.assignee %}
+                    <a href="{% url 'core:user_detail' task.assignee.pk %}">{{ task.assignee.username }}</a>
+                {% else %}
+                    Unassigned
+                {% endif %}
+            </td>
             <td><a href="{% url 'jobs:work_order_detail' task.work_order.pk %}">WO-{{ task.work_order.work_order_id }}</a></td>
         </tr>
         {% endfor %}

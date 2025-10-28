@@ -293,7 +293,7 @@
   "pk": 6,
   "fields": {
     "parent_task": null,
-    "assignee": null,
+    "assignee": 3,
     "work_order": 1,
     "est_worksheet": null,
     "name": "Custom Furniture",
@@ -308,7 +308,7 @@
   "pk": 7,
   "fields": {
     "parent_task": null,
-    "assignee": null,
+    "assignee": 3,
     "work_order": 1,
     "est_worksheet": null,
     "name": "Custom Furniture",
@@ -323,7 +323,7 @@
   "pk": 8,
   "fields": {
     "parent_task": null,
-    "assignee": null,
+    "assignee": 3,
     "work_order": 1,
     "est_worksheet": null,
     "name": "Custom Furniture",
@@ -338,7 +338,7 @@
   "pk": 9,
   "fields": {
     "parent_task": null,
-    "assignee": null,
+    "assignee": 3,
     "work_order": 1,
     "est_worksheet": null,
     "name": "CAD drawing for dining set",
@@ -353,7 +353,7 @@
   "pk": 10,
   "fields": {
     "parent_task": null,
-    "assignee": null,
+    "assignee": 3,
     "work_order": 1,
     "est_worksheet": null,
     "name": "White oak lumber purchase",
@@ -403,7 +403,7 @@
     "est_worksheet": null,
     "name": "Precision CNC cutting with detail work",
     "units": "minutes",
-    "rate": "3300.00",
+    "rate": "33.00",
     "est_qty": "150.00",
     "template": null
   }
@@ -418,7 +418,7 @@
     "est_worksheet": null,
     "name": "Multi-layer painting and protective coating",
     "units": "hours",
-    "rate": "1200.00",
+    "rate": "100.00",
     "est_qty": "12.00",
     "template": null
   }
@@ -433,7 +433,7 @@
     "est_worksheet": null,
     "name": "Assembly with LED lighting integration",
     "units": "hours",
-    "rate": "600.00",
+    "rate": "100.00",
     "est_qty": "6.00",
     "template": null
   }
@@ -523,7 +523,7 @@
     "qty": "3.00",
     "units": "hours",
     "description": "CAD design and template creation",
-    "price": "3800.00",
+    "price": "150.00",
     "estimate": 1
   }
 },
@@ -551,7 +551,7 @@
     "qty": "20.00",
     "units": "sheets",
     "description": "Plywood sheets for form construction",
-    "price": "2000.00",
+    "price": "104.00",
     "estimate": 1
   }
 },
@@ -565,7 +565,7 @@
     "qty": "6.00",
     "units": "hours",
     "description": "Design drawings",
-    "price": "900.00",
+    "price": "150.00",
     "estimate": 2
   }
 },
@@ -593,7 +593,7 @@
     "qty": "120.00",
     "units": "minutes",
     "description": "CNC cutting of sign",
-    "price": "2640.00",
+    "price": "22.00",
     "estimate": 2
   }
 },
@@ -607,7 +607,7 @@
     "qty": "8.00",
     "units": "hours",
     "description": "Painting and finishing",
-    "price": "800.00",
+    "price": "100.00",
     "estimate": 2
   }
 },
@@ -621,7 +621,7 @@
     "qty": "4.00",
     "units": "hours",
     "description": "Assembly and hardware installation",
-    "price": "400.00",
+    "price": "100.00",
     "estimate": 2
   }
 },
@@ -635,7 +635,7 @@
     "qty": "8.00",
     "units": "hours",
     "description": "Design drawings",
-    "price": "1200.00",
+    "price": "150.00",
     "estimate": 3
   }
 },
@@ -663,7 +663,7 @@
     "qty": "140.00",
     "units": "minutes",
     "description": "CNC cutting of sign",
-    "price": "3080.00",
+    "price": "22.00",
     "estimate": 3
   }
 },
@@ -677,7 +677,7 @@
     "qty": "10.00",
     "units": "hours",
     "description": "Painting and finishing",
-    "price": "1000.00",
+    "price": "100.00",
     "estimate": 3
   }
 },
@@ -691,7 +691,7 @@
     "qty": "5.00",
     "units": "hours",
     "description": "Assembly and hardware installation",
-    "price": "500.00",
+    "price": "100.00",
     "estimate": 3
   }
 },
@@ -705,7 +705,7 @@
     "qty": "10.00",
     "units": "hours",
     "description": "Design drawings with client revisions",
-    "price": "1500.00",
+    "price": "150.00",
     "estimate": 4
   }
 },
@@ -733,7 +733,7 @@
     "qty": "150.00",
     "units": "minutes",
     "description": "Precision CNC cutting with detail work",
-    "price": "3300.00",
+    "price": "33.00",
     "estimate": 4
   }
 },
@@ -747,7 +747,7 @@
     "qty": "12.00",
     "units": "hours",
     "description": "Multi-layer painting and protective coating",
-    "price": "1200.00",
+    "price": "100.00",
     "estimate": 4
   }
 },
@@ -761,7 +761,7 @@
     "qty": "6.00",
     "units": "hours",
     "description": "Assembly with LED lighting integration",
-    "price": "600.00",
+    "price": "100.00",
     "estimate": 4
   }
 },
@@ -775,7 +775,7 @@
     "qty": "10.00",
     "units": "hours",
     "description": "Design drawings with client revisions",
-    "price": "1500.00",
+    "price": "150.00",
     "estimate": 5
   }
 },
@@ -803,7 +803,7 @@
     "qty": "150.00",
     "units": "minutes",
     "description": "Precision CNC cutting with detail work",
-    "price": "3300.00",
+    "price": "33.00",
     "estimate": 5
   }
 },
@@ -817,7 +817,7 @@
     "qty": "12.00",
     "units": "hours",
     "description": "Multi-layer painting and protective coating",
-    "price": "1200.00",
+    "price": "100.00",
     "estimate": 5
   }
 },
@@ -831,7 +831,7 @@
     "qty": "6.00",
     "units": "hours",
     "description": "Assembly with LED lighting integration",
-    "price": "600.00",
+    "price": "100.00",
     "estimate": 5
   }
 },
@@ -845,7 +845,7 @@
     "qty": "8.00",
     "units": "hours",
     "description": "CAD drawings and technical documentation",
-    "price": "800.00",
+    "price": "100.00",
     "estimate": 6
   }
 },
@@ -859,7 +859,7 @@
     "qty": "300.00",
     "units": "board feet",
     "description": "White oak lumber purchase",
-    "price": "2100.00",
+    "price": "7.00",
     "estimate": 6
   }
 },
