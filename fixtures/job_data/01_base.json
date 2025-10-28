@@ -4,7 +4,7 @@
   "pk": 1,
   "fields": {
     "password": "pbkdf2_sha256$600000$fU1Q67TTryqZMFXst0Am34$4nPO2gad6tjKif5Ke3G1PE51yrNfRIg2nd1gTApUuQg=",
-    "last_login": "2025-10-18T23:39:29.728Z",
+    "last_login": "2025-10-28T03:13:27.956Z",
     "is_superuser": true,
     "username": "dev_user",
     "first_name": "Dev",
@@ -33,9 +33,7 @@
     "is_active": true,
     "date_joined": "2024-01-01T00:00:00Z",
     "contact": 3,
-    "groups": [
-      3
-    ],
+    "groups": [],
     "user_permissions": []
   }
 },
@@ -79,6 +77,20 @@
 },
 {
   "model": "core.configuration",
+  "pk": "bill_counter",
+  "fields": {
+    "value": "2"
+  }
+},
+{
+  "model": "core.configuration",
+  "pk": "bill_number_sequence",
+  "fields": {
+    "value": "B{year}-{counter:04d}"
+  }
+},
+{
+  "model": "core.configuration",
   "pk": "est_expire_days",
   "fields": {
     "value": "30"
@@ -88,7 +100,7 @@
   "model": "core.configuration",
   "pk": "estimate_counter",
   "fields": {
-    "value": "6"
+    "value": "7"
   }
 },
 {
@@ -116,7 +128,7 @@
   "model": "core.configuration",
   "pk": "job_counter",
   "fields": {
-    "value": "6"
+    "value": "7"
   }
 },
 {
@@ -129,20 +141,6 @@
 {
   "model": "core.configuration",
   "pk": "po_counter",
-  "fields": {
-    "value": "2"
-  }
-},
-{
-  "model": "core.configuration",
-  "pk": "bill_number_sequence",
-  "fields": {
-    "value": "B{year}-{counter:04d}"
-  }
-},
-{
-  "model": "core.configuration",
-  "pk": "bill_counter",
   "fields": {
     "value": "2"
   }
@@ -577,112 +575,6 @@
   }
 },
 {
-  "model": "jobs.workordertemplate",
-  "pk": 3,
-  "fields": {
-    "template_name": "Table",
-    "description": "A template for building a custom table",
-    "template_type": "product",
-    "product_type": "",
-    "base_price": null,
-    "is_active": true,
-    "created_date": "2025-09-24T05:14:54.761Z"
-  }
-},
-{
-  "model": "jobs.workordertemplate",
-  "pk": 4,
-  "fields": {
-    "template_name": "SIGN",
-    "description": "Template for a custom sign, installed",
-    "template_type": "product",
-    "product_type": "",
-    "base_price": null,
-    "is_active": true,
-    "created_date": "2025-09-24T05:21:26.097Z"
-  }
-},
-{
-  "model": "jobs.templatetaskassociation",
-  "pk": 1,
-  "fields": {
-    "work_order_template": 4,
-    "task_template": 7,
-    "est_qty": "1.00",
-    "sort_order": 1
-  }
-},
-{
-  "model": "jobs.templatetaskassociation",
-  "pk": 2,
-  "fields": {
-    "work_order_template": 4,
-    "task_template": 2,
-    "est_qty": "3.00",
-    "sort_order": 2
-  }
-},
-{
-  "model": "jobs.templatetaskassociation",
-  "pk": 3,
-  "fields": {
-    "work_order_template": 4,
-    "task_template": 3,
-    "est_qty": "85.00",
-    "sort_order": 3
-  }
-},
-{
-  "model": "jobs.templatetaskassociation",
-  "pk": 4,
-  "fields": {
-    "work_order_template": 4,
-    "task_template": 5,
-    "est_qty": "5.00",
-    "sort_order": 4
-  }
-},
-{
-  "model": "jobs.templatetaskassociation",
-  "pk": 5,
-  "fields": {
-    "work_order_template": 3,
-    "task_template": 2,
-    "est_qty": "10.00",
-    "sort_order": 1
-  }
-},
-{
-  "model": "jobs.templatetaskassociation",
-  "pk": 6,
-  "fields": {
-    "work_order_template": 3,
-    "task_template": 3,
-    "est_qty": "125.00",
-    "sort_order": 2
-  }
-},
-{
-  "model": "jobs.templatetaskassociation",
-  "pk": 7,
-  "fields": {
-    "work_order_template": 3,
-    "task_template": 4,
-    "est_qty": "3.00",
-    "sort_order": 3
-  }
-},
-{
-  "model": "jobs.templatetaskassociation",
-  "pk": 8,
-  "fields": {
-    "work_order_template": 3,
-    "task_template": 5,
-    "est_qty": "12.00",
-    "sort_order": 4
-  }
-},
-{
   "model": "jobs.tasktemplate",
   "pk": 1,
   "fields": {
@@ -806,6 +698,112 @@
     "parent_template": null,
     "created_date": "2025-10-17T15:17:50.313Z",
     "is_active": true
+  }
+},
+{
+  "model": "jobs.workordertemplate",
+  "pk": 3,
+  "fields": {
+    "template_name": "Table",
+    "description": "A template for building a custom table",
+    "template_type": "product",
+    "product_type": "",
+    "base_price": null,
+    "is_active": true,
+    "created_date": "2025-09-24T05:14:54.761Z"
+  }
+},
+{
+  "model": "jobs.workordertemplate",
+  "pk": 4,
+  "fields": {
+    "template_name": "SIGN",
+    "description": "Template for a custom sign, installed",
+    "template_type": "product",
+    "product_type": "",
+    "base_price": null,
+    "is_active": true,
+    "created_date": "2025-09-24T05:21:26.097Z"
+  }
+},
+{
+  "model": "jobs.templatetaskassociation",
+  "pk": 1,
+  "fields": {
+    "work_order_template": 4,
+    "task_template": 7,
+    "est_qty": "1.00",
+    "sort_order": 1
+  }
+},
+{
+  "model": "jobs.templatetaskassociation",
+  "pk": 2,
+  "fields": {
+    "work_order_template": 4,
+    "task_template": 2,
+    "est_qty": "3.00",
+    "sort_order": 2
+  }
+},
+{
+  "model": "jobs.templatetaskassociation",
+  "pk": 3,
+  "fields": {
+    "work_order_template": 4,
+    "task_template": 3,
+    "est_qty": "85.00",
+    "sort_order": 3
+  }
+},
+{
+  "model": "jobs.templatetaskassociation",
+  "pk": 4,
+  "fields": {
+    "work_order_template": 4,
+    "task_template": 5,
+    "est_qty": "5.00",
+    "sort_order": 4
+  }
+},
+{
+  "model": "jobs.templatetaskassociation",
+  "pk": 5,
+  "fields": {
+    "work_order_template": 3,
+    "task_template": 2,
+    "est_qty": "10.00",
+    "sort_order": 1
+  }
+},
+{
+  "model": "jobs.templatetaskassociation",
+  "pk": 6,
+  "fields": {
+    "work_order_template": 3,
+    "task_template": 3,
+    "est_qty": "125.00",
+    "sort_order": 2
+  }
+},
+{
+  "model": "jobs.templatetaskassociation",
+  "pk": 7,
+  "fields": {
+    "work_order_template": 3,
+    "task_template": 4,
+    "est_qty": "3.00",
+    "sort_order": 3
+  }
+},
+{
+  "model": "jobs.templatetaskassociation",
+  "pk": 8,
+  "fields": {
+    "work_order_template": 3,
+    "task_template": 5,
+    "est_qty": "12.00",
+    "sort_order": 4
   }
 },
 {
