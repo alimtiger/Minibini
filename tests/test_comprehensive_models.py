@@ -126,6 +126,7 @@ class ComprehensiveModelIntegrationTest(TestCase):
         )
 
         purchase_order = PurchaseOrder.objects.create(
+            business=self.business,
             job=job,
             po_number="PO001",
             status='draft'
@@ -261,14 +262,11 @@ class ComprehensiveModelIntegrationTest(TestCase):
 
         work_order = WorkOrder.objects.create(job=job)
         task = Task.objects.create(work_order=work_order, name="Test Task")
-        blep = Blep.objects.create(task=task, user=self.user)
 
-        initial_blep_count = Blep.objects.count()
         initial_task_count = Task.objects.count()
 
         work_order.delete()
 
-        self.assertEqual(Blep.objects.count(), initial_blep_count - 1)
         self.assertEqual(Task.objects.count(), initial_task_count - 1)
 
     def test_user_group_relationship(self):
@@ -334,7 +332,7 @@ class ComprehensiveModelIntegrationTest(TestCase):
         job = Job.objects.create(job_number="STR_TEST", contact=self.contact)
         estimate = Estimate.objects.create(job=job, estimate_number="EST_STR")
         invoice = Invoice.objects.create(job=job, invoice_number="INV_STR")
-        po = PurchaseOrder.objects.create(po_number="PO_STR")
+        po = PurchaseOrder.objects.create(business=self.business, po_number="PO_STR")
 
         self.assertEqual(str(job), "STR_TEST")
         self.assertEqual(str(estimate), "Estimate EST_STR")
@@ -348,6 +346,7 @@ class LineItemValidationTest(TestCase):
     """Test LineItem validation across all submodel types"""
 
     def setUp(self):
+        self.business = Business.objects.create(business_name="Test Business")
         self.contact = Contact.objects.create(name="Test Customer")
         self.job = Job.objects.create(
             job_number="VALID_JOB001",
@@ -365,6 +364,7 @@ class LineItemValidationTest(TestCase):
             invoice_number="INV_VALID001"
         )
         self.purchase_order = PurchaseOrder.objects.create(
+            business=self.business,
             job=self.job,
             po_number="PO_VALID001",
             status='draft'

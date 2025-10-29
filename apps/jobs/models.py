@@ -21,7 +21,7 @@ class Job(models.Model):
     due_date = models.DateTimeField(null=True, blank=True)
     completed_date = models.DateTimeField(null=True, blank=True)
     status = models.CharField(max_length=20, choices=JOB_STATUS_CHOICES, default='draft')
-    contact = models.ForeignKey('contacts.Contact', on_delete=models.CASCADE)
+    contact = models.ForeignKey('contacts.Contact', on_delete=models.PROTECT)
     customer_po_number = models.CharField(max_length=50, blank=True)
     description = models.TextField(blank=True)
 
@@ -442,8 +442,8 @@ class Task(models.Model):
 
 class Blep(models.Model):
     blep_id = models.AutoField(primary_key=True)
-    user = models.ForeignKey('core.User', on_delete=models.SET_NULL, null=True, blank=True)
-    task = models.ForeignKey(Task, on_delete=models.CASCADE)
+    user = models.ForeignKey('core.User', on_delete=models.PROTECT)
+    task = models.ForeignKey(Task, on_delete=models.PROTECT)  # Changed from CASCADE - protect audit trail
     start_time = models.DateTimeField(null=True, blank=True)
     end_time = models.DateTimeField(null=True, blank=True)
 
@@ -580,7 +580,7 @@ class TaskTemplate(models.Model):
     rate = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
 
     # Relationships
-    task_mapping = models.ForeignKey(TaskMapping, on_delete=models.CASCADE, null=True, blank=True)
+    task_mapping = models.ForeignKey(TaskMapping, on_delete=models.SET_NULL, null=True, blank=True)  # Changed from CASCADE - preserve templates
     work_order_templates = models.ManyToManyField(WorkOrderTemplate, through='TemplateTaskAssociation', related_name='task_templates')
     parent_template = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True, related_name='child_templates')
 

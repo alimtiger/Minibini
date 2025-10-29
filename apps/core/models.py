@@ -51,8 +51,8 @@ class BaseLineItem(models.Model):
     PurchaseOrderLineItem, and BillLineItem.
     """
     line_item_id = models.AutoField(primary_key=True)
-    task = models.ForeignKey('jobs.Task', on_delete=models.CASCADE, null=True, blank=True)
-    price_list_item = models.ForeignKey('invoicing.PriceListItem', on_delete=models.CASCADE, null=True, blank=True)
+    task = models.ForeignKey('jobs.Task', on_delete=models.PROTECT, null=True, blank=True)  # Changed from CASCADE - protect document integrity
+    price_list_item = models.ForeignKey('invoicing.PriceListItem', on_delete=models.PROTECT, null=True, blank=True)  # Changed from CASCADE - protect historical documents
     line_number = models.PositiveIntegerField(blank=True, null=True)
     qty = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal('0.00'))
     units = models.CharField(max_length=50, blank=True)

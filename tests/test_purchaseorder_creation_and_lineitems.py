@@ -398,13 +398,6 @@ class PurchaseOrderModelWithBusinessTests(TestCase):
         self.assertEqual(po.business, self.business)
         self.assertEqual(po.po_number, 'PO001')
 
-    def test_purchase_order_business_can_be_null(self):
-        """Test that business can be null for backwards compatibility."""
-        po = PurchaseOrder.objects.create(
-            po_number='PO002'
-        )
-        self.assertIsNone(po.business)
-
     def test_purchase_order_str_method(self):
         """Test PO string representation."""
         po = PurchaseOrder.objects.create(

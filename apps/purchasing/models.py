@@ -14,8 +14,10 @@ class PurchaseOrder(models.Model):
     ]
 
     po_id = models.AutoField(primary_key=True)
-    business = models.ForeignKey('contacts.Business', on_delete=models.CASCADE, null=True, blank=True)
-    job = models.ForeignKey('jobs.Job', on_delete=models.CASCADE, null=True, blank=True)
+    # TODO: why business here instead of contact?  Because we don't care who
+    # gets the PO - but what if we have a specific sales rep?
+    business = models.ForeignKey('contacts.Business', on_delete=models.PROTECT)
+    job = models.ForeignKey('jobs.Job', on_delete=models.SET_NULL, null=True, blank=True)
     po_number = models.CharField(max_length=50, unique=True)
     status = models.CharField(max_length=20, choices=PO_STATUS_CHOICES, default='draft')
 
@@ -123,7 +125,7 @@ class Bill(models.Model):
     bill_id = models.AutoField(primary_key=True)
     bill_number = models.CharField(max_length=50, unique=True)
     purchase_order = models.ForeignKey(PurchaseOrder, on_delete=models.SET_NULL, null=True, blank=True)
-    contact = models.ForeignKey('contacts.Contact', on_delete=models.CASCADE)
+    contact = models.ForeignKey('contacts.Contact', on_delete=models.PROTECT)
     business = models.ForeignKey('contacts.Business', on_delete=models.SET_NULL, null=True, blank=True)
     vendor_invoice_number = models.CharField(max_length=50)
     status = models.CharField(max_length=20, choices=BILL_STATUS_CHOICES, default='draft')

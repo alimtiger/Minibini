@@ -19,7 +19,7 @@ from django.test import TestCase
 from django.core.exceptions import ValidationError
 from django.utils import timezone
 from apps.purchasing.models import Bill, PurchaseOrder, BillLineItem
-from apps.contacts.models import Contact
+from apps.contacts.models import Contact, Business
 from datetime import timedelta
 from decimal import Decimal
 
@@ -29,6 +29,11 @@ class BillStatusTransitionTest(TestCase):
 
     def setUp(self):
         """Set up test data."""
+        # Create a test business
+        self.business = Business.objects.create(
+            business_name='Test Vendor Business'
+        )
+
         # Create a test contact
         self.contact = Contact.objects.create(
             name='Test Vendor'
@@ -36,6 +41,7 @@ class BillStatusTransitionTest(TestCase):
 
         # Create a test purchase order in issued status (Bills can only be created from issued or later POs)
         self.purchase_order = PurchaseOrder.objects.create(
+            business=self.business,
             po_number='PO-TEST-001',
             status='draft'
         )

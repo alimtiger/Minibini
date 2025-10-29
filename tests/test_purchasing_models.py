@@ -1,11 +1,13 @@
 from django.test import TestCase
+from django.db import models
 from apps.purchasing.models import PurchaseOrder, Bill
 from apps.jobs.models import Job
-from apps.contacts.models import Contact
+from apps.contacts.models import Contact, Business
 
 
 class PurchaseOrderModelTest(TestCase):
     def setUp(self):
+        self.business = Business.objects.create(business_name="Test Business")
         self.contact = Contact.objects.create(name="Test Customer")
         self.job = Job.objects.create(
             job_number="JOB001",
@@ -15,6 +17,7 @@ class PurchaseOrderModelTest(TestCase):
         
     def test_purchase_order_creation(self):
         po = PurchaseOrder.objects.create(
+            business=self.business,
             job=self.job,
             po_number="PO001"
         )
@@ -22,31 +25,34 @@ class PurchaseOrderModelTest(TestCase):
         self.assertEqual(po.po_number, "PO001")
         
     def test_purchase_order_str_method(self):
-        po = PurchaseOrder.objects.create(po_number="PO002")
+        po = PurchaseOrder.objects.create(business=self.business, po_number="PO002")
         self.assertEqual(str(po), "PO PO002")
         
     def test_purchase_order_optional_job(self):
         po = PurchaseOrder.objects.create(
+            business=self.business,
             po_number="PO003"
         )
         self.assertIsNone(po.job)
-        
+
     def test_purchase_order_without_job(self):
         po = PurchaseOrder.objects.create(
+            business=self.business,
             po_number="PO004"
         )
         self.assertIsNone(po.job)
         self.assertEqual(po.po_number, "PO004")
         
     def test_purchase_order_unique_po_number(self):
-        PurchaseOrder.objects.create(po_number="UNIQUE001")
+        PurchaseOrder.objects.create(business=self.business, po_number="UNIQUE001")
         
         with self.assertRaises(Exception):
-            PurchaseOrder.objects.create(po_number="UNIQUE001")
+            PurchaseOrder.objects.create(business=self.business, po_number="UNIQUE001")
 
 
 class BillModelTest(TestCase):
     def setUp(self):
+        self.business = Business.objects.create(business_name="Test Business")
         self.contact = Contact.objects.create(name="Test Vendor")
         self.customer_contact = Contact.objects.create(name="Test Customer")
         self.job = Job.objects.create(
@@ -55,6 +61,7 @@ class BillModelTest(TestCase):
             description="Test job"
         )
         self.purchase_order = PurchaseOrder.objects.create(
+            business=self.business,
             job=self.job,
             po_number="PO001",
             status='draft'
@@ -107,9 +114,6 @@ class BillModelTest(TestCase):
         )
         contact_id = self.contact.pk
         
-        # Delete the contact
-        self.contact.delete()
-        
-        # Bill should be deleted due to CASCADE
-        with self.assertRaises(Bill.DoesNotExist):
-            Bill.objects.get(purchase_order=self.purchase_order, vendor_invoice_number="VIN004")
+        # Cannot delete the contact due to PROTECT
+        with self.assertRaises(models.ProtectedError):
+            self.contact.delete()

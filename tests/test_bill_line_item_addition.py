@@ -4,7 +4,7 @@ from decimal import Decimal
 from django.test import TestCase, Client
 from django.urls import reverse
 from apps.purchasing.models import Bill, BillLineItem, PurchaseOrder
-from apps.contacts.models import Contact
+from apps.contacts.models import Contact, Business
 from apps.invoicing.models import PriceListItem
 
 
@@ -15,6 +15,11 @@ class BillLineItemAdditionTests(TestCase):
         """Set up test data."""
         self.client = Client()
 
+        # Create a test business
+        self.business = Business.objects.create(
+            business_name='Test Vendor Business'
+        )
+
         # Create a test contact
         self.contact = Contact.objects.create(
             name='Test Vendor'
@@ -22,6 +27,7 @@ class BillLineItemAdditionTests(TestCase):
 
         # Create a purchase order in issued status (Bills require PO to be issued or later)
         self.purchase_order = PurchaseOrder.objects.create(
+            business=self.business,
             po_number='PO-TEST-001',
             status='draft'
         )

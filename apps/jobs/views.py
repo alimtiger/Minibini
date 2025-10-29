@@ -702,33 +702,20 @@ def task_add_manual(request, worksheet_id):
 
 def estimate_delete_line_item(request, estimate_id, line_item_id):
     """Delete a line item from an estimate and renumber remaining items"""
+    from apps.core.services import LineItemService
+    from django.core.exceptions import ValidationError
+
     estimate = get_object_or_404(Estimate, estimate_id=estimate_id)
     line_item = get_object_or_404(EstimateLineItem, line_item_id=line_item_id, estimate=estimate)
 
-    # Prevent modifications to superseded estimates
-    if estimate.status == 'superseded':
-        messages.error(request, 'Cannot delete line items from a superseded estimate.')
-        return redirect('jobs:estimate_detail', estimate_id=estimate.estimate_id)
-
     if request.method == 'POST':
-        # Store the line number before deleting
-        deleted_line_number = line_item.line_number
+        try:
+            # Use the service to delete and renumber
+            parent_container, deleted_line_number = LineItemService.delete_line_item_with_renumber(line_item)
+            messages.success(request, f'Line item deleted and remaining items renumbered.')
+        except ValidationError as e:
+            messages.error(request, str(e))
 
-        # Delete the line item
-        line_item.delete()
-
-        # Renumber remaining line items
-        remaining_items = EstimateLineItem.objects.filter(
-            estimate=estimate
-        ).order_by('line_number', 'line_item_id')
-
-        # Reassign line numbers sequentially
-        for index, item in enumerate(remaining_items, start=1):
-            if item.line_number != index:
-                item.line_number = index
-                item.save()
-
-        messages.success(request, f'Line item deleted and remaining items renumbered.')
         return redirect('jobs:estimate_detail', estimate_id=estimate.estimate_id)
 
     # GET request - show confirmation (optional, can skip for simple delete)
@@ -739,9 +726,9 @@ def estimate_add_line_item(request, estimate_id):
     """Add line item to Estimate - either manually or from Price List"""
     estimate = get_object_or_404(Estimate, estimate_id=estimate_id)
 
-    # Prevent modifications to superseded estimates
-    if estimate.status == 'superseded':
-        messages.error(request, 'Cannot add line items to a superseded estimate.')
+    # Prevent modifications to non-draft estimates
+    if estimate.status != 'draft':
+        messages.error(request, f'Cannot add line items to a {estimate.get_status_display().lower()} estimate. Only draft estimates can be modified.')
         return redirect('jobs:estimate_detail', estimate_id=estimate.estimate_id)
 
     if request.method == 'POST':
@@ -976,40 +963,17 @@ def task_reorder_work_order(request, work_order_id, task_id, direction):
 
 def estimate_reorder_line_item(request, estimate_id, line_item_id, direction):
     """Reorder line items within an Estimate by swapping line numbers."""
+    from apps.core.services import LineItemService
+    from django.core.exceptions import ValidationError
+
     estimate = get_object_or_404(Estimate, estimate_id=estimate_id)
     line_item = get_object_or_404(EstimateLineItem, line_item_id=line_item_id, estimate=estimate)
 
-    # Prevent reordering non-draft estimates
-    if estimate.status != 'draft':
-        messages.error(request, f'Cannot reorder line items in a {estimate.get_status_display().lower()} estimate.')
-        return redirect('jobs:estimate_detail', estimate_id=estimate_id)
-
-    # Get all line items for this estimate ordered by line_number
-    all_items = list(EstimateLineItem.objects.filter(estimate=estimate).order_by('line_number', 'line_item_id'))
-
-    # Find the index of the current line item
     try:
-        current_index = next(i for i, item in enumerate(all_items) if item.line_item_id == line_item.line_item_id)
-    except StopIteration:
-        messages.error(request, 'Line item not found in estimate.')
-        return redirect('jobs:estimate_detail', estimate_id=estimate_id)
-
-    # Determine the swap target
-    if direction == 'up' and current_index > 0:
-        swap_index = current_index - 1
-    elif direction == 'down' and current_index < len(all_items) - 1:
-        swap_index = current_index + 1
-    else:
-        messages.error(request, 'Cannot move line item in that direction.')
-        return redirect('jobs:estimate_detail', estimate_id=estimate_id)
-
-    # Swap line numbers
-    current_item = all_items[current_index]
-    swap_item = all_items[swap_index]
-    current_item.line_number, swap_item.line_number = swap_item.line_number, current_item.line_number
-
-    current_item.save()
-    swap_item.save()
+        # Use the service to reorder
+        LineItemService.reorder_line_item(line_item, direction)
+    except ValidationError as e:
+        messages.error(request, str(e))
 
     return redirect('jobs:estimate_detail', estimate_id=estimate_id)
 

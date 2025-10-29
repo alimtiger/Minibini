@@ -128,6 +128,7 @@ class BillBusinessAutoAssociationTest(TestCase):
         """
         # Create a purchase order in issued status
         po = PurchaseOrder.objects.create(
+            business=self.business1,
             po_number="PO001",
             status='draft'
         )
