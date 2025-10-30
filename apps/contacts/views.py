@@ -101,6 +101,7 @@ def add_business_contact(request, business_id):
         address = request.POST.get('address')
         city = request.POST.get('city')
         postal_code = request.POST.get('postal_code')
+        set_as_default = request.POST.get('set_as_default') == 'true'
 
         if first_name and last_name:
             # Validate email is provided
@@ -126,7 +127,15 @@ def add_business_contact(request, business_id):
                 postal_code=postal_code or '',
                 business=business
             )
-            messages.success(request, f'Contact "{contact.name}" has been added to {business.business_name}.')
+
+            # Set as default contact if checkbox was checked
+            if set_as_default:
+                business.default_contact = contact
+                business.save(update_fields=['default_contact'])
+                messages.success(request, f'Contact "{contact.name}" has been added to {business.business_name} and set as the default contact.')
+            else:
+                messages.success(request, f'Contact "{contact.name}" has been added to {business.business_name}.')
+
             return redirect('contacts:business_detail', business_id=business.business_id)
         else:
             messages.error(request, 'First name and last name are required.')
@@ -393,6 +402,24 @@ def edit_contact(request, contact_id):
         'contact': contact,
         'existing_businesses': existing_businesses
     })
+
+def set_default_contact(request, contact_id):
+    """Set a contact as the default contact for their business"""
+    contact = get_object_or_404(Contact, contact_id=contact_id)
+
+    if request.method == 'POST':
+        if not contact.business:
+            messages.error(request, 'This contact is not associated with any business.')
+        else:
+            business = contact.business
+            business.default_contact = contact
+            business.save(update_fields=['default_contact'])
+            messages.success(request, f'"{contact.name}" has been set as the default contact for {business.business_name}.')
+
+        return redirect('contacts:contact_detail', contact_id=contact.contact_id)
+
+    # If not POST, redirect back
+    return redirect('contacts:contact_detail', contact_id=contact.contact_id)
 
 def edit_business(request, business_id):
     business = get_object_or_404(Business, business_id=business_id)

@@ -76,6 +76,16 @@
         <input type="text" id="postal_code" name="postal_code" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
     </div>
 
+    <div style="margin-bottom: 20px; padding: 15px; background-color: #f8f9fa; border: 1px solid #dee2e6; border-radius: 4px;">
+        <label style="display: flex; align-items: center; cursor: pointer;">
+            <input type="checkbox" id="set_as_default" name="set_as_default" value="true" style="width: 18px; height: 18px; margin-right: 10px; cursor: pointer;">
+            <span style="font-weight: bold;">Set as default contact for this business</span>
+        </label>
+        <p style="margin: 8px 0 0 28px; font-size: 0.9em; color: #6c757d;">
+            The default contact will be used as the primary contact for this business.
+        </p>
+    </div>
+
     <button type="submit" style="background-color: #007bff; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; margin-right: 10px;">Add Contact</button>
     <a href="{% url 'contacts:business_detail' business.business_id %}" style="background-color: #6c757d; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px;">Cancel</a>
 </form>

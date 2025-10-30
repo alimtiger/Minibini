@@ -39,6 +39,16 @@
         <td>Payment Terms</td>
         <td>{{ business.terms|default:"No payment terms" }}</td>
     </tr>
+    <tr>
+        <td>Default Contact</td>
+        <td>
+            {% if business.default_contact %}
+                <a href="{% url 'contacts:contact_detail' business.default_contact.contact_id %}">{{ business.default_contact.name }}</a>
+            {% else %}
+                No default contact
+            {% endif %}
+        </td>
+    </tr>
 </table>
 
 <h3>Associated Contacts</h3>
@@ -56,8 +66,13 @@
         </thead>
         <tbody>
             {% for contact in contacts %}
-            <tr>
-                <td>{{ contact.name }}</td>
+            <tr{% if business.default_contact and contact.contact_id == business.default_contact.contact_id %} style="background-color: #e3f2fd;"{% endif %}>
+                <td>
+                    {{ contact.name }}
+                    {% if business.default_contact and contact.contact_id == business.default_contact.contact_id %}
+                        <span style="color: #1976d2; font-weight: bold; margin-left: 5px;">[DEFAULT]</span>
+                    {% endif %}
+                </td>
                 <td>{{ contact.email|default:"No email" }}</td>
                 <td>{{ contact.mobile_number|default:contact.work_number|default:contact.home_number|default:"No phone" }}</td>
                 <td>{{ contact.address|default:"No address" }}</td>

@@ -43,6 +43,32 @@ class Contact(models.Model):
         if not any([self.work_number, self.mobile_number, self.home_number]):
             raise ValidationError('At least one phone number (work, mobile, or home) is required.')
 
+    def save(self, *args, **kwargs):
+        """Override save to update business default contact"""
+        # Track old business reference before saving
+        old_business = None
+        if self.pk:
+            try:
+                old_contact = Contact.objects.get(pk=self.pk)
+                old_business = old_contact.business
+            except Contact.DoesNotExist:
+                pass
+
+        super().save(*args, **kwargs)
+
+        # Update default contact for affected businesses
+        if self.business:
+            self.business.update_default_contact()
+        if old_business and old_business != self.business:
+            old_business.update_default_contact()
+
+    def delete(self, *args, **kwargs):
+        """Override delete to update business default contact"""
+        business = self.business
+        super().delete(*args, **kwargs)
+        if business:
+            business.update_default_contact()
+
     def phone(self):
         # Return highest priority phone number: work > mobile > home
         if self.work_number:
@@ -73,6 +99,7 @@ class Business(models.Model):
     tax_exemption_number = models.CharField(max_length=50, blank=True)
     website = models.URLField(max_length=200, blank=True)
     terms = models.ForeignKey('PaymentTerms', on_delete=models.SET_NULL, null=True, blank=True)
+    default_contact = models.ForeignKey('Contact', on_delete=models.SET_NULL, null=True, blank=True, related_name='default_for_business')
 
     def __str__(self):
         return self.business_name
@@ -96,6 +123,30 @@ class Business(models.Model):
                 self.our_reference_code = f"BUS-{next_id:04d}"
 
         super().save(*args, **kwargs)
+
+    def update_default_contact(self):
+        """Update default contact based on business rules"""
+        contacts = self.contacts.all()
+        contact_count = contacts.count()
+
+        if contact_count == 0:
+            # No contacts, clear default
+            if self.default_contact is not None:
+                self.default_contact = None
+                self.save(update_fields=['default_contact'])
+        elif contact_count == 1:
+            # Only one contact, set as default
+            single_contact = contacts.first()
+            if self.default_contact != single_contact:
+                self.default_contact = single_contact
+                self.save(update_fields=['default_contact'])
+        elif self.default_contact is None:
+            # Multiple contacts but no default set, don't auto-assign
+            pass
+        elif self.default_contact not in contacts:
+            # Default contact is no longer associated with this business
+            self.default_contact = None
+            self.save(update_fields=['default_contact'])
 
 
 class PaymentTerms(models.Model):
