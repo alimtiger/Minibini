@@ -1,6 +1,6 @@
-# Default Contact Feature Tests
+# Contact and Business Management Feature Tests
 
-This document summarizes the comprehensive test suite for the default contact functionality implemented in the contacts app.
+This document summarizes the comprehensive test suite for the default contact functionality and business deletion features implemented in the contacts app.
 
 ## Default Contact Behavior
 
@@ -19,6 +19,28 @@ The default contact system follows these rules:
    - Checkbox on "Add Business Contact" form
    - "Set as Default Contact" button on contact detail page
    - Selection form when deleting a default contact (if multiple contacts remain)
+
+## Business Deletion Behavior
+
+The business deletion system follows these rules:
+
+1. **Validation**: A business cannot be deleted if any of its contacts are associated with Jobs or Bills
+   - The system checks all contacts for associations before allowing deletion
+   - If associations exist, an error message lists all affected contacts and their associations
+
+2. **No Contacts**: If a business has no contacts, it can be deleted immediately without confirmation
+
+3. **With Contacts (No Associations)**: If a business has contacts but none have Jobs/Bills associations:
+   - User is shown a confirmation form with two action choices
+   - **Unlink Action**: Contacts are kept in the system but become independent (business field set to null)
+   - **Delete Action**: All contacts are permanently deleted along with the business
+
+4. **User Choice Required**: When contacts exist, the user must explicitly select an action (unlink or delete) before the deletion proceeds
+
+5. **UI Elements**:
+   - Business detail page has a "Delete Business" button
+   - JavaScript confirmation dialog warns user before showing confirmation form
+   - Confirmation form displays all associated contacts for review
 
 ## Test Files Created
 
@@ -104,11 +126,50 @@ Tests contact deletion with validation and required default selection.
   - Contact detail has delete button
   - Delete button has JavaScript confirmation
 
+### 4. test_delete_business_functionality.py (16 tests)
+Tests business deletion with validation and contact action choices.
+
+**Test Classes:**
+- `BusinessDeletionValidationTest` (3 tests)
+  - Cannot delete business when contact has Job
+  - Cannot delete business when contact has Bill
+  - Cannot delete business with multiple contact associations
+
+- `BusinessDeletionConfirmationFormTest` (3 tests)
+  - Confirmation form shown when business has contacts
+  - Confirmation form shows contact count
+  - No confirmation form when no contacts (immediate deletion)
+
+- `BusinessDeletionUnlinkActionTest` (3 tests)
+  - Unlink action keeps contacts but removes business association
+  - Unlink action shows appropriate success message
+  - Unlink action redirects to business list
+
+- `BusinessDeletionDeleteActionTest` (3 tests)
+  - Delete action removes business and all contacts
+  - Delete action shows appropriate success message
+  - Delete action redirects to business list
+
+- `BusinessDeletionMissingActionTest` (1 test)
+  - Missing action shows confirmation form, not process deletion
+
+- `BusinessDetailPageDeleteButtonTest` (2 tests)
+  - Business detail page has delete button
+  - Delete button has JavaScript confirmation
+
+- `BusinessDeletionGETRequestTest` (1 test)
+  - GET request does not delete business
+
 ## Running the Tests
 
-Run all new tests:
+Run all contact and business feature tests:
 ```bash
-python manage.py test tests.test_default_contact_functionality tests.test_set_default_contact_views tests.test_delete_contact_functionality
+python manage.py test tests.test_default_contact_functionality tests.test_set_default_contact_views tests.test_delete_contact_functionality tests.test_delete_business_functionality
+```
+
+Run specific test file:
+```bash
+python manage.py test tests.test_delete_business_functionality
 ```
 
 Run specific test class:
@@ -134,13 +195,19 @@ These tests cover:
 - ✅ **Auto-assignment when only one contact remains**
 - ✅ UI display of default contact indicators
 - ✅ Contact deletion validation (Jobs and Bills)
+- ✅ **Business deletion validation (preventing deletion when contacts have Jobs/Bills)**
+- ✅ **Business deletion with contact action choices (unlink vs delete)**
+- ✅ **Confirmation forms for business deletion**
+- ✅ **Unlink action (contacts become independent)**
+- ✅ **Delete action (contacts deleted with business)**
 - ✅ Proper redirects and success messages
 
 ## Test Results
 
-All 46 tests pass successfully:
+All 62 tests pass successfully:
 - 12 default contact functionality tests
 - 16 set default contact views tests
 - 18 delete contact functionality tests
+- 16 delete business functionality tests
 
-Total: **46 tests, 100% passing**
+Total: **62 tests, 100% passing**

@@ -537,6 +537,109 @@ def delete_contact(request, contact_id):
     # If not POST, redirect back
     return redirect('contacts:contact_detail', contact_id=contact.contact_id)
 
+def delete_business(request, business_id):
+    """Delete a business if none of its contacts are associated with non-business objects"""
+    business = get_object_or_404(Business, business_id=business_id)
+
+    if request.method == 'POST':
+        # Get all contacts for this business
+        contacts = business.contacts.all()
+
+        # Check if any contacts have associations with Jobs or Bills
+        from apps.jobs.models import Job
+        from apps.purchasing.models import Bill
+
+        associated_contacts = []
+        for contact in contacts:
+            has_jobs = Job.objects.filter(contact=contact).exists()
+            has_bills = Bill.objects.filter(contact=contact).exists()
+
+            if has_jobs or has_bills:
+                jobs = list(Job.objects.filter(contact=contact).values_list('job_number', flat=True))
+                bills = list(Bill.objects.filter(contact=contact).values_list('bill_id', flat=True))
+
+                associations = []
+                if jobs:
+                    associations.append(f"Jobs: {', '.join(jobs)}")
+                if bills:
+                    associations.append(f"Bills: {', '.join(map(str, bills))}")
+
+                associated_contacts.append({
+                    'name': contact.name,
+                    'associations': '; '.join(associations)
+                })
+
+        # If any contacts have associations, prevent deletion
+        if associated_contacts:
+            error_details = []
+            for item in associated_contacts:
+                error_details.append(f"{item['name']} ({item['associations']})")
+
+            messages.error(
+                request,
+                f'Cannot delete business "{business.business_name}" because the following contacts have associations: '
+                f'{"; ".join(error_details)}. Please remove these associations before deleting the business.'
+            )
+            return redirect('contacts:business_detail', business_id=business.business_id)
+
+        # Get user's choice for contact action
+        contact_action = request.POST.get('contact_action')
+
+        # If there are contacts and no action specified, show confirmation form
+        if contacts.exists() and not contact_action:
+            return render(request, 'contacts/confirm_delete_business.html', {
+                'business': business,
+                'contacts': contacts,
+                'contact_count': contacts.count()
+            })
+
+        # Validate contact action if contacts exist
+        if contacts.exists() and contact_action not in ['unlink', 'delete']:
+            messages.error(request, 'Please select what to do with the associated contacts.')
+            return render(request, 'contacts/confirm_delete_business.html', {
+                'business': business,
+                'contacts': contacts,
+                'contact_count': contacts.count()
+            })
+
+        # Perform deletion based on user's choice
+        business_name = business.business_name
+        contact_count = contacts.count()
+
+        if contact_action == 'unlink':
+            # Unlink contacts from business
+            contacts.update(business=None)
+            business.delete()
+            messages.success(
+                request,
+                f'Business "{business_name}" has been deleted. {contact_count} contact(s) have been unlinked and are now independent.'
+            )
+        elif contact_action == 'delete':
+            # Delete all contacts along with business
+            contact_names = [c.name for c in contacts[:5]]  # Get first 5 names
+            contacts.delete()
+            business.delete()
+
+            if contact_count <= 5:
+                messages.success(
+                    request,
+                    f'Business "{business_name}" and {contact_count} contact(s) have been deleted: {", ".join(contact_names)}.'
+                )
+            else:
+                messages.success(
+                    request,
+                    f'Business "{business_name}" and all {contact_count} associated contacts have been deleted.'
+                )
+        else:
+            # No contacts, just delete business
+            business.delete()
+            messages.success(request, f'Business "{business_name}" has been deleted successfully.')
+
+        return redirect('contacts:business_list')
+
+    # If not POST, redirect back
+    return redirect('contacts:business_detail', business_id=business_id)
+
 def edit_business(request, business_id):
     business = get_object_or_404(Business, business_id=business_id)
 

@@ -4,7 +4,10 @@
 
 {% block content %}
 <h2>Business: {{ business.business_name }}</h2>
-<a href="{% url 'contacts:edit_business' business.business_id %}" style="display: inline-block; background-color: #ffc107; color: black; padding: 10px 20px; text-decoration: none; border-radius: 4px; margin-bottom: 20px;">Edit Business</a>
+<div style="margin-bottom: 20px;">
+    <a href="{% url 'contacts:edit_business' business.business_id %}" style="display: inline-block; background-color: #ffc107; color: black; padding: 10px 20px; text-decoration: none; border-radius: 4px; margin-right: 10px;">Edit Business</a>
+    <button onclick="confirmDeleteBusiness()" style="background-color: #dc3545; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer;">Delete Business</button>
+</div>
 
 <table border="1">
     <tr>
@@ -88,4 +91,17 @@
 {% endif %}
 
 <p><a href="{% url 'contacts:business_list' %}">Back to Businesses List</a></p>
+
+<!-- Hidden delete form -->
+<form id="deleteBusinessForm" method="post" action="{% url 'contacts:delete_business' business.business_id %}" style="display: none;">
+    {% csrf_token %}
+</form>
+
+<script>
+function confirmDeleteBusiness() {
+    if (confirm('Are you sure you want to delete "{{ business.business_name }}"? You will be able to choose what happens to the associated contacts in the next step.')) {
+        document.getElementById('deleteBusinessForm').submit();
+    }
+}
+</script>
 {% endblock %}
