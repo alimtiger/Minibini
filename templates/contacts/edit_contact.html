@@ -151,11 +151,7 @@
             <div style="margin-bottom: 15px;">
                 <label for="business_name" style="display: block; margin-bottom: 5px; font-weight: bold;">Business Name *</label>
                 <input type="text" id="business_name" name="business_name" value="" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
-            </div>
-
-            <div style="margin-bottom: 15px;">
-                <label for="our_reference_code" style="display: block; margin-bottom: 5px; font-weight: bold;">Reference Code</label>
-                <input type="text" id="our_reference_code" name="our_reference_code" value="" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+                <small style="display: block; margin-top: 5px; color: #666;">A unique reference code will be automatically generated</small>
             </div>
 
             <div style="margin-bottom: 15px;">
@@ -273,7 +269,7 @@ document.addEventListener('DOMContentLoaded', function() {
             businessInfoContent.innerHTML = `
                 <div style="display: grid; gap: 8px;">
                     <div><strong>Business Name:</strong> ${businessName}</div>
-                    <div><strong>Reference Code:</strong> ${referenceCode}</div>
+                    <div><strong>Reference Code:</strong> ${referenceCode} <em style="color: #888; font-size: 0.9em;">(auto-generated)</em></div>
                     <div><strong>Business Phone:</strong> ${businessPhone}</div>
                     <div><strong>Address:</strong> ${businessAddress}</div>
                     <div><strong>Tax Exemption Number:</strong> ${taxExemption}</div>
@@ -289,7 +285,6 @@ document.addEventListener('DOMContentLoaded', function() {
     function clearBusinessFields() {
         // Clear all business form fields for new business creation
         businessNameInput.value = '';
-        document.getElementById('our_reference_code').value = '';
         document.getElementById('business_phone').value = '';
         document.getElementById('business_address').value = '';
         document.getElementById('tax_exemption_number').value = '';

@@ -66,7 +66,7 @@ class Contact(models.Model):
 
 class Business(models.Model):
     business_id = models.AutoField(primary_key=True)
-    our_reference_code = models.CharField(max_length=50, blank=True)
+    our_reference_code = models.CharField(max_length=50, blank=True, unique=True)
     business_name = models.CharField(max_length=255)
     business_address = models.TextField(blank=True)
     business_phone = models.CharField(max_length=20, blank=True)
@@ -76,6 +76,26 @@ class Business(models.Model):
 
     def __str__(self):
         return self.business_name
+
+    def save(self, *args, **kwargs):
+        # Auto-generate reference code if not provided
+        if not self.our_reference_code:
+            # Get the latest business to determine the next number
+            last_business = Business.objects.order_by('-business_id').first()
+            if last_business and last_business.business_id:
+                next_id = last_business.business_id + 1
+            else:
+                next_id = 1
+
+            # Generate reference code in format BUS-0001, BUS-0002, etc.
+            self.our_reference_code = f"BUS-{next_id:04d}"
+
+            # Check if this reference code already exists (race condition protection)
+            while Business.objects.filter(our_reference_code=self.our_reference_code).exists():
+                next_id += 1
+                self.our_reference_code = f"BUS-{next_id:04d}"
+
+        super().save(*args, **kwargs)
 
 
 class PaymentTerms(models.Model):

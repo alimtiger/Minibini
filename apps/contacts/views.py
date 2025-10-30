@@ -35,7 +35,6 @@ def add_contact(request):
 
         # Business fields
         business_name = request.POST.get('business_name')
-        our_reference_code = request.POST.get('our_reference_code')
         business_phone = request.POST.get('business_phone')
         business_address = request.POST.get('business_address')
         tax_exemption_number = request.POST.get('tax_exemption_number')
@@ -57,7 +56,6 @@ def add_contact(request):
             if business_name and business_name.strip():
                 business = Business.objects.create(
                     business_name=business_name.strip(),
-                    our_reference_code=our_reference_code.strip() if our_reference_code else '',
                     business_phone=business_phone.strip() if business_phone else '',
                     business_address=business_address.strip() if business_address else '',
                     tax_exemption_number=tax_exemption_number.strip() if tax_exemption_number else '',
@@ -139,7 +137,6 @@ def add_business(request):
     if request.method == 'POST':
         # Business fields
         business_name = request.POST.get('business_name')
-        our_reference_code = request.POST.get('our_reference_code')
         business_phone = request.POST.get('business_phone')
         business_address = request.POST.get('business_address')
         tax_exemption_number = request.POST.get('tax_exemption_number')
@@ -176,7 +173,6 @@ def add_business(request):
             # Create business
             business = Business.objects.create(
                 business_name=business_name.strip(),
-                our_reference_code=our_reference_code.strip() if our_reference_code else '',
                 business_phone=business_phone.strip() if business_phone else '',
                 business_address=business_address.strip() if business_address else '',
                 tax_exemption_number=tax_exemption_number.strip() if tax_exemption_number else '',
@@ -237,7 +233,6 @@ def edit_contact(request, contact_id):
         business_selection_mode = request.POST.get('business_selection_mode')
         existing_business_id = request.POST.get('existing_business_id')
         business_name = request.POST.get('business_name')
-        our_reference_code = request.POST.get('our_reference_code')
         business_phone = request.POST.get('business_phone')
         business_address = request.POST.get('business_address')
         tax_exemption_number = request.POST.get('tax_exemption_number')
@@ -347,7 +342,6 @@ def edit_contact(request, contact_id):
                     # Create new business (contact will be dissociated from old business)
                     business = Business.objects.create(
                         business_name=business_name.strip(),
-                        our_reference_code=our_reference_code.strip() if our_reference_code else '',
                         business_phone=business_phone.strip() if business_phone else '',
                         business_address=business_address.strip() if business_address else '',
                         tax_exemption_number=tax_exemption_number.strip() if tax_exemption_number else '',
@@ -406,7 +400,6 @@ def edit_business(request, business_id):
     if request.method == 'POST':
         # Business fields
         business_name = request.POST.get('business_name')
-        our_reference_code = request.POST.get('our_reference_code')
         business_phone = request.POST.get('business_phone')
         business_address = request.POST.get('business_address')
         tax_exemption_number = request.POST.get('tax_exemption_number')
@@ -425,9 +418,8 @@ def edit_business(request, business_id):
                     'Business names must be unique.'
                 )
             else:
-                # Update business
+                # Update business (reference code is auto-generated and not updated)
                 business.business_name = business_name.strip()
-                business.our_reference_code = our_reference_code.strip() if our_reference_code else ''
                 business.business_phone = business_phone.strip() if business_phone else ''
                 business.business_address = business_address.strip() if business_address else ''
                 business.tax_exemption_number = tax_exemption_number.strip() if tax_exemption_number else ''
