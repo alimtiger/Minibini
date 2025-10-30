@@ -59,7 +59,7 @@ def search_view(request):
         Q(business_name__icontains=query) |
         Q(our_reference_code__icontains=query) |
         Q(business_address__icontains=query) |
-        Q(business_number__icontains=query)
+        Q(business_phone__icontains=query)
     )
     if businesses.exists():
         categories['Businesses'] = {

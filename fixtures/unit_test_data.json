@@ -92,9 +92,9 @@
       "our_reference_code": "CUST001",
       "business_name": "ABC Corporation",
       "business_address": "100 Corporate Plaza, Suite 200, Business City, ST 22222",
-      "business_number": "123-456-7890",
+      "business_phone": "123-456-7890",
       "tax_exemption_number": "TX123456789",
-      "tax_cloud": "CLOUD001",
+      "website": "https://www.abccorp.com",
       "terms": 1
     }
   },
@@ -105,9 +105,9 @@
       "our_reference_code": "CUST002",
       "business_name": "XYZ Industries",
       "business_address": "200 Manufacturing Way, Industrial Park, ST 33333",
-      "business_number": "987-654-3210",
+      "business_phone": "987-654-3210",
       "tax_exemption_number": "",
-      "tax_cloud": "",
+      "website": "",
       "terms": 2
     }
   },

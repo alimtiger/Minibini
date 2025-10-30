@@ -26,7 +26,7 @@ class SearchViewTests(TestCase):
             business_name='Acme Corporation',
             our_reference_code='ACME001',
             business_address='123 Main St, Springfield',
-            business_number='555-1234'
+            business_phone='555-1234'
         )
 
         # Create contacts

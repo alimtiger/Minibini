@@ -112,10 +112,10 @@
                 <option value="{{ business.business_id }}"
                     data-business-name="{{ business.business_name }}"
                     data-reference-code="{{ business.our_reference_code }}"
-                    data-business-number="{{ business.business_number }}"
+                    data-business-phone="{{ business.business_phone }}"
                     data-business-address="{{ business.business_address }}"
                     data-tax-exemption="{{ business.tax_exemption_number }}"
-                    data-tax-cloud="{{ business.tax_cloud }}">
+                    data-website="{{ business.website }}">
                     {{ business.business_name }}
                 </option>
                 {% endfor %}
@@ -159,8 +159,8 @@
             </div>
 
             <div style="margin-bottom: 15px;">
-                <label for="business_number" style="display: block; margin-bottom: 5px; font-weight: bold;">Business Number</label>
-                <input type="text" id="business_number" name="business_number" value="" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+                <label for="business_phone" style="display: block; margin-bottom: 5px; font-weight: bold;">Business Phone</label>
+                <input type="tel" id="business_phone" name="business_phone" value="" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
             </div>
 
             <div style="margin-bottom: 15px;">
@@ -174,8 +174,8 @@
             </div>
 
             <div style="margin-bottom: 15px;">
-                <label for="tax_cloud" style="display: block; margin-bottom: 5px; font-weight: bold;">Tax Cloud</label>
-                <input type="text" id="tax_cloud" name="tax_cloud" value="" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+                <label for="website" style="display: block; margin-bottom: 5px; font-weight: bold;">Website</label>
+                <input type="url" id="website" name="website" value="" placeholder="https://example.com" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
             </div>
         </div>
     </fieldset>
@@ -265,19 +265,19 @@ document.addEventListener('DOMContentLoaded', function() {
         if (selectedOption && selectedOption.value) {
             const businessName = selectedOption.dataset.businessName || 'N/A';
             const referenceCode = selectedOption.dataset.referenceCode || 'Not provided';
-            const businessNumber = selectedOption.dataset.businessNumber || 'Not provided';
+            const businessPhone = selectedOption.dataset.businessPhone || 'Not provided';
             const businessAddress = selectedOption.dataset.businessAddress || 'Not provided';
             const taxExemption = selectedOption.dataset.taxExemption || 'Not provided';
-            const taxCloud = selectedOption.dataset.taxCloud || 'Not provided';
+            const website = selectedOption.dataset.website || 'Not provided';
 
             businessInfoContent.innerHTML = `
                 <div style="display: grid; gap: 8px;">
                     <div><strong>Business Name:</strong> ${businessName}</div>
                     <div><strong>Reference Code:</strong> ${referenceCode}</div>
-                    <div><strong>Business Number:</strong> ${businessNumber}</div>
+                    <div><strong>Business Phone:</strong> ${businessPhone}</div>
                     <div><strong>Address:</strong> ${businessAddress}</div>
                     <div><strong>Tax Exemption Number:</strong> ${taxExemption}</div>
-                    <div><strong>Tax Cloud:</strong> ${taxCloud}</div>
+                    <div><strong>Website:</strong> ${website !== 'Not provided' ? '<a href="' + website + '" target="_blank">' + website + '</a>' : 'Not provided'}</div>
                 </div>
             `;
             selectedBusinessInfo.style.display = 'block';
@@ -290,10 +290,10 @@ document.addEventListener('DOMContentLoaded', function() {
         // Clear all business form fields for new business creation
         businessNameInput.value = '';
         document.getElementById('our_reference_code').value = '';
-        document.getElementById('business_number').value = '';
+        document.getElementById('business_phone').value = '';
         document.getElementById('business_address').value = '';
         document.getElementById('tax_exemption_number').value = '';
-        document.getElementById('tax_cloud').value = '';
+        document.getElementById('website').value = '';
     }
 
     // Add event listeners to radio buttons

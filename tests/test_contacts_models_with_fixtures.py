@@ -97,15 +97,15 @@ class BusinessModelFixtureTest(FixtureTestCase):
         """Test that businesses from fixture data exist and have correct properties"""
         abc_corp = Business.objects.get(business_name="ABC Corporation")
         self.assertEqual(abc_corp.our_reference_code, "CUST001")
-        self.assertEqual(abc_corp.business_number, "123-456-7890")
+        self.assertEqual(abc_corp.business_phone, "123-456-7890")
         self.assertEqual(abc_corp.tax_exemption_number, "TX123456789")
-        self.assertEqual(abc_corp.tax_cloud, "CLOUD001")
+        self.assertEqual(abc_corp.website, "https://www.abccorp.com")
 
         xyz_industries = Business.objects.get(business_name="XYZ Industries")
         self.assertEqual(xyz_industries.our_reference_code, "CUST002")
-        self.assertEqual(xyz_industries.business_number, "987-654-3210")
+        self.assertEqual(xyz_industries.business_phone, "987-654-3210")
         self.assertEqual(xyz_industries.tax_exemption_number, "")  # Empty in fixture
-        self.assertEqual(xyz_industries.tax_cloud, "")  # Empty in fixture
+        self.assertEqual(xyz_industries.website, "")  # Empty in fixture
 
     def test_business_str_method_with_fixture_data(self):
         """Test business string representation with fixture data"""
@@ -124,7 +124,7 @@ class BusinessModelFixtureTest(FixtureTestCase):
         """Test businesses with optional fields from fixture data"""
         xyz_industries = Business.objects.get(business_name="XYZ Industries")
         self.assertEqual(xyz_industries.tax_exemption_number, "")
-        self.assertEqual(xyz_industries.tax_cloud, "")
+        self.assertEqual(xyz_industries.website, "")
 
     def test_create_new_business(self):
         """Test creating a new business alongside existing fixture data"""

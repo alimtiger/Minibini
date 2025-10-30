@@ -20,8 +20,8 @@
         <td>{{ business.our_reference_code|default:"No reference code" }}</td>
     </tr>
     <tr>
-        <td>Business Number</td>
-        <td>{{ business.business_number|default:"No business number" }}</td>
+        <td>Business Phone</td>
+        <td>{{ business.business_phone|default:"No phone number" }}</td>
     </tr>
     <tr>
         <td>Address</td>
@@ -32,8 +32,8 @@
         <td>{{ business.tax_exemption_number|default:"No tax exemption number" }}</td>
     </tr>
     <tr>
-        <td>Tax Cloud</td>
-        <td>{{ business.tax_cloud|default:"No tax cloud" }}</td>
+        <td>Website</td>
+        <td>{% if business.website %}<a href="{{ business.website }}" target="_blank">{{ business.website }}</a>{% else %}No website{% endif %}</td>
     </tr>
     <tr>
         <td>Payment Terms</td>

@@ -389,9 +389,9 @@
     "our_reference_code": "HS001",
     "business_name": "Housing Supply",
     "business_address": "888 Supply Drive, Industrial District, City, State 12350",
-    "business_number": "BN-789012",
+    "business_phone": "555-7890",
     "tax_exemption_number": "TEX-456789",
-    "tax_cloud": "",
+    "website": "",
     "terms": 1
   }
 },
@@ -402,9 +402,9 @@
     "our_reference_code": "ABC001",
     "business_name": "ABC Construction Co.",
     "business_address": "123 Main St, Business District, City, State 12345",
-    "business_number": "BN-123456",
+    "business_phone": "555-1234",
     "tax_exemption_number": "TEX-123456",
-    "tax_cloud": "",
+    "website": "",
     "terms": 1
   }
 },
@@ -415,9 +415,9 @@
     "our_reference_code": "MOC001",
     "business_name": "Metro Office Complex",
     "business_address": "789 Corporate Blvd, Downtown, City, State 12347",
-    "business_number": "BN-345678",
+    "business_phone": "555-3456",
     "tax_exemption_number": "TEX-345678",
-    "tax_cloud": "",
+    "website": "",
     "terms": 1
   }
 },
@@ -428,9 +428,9 @@
     "our_reference_code": "ISI001",
     "business_name": "Industrial Solutions Inc.",
     "business_address": "654 Industrial Pkwy, Industrial Zone, City, State 12349",
-    "business_number": "BN-567890",
+    "business_phone": "555-5678",
     "tax_exemption_number": "TEX-567890",
-    "tax_cloud": "",
+    "website": "",
     "terms": 1
   }
 },
@@ -441,9 +441,9 @@
     "our_reference_code": "GRV001",
     "business_name": "Green Valley Homes",
     "business_address": "321 Valley Road, Suburbs, City, State 12348",
-    "business_number": "BN-99999",
+    "business_phone": "555-9999",
     "tax_exemption_number": "TEX-99999",
-    "tax_cloud": "",
+    "website": "",
     "terms": 1
   }
 },
@@ -454,9 +454,9 @@
     "our_reference_code": "JP001",
     "business_name": "Joe's Pizzeria",
     "business_address": "456 Pizza Avenue, Restaurant District, City, State 12351",
-    "business_number": "BN-777888",
+    "business_phone": "555-7778",
     "tax_exemption_number": "TEX-777888",
-    "tax_cloud": "",
+    "website": "",
     "terms": 1
   }
 },

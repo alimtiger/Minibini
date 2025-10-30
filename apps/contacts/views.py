@@ -36,10 +36,10 @@ def add_contact(request):
         # Business fields
         business_name = request.POST.get('business_name')
         our_reference_code = request.POST.get('our_reference_code')
-        business_number = request.POST.get('business_number')
+        business_phone = request.POST.get('business_phone')
         business_address = request.POST.get('business_address')
         tax_exemption_number = request.POST.get('tax_exemption_number')
-        tax_cloud = request.POST.get('tax_cloud')
+        website = request.POST.get('website')
 
         if first_name and last_name:
             # Validate email is provided
@@ -58,10 +58,10 @@ def add_contact(request):
                 business = Business.objects.create(
                     business_name=business_name.strip(),
                     our_reference_code=our_reference_code.strip() if our_reference_code else '',
-                    business_number=business_number.strip() if business_number else '',
+                    business_phone=business_phone.strip() if business_phone else '',
                     business_address=business_address.strip() if business_address else '',
                     tax_exemption_number=tax_exemption_number.strip() if tax_exemption_number else '',
-                    tax_cloud=tax_cloud.strip() if tax_cloud else ''
+                    website=website.strip() if website else ''
                 )
 
             # Create contact
@@ -140,10 +140,10 @@ def add_business(request):
         # Business fields
         business_name = request.POST.get('business_name')
         our_reference_code = request.POST.get('our_reference_code')
-        business_number = request.POST.get('business_number')
+        business_phone = request.POST.get('business_phone')
         business_address = request.POST.get('business_address')
         tax_exemption_number = request.POST.get('tax_exemption_number')
-        tax_cloud = request.POST.get('tax_cloud')
+        website = request.POST.get('website')
 
         # Get number of contacts
         contact_count = int(request.POST.get('contact_count', 1))
@@ -177,10 +177,10 @@ def add_business(request):
             business = Business.objects.create(
                 business_name=business_name.strip(),
                 our_reference_code=our_reference_code.strip() if our_reference_code else '',
-                business_number=business_number.strip() if business_number else '',
+                business_phone=business_phone.strip() if business_phone else '',
                 business_address=business_address.strip() if business_address else '',
                 tax_exemption_number=tax_exemption_number.strip() if tax_exemption_number else '',
-                tax_cloud=tax_cloud.strip() if tax_cloud else ''
+                website=website.strip() if website else ''
             )
 
             # Validate and create contacts
@@ -238,10 +238,10 @@ def edit_contact(request, contact_id):
         existing_business_id = request.POST.get('existing_business_id')
         business_name = request.POST.get('business_name')
         our_reference_code = request.POST.get('our_reference_code')
-        business_number = request.POST.get('business_number')
+        business_phone = request.POST.get('business_phone')
         business_address = request.POST.get('business_address')
         tax_exemption_number = request.POST.get('tax_exemption_number')
-        tax_cloud = request.POST.get('tax_cloud')
+        website = request.POST.get('website')
 
         if first_name and last_name:
             # Validate email is provided
@@ -348,10 +348,10 @@ def edit_contact(request, contact_id):
                     business = Business.objects.create(
                         business_name=business_name.strip(),
                         our_reference_code=our_reference_code.strip() if our_reference_code else '',
-                        business_number=business_number.strip() if business_number else '',
+                        business_phone=business_phone.strip() if business_phone else '',
                         business_address=business_address.strip() if business_address else '',
                         tax_exemption_number=tax_exemption_number.strip() if tax_exemption_number else '',
-                        tax_cloud=tax_cloud.strip() if tax_cloud else ''
+                        website=website.strip() if website else ''
                     )
                     if old_business_name:
                         messages.success(request, f'Contact removed from "{old_business_name}" and associated with new business "{business_name.strip()}".')
@@ -407,10 +407,10 @@ def edit_business(request, business_id):
         # Business fields
         business_name = request.POST.get('business_name')
         our_reference_code = request.POST.get('our_reference_code')
-        business_number = request.POST.get('business_number')
+        business_phone = request.POST.get('business_phone')
         business_address = request.POST.get('business_address')
         tax_exemption_number = request.POST.get('tax_exemption_number')
-        tax_cloud = request.POST.get('tax_cloud')
+        website = request.POST.get('website')
 
         if business_name and business_name.strip():
             # Check if another business with this name already exists
@@ -428,10 +428,10 @@ def edit_business(request, business_id):
                 # Update business
                 business.business_name = business_name.strip()
                 business.our_reference_code = our_reference_code.strip() if our_reference_code else ''
-                business.business_number = business_number.strip() if business_number else ''
+                business.business_phone = business_phone.strip() if business_phone else ''
                 business.business_address = business_address.strip() if business_address else ''
                 business.tax_exemption_number = tax_exemption_number.strip() if tax_exemption_number else ''
-                business.tax_cloud = tax_cloud.strip() if tax_cloud else ''
+                business.website = website.strip() if website else ''
                 business.save()
 
                 messages.success(request, f'Business "{business_name.strip()}" has been updated successfully.')
