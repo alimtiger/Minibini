@@ -421,6 +421,122 @@ def set_default_contact(request, contact_id):
     # If not POST, redirect back
     return redirect('contacts:contact_detail', contact_id=contact.contact_id)
 
+def delete_contact(request, contact_id):
+    """Delete a contact if it's not associated with any non-business objects"""
+    contact = get_object_or_404(Contact, contact_id=contact_id)
+
+    if request.method == 'POST':
+        # Check for associated Jobs
+        from apps.jobs.models import Job
+        associated_jobs = Job.objects.filter(contact=contact)
+
+        # Check for associated Bills
+        from apps.purchasing.models import Bill
+        associated_bills = Bill.objects.filter(contact=contact)
+
+        # Build error message if there are associations
+        error_messages = []
+        if associated_jobs.exists():
+            job_numbers = list(associated_jobs.values_list('job_number', flat=True))
+            error_messages.append(f"Jobs: {', '.join(job_numbers)}")
+
+        if associated_bills.exists():
+            bill_ids = list(associated_bills.values_list('bill_id', flat=True))
+            error_messages.append(f"Bills: {', '.join(map(str, bill_ids))}")
+
+        if error_messages:
+            messages.error(
+                request,
+                f'Cannot delete contact "{contact.name}" because it is still associated with the following: {"; ".join(error_messages)}. '
+                'Please remove these associations before deleting the contact.'
+            )
+            return redirect('contacts:contact_detail', contact_id=contact.contact_id)
+
+        # Check if contact is default and if business has other contacts
+        business = contact.business
+        was_default = business and business.default_contact == contact
+        other_contacts = []
+        if business:
+            other_contacts = business.contacts.exclude(contact_id=contact_id).order_by('last_name', 'first_name')
+
+        # If deleting default contact with multiple other contacts, require selection
+        if was_default and other_contacts.count() > 1:
+            # Check if user has selected a new default
+            new_default_contact_id = request.POST.get('new_default_contact')
+
+            if not new_default_contact_id:
+                # Show selection form
+                return render(request, 'contacts/select_new_default_contact.html', {
+                    'contact': contact,
+                    'other_contacts': other_contacts
+                })
+
+            # Validate and set new default
+            try:
+                new_default_contact = Contact.objects.get(
+                    contact_id=new_default_contact_id,
+                    business=business
+                )
+            except Contact.DoesNotExist:
+                messages.error(request, 'Invalid contact selection. Please try again.')
+                return render(request, 'contacts/select_new_default_contact.html', {
+                    'contact': contact,
+                    'other_contacts': other_contacts
+                })
+
+            # Delete the contact and set new default
+            contact_name = contact.name
+            business_name = business.business_name
+            contact.delete()
+
+            business.default_contact = new_default_contact
+            business.save(update_fields=['default_contact'])
+
+            messages.success(
+                request,
+                f'Contact "{contact_name}" has been deleted. "{new_default_contact.name}" is now the default contact for {business_name}.'
+            )
+            return redirect('contacts:business_detail', business_id=business.business_id)
+
+        # If only one other contact, auto-assign as default
+        elif was_default and other_contacts.count() == 1:
+            contact_name = contact.name
+            business_name = business.business_name
+            new_default = other_contacts.first()
+
+            contact.delete()
+
+            business.refresh_from_db()
+            # Business should have auto-assigned the remaining contact as default
+            messages.success(
+                request,
+                f'Contact "{contact_name}" has been deleted. "{new_default.name}" is now the default contact for {business_name}.'
+            )
+            return redirect('contacts:business_detail', business_id=business.business_id)
+
+        # No other contacts or not default contact
+        else:
+            contact_name = contact.name
+            business_name = business.business_name if business else None
+            contact.delete()
+
+            if was_default:
+                messages.success(
+                    request,
+                    f'Contact "{contact_name}" has been deleted. {business_name} no longer has a default contact.'
+                )
+            else:
+                messages.success(request, f'Contact "{contact_name}" has been deleted successfully.')
+
+            # Redirect to business detail if there was a business, otherwise to contact list
+            if business:
+                return redirect('contacts:business_detail', business_id=business.business_id)
+            else:
+                return redirect('contacts:contact_list')
+
+    # If not POST, redirect back
+    return redirect('contacts:contact_detail', contact_id=contact.contact_id)
+
 def edit_business(request, business_id):
     business = get_object_or_404(Business, business_id=business_id)
 

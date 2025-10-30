@@ -129,24 +129,26 @@ class Business(models.Model):
         contacts = self.contacts.all()
         contact_count = contacts.count()
 
+        # First check if current default is invalid (not associated with this business)
+        if self.default_contact and self.default_contact.business != self:
+            # Default contact is no longer associated with this business, clear it
+            self.default_contact = None
+            self.save(update_fields=['default_contact'])
+            return
+
         if contact_count == 0:
             # No contacts, clear default
             if self.default_contact is not None:
                 self.default_contact = None
                 self.save(update_fields=['default_contact'])
         elif contact_count == 1:
-            # Only one contact, set as default
+            # Only one contact, set as default automatically
             single_contact = contacts.first()
             if self.default_contact != single_contact:
                 self.default_contact = single_contact
                 self.save(update_fields=['default_contact'])
-        elif self.default_contact is None:
-            # Multiple contacts but no default set, don't auto-assign
-            pass
-        elif self.default_contact not in contacts:
-            # Default contact is no longer associated with this business
-            self.default_contact = None
-            self.save(update_fields=['default_contact'])
+        # If multiple contacts and no default, user must manually select
+        # If multiple contacts and default is removed, user must manually select new default
 
 
 class PaymentTerms(models.Model):
