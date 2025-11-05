@@ -82,8 +82,9 @@
     "business_address": "123 Industrial Blvd, Construction Zone, Business City 54321",
     "business_phone": "555-2001",
     "tax_exemption_number": "TEX-100001",
-    "website": "https://www.acmeconstruction.com",
-    "terms": 1
+    "website": "https://www.acmeconstructiontxt.com",
+    "terms": 1,
+    "default_contact": 1
   }
 },
 {
@@ -95,8 +96,9 @@
     "business_address": "456 Corporate Plaza, Downtown District, Metro City 54322",
     "business_phone": "555-2002",
     "tax_exemption_number": "TEX-100002",
-    "website": "https://www.metrodevelopment.com",
-    "terms": 1
+    "website": "https://www.metrodevelopmenttxt.com",
+    "terms": 1,
+    "default_contact": 2
   }
 },
 {
@@ -109,7 +111,8 @@
     "business_phone": "555-2003",
     "tax_exemption_number": "TEX-100003",
     "website": "",
-    "terms": 2
+    "terms": 2,
+    "default_contact": 3
   }
 },
 {
@@ -122,7 +125,8 @@
     "business_phone": "555-2004",
     "tax_exemption_number": "TEX-100004",
     "website": "",
-    "terms": 1
+    "terms": 1,
+    "default_contact": 4
   }
 },
 {

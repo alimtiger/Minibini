@@ -179,17 +179,7 @@ def add_business(request):
         elif not contacts_data:
             messages.error(request, 'At least one contact with first and last name is required.')
         else:
-            # Create business
-            business = Business.objects.create(
-                business_name=business_name.strip(),
-                business_phone=business_phone.strip() if business_phone else '',
-                business_address=business_address.strip() if business_address else '',
-                tax_exemption_number=tax_exemption_number.strip() if tax_exemption_number else '',
-                website=website.strip() if website else ''
-            )
-
-            # Validate and create contacts
-            created_contacts = []
+            # Validate all contacts first
             for i, contact_data in enumerate(contacts_data):
                 # Validate email
                 if not contact_data['email'] or not contact_data['email'].strip():
@@ -201,6 +191,41 @@ def add_business(request):
                     messages.error(request, f'At least one phone number is required for contact {i + 1}.')
                     return render(request, 'contacts/add_business.html')
 
+            # Create the first contact (without business association yet)
+            first_contact_data = contacts_data[0]
+            first_contact = Contact.objects.create(
+                first_name=first_contact_data['first_name'].strip(),
+                middle_initial=first_contact_data['middle_initial'].strip() if first_contact_data['middle_initial'] else '',
+                last_name=first_contact_data['last_name'].strip(),
+                email=first_contact_data['email'].strip(),
+                work_number=first_contact_data['work_number'].strip() if first_contact_data['work_number'] else '',
+                mobile_number=first_contact_data['mobile_number'].strip() if first_contact_data['mobile_number'] else '',
+                home_number=first_contact_data['home_number'].strip() if first_contact_data['home_number'] else '',
+                addr1=first_contact_data['address'].strip() if first_contact_data['address'] else '',
+                city=first_contact_data['city'].strip() if first_contact_data['city'] else '',
+                postal_code=first_contact_data['postal_code'].strip() if first_contact_data['postal_code'] else '',
+                business=None
+            )
+
+            # Create business with first contact as default
+            business = Business.objects.create(
+                business_name=business_name.strip(),
+                business_phone=business_phone.strip() if business_phone else '',
+                business_address=business_address.strip() if business_address else '',
+                tax_exemption_number=tax_exemption_number.strip() if tax_exemption_number else '',
+                website=website.strip() if website else '',
+                default_contact=first_contact
+            )
+
+            # Update first contact to associate with business
+            first_contact.business = business
+            first_contact.save()
+
+            created_contacts = [first_contact.name]
+
+            # Create remaining contacts
+            for i in range(1, len(contacts_data)):
+                contact_data = contacts_data[i]
                 contact = Contact.objects.create(
                     first_name=contact_data['first_name'].strip(),
                     middle_initial=contact_data['middle_initial'].strip() if contact_data['middle_initial'] else '',

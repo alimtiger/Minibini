@@ -17,13 +17,30 @@ class AddBusinessContactWithDefaultTest(TestCase):
 
     def setUp(self):
         self.client = Client()
-        self.business = Business.objects.create(business_name='Test Business')
+        # Create initial contact for business
+        initial_contact = Contact.objects.create(
+            first_name='Initial',
+            last_name='Setup',
+            email='initial@setup.com',
+            work_number='555-0000'
+        )
+        self.business = Business.objects.create(
+            business_name='Test Business',
+            default_contact=initial_contact
+        )
+        initial_contact.business = self.business
+        initial_contact.save()
 
     def test_add_contact_with_default_checkbox_checked(self):
         """Adding a contact with 'set as default' checked should set it as default"""
         url = reverse('contacts:add_business_contact', args=[self.business.business_id])
 
-        # Add first contact without default checkbox
+        # Verify initial setup contact is default
+        self.business.refresh_from_db()
+        initial_contact = Contact.objects.get(email='initial@setup.com')
+        self.assertEqual(self.business.default_contact, initial_contact)
+
+        # Add contact without default checkbox
         response = self.client.post(url, {
             'first_name': 'John',
             'last_name': 'Doe',
@@ -33,12 +50,11 @@ class AddBusinessContactWithDefaultTest(TestCase):
 
         self.assertEqual(response.status_code, 302)  # Redirect after success
 
-        # Verify first contact is default (auto-assigned)
+        # Verify initial contact is still default
         self.business.refresh_from_db()
-        contact1 = Contact.objects.get(email='john@test.com')
-        self.assertEqual(self.business.default_contact, contact1)
+        self.assertEqual(self.business.default_contact, initial_contact)
 
-        # Add second contact with default checkbox checked
+        # Add contact with default checkbox checked
         response = self.client.post(url, {
             'first_name': 'Jane',
             'last_name': 'Smith',
@@ -49,26 +65,20 @@ class AddBusinessContactWithDefaultTest(TestCase):
 
         self.assertEqual(response.status_code, 302)
 
-        # Verify second contact is now default
+        # Verify new contact is now default
         self.business.refresh_from_db()
         contact2 = Contact.objects.get(email='jane@test.com')
         self.assertEqual(self.business.default_contact, contact2)
 
     def test_add_contact_without_default_checkbox(self):
         """Adding a contact without checkbox should not change existing default"""
-        # Create initial default contact
-        contact1 = Contact.objects.create(
-            first_name='John',
-            last_name='Doe',
-            email='john@test.com',
-            work_number='555-0001',
-            business=self.business
-        )
+        # Get the initial default contact from setUp
         self.business.refresh_from_db()
+        initial_default = self.business.default_contact
 
         url = reverse('contacts:add_business_contact', args=[self.business.business_id])
 
-        # Add second contact without checking default
+        # Add contact without checking default
         response = self.client.post(url, {
             'first_name': 'Jane',
             'last_name': 'Smith',
@@ -78,12 +88,12 @@ class AddBusinessContactWithDefaultTest(TestCase):
 
         self.assertEqual(response.status_code, 302)
 
-        # Verify first contact is still default
+        # Verify initial contact is still default
         self.business.refresh_from_db()
-        self.assertEqual(self.business.default_contact, contact1)
+        self.assertEqual(self.business.default_contact, initial_default)
 
-    def test_add_first_contact_with_default_checkbox(self):
-        """First contact with default checkbox should be set as default"""
+    def test_add_contact_with_default_checkbox_changes_default(self):
+        """Contact with default checkbox should replace existing default"""
         url = reverse('contacts:add_business_contact', args=[self.business.business_id])
 
         response = self.client.post(url, {
@@ -97,12 +107,16 @@ class AddBusinessContactWithDefaultTest(TestCase):
         self.assertEqual(response.status_code, 302)
 
         self.business.refresh_from_db()
-        contact = Contact.objects.get(email='john@test.com')
-        self.assertEqual(self.business.default_contact, contact)
+        new_contact = Contact.objects.get(email='john@test.com')
+        self.assertEqual(self.business.default_contact, new_contact)
 
     def test_add_contact_with_validation_errors(self):
         """Validation errors should not create contact or set default"""
         url = reverse('contacts:add_business_contact', args=[self.business.business_id])
+
+        # Get initial contact count and default
+        initial_count = Contact.objects.count()
+        initial_default = self.business.default_contact
 
         # Try to add contact without required email
         response = self.client.post(url, {
@@ -116,12 +130,12 @@ class AddBusinessContactWithDefaultTest(TestCase):
         # Should stay on the same page with error
         self.assertEqual(response.status_code, 200)
 
-        # No contact should be created
-        self.assertEqual(Contact.objects.count(), 0)
+        # No new contact should be created
+        self.assertEqual(Contact.objects.count(), initial_count)
 
-        # Default should remain None
+        # Default should remain unchanged
         self.business.refresh_from_db()
-        self.assertIsNone(self.business.default_contact)
+        self.assertEqual(self.business.default_contact, initial_default)
 
 
 class SetDefaultContactViewTest(TestCase):
@@ -129,16 +143,24 @@ class SetDefaultContactViewTest(TestCase):
 
     def setUp(self):
         self.client = Client()
-        self.business = Business.objects.create(business_name='Test Business')
 
+        # Create first contact
         self.contact1 = Contact.objects.create(
             first_name='John',
             last_name='Doe',
             email='john@test.com',
-            work_number='555-0001',
-            business=self.business
+            work_number='555-0001'
         )
 
+        # Create business with first contact as default
+        self.business = Business.objects.create(
+            business_name='Test Business',
+            default_contact=self.contact1
+        )
+        self.contact1.business = self.business
+        self.contact1.save()
+
+        # Create second contact
         self.contact2 = Contact.objects.create(
             first_name='Jane',
             last_name='Smith',
@@ -216,16 +238,24 @@ class ContactDetailPageDefaultIndicatorTest(TestCase):
 
     def setUp(self):
         self.client = Client()
-        self.business = Business.objects.create(business_name='Test Business')
 
+        # Create default contact
         self.default_contact = Contact.objects.create(
             first_name='John',
             last_name='Doe',
             email='john@test.com',
-            work_number='555-0001',
-            business=self.business
+            work_number='555-0001'
         )
 
+        # Create business with default contact
+        self.business = Business.objects.create(
+            business_name='Test Business',
+            default_contact=self.default_contact
+        )
+        self.default_contact.business = self.business
+        self.default_contact.save()
+
+        # Create non-default contact
         self.non_default_contact = Contact.objects.create(
             first_name='Jane',
             last_name='Smith',
@@ -286,16 +316,24 @@ class BusinessDetailPageDefaultDisplayTest(TestCase):
 
     def setUp(self):
         self.client = Client()
-        self.business = Business.objects.create(business_name='Test Business')
 
+        # Create default contact
         self.default_contact = Contact.objects.create(
             first_name='John',
             last_name='Doe',
             email='john@test.com',
-            work_number='555-0001',
-            business=self.business
+            work_number='555-0001'
         )
 
+        # Create business with default contact
+        self.business = Business.objects.create(
+            business_name='Test Business',
+            default_contact=self.default_contact
+        )
+        self.default_contact.business = self.business
+        self.default_contact.save()
+
+        # Create other contact
         self.other_contact = Contact.objects.create(
             first_name='Jane',
             last_name='Smith',
@@ -323,13 +361,3 @@ class BusinessDetailPageDefaultDisplayTest(TestCase):
         self.assertEqual(response.status_code, 200)
         # Check for the [DEFAULT] badge in the contact list
         self.assertContains(response, '[DEFAULT]')
-
-    def test_business_with_no_default_shows_none(self):
-        """Business with no default contact should show 'No default contact'"""
-        business_no_default = Business.objects.create(business_name='No Default Business')
-
-        url = reverse('contacts:business_detail', args=[business_no_default.business_id])
-        response = self.client.get(url)
-
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'No default contact')

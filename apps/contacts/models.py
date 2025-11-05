@@ -99,7 +99,7 @@ class Business(models.Model):
     tax_exemption_number = models.CharField(max_length=50, blank=True)
     website = models.URLField(max_length=200, blank=True)
     terms = models.ForeignKey('PaymentTerms', on_delete=models.SET_NULL, null=True, blank=True)
-    default_contact = models.ForeignKey('Contact', on_delete=models.SET_NULL, null=True, blank=True, related_name='default_for_business')
+    default_contact = models.ForeignKey('Contact', on_delete=models.PROTECT, null=False, blank=True, related_name='default_for_business')
 
     def __str__(self):
         return self.business_name
