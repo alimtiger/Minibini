@@ -392,7 +392,8 @@
     "business_phone": "555-7890",
     "tax_exemption_number": "TEX-456789",
     "website": "",
-    "terms": 1
+    "terms": 1,
+    "default_contact": 6
   }
 },
 {
@@ -405,7 +406,8 @@
     "business_phone": "555-1234",
     "tax_exemption_number": "TEX-123456",
     "website": "",
-    "terms": 1
+    "terms": 1,
+    "default_contact": 1
   }
 },
 {
@@ -418,7 +420,8 @@
     "business_phone": "555-3456",
     "tax_exemption_number": "TEX-345678",
     "website": "",
-    "terms": 1
+    "terms": 1,
+    "default_contact": 3
   }
 },
 {
@@ -431,7 +434,8 @@
     "business_phone": "555-5678",
     "tax_exemption_number": "TEX-567890",
     "website": "",
-    "terms": 1
+    "terms": 1,
+    "default_contact": 5
   }
 },
 {
@@ -444,7 +448,8 @@
     "business_phone": "555-9999",
     "tax_exemption_number": "TEX-99999",
     "website": "",
-    "terms": 1
+    "terms": 1,
+    "default_contact": 4
   }
 },
 {
@@ -457,7 +462,8 @@
     "business_phone": "555-7778",
     "tax_exemption_number": "TEX-777888",
     "website": "",
-    "terms": 1
+    "terms": 1,
+    "default_contact": 7
   }
 },
 {

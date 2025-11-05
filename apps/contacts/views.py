@@ -484,6 +484,15 @@ def delete_contact(request, contact_id):
         if business:
             other_contacts = business.contacts.exclude(contact_id=contact_id).order_by('last_name', 'first_name')
 
+        # Prevent deleting the last contact of a business
+        if business and other_contacts.count() == 0:
+            messages.error(
+                request,
+                f'Cannot delete "{contact.name}" because it is the only contact for {business.business_name}. '
+                'A business must have at least one contact. Please add another contact first, or delete the entire business.'
+            )
+            return redirect('contacts:contact_detail', contact_id=contact.contact_id)
+
         # If deleting default contact with multiple other contacts, require selection
         if was_default and other_contacts.count() > 1:
             # Check if user has selected a new default
@@ -509,13 +518,16 @@ def delete_contact(request, contact_id):
                     'other_contacts': other_contacts
                 })
 
-            # Delete the contact and set new default
+            # Set new default FIRST (before deleting), then delete the contact
             contact_name = contact.name
             business_name = business.business_name
-            contact.delete()
 
+            # Change default contact before deletion to avoid PROTECT constraint
             business.default_contact = new_default_contact
             business.save(update_fields=['default_contact'])
+
+            # Now safe to delete the old contact
+            contact.delete()
 
             messages.success(
                 request,
@@ -529,35 +541,25 @@ def delete_contact(request, contact_id):
             business_name = business.business_name
             new_default = other_contacts.first()
 
+            # Set new default FIRST (before deleting) to avoid PROTECT constraint
+            business.default_contact = new_default
+            business.save(update_fields=['default_contact'])
+
+            # Now safe to delete the old contact
             contact.delete()
 
-            business.refresh_from_db()
-            # Business should have auto-assigned the remaining contact as default
             messages.success(
                 request,
                 f'Contact "{contact_name}" has been deleted. "{new_default.name}" is now the default contact for {business_name}.'
             )
             return redirect('contacts:business_detail', business_id=business.business_id)
 
-        # No other contacts or not default contact
+        # Non-business contact (no business association)
         else:
             contact_name = contact.name
-            business_name = business.business_name if business else None
             contact.delete()
-
-            if was_default:
-                messages.success(
-                    request,
-                    f'Contact "{contact_name}" has been deleted. {business_name} no longer has a default contact.'
-                )
-            else:
-                messages.success(request, f'Contact "{contact_name}" has been deleted successfully.')
-
-            # Redirect to business detail if there was a business, otherwise to contact list
-            if business:
-                return redirect('contacts:business_detail', business_id=business.business_id)
-            else:
-                return redirect('contacts:contact_list')
+            messages.success(request, f'Contact "{contact_name}" has been deleted successfully.')
+            return redirect('contacts:contact_list')
 
     # If not POST, redirect back
     return redirect('contacts:contact_detail', contact_id=contact.contact_id)

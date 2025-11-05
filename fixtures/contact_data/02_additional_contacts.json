@@ -9,7 +9,8 @@
     "business_phone": "555-2005",
     "tax_exemption_number": "TEX-100005",
     "website": "",
-    "terms": 2
+    "terms": 2,
+    "default_contact": 7
   }
 },
 {
@@ -22,7 +23,8 @@
     "business_phone": "555-2006",
     "tax_exemption_number": "TEX-100006",
     "website": "",
-    "terms": 1
+    "terms": 1,
+    "default_contact": 8
   }
 },
 {
@@ -35,7 +37,8 @@
     "business_phone": "555-2007",
     "tax_exemption_number": "TEX-100007",
     "website": "",
-    "terms": 1
+    "terms": 1,
+    "default_contact": 9
   }
 },
 {

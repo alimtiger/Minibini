@@ -56,18 +56,18 @@ class Contact(models.Model):
 
         super().save(*args, **kwargs)
 
-        # Update default contact for affected businesses
+        # Validate and fix default contact for affected businesses
         if self.business:
-            self.business.update_default_contact()
+            self.business.validate_and_fix_default_contact()
         if old_business and old_business != self.business:
-            old_business.update_default_contact()
+            old_business.validate_and_fix_default_contact()
 
     def delete(self, *args, **kwargs):
         """Override delete to update business default contact"""
         business = self.business
         super().delete(*args, **kwargs)
         if business:
-            business.update_default_contact()
+            business.validate_and_fix_default_contact()
 
     def phone(self):
         # Return highest priority phone number: work > mobile > home
@@ -123,6 +123,32 @@ class Business(models.Model):
                 self.our_reference_code = f"BUS-{next_id:04d}"
 
         super().save(*args, **kwargs)
+
+    def validate_and_fix_default_contact(self):
+        """
+        Validate that the default contact exists in the business's contacts.
+        If not, set it to the contact with the lowest primary key.
+
+        This ensures data integrity when:
+        - A default contact is moved to another business
+        - A default contact becomes invalid
+        - Data integrity issues occur
+        """
+        contacts = self.contacts.all()
+
+        # If there are no contacts, we cannot fix this (business requires a default contact)
+        if not contacts.exists():
+            return
+
+        # Check if current default contact is in the business's contacts
+        if self.default_contact and self.default_contact in contacts:
+            # Default contact is valid, do nothing
+            return
+
+        # Default contact is invalid or missing, set to contact with lowest primary key
+        lowest_pk_contact = contacts.order_by('contact_id').first()
+        self.default_contact = lowest_pk_contact
+        self.save(update_fields=['default_contact'])
 
     def update_default_contact(self):
         """Update default contact based on business rules"""
