@@ -253,7 +253,8 @@
   "model": "contacts.contact",
   "pk": 1,
   "fields": {
-    "name": "Jane Doe",
+    "first_name": "Jane",
+    "last_name": "Doe",
     "email": "jane.doe@abcconstruction.com",
     "addr1": "123 Main St",
     "addr2": "",
@@ -272,7 +273,8 @@
   "model": "contacts.contact",
   "pk": 2,
   "fields": {
-    "name": "John Smith",
+    "first_name": "John",
+    "last_name": "Smith",
     "email": "john.smith@email.com",
     "addr1": "456 Oak Ave",
     "addr2": "",
@@ -291,7 +293,9 @@
   "model": "contacts.contact",
   "pk": 3,
   "fields": {
-    "name": "John Q Public",
+    "first_name": "John",
+    "middle_initial": "Q",
+    "last_name": "Public",
     "email": "facilities@metrooffice.com",
     "addr1": "789 Corporate Blvd",
     "addr2": "",
@@ -310,7 +314,8 @@
   "model": "contacts.contact",
   "pk": 4,
   "fields": {
-    "name": "Laura Ingalls",
+    "first_name": "Laura",
+    "last_name": "Ingalls",
     "email": "info@greenvalley.com",
     "addr1": "321 Valley Road",
     "addr2": "",
@@ -329,7 +334,8 @@
   "model": "contacts.contact",
   "pk": 5,
   "fields": {
-    "name": "Frank Gehry",
+    "first_name": "Frank",
+    "last_name": "Gehry",
     "email": "projects@industrialsolutions.com",
     "addr1": "654 Industrial Pkwy",
     "addr2": "",
@@ -348,7 +354,8 @@
   "model": "contacts.contact",
   "pk": 6,
   "fields": {
-    "name": "Piper Laurie",
+    "first_name": "Piper",
+    "last_name": "Laurie",
     "email": "orders@housingsupply.com",
     "addr1": "888 Supply Drive",
     "addr2": "",
@@ -367,7 +374,8 @@
   "model": "contacts.contact",
   "pk": 7,
   "fields": {
-    "name": "Joe Mamma",
+    "first_name": "Joe",
+    "last_name": "Mama",
     "email": "joe@joespizzeria.com",
     "addr1": "456 Pizza Avenue",
     "addr2": "",

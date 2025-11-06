@@ -64,7 +64,40 @@
         <!-- Main Content Area -->
         <main style="flex: 1; min-width: 0;">
             <p class="no-highlight"><strong>Search query:</strong> "{{ query }}"</p>
+            {% if is_within_results and within_query %}
+            <p class="no-highlight"><strong>Searching within results for:</strong> "{{ within_query }}"</p>
+            {% endif %}
             <p class="no-highlight"><strong>Total results:</strong> {{ total_count }}</p>
+
+            {% if has_stored_results and not is_within_results %}
+            <!-- Search Within Results Box -->
+            <div style="background-color: #e8f4f8; border: 2px solid #17a2b8; border-radius: 5px; padding: 15px; margin: 15px 0;">
+                <h4 style="margin-top: 0; color: #17a2b8;">🔍 Search Within These Results</h4>
+                <p style="margin-bottom: 10px;">Narrow down your search by finding specific items within the current results:</p>
+                <form method="get" action="{% url 'search:search_within' %}" style="display: flex; gap: 10px; align-items: center;">
+                    <input type="text" name="within_q" placeholder="Enter search term (name, date, number, etc.)"
+                           style="flex: 1; padding: 8px 12px; border: 1px solid #17a2b8; border-radius: 3px; font-size: 14px;">
+                    <button type="submit" style="padding: 8px 20px; background-color: #17a2b8; color: white; border: none; border-radius: 3px; cursor: pointer; font-weight: bold; white-space: nowrap;">
+                        Search Within
+                    </button>
+                </form>
+                <p style="margin-top: 10px; margin-bottom: 0; font-size: 13px; color: #666;">
+                    <em>Tip: You can search for names, dates, job numbers, or any other details within your current {{ total_count }} results.</em>
+                </p>
+            </div>
+            {% endif %}
+
+            {% if is_within_results %}
+            <!-- Return to Original Results -->
+            <div style="background-color: #fff3cd; border: 2px solid #ffc107; border-radius: 5px; padding: 12px; margin: 15px 0;">
+                <p style="margin: 0;">
+                    <strong>⚠️ Showing filtered results within your original search.</strong>
+                    <a href="{% url 'search:search' %}?q={{ query }}" style="margin-left: 15px; padding: 6px 12px; background-color: #ffc107; color: #000; text-decoration: none; border-radius: 3px; display: inline-block; font-weight: bold;">
+                        Return to All Results
+                    </a>
+                </p>
+            </div>
+            {% endif %}
 
     {% if total_count == 0 %}
         <p>No results found for "{{ query }}" with the current filters.</p>
@@ -234,11 +267,11 @@
 
 <p><a href="{% url 'home' %}">Back to Home</a></p>
 
-{% if query %}
+{% if query or within_query %}
 <script>
 (function() {
-    // Get the search query
-    const searchQuery = "{{ query|escapejs }}";
+    // Get the search query (use within_query if in search-within mode, otherwise use main query)
+    const searchQuery = "{{ within_query|default:query|escapejs }}";
 
     if (!searchQuery) return;
 

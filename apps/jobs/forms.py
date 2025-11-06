@@ -5,18 +5,39 @@ from .models import (
     WorkOrderTemplate, TaskTemplate, TaskMapping,
     EstWorksheet, Task, Estimate, EstimateLineItem, Job
 )
-from apps.contacts.models import Contact
+from apps.contacts.models import Contact, Business
 from apps.core.services import NumberGenerationService
 
 
 class JobCreateForm(forms.ModelForm):
     """Form for creating a new Job"""
+    SELECTION_TYPE_CHOICES = [
+        ('contact', 'Select Contact'),
+        ('business', 'Select Business'),
+    ]
+
+    selection_type = forms.ChoiceField(
+        choices=SELECTION_TYPE_CHOICES,
+        initial='contact',
+        widget=forms.RadioSelect(attrs={'class': 'form-check-input'}),
+        label='Select by'
+    )
+
     contact = forms.ModelChoiceField(
         queryset=Contact.objects.all().select_related('business'),
-        required=True,
+        required=False,
         widget=forms.Select(attrs={'class': 'form-control'}),
         empty_label="-- Select Contact --"
     )
+
+    business = forms.ModelChoiceField(
+        queryset=Business.objects.all().select_related('default_contact'),
+        required=False,
+        widget=forms.Select(attrs={'class': 'form-control'}),
+        empty_label="-- Select Business --",
+        label='Business'
+    )
+
     due_date = forms.DateField(
         required=False,
         widget=forms.DateInput(attrs={
@@ -27,13 +48,13 @@ class JobCreateForm(forms.ModelForm):
 
     class Meta:
         model = Job
-        fields = ['contact', 'customer_po_number', 'description', 'due_date']
+        fields = ['customer_po_number', 'description', 'due_date']
         widgets = {
             'customer_po_number': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Optional'}),
             'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 4}),
         }
         help_texts = {
-            'contact': 'Job number will be assigned automatically on save.',
+            'description': 'Job number will be assigned automatically on save.',
         }
 
     def __init__(self, *args, **kwargs):
@@ -43,9 +64,13 @@ class JobCreateForm(forms.ModelForm):
         # Customize contact field display to include business name
         self.fields['contact'].label_from_instance = self.label_from_instance_with_business
 
+        # Customize business field display
+        self.fields['business'].label_from_instance = self.label_from_instance_business
+
         # Pre-select contact if provided
         if initial_contact:
             self.fields['contact'].initial = initial_contact
+            self.fields['selection_type'].initial = 'contact'
 
     def label_from_instance_with_business(self, contact):
         """Custom label for contact dropdown to include business name"""
@@ -53,9 +78,42 @@ class JobCreateForm(forms.ModelForm):
             return f"{contact.name} ({contact.business.business_name})"
         return contact.name
 
+    def label_from_instance_business(self, business):
+        """Custom label for business dropdown to include default contact"""
+        if business.default_contact:
+            return f"{business.business_name} (Default: {business.default_contact.name})"
+        return business.business_name
+
+    def clean(self):
+        """Validate that either contact or business is selected, and set contact from business if needed"""
+        cleaned_data = super().clean()
+        selection_type = cleaned_data.get('selection_type')
+        contact = cleaned_data.get('contact')
+        business = cleaned_data.get('business')
+
+        if selection_type == 'contact':
+            if not contact:
+                raise ValidationError({'contact': 'Please select a contact.'})
+            # Contact is directly selected, use it as-is
+
+        elif selection_type == 'business':
+            if not business:
+                raise ValidationError({'business': 'Please select a business.'})
+            # Set contact to business's default contact
+            if not business.default_contact:
+                raise ValidationError({
+                    'business': f'Business "{business.business_name}" does not have a default contact set.'
+                })
+            cleaned_data['contact'] = business.default_contact
+
+        return cleaned_data
+
     def save(self, commit=True):
         """Override save to generate job number using NumberGenerationService"""
         instance = super().save(commit=False)
+
+        # Set the contact from cleaned_data (may have been set from business)
+        instance.contact = self.cleaned_data['contact']
 
         # Generate the actual job number (increments counter)
         instance.job_number = NumberGenerationService.generate_next_number('job')

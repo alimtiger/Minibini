@@ -9,12 +9,90 @@
 <p>Creating job for: <strong>{{ initial_contact.name }}</strong></p>
 {% endif %}
 
-<form method="post">
+<form method="post" id="job-create-form">
     {% csrf_token %}
-    <table>
-        {{ form.as_table }}
-    </table>
+
+    <div class="form-group">
+        <label>{{ form.selection_type.label }}</label>
+        {{ form.selection_type }}
+        {% if form.selection_type.errors %}
+            <div class="error">{{ form.selection_type.errors }}</div>
+        {% endif %}
+    </div>
+
+    <div class="form-group" id="contact-field" style="display: none;">
+        <label for="{{ form.contact.id_for_label }}">{{ form.contact.label }}</label>
+        {{ form.contact }}
+        {% if form.contact.errors %}
+            <div class="error">{{ form.contact.errors }}</div>
+        {% endif %}
+    </div>
+
+    <div class="form-group" id="business-field" style="display: none;">
+        <label for="{{ form.business.id_for_label }}">{{ form.business.label }}</label>
+        {{ form.business }}
+        {% if form.business.errors %}
+            <div class="error">{{ form.business.errors }}</div>
+        {% endif %}
+        <small class="form-text">The job will use this business's default contact.</small>
+    </div>
+
+    <div class="form-group">
+        <label for="{{ form.customer_po_number.id_for_label }}">{{ form.customer_po_number.label }}</label>
+        {{ form.customer_po_number }}
+        {% if form.customer_po_number.errors %}
+            <div class="error">{{ form.customer_po_number.errors }}</div>
+        {% endif %}
+    </div>
+
+    <div class="form-group">
+        <label for="{{ form.description.id_for_label }}">{{ form.description.label }}</label>
+        {{ form.description }}
+        {% if form.description.errors %}
+            <div class="error">{{ form.description.errors }}</div>
+        {% endif %}
+        {% if form.description.help_text %}
+            <small class="form-text">{{ form.description.help_text }}</small>
+        {% endif %}
+    </div>
+
+    <div class="form-group">
+        <label for="{{ form.due_date.id_for_label }}">{{ form.due_date.label }}</label>
+        {{ form.due_date }}
+        {% if form.due_date.errors %}
+            <div class="error">{{ form.due_date.errors }}</div>
+        {% endif %}
+    </div>
+
     <button type="submit">Create Job</button>
     <a href="{% url 'jobs:list' %}" class="btn-secondary">Cancel</a>
 </form>
+
+<script>
+    // Show/hide contact or business fields based on selection type
+    document.addEventListener('DOMContentLoaded', function() {
+        const contactRadio = document.querySelector('input[name="selection_type"][value="contact"]');
+        const businessRadio = document.querySelector('input[name="selection_type"][value="business"]');
+        const contactField = document.getElementById('contact-field');
+        const businessField = document.getElementById('business-field');
+
+        function updateFieldVisibility() {
+            if (contactRadio.checked) {
+                contactField.style.display = 'block';
+                businessField.style.display = 'none';
+            } else if (businessRadio.checked) {
+                contactField.style.display = 'none';
+                businessField.style.display = 'block';
+            }
+        }
+
+        // Set initial state
+        updateFieldVisibility();
+
+        // Listen for changes
+        contactRadio.addEventListener('change', updateFieldVisibility);
+        businessRadio.addEventListener('change', updateFieldVisibility);
+    });
+</script>
+
 {% endblock %}
