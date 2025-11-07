@@ -1,13 +1,13 @@
 from django.test import TestCase
 from django.core.exceptions import ValidationError
 from apps.contacts.models import Contact, Business, PaymentTerms
-from .base import FixtureTestCase
 
 
-class ContactModelFixtureTest(FixtureTestCase):
+class ContactModelFixtureTest(TestCase):
     """
-    Test Contact model using fixture data loaded from unit_test_data.json
+    Test Contact model using fixture data
     """
+    fixtures = ['core_base_data.json', 'contacts_base_data.json', 'jobs_basic_data.json']
 
     def test_contacts_exist_from_fixture(self):
         """Test that contacts from fixture data exist and have correct properties"""
@@ -59,10 +59,11 @@ class ContactModelFixtureTest(FixtureTestCase):
         self.assertEqual(Contact.objects.count(), 5)  # 4 from fixture + 1 new
 
 
-class PaymentTermsModelFixtureTest(FixtureTestCase):
+class PaymentTermsModelFixtureTest(TestCase):
     """
     Test PaymentTerms model using fixture data
     """
+    fixtures = ['core_base_data.json', 'contacts_base_data.json']
 
     def test_payment_terms_exist_from_fixture(self):
         """Test that payment terms from fixture exist"""
@@ -88,10 +89,11 @@ class PaymentTermsModelFixtureTest(FixtureTestCase):
         self.assertEqual(PaymentTerms.objects.count(), 3)  # 2 from fixture + 1 new
 
 
-class BusinessModelFixtureTest(FixtureTestCase):
+class BusinessModelFixtureTest(TestCase):
     """
     Test Business model using fixture data
     """
+    fixtures = ['core_base_data.json', 'contacts_base_data.json']
 
     def test_businesses_exist_from_fixture(self):
         """Test that businesses from fixture data exist and have correct properties"""

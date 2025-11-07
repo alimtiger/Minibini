@@ -3,7 +3,7 @@
 {% block title %}Purchase Order {{ purchase_order.po_number }} - Minibini{% endblock %}
 
 {% block content %}
-<h2>Purchase Order: {{ purchase_order.po_number }}</h2>
+<h2>Purchase Order: {{ purchase_order.po_number }} - <strong>{{ purchase_order.get_status_display }}</strong></h2>
 
 <table border="1">
     <tr>
@@ -13,6 +13,22 @@
     <tr>
         <td>PO Number</td>
         <td>{{ purchase_order.po_number }}</td>
+    </tr>
+    <tr>
+        <td>Status</td>
+        <td>
+            {% include 'includes/_inline_status_form.html' with object=purchase_order %}
+        </td>
+    </tr>
+    <tr>
+        <td>Business</td>
+        <td>
+            {% if purchase_order.business %}
+                {{ purchase_order.business.business_name }}
+            {% else %}
+                No business assigned
+            {% endif %}
+        </td>
     </tr>
     <tr>
         <td>Job</td>
@@ -25,56 +41,59 @@
         </td>
     </tr>
     <tr>
-        <td>Price List Item</td>
-        <td>{{ purchase_order.price_list_item|default:"No price list item" }}</td>
+        <td>Created Date</td>
+        <td>{{ purchase_order.created_date|date:"Y-m-d H:i" }}</td>
     </tr>
+    <tr>
+        <td>Requested Date</td>
+        <td>
+            {% if purchase_order.requested_date %}
+                {{ purchase_order.requested_date|date:"Y-m-d" }}
+            {% else %}
+                Not specified
+            {% endif %}
+        </td>
+    </tr>
+    {% if purchase_order.issued_date %}
+    <tr>
+        <td>Issued Date</td>
+        <td>{{ purchase_order.issued_date|date:"Y-m-d H:i" }}</td>
+    </tr>
+    {% endif %}
+    {% if purchase_order.received_date %}
+    <tr>
+        <td>Received Date</td>
+        <td>{{ purchase_order.received_date|date:"Y-m-d H:i" }}</td>
+    </tr>
+    {% endif %}
+    {% if purchase_order.cancel_date %}
+    <tr>
+        <td>Cancel Date</td>
+        <td>{{ purchase_order.cancel_date|date:"Y-m-d H:i" }}</td>
+    </tr>
+    {% endif %}
 </table>
 
+<p>
+    {% if purchase_order.status != 'cancelled' %}
+        <a href="{% url 'purchasing:purchase_order_edit' purchase_order.po_id %}">Edit PO</a>
+    {% endif %}
+    {% if purchase_order.status == 'draft' %}
+        | <a href="{% url 'purchasing:purchase_order_delete' purchase_order.po_id %}">Delete PO</a>
+    {% endif %}
+    {% if purchase_order.status == 'issued' %}
+        | <a href="{% url 'purchasing:purchase_order_cancel' purchase_order.po_id %}">Cancel PO</a>
+    {% endif %}
+    {% if purchase_order.status != 'draft' and purchase_order.status != 'cancelled' %}
+        | <a href="{% url 'purchasing:bill_create_for_po' purchase_order.po_id %}">Add Bill</a>
+    {% endif %}
+</p>
+
 <h3>Line Items</h3>
-{% if line_items %}
-    <table border="1" style="border-collapse: collapse; width: 100%; margin-top: 10px;">
-        <thead>
-            <tr>
-                <th>Item #</th>
-                <th>Description</th>
-                <th>Task/Price List Item</th>
-                <th>Quantity</th>
-                <th>Unit</th>
-                <th>Price</th>
-                <th>Total</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for item in line_items %}
-            <tr>
-                <td>{{ item.line_number|default:item.line_item_id }}</td>
-                <td>{{ item.description|default:"No description" }}</td>
-                <td>
-                    {% if item.task %}
-                        Task: {{ item.task.name }}
-                    {% elif item.price_list_item %}
-                        {{ item.price_list_item.code }} - {{ item.price_list_item.description|truncatewords:5 }}
-                    {% else %}
-                        No source
-                    {% endif %}
-                </td>
-                <td>{{ item.qty }}</td>
-                <td>{{ item.units|default:"—" }}</td>
-                <td>${{ item.price_currency|floatformat:2 }}</td>
-                <td>${{ item.total_amount|floatformat:2 }}</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-        <tfoot>
-            <tr style="background-color: #f0f0f0; font-weight: bold;">
-                <td colspan="6">Total Purchase Order Amount:</td>
-                <td>${{ total_amount|floatformat:2 }}</td>
-            </tr>
-        </tfoot>
-    </table>
-{% else %}
-    <p>No line items found for this purchase order.</p>
+{% if purchase_order.status != 'cancelled' %}
+    <p><a href="{% url 'purchasing:purchase_order_add_line_item' purchase_order.po_id %}">Add Line Item</a></p>
 {% endif %}
+{% include 'includes/_line_items_table.html' with total_label="Total Purchase Order Amount" %}
 
 <h3>Associated Bills</h3>
 {% if bills %}

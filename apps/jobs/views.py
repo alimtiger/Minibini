@@ -13,6 +13,44 @@ from .forms import (
 from apps.purchasing.models import PurchaseOrder
 from apps.invoicing.models import Invoice
 
+
+def _build_task_hierarchy(tasks):
+    """Build a hierarchical task structure with level indicators."""
+    task_dict = {task.task_id: task for task in tasks}
+    root_tasks = []
+
+    # Find root tasks (no parent)
+    for task in tasks:
+        if not task.parent_task:
+            root_tasks.append(task)
+
+    # Recursive function to get task with its children and level
+    def get_task_with_children(task, level=0):
+        result = {'task': task, 'level': level}
+        children = []
+        for potential_child in tasks:
+            if potential_child.parent_task_id == task.task_id:
+                children.append(get_task_with_children(potential_child, level + 1))
+        result['children'] = children
+        return result
+
+    # Build the tree
+    tree = []
+    for root_task in root_tasks:
+        tree.append(get_task_with_children(root_task))
+
+    # Flatten the tree for template display
+    def flatten_tree(tree_nodes):
+        flat_list = []
+        for node in tree_nodes:
+            flat_list.append({'task': node['task'], 'level': node['level']})
+            if node['children']:
+                flat_list.extend(flatten_tree(node['children']))
+        return flat_list
+
+    return flatten_tree(tree)
+
+
 def job_list(request):
     jobs = Job.objects.all().order_by('-created_date')
     return render(request, 'jobs/job_list.html', {'jobs': jobs})
@@ -30,13 +68,20 @@ def job_detail(request, job_id):
     current_estimate_line_items = []
     current_estimate_total = 0
     if current_estimate:
-        current_estimate_line_items = EstimateLineItem.objects.filter(estimate=current_estimate).order_by('line_item_id')
+        current_estimate_line_items = EstimateLineItem.objects.filter(estimate=current_estimate).order_by('line_number', 'line_item_id')
         current_estimate_total = sum(item.total_amount for item in current_estimate_line_items)
 
     work_orders = WorkOrder.objects.filter(job=job).order_by('-work_order_id')
     worksheets = EstWorksheet.objects.filter(job=job).order_by('-created_date')
     purchase_orders = PurchaseOrder.objects.filter(job=job).order_by('-po_id')
     invoices = Invoice.objects.filter(job=job).order_by('-invoice_id')
+
+    # Get current work order (most recent non-complete)
+    current_work_order = work_orders.exclude(status='complete').first()
+    current_work_order_tasks = []
+    if current_work_order:
+        all_tasks = Task.objects.filter(work_order=current_work_order).order_by('task_id')
+        current_work_order_tasks = _build_task_hierarchy(all_tasks)
 
     return render(request, 'jobs/job_detail.html', {
         'job': job,
@@ -45,6 +90,8 @@ def job_detail(request, job_id):
         'current_estimate_total': current_estimate_total,
         'superseded_estimates': superseded_estimates,
         'work_orders': work_orders,
+        'current_work_order': current_work_order,
+        'current_work_order_tasks': current_work_order_tasks,
         'worksheets': worksheets,
         'purchase_orders': purchase_orders,
         'invoices': invoices
@@ -148,7 +195,7 @@ def estimate_detail(request, estimate_id):
             return redirect('jobs:estimate_detail', estimate_id=estimate.estimate_id)
 
     # Get line items and calculate total
-    line_items = EstimateLineItem.objects.filter(estimate=estimate).order_by('line_item_id')
+    line_items = EstimateLineItem.objects.filter(estimate=estimate).order_by('line_number', 'line_item_id')
     total_amount = sum(item.total_amount for item in line_items)
 
     # Check for associated worksheet
@@ -205,45 +252,7 @@ def work_order_detail(request, work_order_id):
 
     # Get all tasks for this work order
     all_tasks = Task.objects.filter(work_order=work_order).order_by('task_id')
-
-    # Build hierarchical task structure
-    def build_task_tree(tasks):
-        """Build a hierarchical task structure with level indicators."""
-        task_dict = {task.task_id: task for task in tasks}
-        root_tasks = []
-
-        # Find root tasks (no parent)
-        for task in tasks:
-            if not task.parent_task:
-                root_tasks.append(task)
-
-        # Recursive function to get task with its children and level
-        def get_task_with_children(task, level=0):
-            result = {'task': task, 'level': level}
-            children = []
-            for potential_child in tasks:
-                if potential_child.parent_task_id == task.task_id:
-                    children.append(get_task_with_children(potential_child, level + 1))
-            result['children'] = children
-            return result
-
-        # Build the tree
-        tree = []
-        for root_task in root_tasks:
-            tree.append(get_task_with_children(root_task))
-
-        # Flatten the tree for template display
-        def flatten_tree(tree_nodes):
-            flat_list = []
-            for node in tree_nodes:
-                flat_list.append({'task': node['task'], 'level': node['level']})
-                if node['children']:
-                    flat_list.extend(flatten_tree(node['children']))
-            return flat_list
-
-        return flatten_tree(tree)
-
-    tasks_with_levels = build_task_tree(all_tasks)
+    tasks_with_levels = _build_task_hierarchy(all_tasks)
 
     # Create status form for display (unless completed)
     status_form = WorkOrderStatusForm(current_status=work_order.status) if work_order.status != 'complete' else None
@@ -342,7 +351,7 @@ def work_order_template_list(request):
 
 def work_order_template_detail(request, template_id):
     template = get_object_or_404(WorkOrderTemplate, template_id=template_id)
-    
+
     # Handle TaskTemplate association
     if request.method == 'POST' and 'associate_task' in request.POST:
         task_template_id = request.POST.get('task_template_id')
@@ -367,7 +376,7 @@ def work_order_template_detail(request, template_id):
             else:
                 messages.warning(request, f'Task Template "{task_template.template_name}" is already associated.')
         return redirect('jobs:work_order_template_detail', template_id=template_id)
-    
+
     # Handle TaskTemplate disassociation
     if request.method == 'POST' and 'remove_task' in request.POST:
         task_template_id = request.POST.get('task_template_id')
@@ -380,18 +389,18 @@ def work_order_template_detail(request, template_id):
             ).delete()
             messages.success(request, f'Task Template "{task_template.template_name}" removed successfully.')
         return redirect('jobs:work_order_template_detail', template_id=template_id)
-    
+
     # Get task template associations
     from .models import TemplateTaskAssociation
     associations = TemplateTaskAssociation.objects.filter(
         work_order_template=template,
         task_template__is_active=True
     ).select_related('task_template').order_by('sort_order', 'task_template__template_name')
-    
+
     # Get available task templates (not yet associated)
     associated_task_ids = associations.values_list('task_template_id', flat=True)
     available_templates = TaskTemplate.objects.filter(is_active=True).exclude(template_id__in=associated_task_ids)
-    
+
     return render(request, 'jobs/work_order_template_detail.html', {
         'template': template,
         'associations': associations,
@@ -447,17 +456,17 @@ def estworksheet_generate_estimate(request, worksheet_id):
 
             messages.success(request, f'Estimate {estimate.estimate_number} generated successfully!')
             return redirect('jobs:estimate_detail', estimate_id=estimate.estimate_id)
-            
+
         except Exception as e:
             messages.error(request, f'Error generating estimate: {str(e)}')
             return redirect('jobs:estworksheet_detail', worksheet_id=worksheet_id)
-    
+
     # Show confirmation page
     tasks = Task.objects.filter(est_worksheet=worksheet).select_related(
         'template', 'template__task_mapping'
     )
     total_cost = sum(task.rate * task.est_qty for task in tasks if task.rate and task.est_qty)
-    
+
     return render(request, 'jobs/estworksheet_generate_estimate.html', {
         'worksheet': worksheet,
         'tasks': tasks,
@@ -765,7 +774,7 @@ def estimate_add_line_item(request, estimate_id):
                     description=price_list_item.description,
                     qty=qty,
                     units=price_list_item.units,
-                    price_currency=price_list_item.selling_price
+                    price=price_list_item.selling_price
                 )
 
                 messages.success(request, f'Line item "{line_item.description}" added from price list')
@@ -871,7 +880,7 @@ def estimate_revise(request, estimate_id):
                     qty=line_item.qty,
                     units=line_item.units,
                     description=line_item.description,
-                    price_currency=line_item.price_currency
+                    price=line_item.price
                 )
 
             # Mark parent as superseded

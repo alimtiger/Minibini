@@ -115,9 +115,14 @@ class InvoiceLineItemModelTest(TestCase):
         )
         self.purchase_order = PurchaseOrder.objects.create(
             job=self.job,
-            po_number="PO001"
+            po_number="PO001",
+            status='draft'
         )
+        self.purchase_order.status = 'issued'
+        self.purchase_order.save()
+
         self.bill = Bill.objects.create(
+            bill_number="BILL-INV-001",
             purchase_order=self.purchase_order,
             contact=self.contact,
             vendor_invoice_number="VIN001"
@@ -135,7 +140,7 @@ class InvoiceLineItemModelTest(TestCase):
             qty=Decimal('5.00'),
             units="hours",
             description="Test line item",
-            price_currency=Decimal('50.00')
+            price=Decimal('50.00')
         )
         self.assertEqual(line_item.invoice, self.invoice)
         self.assertEqual(line_item.task, self.task)
@@ -144,7 +149,7 @@ class InvoiceLineItemModelTest(TestCase):
         self.assertEqual(line_item.qty, Decimal('5.00'))
         self.assertEqual(line_item.units, "hours")
         self.assertEqual(line_item.description, "Test line item")
-        self.assertEqual(line_item.price_currency, Decimal('50.00'))
+        self.assertEqual(line_item.price, Decimal('50.00'))
         
     def test_invoice_line_item_str_method(self):
         line_item = InvoiceLineItem.objects.create(invoice=self.invoice, task=self.task)
@@ -153,7 +158,7 @@ class InvoiceLineItemModelTest(TestCase):
     def test_invoice_line_item_defaults(self):
         line_item = InvoiceLineItem.objects.create(invoice=self.invoice, task=self.task)
         self.assertEqual(line_item.qty, Decimal('0.00'))
-        self.assertEqual(line_item.price_currency, Decimal('0.00'))
+        self.assertEqual(line_item.price, Decimal('0.00'))
         
     def test_invoice_line_item_optional_relationships(self):
         line_item = InvoiceLineItem.objects.create(

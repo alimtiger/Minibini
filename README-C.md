@@ -131,7 +131,7 @@ When adding a new configuration setting:
 
 #### BaseLineItem (Abstract)
 - Abstract base class for all line item types
-- Provides shared fields: task, price_list_item, line_number, qty, units, description, price_currency
+- Provides shared fields: task, price_list_item, line_number, qty, units, description, price
 - Validates that items can't have both task AND price_list_item
 - Auto-generates line numbers if not provided
 - Implements total_amount calculation

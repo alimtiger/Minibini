@@ -27,8 +27,9 @@ class JobCreateForm(forms.ModelForm):
 
     class Meta:
         model = Job
-        fields = ['contact', 'customer_po_number', 'description', 'due_date']
+        fields = ['contact', 'name', 'customer_po_number', 'description', 'due_date']
         widgets = {
+            'name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Job name'}),
             'customer_po_number': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Optional'}),
             'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 4}),
         }
@@ -222,19 +223,37 @@ class TaskFromTemplateForm(forms.Form):
         widget=forms.NumberInput(attrs={'step': '0.01'})
     )
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Customize the display of task templates to show more information
+        self.fields['template'].label_from_instance = self._template_label
+
+    @staticmethod
+    def _template_label(obj):
+        """Custom label showing template name, rate, and units"""
+        parts = [obj.template_name]
+
+        if obj.rate:
+            parts.append(f"${obj.rate}")
+
+        if obj.units:
+            parts.append(f"{obj.units}")
+
+        return " - ".join(parts)
+
 
 class ManualLineItemForm(forms.ModelForm):
     """Form for creating a manual line item (not linked to a Price List Item)"""
     class Meta:
         model = EstimateLineItem
-        fields = ['description', 'qty', 'units', 'price_currency']
+        fields = ['description', 'qty', 'units', 'price']
         widgets = {
             'qty': forms.NumberInput(attrs={'step': '0.01'}),
-            'price_currency': forms.NumberInput(attrs={'step': '0.01'}),
+            'price': forms.NumberInput(attrs={'step': '0.01'}),
             'description': forms.Textarea(attrs={'rows': 3}),
         }
         labels = {
-            'price_currency': 'Price',
+            'price': 'Price',
         }
 
 
