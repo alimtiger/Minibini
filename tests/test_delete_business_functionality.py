@@ -10,17 +10,22 @@ class BusinessDeletionValidationTest(TestCase):
 
     def setUp(self):
         self.client = Client()
-        self.business = Business.objects.create(
-            business_name='Test Business',
-            our_reference_code='TEST001'
-        )
+        # Create contact first for default_contact
         self.contact = Contact.objects.create(
             first_name='John',
             last_name='Doe',
             email='john@test.com',
-            work_number='555-0001',
-            business=self.business
+            work_number='555-0001'
         )
+        # Create business with default_contact
+        self.business = Business.objects.create(
+            business_name='Test Business',
+            our_reference_code='TEST001',
+            default_contact=self.contact
+        )
+        # Link contact to business
+        self.contact.business = self.business
+        self.contact.save()
 
     def test_cannot_delete_business_when_contact_has_job(self):
         """Cannot delete business if any contact has associated Jobs"""
@@ -110,10 +115,20 @@ class BusinessDeletionConfirmationFormTest(TestCase):
 
     def setUp(self):
         self.client = Client()
+        # Create initial contact for default_contact
+        initial_contact = Contact.objects.create(
+            first_name='Initial',
+            last_name='Contact',
+            email='initial@test.com',
+            work_number='555-0000'
+        )
         self.business = Business.objects.create(
             business_name='Test Business',
-            our_reference_code='TEST001'
+            our_reference_code='TEST001',
+            default_contact=initial_contact
         )
+        initial_contact.business = self.business
+        initial_contact.save()
 
     def test_confirmation_form_shown_when_business_has_contacts(self):
         """Confirmation form should be shown on first POST when business has contacts"""
@@ -192,17 +207,20 @@ class BusinessDeletionUnlinkActionTest(TestCase):
 
     def setUp(self):
         self.client = Client()
-        self.business = Business.objects.create(
-            business_name='Test Business',
-            our_reference_code='TEST001'
-        )
+        # Create contact first for default_contact
         self.contact1 = Contact.objects.create(
             first_name='John',
             last_name='Doe',
             email='john@test.com',
-            work_number='555-0001',
-            business=self.business
+            work_number='555-0001'
         )
+        self.business = Business.objects.create(
+            business_name='Test Business',
+            our_reference_code='TEST001',
+            default_contact=self.contact1
+        )
+        self.contact1.business = self.business
+        self.contact1.save()
         self.contact2 = Contact.objects.create(
             first_name='Jane',
             last_name='Smith',
@@ -252,17 +270,20 @@ class BusinessDeletionDeleteActionTest(TestCase):
 
     def setUp(self):
         self.client = Client()
-        self.business = Business.objects.create(
-            business_name='Test Business',
-            our_reference_code='TEST001'
-        )
+        # Create contact first for default_contact
         self.contact1 = Contact.objects.create(
             first_name='John',
             last_name='Doe',
             email='john@test.com',
-            work_number='555-0001',
-            business=self.business
+            work_number='555-0001'
         )
+        self.business = Business.objects.create(
+            business_name='Test Business',
+            our_reference_code='TEST001',
+            default_contact=self.contact1
+        )
+        self.contact1.business = self.business
+        self.contact1.save()
         self.contact2 = Contact.objects.create(
             first_name='Jane',
             last_name='Smith',
@@ -306,17 +327,20 @@ class BusinessDeletionMissingActionTest(TestCase):
 
     def setUp(self):
         self.client = Client()
-        self.business = Business.objects.create(
-            business_name='Test Business',
-            our_reference_code='TEST001'
-        )
-        Contact.objects.create(
+        # Create contact first for default_contact
+        contact = Contact.objects.create(
             first_name='John',
             last_name='Doe',
             email='john@test.com',
-            work_number='555-0001',
-            business=self.business
+            work_number='555-0001'
         )
+        self.business = Business.objects.create(
+            business_name='Test Business',
+            our_reference_code='TEST001',
+            default_contact=contact
+        )
+        contact.business = self.business
+        contact.save()
 
     def test_missing_action_shows_confirmation_form(self):
         """Missing contact_action should show confirmation form, not process deletion"""
@@ -336,10 +360,20 @@ class BusinessDetailPageDeleteButtonTest(TestCase):
 
     def setUp(self):
         self.client = Client()
+        # Create initial contact for default_contact
+        initial_contact = Contact.objects.create(
+            first_name='Initial',
+            last_name='Contact',
+            email='initial@test.com',
+            work_number='555-0000'
+        )
         self.business = Business.objects.create(
             business_name='Test Business',
-            our_reference_code='TEST001'
+            our_reference_code='TEST001',
+            default_contact=initial_contact
         )
+        initial_contact.business = self.business
+        initial_contact.save()
 
     def test_business_detail_page_has_delete_button(self):
         """Business detail page should have a delete button"""
@@ -365,10 +399,20 @@ class BusinessDeletionGETRequestTest(TestCase):
 
     def setUp(self):
         self.client = Client()
+        # Create initial contact for default_contact
+        initial_contact = Contact.objects.create(
+            first_name='Initial',
+            last_name='Contact',
+            email='initial@test.com',
+            work_number='555-0000'
+        )
         self.business = Business.objects.create(
             business_name='Test Business',
-            our_reference_code='TEST001'
+            our_reference_code='TEST001',
+            default_contact=initial_contact
         )
+        initial_contact.business = self.business
+        initial_contact.save()
 
     def test_get_request_does_not_delete_business(self):
         """GET request should not delete business"""

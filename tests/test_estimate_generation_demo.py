@@ -32,8 +32,14 @@ class EstimateGenerationDemoTestCase(TestCase):
         Configuration.objects.create(key='po_counter', value='0')
 
         # Create test data
-        business = Business.objects.create(business_name='Demo Company')
-        contact = Contact.objects.create(name='Demo Customer', business=business)
+        # Create contact first for default_contact
+        contact = Contact.objects.create(name='Demo Customer')
+        business = Business.objects.create(
+            business_name='Demo Company',
+            default_contact=contact
+        )
+        contact.business = business
+        contact.save()
         job = Job.objects.create(job_number='DEMO-001', contact=contact)
         worksheet = EstWorksheet.objects.create(job=job, status='draft')
 

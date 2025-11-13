@@ -28,10 +28,14 @@ class ComprehensiveModelIntegrationTest(TestCase):
             postal_code="12345"
         )
         self.payment_terms = PaymentTerms.objects.create()
+        # Create business with default_contact
         self.business = Business.objects.create(
             business_name="Test Business",
-            terms=self.payment_terms
+            terms=self.payment_terms,
+            default_contact=self.contact
         )
+        self.contact.business = self.business
+        self.contact.save()
 
     def test_complete_job_workflow(self):
         job = Job.objects.create(

@@ -36,16 +36,20 @@ class SimpleEstimateGenerationTestCase(TestCase):
             password='testpass123'
         )
 
-        self.business = Business.objects.create(
-            business_name='Test Company',
-            business_address='123 Test St'
-        )
-
+        # Create contact first for default_contact
         self.contact = Contact.objects.create(
             name='Test Customer',
-            email='customer@example.com',
-            business=self.business
+            email='customer@example.com'
         )
+
+        self.business = Business.objects.create(
+            business_name='Test Company',
+            business_address='123 Test St',
+            default_contact=self.contact
+        )
+
+        self.contact.business = self.business
+        self.contact.save()
 
         self.job = Job.objects.create(
             job_number='TEST-001',

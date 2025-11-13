@@ -53,6 +53,11 @@ class BusinessModelTest(TestCase):
         self.payment_terms = PaymentTerms.objects.create()
 
     def test_business_creation(self):
+        # Create contact first for default_contact
+        contact = Contact.objects.create(
+            name="Default Contact",
+            email="default@acmecorp.com"
+        )
         business = Business.objects.create(
             our_reference_code="REF001",
             business_name="Acme Corporation",
@@ -60,8 +65,11 @@ class BusinessModelTest(TestCase):
             business_phone="123-456-7890",
             tax_exemption_number="TAX123456",
             website="https://www.acmecorp.com",
-            terms=self.payment_terms
+            terms=self.payment_terms,
+            default_contact=contact
         )
+        contact.business = business
+        contact.save()
         self.assertEqual(business.our_reference_code, "REF001")
         self.assertEqual(business.business_name, "Acme Corporation")
         self.assertEqual(business.business_address, "456 Business Ave, Suite 100")
@@ -69,25 +77,55 @@ class BusinessModelTest(TestCase):
         self.assertEqual(business.tax_exemption_number, "TAX123456")
         self.assertEqual(business.website, "https://www.acmecorp.com")
         self.assertEqual(business.terms, self.payment_terms)
+        self.assertEqual(business.default_contact, contact)
 
     def test_business_str_method(self):
-        business = Business.objects.create(business_name="Test Business")
+        # Create contact first for default_contact
+        contact = Contact.objects.create(
+            name="Default Contact",
+            email="default@test.com"
+        )
+        business = Business.objects.create(
+            business_name="Test Business",
+            default_contact=contact
+        )
+        contact.business = business
+        contact.save()
         self.assertEqual(str(business), "Test Business")
 
     def test_business_optional_fields(self):
-        business = Business.objects.create(business_name="Simple Business")
+        # Create contact first for default_contact
+        contact = Contact.objects.create(
+            name="Default Contact",
+            email="default@simple.com"
+        )
+        business = Business.objects.create(
+            business_name="Simple Business",
+            default_contact=contact
+        )
+        contact.business = business
+        contact.save()
         self.assertEqual(business.our_reference_code, "")
         self.assertEqual(business.business_address, "")
         self.assertEqual(business.business_phone, "")
         self.assertEqual(business.tax_exemption_number, "")
         self.assertEqual(business.website, "")
         self.assertIsNone(business.terms)
+        self.assertEqual(business.default_contact, contact)
 
     def test_business_with_payment_terms_deletion(self):
+        # Create contact first for default_contact
+        contact = Contact.objects.create(
+            name="Default Contact",
+            email="default@test.com"
+        )
         business = Business.objects.create(
             business_name="Test Business",
-            terms=self.payment_terms
+            terms=self.payment_terms,
+            default_contact=contact
         )
+        contact.business = business
+        contact.save()
         self.payment_terms.delete()
         business.refresh_from_db()
         self.assertIsNone(business.terms)

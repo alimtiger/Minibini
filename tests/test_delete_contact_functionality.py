@@ -20,15 +20,21 @@ class ContactDeletionValidationTest(TestCase):
 
     def setUp(self):
         self.client = Client()
-        self.business = Business.objects.create(business_name='Test Business')
-
+        # Create contact first for default_contact
         self.contact = Contact.objects.create(
             first_name='John',
             last_name='Doe',
             email='john@test.com',
-            work_number='555-0001',
-            business=self.business
+            work_number='555-0001'
         )
+        # Create business with default_contact
+        self.business = Business.objects.create(
+            business_name='Test Business',
+            default_contact=self.contact
+        )
+        # Link contact to business
+        self.contact.business = self.business
+        self.contact.save()
 
     def test_cannot_delete_contact_with_job(self):
         """Contact associated with a Job cannot be deleted"""
@@ -132,14 +138,21 @@ class ContactDeletionSuccessTest(TestCase):
 
     def test_delete_contact_with_business_no_other_associations(self):
         """Contact with business but no Jobs/Bills can be deleted"""
-        business = Business.objects.create(business_name='Test Business')
+        # Create contact first for default_contact
         contact = Contact.objects.create(
             first_name='John',
             last_name='Doe',
             email='john@test.com',
-            work_number='555-0001',
-            business=business
+            work_number='555-0001'
         )
+        # Create business with default_contact
+        business = Business.objects.create(
+            business_name='Test Business',
+            default_contact=contact
+        )
+        # Link contact to business
+        contact.business = business
+        contact.save()
 
         contact_id = contact.contact_id
         url = reverse('contacts:delete_contact', args=[contact_id])
@@ -153,14 +166,21 @@ class ContactDeletionSuccessTest(TestCase):
 
     def test_delete_redirects_to_business_detail_when_has_business(self):
         """Deleting contact with business should redirect to business detail"""
-        business = Business.objects.create(business_name='Test Business')
+        # Create contact first for default_contact
         contact = Contact.objects.create(
             first_name='John',
             last_name='Doe',
             email='john@test.com',
-            work_number='555-0001',
-            business=business
+            work_number='555-0001'
         )
+        # Create business with default_contact
+        business = Business.objects.create(
+            business_name='Test Business',
+            default_contact=contact
+        )
+        # Link contact to business
+        contact.business = business
+        contact.save()
 
         url = reverse('contacts:delete_contact', args=[contact.contact_id])
         response = self.client.post(url)
@@ -207,7 +227,19 @@ class DefaultContactReassignmentOnDeletionTest(TestCase):
 
     def setUp(self):
         self.client = Client()
-        self.business = Business.objects.create(business_name='Test Business')
+        # Create initial contact for default_contact
+        initial_contact = Contact.objects.create(
+            first_name='Initial',
+            last_name='Contact',
+            email='initial@test.com',
+            work_number='555-0000'
+        )
+        self.business = Business.objects.create(
+            business_name='Test Business',
+            default_contact=initial_contact
+        )
+        initial_contact.business = self.business
+        initial_contact.save()
 
     def test_delete_default_contact_shows_selection_form(self):
         """Deleting default contact with multiple others should show selection form"""
@@ -455,14 +487,18 @@ class DefaultContactReassignmentOnDeletionTest(TestCase):
         )
 
         # Create contact from different business
-        other_business = Business.objects.create(business_name='Other Business')
         other_contact = Contact.objects.create(
             first_name='Other',
             last_name='Contact',
             email='other@test.com',
-            work_number='555-9999',
-            business=other_business
+            work_number='555-9999'
         )
+        other_business = Business.objects.create(
+            business_name='Other Business',
+            default_contact=other_contact
+        )
+        other_contact.business = other_business
+        other_contact.save()
 
         self.business.refresh_from_db()
 

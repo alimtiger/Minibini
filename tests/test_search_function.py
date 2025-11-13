@@ -21,24 +21,28 @@ class SearchViewTests(TestCase):
             password='testpass123'
         )
 
-        # Create a business
-        self.business = Business.objects.create(
-            business_name='Acme Corporation',
-            our_reference_code='ACME001',
-            business_address='123 Main St, Springfield',
-            business_phone='555-1234'
-        )
-
-        # Create contacts
+        # Create contact first (needed for business default_contact)
         self.contact1 = Contact.objects.create(
             name='John Doe',
             email='john.doe@example.com',
             mobile_number='555-0001',
             addr1='456 Oak Ave',
             city='Springfield',
-            postal_code='12345',
-            business=self.business
+            postal_code='12345'
         )
+
+        # Create a business with default contact
+        self.business = Business.objects.create(
+            business_name='Acme Corporation',
+            our_reference_code='ACME001',
+            business_address='123 Main St, Springfield',
+            business_phone='555-1234',
+            default_contact=self.contact1
+        )
+
+        # Link contact to business
+        self.contact1.business = self.business
+        self.contact1.save()
 
         self.contact2 = Contact.objects.create(
             name='Jane Smith',
