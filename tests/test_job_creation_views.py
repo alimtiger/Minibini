@@ -59,7 +59,6 @@ class JobCreateViewTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'jobs/job_create.html')
         self.assertContains(response, 'Create New Job')
-        self.assertContains(response, 'Select Contact')
 
     def test_job_create_view_get_with_preselected_contact(self):
         """Test GET request with pre-selected contact from query parameter"""
@@ -76,7 +75,6 @@ class JobCreateViewTest(TestCase):
 
         post_data = {
             # job_number is auto-generated, not posted
-            'selection_type': 'contact',
             'contact': self.contact1.contact_id,
             'description': 'Test job description',
             'customer_po_number': 'PO-12345',
@@ -115,7 +113,6 @@ class JobCreateViewTest(TestCase):
 
         post_data = {
             # job_number is auto-generated
-            'selection_type': 'contact',
             'contact': self.contact1.contact_id,
             'description': 'Job with due date',
             'due_date': due_date.strftime('%Y-%m-%d'),
@@ -131,10 +128,9 @@ class JobCreateViewTest(TestCase):
         self.assertEqual(job.due_date.date(), due_date)
 
     def test_job_create_missing_contact_fails(self):
-        """Test that job creation fails without a contact when selection_type is contact"""
+        """Test that job creation fails without a contact"""
         post_data = {
             # job_number is auto-generated
-            'selection_type': 'contact',
             # contact is missing
             'description': 'This should fail',
         }
@@ -155,7 +151,6 @@ class JobCreateViewTest(TestCase):
         """Test that job number is auto-generated even if not provided in POST"""
         post_data = {
             # job_number is NOT in POST (will be auto-generated)
-            'selection_type': 'contact',
             'contact': self.contact1.contact_id,
             'description': 'Auto-generated number test',
         }
@@ -201,7 +196,6 @@ class JobCreateViewTest(TestCase):
         """Test that successful creation redirects to job detail page"""
         post_data = {
             # job_number is auto-generated
-            'selection_type': 'contact',
             'contact': self.contact1.contact_id,
             'description': 'Test redirect',
         }
@@ -221,7 +215,6 @@ class JobCreateViewTest(TestCase):
         # Even if someone tries to set a different status, it should be draft
         post_data = {
             # job_number is auto-generated
-            'selection_type': 'contact',
             'contact': self.contact1.contact_id,
             'status': 'approved',  # Try to set non-draft status
             'description': 'Status test',
@@ -233,48 +226,3 @@ class JobCreateViewTest(TestCase):
         self.assertIsNotNone(job)
         # Must still be draft regardless of attempted status
         self.assertEqual(job.status, 'draft')
-
-    def test_job_create_with_business_selection(self):
-        """Test that selecting a business automatically uses its default contact"""
-        post_data = {
-            'selection_type': 'business',
-            'business': self.business1.business_id,
-            'description': 'Job created from business selection',
-            'customer_po_number': 'PO-BUS-001',
-        }
-
-        response = self.client.post(self.url, data=post_data)
-
-        # Check that we redirect to the job detail page
-        self.assertEqual(response.status_code, 302)
-
-        # Verify the job was created
-        job = Job.objects.filter(description='Job created from business selection').first()
-        self.assertIsNotNone(job)
-
-        # Check that the job's contact is the business's default contact
-        self.assertEqual(job.contact, self.business1.default_contact)
-        self.assertEqual(job.contact, self.contact1)
-
-        # Check job number was generated
-        self.assertTrue(job.job_number.startswith('JOB-'))
-
-    def test_job_create_with_business_missing_fails(self):
-        """Test that job creation fails when business selection is chosen but no business is selected"""
-        post_data = {
-            'selection_type': 'business',
-            # business is missing
-            'description': 'This should fail',
-        }
-
-        response = self.client.post(self.url, data=post_data)
-
-        # Should not redirect (stays on form with errors)
-        self.assertEqual(response.status_code, 200)
-
-        # Check form in context has errors
-        form = response.context['form']
-        self.assertIn('business', form.errors)
-
-        # Verify job was not created
-        self.assertEqual(Job.objects.filter(description='This should fail').count(), 0)
