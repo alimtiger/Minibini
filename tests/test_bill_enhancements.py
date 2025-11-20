@@ -17,12 +17,14 @@ class BillNumberGenerationTest(TestCase):
         Configuration.objects.create(key='bill_number_sequence', value='BILL-{year}-{counter:04d}')
         Configuration.objects.create(key='bill_counter', value='0')
 
-        # Create contact for bills
-        self.contact = Contact.objects.create(name="Test Vendor")
+        # Create business and contact for bills
+        self.business = Business.objects.create(business_name="Test Vendor Business")
+        self.contact = Contact.objects.create(name="Test Vendor", business=self.business)
 
     def test_bill_number_generated_on_form_save(self):
         """Test that bill number is automatically generated when using BillForm."""
         form = BillForm(data={
+            'business': self.business.business_id,
             'contact': self.contact.contact_id,
             'vendor_invoice_number': 'VIN001',
         })
@@ -39,6 +41,7 @@ class BillNumberGenerationTest(TestCase):
         """Test that bill numbers increment sequentially."""
         # Create first bill
         form1 = BillForm(data={
+            'business': self.business.business_id,
             'contact': self.contact.contact_id,
             'vendor_invoice_number': 'VIN001',
         })
@@ -46,6 +49,7 @@ class BillNumberGenerationTest(TestCase):
 
         # Create second bill
         form2 = BillForm(data={
+            'business': self.business.business_id,
             'contact': self.contact.contact_id,
             'vendor_invoice_number': 'VIN002',
         })
@@ -53,6 +57,7 @@ class BillNumberGenerationTest(TestCase):
 
         # Create third bill
         form3 = BillForm(data={
+            'business': self.business.business_id,
             'contact': self.contact.contact_id,
             'vendor_invoice_number': 'VIN003',
         })
@@ -67,6 +72,7 @@ class BillNumberGenerationTest(TestCase):
         """Test that bill numbers are unique."""
         # Create bill
         form = BillForm(data={
+            'business': self.business.business_id,
             'contact': self.contact.contact_id,
             'vendor_invoice_number': 'VIN001',
         })
@@ -76,6 +82,7 @@ class BillNumberGenerationTest(TestCase):
         with self.assertRaises(Exception):
             Bill.objects.create(
                 bill_number=bill1.bill_number,
+                business=self.business,
                 contact=self.contact,
                 vendor_invoice_number='VIN002'
             )
@@ -83,6 +90,7 @@ class BillNumberGenerationTest(TestCase):
     def test_bill_str_method_uses_bill_number(self):
         """Test that Bill's __str__ method uses bill_number."""
         form = BillForm(data={
+            'business': self.business.business_id,
             'contact': self.contact.contact_id,
             'vendor_invoice_number': 'VIN001',
         })
@@ -100,9 +108,11 @@ class BillLineItemManualEntryTest(TestCase):
         Configuration.objects.create(key='bill_number_sequence', value='BILL-{counter:04d}')
         Configuration.objects.create(key='bill_counter', value='0')
 
-        # Create contact and bill
-        self.contact = Contact.objects.create(name="Test Vendor")
+        # Create business, contact and bill
+        self.business = Business.objects.create(business_name="Test Vendor Business")
+        self.contact = Contact.objects.create(name="Test Vendor", business=self.business)
         form = BillForm(data={
+            'business': self.business.business_id,
             'contact': self.contact.contact_id,
             'vendor_invoice_number': 'VIN001',
         })
@@ -193,9 +203,11 @@ class BillDraftStateValidationTest(TestCase):
         Configuration.objects.create(key='bill_number_sequence', value='BILL-{counter:04d}')
         Configuration.objects.create(key='bill_counter', value='0')
 
-        # Create contact and bill
-        self.contact = Contact.objects.create(name="Test Vendor")
+        # Create business, contact and bill
+        self.business = Business.objects.create(business_name="Test Vendor Business")
+        self.contact = Contact.objects.create(name="Test Vendor", business=self.business)
         form = BillForm(data={
+            'business': self.business.business_id,
             'contact': self.contact.contact_id,
             'vendor_invoice_number': 'VIN001',
         })

@@ -126,15 +126,18 @@ class BillModelFixtureTest(TestCase):
         """Test creating a new bill with existing PO and contact from fixtures"""
         po = PurchaseOrder.objects.get(po_number="PO-2024-0001")
         vendor = Contact.objects.get(name="Acme Vendor")
+        business = Business.objects.get(pk=2)  # XYZ Industries from fixture
 
         new_bill = Bill.objects.create(
             purchase_order=po,
+            business=business,
             contact=vendor,
             bill_number='BILL-TEST',
             vendor_invoice_number="ACME-INV-003"
         )
 
         self.assertEqual(new_bill.purchase_order, po)
+        self.assertEqual(new_bill.business, business)
         self.assertEqual(new_bill.contact, vendor)
         self.assertEqual(Bill.objects.count(), 3)  # 2 from fixture + 1 new
 
@@ -155,9 +158,11 @@ class BillModelFixtureTest(TestCase):
     def test_bill_protected_from_contact_deletion(self):
         """Test that bill is protected when vendor contact is deleted (PROTECT)"""
         # Create a new vendor contact for this test to avoid affecting other tests
+        business = Business.objects.get(pk=2)  # XYZ Industries from fixture
         test_vendor = Contact.objects.create(
             name="Test Vendor",
-            email="test@vendor.com"
+            email="test@vendor.com",
+            business=business
         )
 
         # Create a new PO and bill for this test

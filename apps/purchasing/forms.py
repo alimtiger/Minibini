@@ -14,6 +14,13 @@ class PurchaseOrderForm(forms.ModelForm):
         widget=forms.Select(attrs={'class': 'form-control'}),
         empty_label="-- Select Business --"
     )
+    contact = forms.ModelChoiceField(
+        queryset=Contact.objects.all(),
+        required=False,
+        widget=forms.Select(attrs={'class': 'form-control'}),
+        empty_label="-- Select Contact (optional) --",
+        help_text='If selected, Business will be auto-assigned from Contact'
+    )
     job = forms.ModelChoiceField(
         queryset=Job.objects.filter(status='approved'),
         required=False,
@@ -27,7 +34,7 @@ class PurchaseOrderForm(forms.ModelForm):
 
     class Meta:
         model = PurchaseOrder
-        fields = ['business', 'job', 'requested_date']
+        fields = ['business', 'contact', 'job', 'requested_date']
 
     def __init__(self, *args, **kwargs):
         job = kwargs.pop('job', None)
@@ -44,6 +51,19 @@ class PurchaseOrderForm(forms.ModelForm):
         # If job provided, pre-select it
         if job:
             self.fields['job'].initial = job
+
+    def clean(self):
+        """Validate that if contact is provided, it must have a business."""
+        cleaned_data = super().clean()
+        contact = cleaned_data.get('contact')
+
+        if contact and not contact.business:
+            raise forms.ValidationError(
+                f'Contact "{contact.name}" does not have a Business associated. '
+                'Please assign a Business to this Contact before using it in a Purchase Order.'
+            )
+
+        return cleaned_data
 
     def save(self, commit=True):
         """Override save to generate PO number using NumberGenerationService"""
@@ -182,11 +202,18 @@ class BillForm(forms.ModelForm):
         widget=forms.Select(attrs={'class': 'form-control'}),
         empty_label="-- Select Purchase Order (optional) --"
     )
-    contact = forms.ModelChoiceField(
-        queryset=Contact.objects.all(),
+    business = forms.ModelChoiceField(
+        queryset=Business.objects.all(),
         required=True,
         widget=forms.Select(attrs={'class': 'form-control'}),
-        empty_label="-- Select Vendor Contact --"
+        empty_label="-- Select Business --"
+    )
+    contact = forms.ModelChoiceField(
+        queryset=Contact.objects.all(),
+        required=False,
+        widget=forms.Select(attrs={'class': 'form-control'}),
+        empty_label="-- Select Contact (optional) --",
+        help_text='If selected, Business will be auto-assigned from Contact'
     )
     vendor_invoice_number = forms.CharField(
         max_length=50,
@@ -202,7 +229,7 @@ class BillForm(forms.ModelForm):
 
     class Meta:
         model = Bill
-        fields = ['purchase_order', 'contact', 'vendor_invoice_number', 'due_date']
+        fields = ['purchase_order', 'business', 'contact', 'vendor_invoice_number', 'due_date']
 
     def __init__(self, *args, **kwargs):
         purchase_order = kwargs.pop('purchase_order', None)
@@ -216,9 +243,25 @@ class BillForm(forms.ModelForm):
             # Creating new Bill
             self.fields['vendor_invoice_number'].help_text = 'The invoice number from the vendor. Bill number will be assigned automatically on save.'
 
-        # If purchase_order provided, pre-select it
+        # If purchase_order provided, pre-select it and copy Business/Contact
         if purchase_order:
             self.fields['purchase_order'].initial = purchase_order
+            self.fields['business'].initial = purchase_order.business
+            if purchase_order.contact:
+                self.fields['contact'].initial = purchase_order.contact
+
+    def clean(self):
+        """Validate that if contact is provided, it must have a business."""
+        cleaned_data = super().clean()
+        contact = cleaned_data.get('contact')
+
+        if contact and not contact.business:
+            raise forms.ValidationError(
+                f'Contact "{contact.name}" does not have a Business associated. '
+                'Please assign a Business to this Contact before using it in a Bill.'
+            )
+
+        return cleaned_data
 
     def save(self, commit=True):
         """Override save to generate Bill number using NumberGenerationService"""

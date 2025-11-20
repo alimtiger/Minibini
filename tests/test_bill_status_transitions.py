@@ -36,7 +36,8 @@ class BillStatusTransitionTest(TestCase):
 
         # Create a test contact
         self.contact = Contact.objects.create(
-            name='Test Vendor'
+            name='Test Vendor',
+            business=self.business
         )
 
         # Create a test purchase order in issued status (Bills can only be created from issued or later POs)
@@ -62,6 +63,7 @@ class BillStatusTransitionTest(TestCase):
         bill = Bill.objects.create(
             bill_number="BILL-001",
             purchase_order=self.purchase_order,
+            business=self.business,
             contact=self.contact,
             vendor_invoice_number='INV-001'
         )
@@ -73,6 +75,7 @@ class BillStatusTransitionTest(TestCase):
         bill = Bill.objects.create(
             bill_number="BILL-002",
             purchase_order=self.purchase_order,
+            business=self.business,
             contact=self.contact,
             vendor_invoice_number='INV-001'
         )
@@ -87,6 +90,7 @@ class BillStatusTransitionTest(TestCase):
         bill = Bill.objects.create(
             bill_number="BILL-003",
             purchase_order=self.purchase_order,
+            business=self.business,
             contact=self.contact,
             vendor_invoice_number='INV-001',
             status='draft'
@@ -105,6 +109,7 @@ class BillStatusTransitionTest(TestCase):
         bill = Bill.objects.create(
             bill_number="BILL-004",
             purchase_order=self.purchase_order,
+            business=self.business,
             contact=self.contact,
             vendor_invoice_number='INV-001',
             status='draft'
@@ -128,6 +133,7 @@ class BillStatusTransitionTest(TestCase):
         bill = Bill.objects.create(
             bill_number="BILL-005",
             purchase_order=self.purchase_order,
+            business=self.business,
             contact=self.contact,
             vendor_invoice_number='INV-001',
             status='draft'
@@ -148,6 +154,7 @@ class BillStatusTransitionTest(TestCase):
         bill = Bill.objects.create(
             bill_number="BILL-006",
             purchase_order=self.purchase_order,
+            business=self.business,
             contact=self.contact,
             vendor_invoice_number='INV-001',
             status='draft'
@@ -169,6 +176,7 @@ class BillStatusTransitionTest(TestCase):
         bill = Bill.objects.create(
             bill_number="BILL-007",
             purchase_order=self.purchase_order,
+            business=self.business,
             contact=self.contact,
             vendor_invoice_number='INV-001',
             status='draft'
@@ -190,6 +198,7 @@ class BillStatusTransitionTest(TestCase):
         bill = Bill.objects.create(
             bill_number="BILL-008",
             purchase_order=self.purchase_order,
+            business=self.business,
             contact=self.contact,
             vendor_invoice_number='INV-001',
             status='draft'
@@ -213,6 +222,7 @@ class BillStatusTransitionTest(TestCase):
         bill = Bill.objects.create(
             bill_number="BILL-009",
             purchase_order=self.purchase_order,
+            business=self.business,
             contact=self.contact,
             vendor_invoice_number='INV-001',
             status='draft'
@@ -235,6 +245,7 @@ class BillStatusTransitionTest(TestCase):
         bill = Bill.objects.create(
             bill_number="BILL-010",
             purchase_order=self.purchase_order,
+            business=self.business,
             contact=self.contact,
             vendor_invoice_number='INV-001',
             status='draft'
@@ -261,6 +272,7 @@ class BillStatusTransitionTest(TestCase):
         bill = Bill.objects.create(
             bill_number="BILL-011",
             purchase_order=self.purchase_order,
+            business=self.business,
             contact=self.contact,
             vendor_invoice_number='INV-001',
             status='draft'
@@ -287,6 +299,7 @@ class BillStatusTransitionTest(TestCase):
         bill = Bill.objects.create(
             bill_number="BILL-012",
             purchase_order=self.purchase_order,
+            business=self.business,
             contact=self.contact,
             vendor_invoice_number='INV-001',
             status='draft'
@@ -303,6 +316,7 @@ class BillStatusTransitionTest(TestCase):
         bill = Bill.objects.create(
             bill_number="BILL-013",
             purchase_order=self.purchase_order,
+            business=self.business,
             contact=self.contact,
             vendor_invoice_number='INV-001',
             status='draft'
@@ -319,6 +333,7 @@ class BillStatusTransitionTest(TestCase):
         bill = Bill.objects.create(
             bill_number="BILL-014",
             purchase_order=self.purchase_order,
+            business=self.business,
             contact=self.contact,
             vendor_invoice_number='INV-001',
             status='draft'
@@ -335,6 +350,7 @@ class BillStatusTransitionTest(TestCase):
         bill = Bill.objects.create(
             bill_number="BILL-015",
             purchase_order=self.purchase_order,
+            business=self.business,
             contact=self.contact,
             vendor_invoice_number='INV-001',
             status='draft'
@@ -351,6 +367,7 @@ class BillStatusTransitionTest(TestCase):
         bill = Bill.objects.create(
             bill_number="BILL-016",
             purchase_order=self.purchase_order,
+            business=self.business,
             contact=self.contact,
             vendor_invoice_number='INV-001',
             status='draft'
@@ -373,6 +390,7 @@ class BillStatusTransitionTest(TestCase):
         bill = Bill.objects.create(
             bill_number="BILL-017",
             purchase_order=self.purchase_order,
+            business=self.business,
             contact=self.contact,
             vendor_invoice_number='INV-001',
             status='draft'
@@ -395,6 +413,7 @@ class BillStatusTransitionTest(TestCase):
         bill = Bill.objects.create(
             bill_number="BILL-018",
             purchase_order=self.purchase_order,
+            business=self.business,
             contact=self.contact,
             vendor_invoice_number='INV-001',
             status='draft'
@@ -417,6 +436,7 @@ class BillStatusTransitionTest(TestCase):
         bill = Bill.objects.create(
             bill_number="BILL-019",
             purchase_order=self.purchase_order,
+            business=self.business,
             contact=self.contact,
             vendor_invoice_number='INV-001',
             status='draft'
@@ -440,6 +460,7 @@ class BillStatusTransitionTest(TestCase):
         bill = Bill.objects.create(
             bill_number="BILL-020",
             purchase_order=self.purchase_order,
+            business=self.business,
             contact=self.contact,
             vendor_invoice_number='INV-001',
             status='draft'
@@ -465,6 +486,7 @@ class BillStatusTransitionTest(TestCase):
         bill = Bill.objects.create(
             bill_number="BILL-021",
             purchase_order=self.purchase_order,
+            business=self.business,
             contact=self.contact,
             vendor_invoice_number='INV-001'
         )
@@ -484,6 +506,7 @@ class BillStatusTransitionTest(TestCase):
         bill = Bill.objects.create(
             bill_number="BILL-022",
             purchase_order=self.purchase_order,
+            business=self.business,
             contact=self.contact,
             vendor_invoice_number='INV-001',
             status='draft'
@@ -509,6 +532,7 @@ class BillStatusTransitionTest(TestCase):
         bill = Bill.objects.create(
             bill_number="BILL-023",
             purchase_order=self.purchase_order,
+            business=self.business,
             contact=self.contact,
             vendor_invoice_number='INV-001',
             status='draft'
@@ -536,6 +560,7 @@ class BillStatusTransitionTest(TestCase):
         bill = Bill.objects.create(
             bill_number="BILL-024",
             purchase_order=self.purchase_order,
+            business=self.business,
             contact=self.contact,
             vendor_invoice_number='INV-001',
             status='draft'
@@ -563,6 +588,7 @@ class BillStatusTransitionTest(TestCase):
         bill = Bill.objects.create(
             bill_number="BILL-025",
             purchase_order=self.purchase_order,
+            business=self.business,
             contact=self.contact,
             vendor_invoice_number='INV-001'
         )
@@ -591,6 +617,7 @@ class BillStatusTransitionTest(TestCase):
         bill = Bill.objects.create(
             bill_number="BILL-026",
             purchase_order=self.purchase_order,
+            business=self.business,
             contact=self.contact,
             vendor_invoice_number='INV-001',
             status='draft'
@@ -618,6 +645,7 @@ class BillStatusTransitionTest(TestCase):
         bill = Bill.objects.create(
             bill_number="BILL-027",
             purchase_order=self.purchase_order,
+            business=self.business,
             contact=self.contact,
             vendor_invoice_number='INV-001',
             status='draft'
@@ -647,6 +675,7 @@ class BillStatusTransitionTest(TestCase):
         bill = Bill.objects.create(
             bill_number="BILL-028",
             purchase_order=self.purchase_order,
+            business=self.business,
             contact=self.contact,
             vendor_invoice_number='INV-001',
             status='draft'
@@ -668,6 +697,7 @@ class BillStatusTransitionTest(TestCase):
         bill = Bill.objects.create(
             bill_number="BILL-029",
             purchase_order=self.purchase_order,
+            business=self.business,
             contact=self.contact,
             vendor_invoice_number='INV-001',
             status='draft'
@@ -693,6 +723,7 @@ class BillStatusTransitionTest(TestCase):
         bill = Bill.objects.create(
             bill_number="BILL-030",
             purchase_order=self.purchase_order,
+            business=self.business,
             contact=self.contact,
             vendor_invoice_number='INV-001',
             status='draft'

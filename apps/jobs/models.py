@@ -442,7 +442,7 @@ class Task(models.Model):
 
 class Blep(models.Model):
     blep_id = models.AutoField(primary_key=True)
-    user = models.ForeignKey('core.User', on_delete=models.PROTECT)
+    user = models.ForeignKey('core.User', on_delete=models.PROTECT, null=True, blank=True)
     task = models.ForeignKey(Task, on_delete=models.PROTECT)  # Changed from CASCADE - protect audit trail
     start_time = models.DateTimeField(null=True, blank=True)
     end_time = models.DateTimeField(null=True, blank=True)

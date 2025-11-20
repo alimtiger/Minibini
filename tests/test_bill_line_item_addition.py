@@ -22,7 +22,8 @@ class BillLineItemAdditionTests(TestCase):
 
         # Create a test contact
         self.contact = Contact.objects.create(
-            name='Test Vendor'
+            name='Test Vendor',
+            business=self.business
         )
 
         # Create a purchase order in issued status (Bills require PO to be issued or later)
@@ -37,6 +38,7 @@ class BillLineItemAdditionTests(TestCase):
         # Create a bill
         self.bill = Bill.objects.create(
             purchase_order=self.purchase_order,
+            business=self.business,
             contact=self.contact,
             bill_number='BILL-TEST',
             vendor_invoice_number='INV-TEST-001'
@@ -268,6 +270,7 @@ class BillLineItemAdditionTests(TestCase):
         # Create a bill without a PO
         bill_no_po = Bill.objects.create(
             purchase_order=None,
+            business=self.business,
             contact=self.contact,
             bill_number='BILL-TEST2',
             vendor_invoice_number='INV-NO-PO-001'

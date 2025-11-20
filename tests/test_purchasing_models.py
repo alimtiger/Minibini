@@ -53,7 +53,10 @@ class PurchaseOrderModelTest(TestCase):
 class BillModelTest(TestCase):
     def setUp(self):
         self.business = Business.objects.create(business_name="Test Business")
-        self.contact = Contact.objects.create(name="Test Vendor")
+        self.contact = Contact.objects.create(
+            name="Test Vendor",
+            business=self.business
+        )
         self.customer_contact = Contact.objects.create(name="Test Customer")
         self.job = Job.objects.create(
             job_number="JOB001",
@@ -73,10 +76,12 @@ class BillModelTest(TestCase):
         bill = Bill.objects.create(
             bill_number="BILL-001",
             purchase_order=self.purchase_order,
+            business=self.business,
             contact=self.contact,
             vendor_invoice_number="VIN001"
         )
         self.assertEqual(bill.purchase_order, self.purchase_order)
+        self.assertEqual(bill.business, self.business)
         self.assertEqual(bill.contact, self.contact)
         self.assertEqual(bill.vendor_invoice_number, "VIN001")
         
@@ -84,6 +89,7 @@ class BillModelTest(TestCase):
         bill = Bill.objects.create(
             bill_number="BILL-002",
             purchase_order=self.purchase_order,
+            business=self.business,
             contact=self.contact,
             vendor_invoice_number="VIN002"
         )
@@ -93,6 +99,7 @@ class BillModelTest(TestCase):
         bill = Bill.objects.create(
             bill_number="BILL-003",
             purchase_order=self.purchase_order,
+            business=self.business,
             contact=self.contact,
             vendor_invoice_number="VIN003"
         )
@@ -109,11 +116,12 @@ class BillModelTest(TestCase):
         bill = Bill.objects.create(
             bill_number="BILL-004",
             purchase_order=self.purchase_order,
+            business=self.business,
             contact=self.contact,
             vendor_invoice_number="VIN004"
         )
         contact_id = self.contact.pk
-        
+
         # Cannot delete the contact due to PROTECT
         with self.assertRaises(models.ProtectedError):
             self.contact.delete()

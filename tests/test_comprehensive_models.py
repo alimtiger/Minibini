@@ -19,18 +19,19 @@ class ComprehensiveModelIntegrationTest(TestCase):
         self.group = Group.objects.create(name="Manager")
         self.user = User.objects.create_user(username="testuser", email="test@example.com")
         self.user.groups.add(self.group)
+        self.payment_terms = PaymentTerms.objects.create()
+        self.business = Business.objects.create(
+            business_name="Test Business",
+            terms=self.payment_terms
+        )
         self.contact = Contact.objects.create(
             name="Test Contact",
             email="contact@example.com",
             addr1="123 Main St",
             city="Test City",
             municipality="TS",
-            postal_code="12345"
-        )
-        self.payment_terms = PaymentTerms.objects.create()
-        self.business = Business.objects.create(
-            business_name="Test Business",
-            terms=self.payment_terms
+            postal_code="12345",
+            business=self.business
         )
 
     def test_complete_job_workflow(self):
@@ -137,6 +138,7 @@ class ComprehensiveModelIntegrationTest(TestCase):
         bill = Bill.objects.create(
             bill_number="BILL-TEST-001",
             purchase_order=purchase_order,
+            business=self.business,
             contact=self.contact,
             vendor_invoice_number="VENDOR001"
         )
@@ -347,7 +349,7 @@ class LineItemValidationTest(TestCase):
 
     def setUp(self):
         self.business = Business.objects.create(business_name="Test Business")
-        self.contact = Contact.objects.create(name="Test Customer")
+        self.contact = Contact.objects.create(name="Test Customer", business=self.business)
         self.job = Job.objects.create(
             job_number="VALID_JOB001",
             contact=self.contact,
@@ -375,6 +377,7 @@ class LineItemValidationTest(TestCase):
         self.bill = Bill.objects.create(
             bill_number="BILL-TEST-002",
             purchase_order=self.purchase_order,
+            business=self.business,
             contact=self.contact,
             vendor_invoice_number="VIN_VALID001"
         )

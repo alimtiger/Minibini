@@ -197,14 +197,34 @@ def bill_create(request):
     return render(request, 'purchasing/bill_create.html', {'form': form})
 
 def bill_create_for_po(request, po_id):
-    """Create a new Bill for a specific Purchase Order"""
+    """Create a new Bill for a specific Purchase Order and copy its line items"""
     purchase_order = get_object_or_404(PurchaseOrder, po_id=po_id)
 
     if request.method == 'POST':
         form = BillForm(request.POST, purchase_order=purchase_order)
         if form.is_valid():
             bill = form.save()
-            messages.success(request, f'Bill for vendor invoice {bill.vendor_invoice_number} created successfully for PO {purchase_order.po_number}.')
+
+            # Copy line items from PurchaseOrder to Bill
+            po_line_items = PurchaseOrderLineItem.objects.filter(purchase_order=purchase_order).order_by('line_number')
+            for po_line_item in po_line_items:
+                BillLineItem.objects.create(
+                    bill=bill,
+                    price_list_item=po_line_item.price_list_item,
+                    task=po_line_item.task,
+                    description=po_line_item.description,
+                    qty=po_line_item.qty,
+                    units=po_line_item.units,
+                    price=po_line_item.price,
+                    line_number=po_line_item.line_number
+                )
+
+            line_items_copied = po_line_items.count()
+            if line_items_copied > 0:
+                messages.success(request, f'Bill for vendor invoice {bill.vendor_invoice_number} created successfully for PO {purchase_order.po_number} with {line_items_copied} line item(s) copied.')
+            else:
+                messages.success(request, f'Bill for vendor invoice {bill.vendor_invoice_number} created successfully for PO {purchase_order.po_number}.')
+
             return redirect('purchasing:bill_detail', bill_id=bill.bill_id)
     else:
         form = BillForm(purchase_order=purchase_order)

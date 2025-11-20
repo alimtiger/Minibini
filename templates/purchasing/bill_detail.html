@@ -35,8 +35,24 @@
         </td>
     </tr>
     <tr>
+        <td>Business</td>
+        <td>
+            {% if bill.business %}
+                {{ bill.business.business_name }}
+            {% else %}
+                No business assigned
+            {% endif %}
+        </td>
+    </tr>
+    <tr>
         <td>Contact</td>
-        <td>{{ bill.contact }}</td>
+        <td>
+            {% if bill.contact %}
+                {{ bill.contact.name }}
+            {% else %}
+                Not specified
+            {% endif %}
+        </td>
     </tr>
     <tr>
         <td>Vendor Invoice Number</td>

@@ -31,6 +31,16 @@
         </td>
     </tr>
     <tr>
+        <td>Contact</td>
+        <td>
+            {% if purchase_order.contact %}
+                {{ purchase_order.contact.name }}
+            {% else %}
+                Not specified
+            {% endif %}
+        </td>
+    </tr>
+    <tr>
         <td>Job</td>
         <td>
             {% if purchase_order.job %}
@@ -100,6 +110,7 @@
     <table border="1" style="border-collapse: collapse; width: 100%; margin-top: 10px;">
         <thead>
             <tr>
+                <th>Business</th>
                 <th>Contact</th>
                 <th>Vendor Invoice Number</th>
                 <th>Actions</th>
@@ -108,7 +119,14 @@
         <tbody>
             {% for bill in bills %}
             <tr>
-                <td>{{ bill.contact }}</td>
+                <td>{{ bill.business.business_name }}</td>
+                <td>
+                    {% if bill.contact %}
+                        {{ bill.contact.name }}
+                    {% else %}
+                        Not specified
+                    {% endif %}
+                </td>
                 <td>{{ bill.vendor_invoice_number }}</td>
                 <td>
                     <a href="{% url 'purchasing:bill_detail' bill.bill_id %}">View Details</a>

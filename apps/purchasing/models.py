@@ -14,9 +14,9 @@ class PurchaseOrder(models.Model):
     ]
 
     po_id = models.AutoField(primary_key=True)
-    # TODO: why business here instead of contact?  Because we don't care who
-    # gets the PO - but what if we have a specific sales rep?
+    # Business is required; Contact is optional but if provided, must have a Business
     business = models.ForeignKey('contacts.Business', on_delete=models.PROTECT)
+    contact = models.ForeignKey('contacts.Contact', on_delete=models.PROTECT, null=True, blank=True)
     job = models.ForeignKey('jobs.Job', on_delete=models.SET_NULL, null=True, blank=True)
     po_number = models.CharField(max_length=50, unique=True)
     status = models.CharField(max_length=20, choices=PO_STATUS_CHOICES, default='draft')
@@ -31,6 +31,24 @@ class PurchaseOrder(models.Model):
     def clean(self):
         """Validate PurchaseOrder state transitions and protect immutable date fields."""
         super().clean()
+
+        # Validate that if contact is provided, it must have a business
+        if self.contact and not self.contact.business:
+            raise ValidationError(
+                f'Contact "{self.contact.name}" does not have a Business associated. '
+                'Please assign a Business to this Contact before using it in a Purchase Order.'
+            )
+
+        # Validate that if both contact and business are provided, they must match
+        # Only check on creation (not on updates, since contact's business might change after PO creation)
+        is_new = not self.pk
+        if is_new and self.contact and self.contact.business and self.business_id:
+            if self.business != self.contact.business:
+                raise ValidationError(
+                    f'Contact "{self.contact.name}" is associated with Business "{self.contact.business.business_name}", '
+                    f'but Purchase Order is set to use Business "{self.business.business_name}". '
+                    'The Business must match the Contact\'s Business.'
+                )
 
         # Define valid transitions for each state
         VALID_TRANSITIONS = {
@@ -76,8 +94,14 @@ class PurchaseOrder(models.Model):
                 pass
 
     def save(self, *args, **kwargs):
-        """Override save to validate state transitions and set dates."""
+        """Override save to validate state transitions, set dates, and auto-associate Business from Contact."""
         old_status = None
+        is_new = not self.pk
+
+        # If contact is provided and has a business, auto-associate the business
+        # Only do this on creation and if business is not already explicitly set
+        if is_new and self.contact and self.contact.business and not self.business_id:
+            self.business = self.contact.business
 
         # Check if this is an update (not a new object)
         if self.pk:
@@ -125,8 +149,9 @@ class Bill(models.Model):
     bill_id = models.AutoField(primary_key=True)
     bill_number = models.CharField(max_length=50, unique=True)
     purchase_order = models.ForeignKey(PurchaseOrder, on_delete=models.SET_NULL, null=True, blank=True)
-    contact = models.ForeignKey('contacts.Contact', on_delete=models.PROTECT)
-    business = models.ForeignKey('contacts.Business', on_delete=models.SET_NULL, null=True, blank=True)
+    # Business is required; Contact is optional but if provided, must have a Business
+    business = models.ForeignKey('contacts.Business', on_delete=models.PROTECT)
+    contact = models.ForeignKey('contacts.Contact', on_delete=models.PROTECT, null=True, blank=True)
     vendor_invoice_number = models.CharField(max_length=50)
     status = models.CharField(max_length=20, choices=BILL_STATUS_CHOICES, default='draft')
 
@@ -140,6 +165,24 @@ class Bill(models.Model):
     def clean(self):
         """Validate Bill state transitions, protect immutable date fields, and enforce line item requirement."""
         super().clean()
+
+        # Validate that if contact is provided, it must have a business
+        if self.contact and not self.contact.business:
+            raise ValidationError(
+                f'Contact "{self.contact.name}" does not have a Business associated. '
+                'Please assign a Business to this Contact before using it in a Bill.'
+            )
+
+        # Validate that if both contact and business are provided, they must match
+        # Only check on creation (not on updates, since contact's business might change after Bill creation)
+        is_new = not self.pk
+        if is_new and self.contact and self.contact.business and self.business_id:
+            if self.business != self.contact.business:
+                raise ValidationError(
+                    f'Contact "{self.contact.name}" is associated with Business "{self.contact.business.business_name}", '
+                    f'but Bill is set to use Business "{self.business.business_name}". '
+                    'The Business must match the Contact\'s Business.'
+                )
 
         # Validate that PO is in issued or later status (not draft)
         if self.purchase_order and self.purchase_order.status == 'draft':
@@ -206,8 +249,9 @@ class Bill(models.Model):
         old_status = None
         is_new = not self.pk
 
-        # If this is a new Bill and no business is set, auto-associate from contact's business
-        if is_new and not self.business and self.contact and self.contact.business:
+        # If contact is provided and has a business, auto-associate the business
+        # Only do this on creation and if business is not already explicitly set
+        if is_new and self.contact and self.contact.business and not self.business_id:
             self.business = self.contact.business
 
         # Check if this is an update (not a new object)

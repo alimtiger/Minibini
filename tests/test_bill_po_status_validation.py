@@ -23,9 +23,10 @@ class BillPurchaseOrderStatusValidationTest(TestCase):
             business_name='Test Vendor Business'
         )
 
-        # Create a test contact
+        # Create a test contact with business
         self.contact = Contact.objects.create(
-            name='Test Vendor'
+            name='Test Vendor',
+            business=self.business
         )
 
     def test_bill_creation_without_po_succeeds(self):
@@ -48,6 +49,7 @@ class BillPurchaseOrderStatusValidationTest(TestCase):
         )
 
         bill = Bill(
+            bill_number="BILL-DRAFT-TEST",
             purchase_order=po,
             contact=self.contact,
             vendor_invoice_number='INV-001'
@@ -165,7 +167,7 @@ class BillPurchaseOrderStatusValidationTest(TestCase):
         bill.purchase_order = po
 
         with self.assertRaises(ValidationError) as context:
-            bill.full_clean()
+            bill.save()
 
         self.assertIn('issued or later status', str(context.exception).lower())
 
@@ -199,7 +201,7 @@ class BillPurchaseOrderStatusValidationTest(TestCase):
         bill.purchase_order = draft_po
 
         with self.assertRaises(ValidationError) as context:
-            bill.full_clean()
+            bill.save()
 
         self.assertIn('issued or later status', str(context.exception).lower())
 
