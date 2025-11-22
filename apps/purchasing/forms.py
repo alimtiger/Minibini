@@ -194,6 +194,45 @@ class PurchaseOrderStatusForm(forms.Form):
         return self.cleaned_data['status']
 
 
+class BillStatusForm(forms.Form):
+    """Form for changing Bill status"""
+    VALID_TRANSITIONS = {
+        'draft': ['received'],
+        'received': ['partly_paid', 'paid_in_full', 'cancelled'],
+        'partly_paid': ['paid_in_full'],
+        'paid_in_full': ['refunded'],
+        'cancelled': [],  # Terminal state
+        'refunded': [],  # Terminal state
+    }
+
+    status = forms.ChoiceField(choices=[], required=True)
+
+    def __init__(self, *args, **kwargs):
+        current_status = kwargs.pop('current_status', 'draft')
+        super().__init__(*args, **kwargs)
+
+        # Set valid status choices based on current status
+        valid_statuses = self.VALID_TRANSITIONS.get(current_status, [])
+        # Convert status codes to display names
+        from .models import Bill
+        status_dict = dict(Bill.BILL_STATUS_CHOICES)
+
+        choices = [(current_status, f'{status_dict.get(current_status)} (current)')]
+        choices.extend([(s, status_dict.get(s)) for s in valid_statuses])
+
+        self.fields['status'].choices = choices
+        self.fields['status'].initial = current_status
+
+    @staticmethod
+    def has_valid_transitions(current_status):
+        """Check if the current status has any valid transitions."""
+        return len(BillStatusForm.VALID_TRANSITIONS.get(current_status, [])) > 0
+
+    def clean_status(self):
+        """Validate that the status transition is valid."""
+        return self.cleaned_data['status']
+
+
 class BillForm(forms.ModelForm):
     """Form for creating/editing Bill"""
     purchase_order = forms.ModelChoiceField(

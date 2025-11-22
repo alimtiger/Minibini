@@ -1,7 +1,7 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
 from .models import PurchaseOrder, Bill, BillLineItem, PurchaseOrderLineItem
-from .forms import PurchaseOrderForm, PurchaseOrderLineItemForm, PurchaseOrderStatusForm, BillForm, BillLineItemForm
+from .forms import PurchaseOrderForm, PurchaseOrderLineItemForm, PurchaseOrderStatusForm, BillForm, BillLineItemForm, BillStatusForm
 
 def purchase_order_list(request):
     purchase_orders = PurchaseOrder.objects.all().order_by('-po_id')
@@ -115,13 +115,42 @@ def bill_list(request):
 
 def bill_detail(request, bill_id):
     bill = get_object_or_404(Bill, bill_id=bill_id)
+
+    # Handle status update POST request
+    if request.method == 'POST' and 'update_status' in request.POST:
+        # Check if status transitions are allowed
+        if BillStatusForm.has_valid_transitions(bill.status):
+            form = BillStatusForm(request.POST, current_status=bill.status)
+            if form.is_valid():
+                new_status = form.cleaned_data['status']
+                if new_status != bill.status:
+                    try:
+                        bill.status = new_status
+                        bill.save()
+                        messages.success(request, f'Bill status updated to {bill.get_status_display()}')
+                    except Exception as e:
+                        messages.error(request, f'Error updating status: {str(e)}')
+            else:
+                messages.error(request, 'Error: Invalid status transition.')
+            return redirect('purchasing:bill_detail', bill_id=bill.bill_id)
+        else:
+            messages.error(request, f'Cannot update status from {bill.get_status_display()} (terminal state).')
+            return redirect('purchasing:bill_detail', bill_id=bill.bill_id)
+
     line_items = BillLineItem.objects.filter(bill=bill).order_by('line_number', 'line_item_id')
     # Calculate total amount
     total_amount = sum(item.total_amount for item in line_items)
+
+    # Create status form for display only if there are valid transitions
+    status_form = None
+    if BillStatusForm.has_valid_transitions(bill.status):
+        status_form = BillStatusForm(current_status=bill.status)
+
     return render(request, 'purchasing/bill_detail.html', {
         'bill': bill,
         'line_items': line_items,
         'total_amount': total_amount,
+        'status_form': status_form,
         'show_reorder': bill.status == 'draft',
         'reorder_url_name': 'purchasing:bill_reorder_line_item',
         'parent_id': bill.bill_id
@@ -355,3 +384,67 @@ def bill_reorder_line_item(request, bill_id, line_item_id, direction):
     swap_item.save()
 
     return redirect('purchasing:bill_detail', bill_id=bill_id)
+
+
+def bill_delete(request, bill_id):
+    """Delete a Bill (only allowed in Draft status)"""
+    bill = get_object_or_404(Bill, bill_id=bill_id)
+
+    # Only allow deletion if Bill is in Draft status
+    if bill.status != 'draft':
+        messages.error(request, f'Cannot delete Bill {bill.bill_number}. Only Draft Bills can be deleted.')
+        return redirect('purchasing:bill_detail', bill_id=bill.bill_id)
+
+    if request.method == 'POST':
+        bill_number = bill.bill_number
+        bill.delete()
+        messages.success(request, f'Bill {bill_number} deleted successfully.')
+        return redirect('purchasing:bill_list')
+
+    return render(request, 'purchasing/bill_delete.html', {
+        'bill': bill
+    })
+
+
+def purchase_order_delete_line_item(request, po_id, line_item_id):
+    """Delete a line item from a purchase order and renumber remaining items"""
+    from apps.core.services import LineItemService
+    from django.core.exceptions import ValidationError
+
+    purchase_order = get_object_or_404(PurchaseOrder, po_id=po_id)
+    line_item = get_object_or_404(PurchaseOrderLineItem, line_item_id=line_item_id, purchase_order=purchase_order)
+
+    if request.method == 'POST':
+        try:
+            # Use the service to delete and renumber
+            parent_container, deleted_line_number = LineItemService.delete_line_item_with_renumber(line_item)
+            messages.success(request, f'Line item deleted and remaining items renumbered.')
+        except ValidationError as e:
+            messages.error(request, str(e))
+
+        return redirect('purchasing:purchase_order_detail', po_id=purchase_order.po_id)
+
+    # GET request - redirect back to detail (no confirmation needed)
+    return redirect('purchasing:purchase_order_detail', po_id=purchase_order.po_id)
+
+
+def bill_delete_line_item(request, bill_id, line_item_id):
+    """Delete a line item from a bill and renumber remaining items"""
+    from apps.core.services import LineItemService
+    from django.core.exceptions import ValidationError
+
+    bill = get_object_or_404(Bill, bill_id=bill_id)
+    line_item = get_object_or_404(BillLineItem, line_item_id=line_item_id, bill=bill)
+
+    if request.method == 'POST':
+        try:
+            # Use the service to delete and renumber
+            parent_container, deleted_line_number = LineItemService.delete_line_item_with_renumber(line_item)
+            messages.success(request, f'Line item deleted and remaining items renumbered.')
+        except ValidationError as e:
+            messages.error(request, str(e))
+
+        return redirect('purchasing:bill_detail', bill_id=bill.bill_id)
+
+    # GET request - redirect back to detail (no confirmation needed)
+    return redirect('purchasing:bill_detail', bill_id=bill.bill_id)

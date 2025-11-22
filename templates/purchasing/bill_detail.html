@@ -12,7 +12,9 @@
     </tr>
     <tr>
         <td>Status</td>
-        <td>{{ bill.get_status_display }}</td>
+        <td>
+            {% include 'includes/_inline_status_form.html' with object=bill %}
+        </td>
     </tr>
     <tr>
         <td>Purchase Order</td>
