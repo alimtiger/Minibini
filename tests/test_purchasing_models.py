@@ -95,7 +95,8 @@ class BillModelTest(TestCase):
         )
         self.assertEqual(str(bill), f"Bill {bill.bill_number}")
         
-    def test_bill_set_null_on_po_delete(self):
+    def test_bill_protected_from_po_delete(self):
+        """Test that PurchaseOrders with Bills cannot be deleted (PROTECT)."""
         bill = Bill.objects.create(
             bill_number="BILL-003",
             purchase_order=self.purchase_order,
@@ -104,13 +105,23 @@ class BillModelTest(TestCase):
             vendor_invoice_number="VIN003"
         )
         bill_id = bill.bill_id
+        po_id = self.purchase_order.po_id
 
-        # Delete the purchase order
-        self.purchase_order.delete()
+        # Attempt to delete the purchase order should fail
+        # Since Bills can only exist on issued+ POs, our model-level check fires first
+        from django.core.exceptions import PermissionDenied
+        with self.assertRaises(PermissionDenied) as context:
+            self.purchase_order.delete()
 
-        # Bill should still exist but with purchase_order set to None due to SET_NULL
+        self.assertIn('draft', str(context.exception).lower())
+
+        # Both PO and Bill should still exist
+        self.assertTrue(PurchaseOrder.objects.filter(po_id=po_id).exists())
+        self.assertTrue(Bill.objects.filter(bill_id=bill_id).exists())
+
+        # Bill should still reference the PO
         bill.refresh_from_db()
-        self.assertIsNone(bill.purchase_order)
+        self.assertEqual(bill.purchase_order, self.purchase_order)
             
     def test_bill_with_contact_deletion(self):
         bill = Bill.objects.create(

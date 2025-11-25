@@ -132,6 +132,16 @@ class PurchaseOrder(models.Model):
         # Call parent save
         super().save(*args, **kwargs)
 
+    def delete(self, *args, **kwargs):
+        """Override delete to enforce that only draft POs can be deleted."""
+        if self.status != 'draft':
+            from django.core.exceptions import PermissionDenied
+            raise PermissionDenied(
+                f'Cannot delete Purchase Order {self.po_number}. '
+                'Only Purchase Orders in Draft status can be deleted.'
+            )
+        return super().delete(*args, **kwargs)
+
     def __str__(self):
         return f"PO {self.po_number}"
 
@@ -148,7 +158,7 @@ class Bill(models.Model):
 
     bill_id = models.AutoField(primary_key=True)
     bill_number = models.CharField(max_length=50, unique=True)
-    purchase_order = models.ForeignKey(PurchaseOrder, on_delete=models.SET_NULL, null=True, blank=True)
+    purchase_order = models.ForeignKey(PurchaseOrder, on_delete=models.PROTECT, null=True, blank=True)
     # Business is required; Contact is optional but if provided, must have a Business
     business = models.ForeignKey('contacts.Business', on_delete=models.PROTECT)
     contact = models.ForeignKey('contacts.Contact', on_delete=models.PROTECT, null=True, blank=True)
@@ -282,6 +292,16 @@ class Bill(models.Model):
 
         # Call parent save
         super().save(*args, **kwargs)
+
+    def delete(self, *args, **kwargs):
+        """Override delete to enforce that only draft Bills can be deleted."""
+        if self.status != 'draft':
+            from django.core.exceptions import PermissionDenied
+            raise PermissionDenied(
+                f'Cannot delete Bill {self.bill_number}. '
+                'Only Bills in Draft status can be deleted.'
+            )
+        return super().delete(*args, **kwargs)
 
     def __str__(self):
         return f"Bill {self.bill_number}"
