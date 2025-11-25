@@ -100,5 +100,10 @@
 {% endif %}
 {% include 'includes/_line_items_table.html' with total_label="Total Bill Amount" %}
 
-<p><a href="{% url 'purchasing:bill_list' %}">Back to Bills List</a></p>
+<p>
+    {% if bill.status == 'draft' %}
+        <a href="{% url 'purchasing:bill_delete' bill.bill_id %}">Delete Bill</a> |
+    {% endif %}
+    <a href="{% url 'purchasing:bill_list' %}">Back to Bills List</a>
+</p>
 {% endblock %}
