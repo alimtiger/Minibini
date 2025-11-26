@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('jobs', '0016_rename_price_currency_estimatelineitem_price'),
+        ('jobs', '0015_job_start_date'),
     ]
 
     operations = [
