@@ -1,11 +1,13 @@
 from django.test import TestCase
+from django.db import models
 from apps.purchasing.models import PurchaseOrder, Bill
 from apps.jobs.models import Job
-from apps.contacts.models import Contact
+from apps.contacts.models import Contact, Business
 
 
 class PurchaseOrderModelTest(TestCase):
     def setUp(self):
+        self.business = Business.objects.create(business_name="Test Business")
         self.contact = Contact.objects.create(name="Test Customer")
         self.job = Job.objects.create(
             job_number="JOB001",
@@ -15,6 +17,7 @@ class PurchaseOrderModelTest(TestCase):
         
     def test_purchase_order_creation(self):
         po = PurchaseOrder.objects.create(
+            business=self.business,
             job=self.job,
             po_number="PO001"
         )
@@ -22,32 +25,38 @@ class PurchaseOrderModelTest(TestCase):
         self.assertEqual(po.po_number, "PO001")
         
     def test_purchase_order_str_method(self):
-        po = PurchaseOrder.objects.create(po_number="PO002")
+        po = PurchaseOrder.objects.create(business=self.business, po_number="PO002")
         self.assertEqual(str(po), "PO PO002")
         
     def test_purchase_order_optional_job(self):
         po = PurchaseOrder.objects.create(
+            business=self.business,
             po_number="PO003"
         )
         self.assertIsNone(po.job)
-        
+
     def test_purchase_order_without_job(self):
         po = PurchaseOrder.objects.create(
+            business=self.business,
             po_number="PO004"
         )
         self.assertIsNone(po.job)
         self.assertEqual(po.po_number, "PO004")
         
     def test_purchase_order_unique_po_number(self):
-        PurchaseOrder.objects.create(po_number="UNIQUE001")
+        PurchaseOrder.objects.create(business=self.business, po_number="UNIQUE001")
         
         with self.assertRaises(Exception):
-            PurchaseOrder.objects.create(po_number="UNIQUE001")
+            PurchaseOrder.objects.create(business=self.business, po_number="UNIQUE001")
 
 
 class BillModelTest(TestCase):
     def setUp(self):
-        self.contact = Contact.objects.create(name="Test Vendor")
+        self.business = Business.objects.create(business_name="Test Business")
+        self.contact = Contact.objects.create(
+            name="Test Vendor",
+            business=self.business
+        )
         self.customer_contact = Contact.objects.create(name="Test Customer")
         self.job = Job.objects.create(
             job_number="JOB001",
@@ -55,54 +64,75 @@ class BillModelTest(TestCase):
             description="Test job"
         )
         self.purchase_order = PurchaseOrder.objects.create(
+            business=self.business,
             job=self.job,
-            po_number="PO001"
+            po_number="PO001",
+            status='draft'
         )
+        self.purchase_order.status = 'issued'
+        self.purchase_order.save()
         
     def test_bill_creation(self):
         bill = Bill.objects.create(
+            bill_number="BILL-001",
             purchase_order=self.purchase_order,
+            business=self.business,
             contact=self.contact,
             vendor_invoice_number="VIN001"
         )
         self.assertEqual(bill.purchase_order, self.purchase_order)
+        self.assertEqual(bill.business, self.business)
         self.assertEqual(bill.contact, self.contact)
         self.assertEqual(bill.vendor_invoice_number, "VIN001")
         
     def test_bill_str_method(self):
         bill = Bill.objects.create(
+            bill_number="BILL-002",
             purchase_order=self.purchase_order,
+            business=self.business,
             contact=self.contact,
             vendor_invoice_number="VIN002"
         )
-        self.assertEqual(str(bill), f"Bill {bill.bill_id}")
+        self.assertEqual(str(bill), f"Bill {bill.bill_number}")
         
-    def test_bill_cascade_delete_with_po(self):
+    def test_bill_protected_from_po_delete(self):
+        """Test that PurchaseOrders with Bills cannot be deleted (PROTECT)."""
         bill = Bill.objects.create(
+            bill_number="BILL-003",
             purchase_order=self.purchase_order,
+            business=self.business,
             contact=self.contact,
             vendor_invoice_number="VIN003"
         )
         bill_id = bill.bill_id
-        
-        # Delete the purchase order
-        self.purchase_order.delete()
-        
-        # Bill should be deleted due to CASCADE
-        with self.assertRaises(Bill.DoesNotExist):
-            Bill.objects.get(bill_id=bill_id)
+        po_id = self.purchase_order.po_id
+
+        # Attempt to delete the purchase order should fail
+        # Since Bills can only exist on issued+ POs, our model-level check fires first
+        from django.core.exceptions import PermissionDenied
+        with self.assertRaises(PermissionDenied) as context:
+            self.purchase_order.delete()
+
+        self.assertIn('draft', str(context.exception).lower())
+
+        # Both PO and Bill should still exist
+        self.assertTrue(PurchaseOrder.objects.filter(po_id=po_id).exists())
+        self.assertTrue(Bill.objects.filter(bill_id=bill_id).exists())
+
+        # Bill should still reference the PO
+        bill.refresh_from_db()
+        self.assertEqual(bill.purchase_order, self.purchase_order)
             
     def test_bill_with_contact_deletion(self):
         bill = Bill.objects.create(
+            bill_number="BILL-004",
             purchase_order=self.purchase_order,
+            business=self.business,
             contact=self.contact,
             vendor_invoice_number="VIN004"
         )
         contact_id = self.contact.pk
-        
-        # Delete the contact
-        self.contact.delete()
-        
-        # Bill should be deleted due to CASCADE
-        with self.assertRaises(Bill.DoesNotExist):
-            Bill.objects.get(purchase_order=self.purchase_order, vendor_invoice_number="VIN004")
+
+        # Cannot delete the contact due to PROTECT
+        with self.assertRaises(models.ProtectedError):
+            self.contact.delete()

@@ -136,6 +136,7 @@ class SearchViewTests(TestCase):
 
         # Create purchase orders
         self.po1 = PurchaseOrder.objects.create(
+            business=self.business,
             job=self.job1,
             po_number='PO-2024-001'
         )

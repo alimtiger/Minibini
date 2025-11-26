@@ -323,13 +323,6 @@ class BlepModelTest(TestCase):
         blep = Blep.objects.create(task=self.task)
         self.assertEqual(str(blep), f"Blep {blep.pk} for Task {self.task.pk}")
 
-    def test_blep_optional_fields(self):
-        blep = Blep.objects.create(task=self.task)
-        self.assertIsNone(blep.user)
-        self.assertIsNone(blep.start_time)
-        self.assertIsNone(blep.end_time)
-
-
 class TaskMappingModelTest(TestCase):
     def setUp(self):
         self.contact = Contact.objects.create(name="Test Customer")

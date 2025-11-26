@@ -4,7 +4,7 @@ from decimal import Decimal
 from apps.invoicing.models import Invoice, InvoiceLineItem, PriceListItem
 from apps.jobs.models import Job, Estimate, Task, WorkOrder
 from apps.purchasing.models import PurchaseOrder, Bill
-from apps.contacts.models import Contact
+from apps.contacts.models import Contact, Business
 
 
 
@@ -94,7 +94,11 @@ class InvoiceModelTest(TestCase):
 
 class InvoiceLineItemModelTest(TestCase):
     def setUp(self):
-        self.contact = Contact.objects.create(name="Test Customer")
+        self.business = Business.objects.create(business_name="Test Business")
+        self.contact = Contact.objects.create(
+            name="Test Customer",
+            business=self.business
+        )
         self.job = Job.objects.create(
             job_number="JOB001",
             contact=self.contact,
@@ -114,6 +118,7 @@ class InvoiceLineItemModelTest(TestCase):
             name="Test Task",
         )
         self.purchase_order = PurchaseOrder.objects.create(
+            business=self.business,
             job=self.job,
             po_number="PO001"
         )

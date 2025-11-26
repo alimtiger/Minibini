@@ -45,9 +45,29 @@ class PriceListItem(models.Model):
     qty_on_hand = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal('0.00'))
     qty_sold = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal('0.00'))
     qty_wasted = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal('0.00'))
+    is_active = models.BooleanField(default=True)  # For soft-delete - use instead of hard deletion
 
     def __str__(self):
         return f"{self.code} - {self.description[:50]}"
+
+    @property
+    def can_be_deleted(self):
+        """
+        Check if this price list item can be safely deleted.
+        Returns False if any line items reference it.
+
+        Note: With PROTECT on_delete, this check is now enforced at the database level.
+        This property is useful for UI to show/hide delete buttons.
+        """
+        from apps.jobs.models import EstimateLineItem
+        from apps.purchasing.models import PurchaseOrderLineItem, BillLineItem
+
+        return not (
+            EstimateLineItem.objects.filter(price_list_item=self).exists() or
+            InvoiceLineItem.objects.filter(price_list_item=self).exists() or
+            PurchaseOrderLineItem.objects.filter(price_list_item=self).exists() or
+            BillLineItem.objects.filter(price_list_item=self).exists()
+        )
 
 
 

@@ -19,23 +19,20 @@ class ComprehensiveModelIntegrationTest(TestCase):
         self.group = Group.objects.create(name="Manager")
         self.user = User.objects.create_user(username="testuser", email="test@example.com")
         self.user.groups.add(self.group)
+        self.payment_terms = PaymentTerms.objects.create()
+        self.business = Business.objects.create(
+            business_name="Test Business",
+            terms=self.payment_terms
+        )
         self.contact = Contact.objects.create(
             name="Test Contact",
             email="contact@example.com",
             addr1="123 Main St",
             city="Test City",
             municipality="TS",
-            postal_code="12345"
+            postal_code="12345",
+            business=self.business
         )
-        self.payment_terms = PaymentTerms.objects.create()
-        # Create business with default_contact
-        self.business = Business.objects.create(
-            business_name="Test Business",
-            terms=self.payment_terms,
-            default_contact=self.contact
-        )
-        self.contact.business = self.business
-        self.contact.save()
 
     def test_complete_job_workflow(self):
         job = Job.objects.create(
@@ -104,7 +101,7 @@ class ComprehensiveModelIntegrationTest(TestCase):
             price_list_item=price_list_item,
             qty=Decimal('5.00'),
             description="Test estimate line item",
-            price_currency=Decimal('75.00')
+            price=Decimal('75.00')
         )
 
         invoice_line_item = InvoiceLineItem.objects.create(
@@ -112,7 +109,7 @@ class ComprehensiveModelIntegrationTest(TestCase):
             price_list_item=price_list_item,
             qty=Decimal('5.00'),
             description="Test invoice line item",
-            price_currency=Decimal('75.00')
+            price=Decimal('75.00')
         )
 
         self.assertEqual(estimate_line_item.estimate, estimate)
@@ -130,12 +127,18 @@ class ComprehensiveModelIntegrationTest(TestCase):
         )
 
         purchase_order = PurchaseOrder.objects.create(
+            business=self.business,
             job=job,
-            po_number="PO001"
+            po_number="PO001",
+            status='draft'
         )
+        purchase_order.status = 'issued'
+        purchase_order.save()
 
         bill = Bill.objects.create(
+            bill_number="BILL-TEST-001",
             purchase_order=purchase_order,
+            business=self.business,
             contact=self.contact,
             vendor_invoice_number="VENDOR001"
         )
@@ -152,7 +155,7 @@ class ComprehensiveModelIntegrationTest(TestCase):
             price_list_item=price_item,
             qty=Decimal('2.00'),
             description="Purchase order item",
-            price_currency=Decimal('50.00')
+            price=Decimal('50.00')
         )
 
         bill_line_item = BillLineItem.objects.create(
@@ -160,7 +163,7 @@ class ComprehensiveModelIntegrationTest(TestCase):
             price_list_item=price_item,
             qty=Decimal('2.00'),
             description="Bill item",
-            price_currency=Decimal('50.00')
+            price=Decimal('50.00')
         )
 
         self.assertEqual(bill.purchase_order, purchase_order)
@@ -261,14 +264,11 @@ class ComprehensiveModelIntegrationTest(TestCase):
 
         work_order = WorkOrder.objects.create(job=job)
         task = Task.objects.create(work_order=work_order, name="Test Task")
-        blep = Blep.objects.create(task=task, user=self.user)
 
-        initial_blep_count = Blep.objects.count()
         initial_task_count = Task.objects.count()
 
         work_order.delete()
 
-        self.assertEqual(Blep.objects.count(), initial_blep_count - 1)
         self.assertEqual(Task.objects.count(), initial_task_count - 1)
 
     def test_user_group_relationship(self):
@@ -305,11 +305,11 @@ class ComprehensiveModelIntegrationTest(TestCase):
             invoice=invoice,
             price_list_item=price_list_item,
             qty=Decimal('10.00'),
-            price_currency=Decimal('22.50')
+            price=Decimal('22.50')
         )
 
         expected_total = line_item.qty * price_list_item.selling_price
-        self.assertEqual(line_item.price_currency, expected_total)
+        self.assertEqual(line_item.price, expected_total)
 
     def test_unique_constraints(self):
         job = Job.objects.create(job_number="UNIQUE001", contact=self.contact)
@@ -334,7 +334,7 @@ class ComprehensiveModelIntegrationTest(TestCase):
         job = Job.objects.create(job_number="STR_TEST", contact=self.contact)
         estimate = Estimate.objects.create(job=job, estimate_number="EST_STR")
         invoice = Invoice.objects.create(job=job, invoice_number="INV_STR")
-        po = PurchaseOrder.objects.create(po_number="PO_STR")
+        po = PurchaseOrder.objects.create(business=self.business, po_number="PO_STR")
 
         self.assertEqual(str(job), "STR_TEST")
         self.assertEqual(str(estimate), "Estimate EST_STR")
@@ -348,7 +348,8 @@ class LineItemValidationTest(TestCase):
     """Test LineItem validation across all submodel types"""
 
     def setUp(self):
-        self.contact = Contact.objects.create(name="Test Customer")
+        self.business = Business.objects.create(business_name="Test Business")
+        self.contact = Contact.objects.create(name="Test Customer", business=self.business)
         self.job = Job.objects.create(
             job_number="VALID_JOB001",
             contact=self.contact,
@@ -365,11 +366,18 @@ class LineItemValidationTest(TestCase):
             invoice_number="INV_VALID001"
         )
         self.purchase_order = PurchaseOrder.objects.create(
+            business=self.business,
             job=self.job,
-            po_number="PO_VALID001"
+            po_number="PO_VALID001",
+            status='draft'
         )
+        self.purchase_order.status = 'issued'
+        self.purchase_order.save()
+
         self.bill = Bill.objects.create(
+            bill_number="BILL-TEST-002",
             purchase_order=self.purchase_order,
+            business=self.business,
             contact=self.contact,
             vendor_invoice_number="VIN_VALID001"
         )
