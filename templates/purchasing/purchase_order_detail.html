@@ -17,14 +17,7 @@
     <tr>
         <td>Status</td>
         <td>
-            {{ purchase_order.get_status_display }}
-            {% if status_form %}
-                <form method="post" style="display: inline; margin-left: 20px;">
-                    {% csrf_token %}
-                    {{ status_form.status }}
-                    <button type="submit" name="update_status">Update Status</button>
-                </form>
-            {% endif %}
+            {% include 'includes/_inline_status_form.html' with object=purchase_order %}
         </td>
     </tr>
     <tr>
@@ -81,63 +74,26 @@
     {% endif %}
 </table>
 
-<h3>Actions</h3>
 <p>
-    <a href="{% url 'purchasing:purchase_order_edit' purchase_order.po_id %}">Edit PO</a>
+    {% if purchase_order.status != 'cancelled' %}
+        <a href="{% url 'purchasing:purchase_order_edit' purchase_order.po_id %}">Edit PO</a>
+    {% endif %}
     {% if purchase_order.status == 'draft' %}
         | <a href="{% url 'purchasing:purchase_order_delete' purchase_order.po_id %}">Delete PO</a>
     {% endif %}
     {% if purchase_order.status == 'issued' %}
         | <a href="{% url 'purchasing:purchase_order_cancel' purchase_order.po_id %}">Cancel PO</a>
     {% endif %}
+    {% if purchase_order.status != 'draft' and purchase_order.status != 'cancelled' %}
+        | <a href="{% url 'purchasing:bill_create_for_po' purchase_order.po_id %}">Add Bill</a>
+    {% endif %}
 </p>
 
 <h3>Line Items</h3>
-<p><a href="{% url 'purchasing:purchase_order_add_line_item' purchase_order.po_id %}">Add Line Item</a></p>
-{% if line_items %}
-    <table border="1" style="border-collapse: collapse; width: 100%; margin-top: 10px;">
-        <thead>
-            <tr>
-                <th>Item #</th>
-                <th>Description</th>
-                <th>Task/Price List Item</th>
-                <th>Quantity</th>
-                <th>Unit</th>
-                <th>Price</th>
-                <th>Total</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for item in line_items %}
-            <tr>
-                <td>{{ item.line_number|default:item.line_item_id }}</td>
-                <td>{{ item.description|default:"No description" }}</td>
-                <td>
-                    {% if item.task %}
-                        Task: {{ item.task.name }}
-                    {% elif item.price_list_item %}
-                        {{ item.price_list_item.code }} - {{ item.price_list_item.description|truncatewords:5 }}
-                    {% else %}
-                        No source
-                    {% endif %}
-                </td>
-                <td>{{ item.qty }}</td>
-                <td>{{ item.units|default:"—" }}</td>
-                <td>${{ item.price_currency|floatformat:2 }}</td>
-                <td>${{ item.total_amount|floatformat:2 }}</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-        <tfoot>
-            <tr style="background-color: #f0f0f0; font-weight: bold;">
-                <td colspan="6">Total Purchase Order Amount:</td>
-                <td>${{ total_amount|floatformat:2 }}</td>
-            </tr>
-        </tfoot>
-    </table>
-{% else %}
-    <p>No line items found for this purchase order.</p>
+{% if purchase_order.status != 'cancelled' %}
+    <p><a href="{% url 'purchasing:purchase_order_add_line_item' purchase_order.po_id %}">Add Line Item</a></p>
 {% endif %}
+{% include 'includes/_line_items_table.html' with total_label="Total Purchase Order Amount" %}
 
 <h3>Associated Bills</h3>
 {% if bills %}

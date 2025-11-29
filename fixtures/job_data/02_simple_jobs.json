@@ -68,7 +68,7 @@
   "pk": 5,
   "fields": {
     "job_number": "J2025-0005",
-    "name": "",
+    "name": "2-top tables",
     "created_date": "2025-10-13T16:54:41.008Z",
     "start_date": null,
     "due_date": "2025-12-05T00:00:00Z",
@@ -170,21 +170,6 @@
   }
 },
 {
-  "model": "jobs.estimate",
-  "pk": 7,
-  "fields": {
-    "job": 5,
-    "estimate_number": "EST-2025-0007",
-    "version": 1,
-    "status": "draft",
-    "parent": null,
-    "created_date": "2025-10-13T16:56:09.651Z",
-    "sent_date": null,
-    "closed_date": null,
-    "expiration_date": null
-  }
-},
-{
   "model": "jobs.workorder",
   "pk": 1,
   "fields": {
@@ -213,6 +198,19 @@
     "version": 1,
     "parent": null,
     "created_date": "2025-02-01T15:00:00Z"
+  }
+},
+{
+  "model": "jobs.estworksheet",
+  "pk": 2,
+  "fields": {
+    "job": 5,
+    "template": null,
+    "estimate": null,
+    "status": "draft",
+    "version": 1,
+    "parent": null,
+    "created_date": "2025-10-17T15:09:06.143Z"
   }
 },
 {
@@ -441,6 +439,81 @@
   }
 },
 {
+  "model": "jobs.task",
+  "pk": 16,
+  "fields": {
+    "parent_task": null,
+    "assignee": null,
+    "work_order": null,
+    "est_worksheet": 2,
+    "name": "Buy Leg bases",
+    "units": "pc",
+    "rate": "85.00",
+    "est_qty": "6.00",
+    "template": null
+  }
+},
+{
+  "model": "jobs.task",
+  "pk": 17,
+  "fields": {
+    "parent_task": null,
+    "assignee": null,
+    "work_order": null,
+    "est_worksheet": 2,
+    "name": "CAD",
+    "units": "hours",
+    "rate": "150.00",
+    "est_qty": "1.00",
+    "template": 2
+  }
+},
+{
+  "model": "jobs.task",
+  "pk": 18,
+  "fields": {
+    "parent_task": null,
+    "assignee": null,
+    "work_order": null,
+    "est_worksheet": 2,
+    "name": "CUT",
+    "units": "minutes",
+    "rate": "22.00",
+    "est_qty": "10.00",
+    "template": 3
+  }
+},
+{
+  "model": "jobs.task",
+  "pk": 19,
+  "fields": {
+    "parent_task": null,
+    "assignee": null,
+    "work_order": null,
+    "est_worksheet": 2,
+    "name": "FINISH",
+    "units": "hours",
+    "rate": "100.00",
+    "est_qty": "3.00",
+    "template": 5
+  }
+},
+{
+  "model": "jobs.task",
+  "pk": 20,
+  "fields": {
+    "parent_task": null,
+    "assignee": null,
+    "work_order": null,
+    "est_worksheet": 2,
+    "name": "screw on legs",
+    "units": "hours",
+    "rate": "75.00",
+    "est_qty": "1.00",
+    "template": null
+  }
+},
+{
   "model": "jobs.estimatelineitem",
   "pk": 1,
   "fields": {
@@ -450,7 +523,7 @@
     "qty": "3.00",
     "units": "hours",
     "description": "CAD design and template creation",
-    "price_currency": "3800.00",
+    "price": "3800.00",
     "estimate": 1
   }
 },
@@ -464,7 +537,7 @@
     "qty": "1.00",
     "units": "job",
     "description": "CNC cutting of concrete forms",
-    "price_currency": "3800.00",
+    "price": "3800.00",
     "estimate": 1
   }
 },
@@ -478,7 +551,7 @@
     "qty": "20.00",
     "units": "sheets",
     "description": "Plywood sheets for form construction",
-    "price_currency": "2000.00",
+    "price": "2000.00",
     "estimate": 1
   }
 },
@@ -492,7 +565,7 @@
     "qty": "6.00",
     "units": "hours",
     "description": "Design drawings",
-    "price_currency": "900.00",
+    "price": "900.00",
     "estimate": 2
   }
 },
@@ -506,7 +579,7 @@
     "qty": "1.00",
     "units": "piece",
     "description": "HDU material for sign",
-    "price_currency": "300.00",
+    "price": "300.00",
     "estimate": 2
   }
 },
@@ -520,7 +593,7 @@
     "qty": "120.00",
     "units": "minutes",
     "description": "CNC cutting of sign",
-    "price_currency": "2640.00",
+    "price": "2640.00",
     "estimate": 2
   }
 },
@@ -534,7 +607,7 @@
     "qty": "8.00",
     "units": "hours",
     "description": "Painting and finishing",
-    "price_currency": "800.00",
+    "price": "800.00",
     "estimate": 2
   }
 },
@@ -548,7 +621,7 @@
     "qty": "4.00",
     "units": "hours",
     "description": "Assembly and hardware installation",
-    "price_currency": "400.00",
+    "price": "400.00",
     "estimate": 2
   }
 },
@@ -562,7 +635,7 @@
     "qty": "8.00",
     "units": "hours",
     "description": "Design drawings",
-    "price_currency": "1200.00",
+    "price": "1200.00",
     "estimate": 3
   }
 },
@@ -576,7 +649,7 @@
     "qty": "1.00",
     "units": "piece",
     "description": "HDU material for sign",
-    "price_currency": "300.00",
+    "price": "300.00",
     "estimate": 3
   }
 },
@@ -590,7 +663,7 @@
     "qty": "140.00",
     "units": "minutes",
     "description": "CNC cutting of sign",
-    "price_currency": "3080.00",
+    "price": "3080.00",
     "estimate": 3
   }
 },
@@ -604,7 +677,7 @@
     "qty": "10.00",
     "units": "hours",
     "description": "Painting and finishing",
-    "price_currency": "1000.00",
+    "price": "1000.00",
     "estimate": 3
   }
 },
@@ -618,7 +691,7 @@
     "qty": "5.00",
     "units": "hours",
     "description": "Assembly and hardware installation",
-    "price_currency": "500.00",
+    "price": "500.00",
     "estimate": 3
   }
 },
@@ -632,7 +705,7 @@
     "qty": "10.00",
     "units": "hours",
     "description": "Design drawings with client revisions",
-    "price_currency": "1500.00",
+    "price": "1500.00",
     "estimate": 4
   }
 },
@@ -646,7 +719,7 @@
     "qty": "1.00",
     "units": "piece",
     "description": "Premium HDU material for sign",
-    "price_currency": "300.00",
+    "price": "300.00",
     "estimate": 4
   }
 },
@@ -660,7 +733,7 @@
     "qty": "150.00",
     "units": "minutes",
     "description": "Precision CNC cutting with detail work",
-    "price_currency": "3300.00",
+    "price": "3300.00",
     "estimate": 4
   }
 },
@@ -674,7 +747,7 @@
     "qty": "12.00",
     "units": "hours",
     "description": "Multi-layer painting and protective coating",
-    "price_currency": "1200.00",
+    "price": "1200.00",
     "estimate": 4
   }
 },
@@ -688,7 +761,7 @@
     "qty": "6.00",
     "units": "hours",
     "description": "Assembly with LED lighting integration",
-    "price_currency": "600.00",
+    "price": "600.00",
     "estimate": 4
   }
 },
@@ -702,7 +775,7 @@
     "qty": "10.00",
     "units": "hours",
     "description": "Design drawings with client revisions",
-    "price_currency": "1500.00",
+    "price": "1500.00",
     "estimate": 5
   }
 },
@@ -716,7 +789,7 @@
     "qty": "1.00",
     "units": "piece",
     "description": "Premium HDU material for sign",
-    "price_currency": "300.00",
+    "price": "300.00",
     "estimate": 5
   }
 },
@@ -730,7 +803,7 @@
     "qty": "150.00",
     "units": "minutes",
     "description": "Precision CNC cutting with detail work",
-    "price_currency": "3300.00",
+    "price": "3300.00",
     "estimate": 5
   }
 },
@@ -744,7 +817,7 @@
     "qty": "12.00",
     "units": "hours",
     "description": "Multi-layer painting and protective coating",
-    "price_currency": "1200.00",
+    "price": "1200.00",
     "estimate": 5
   }
 },
@@ -758,35 +831,35 @@
     "qty": "6.00",
     "units": "hours",
     "description": "Assembly with LED lighting integration",
-    "price_currency": "600.00",
+    "price": "600.00",
     "estimate": 5
   }
 },
 {
   "model": "jobs.estimatelineitem",
-  "pk": 24,
+  "pk": 27,
   "fields": {
-    "task": null,
+    "task": 1,
     "price_list_item": null,
     "line_number": 1,
-    "qty": "1.00",
-    "units": "each",
-    "description": "Custom Furniture",
-    "price_currency": "2750.00",
+    "qty": "8.00",
+    "units": "hours",
+    "description": "CAD drawings and technical documentation",
+    "price": "800.00",
     "estimate": 6
   }
 },
 {
   "model": "jobs.estimatelineitem",
-  "pk": 25,
+  "pk": 28,
   "fields": {
-    "task": null,
+    "task": 2,
     "price_list_item": null,
     "line_number": 2,
-    "qty": "1.00",
-    "units": "each",
-    "description": "Custom Furniture",
-    "price_currency": "800.00",
+    "qty": "300.00",
+    "units": "board feet",
+    "description": "White oak lumber purchase",
+    "price": "2100.00",
     "estimate": 6
   }
 },
@@ -800,35 +873,35 @@
     "qty": "1.00",
     "units": "each",
     "description": "Custom Furniture",
-    "price_currency": "2200.00",
+    "price": "2200.00",
     "estimate": 6
   }
 },
 {
   "model": "jobs.estimatelineitem",
-  "pk": 27,
+  "pk": 24,
   "fields": {
-    "task": 1,
+    "task": null,
     "price_list_item": null,
     "line_number": 4,
-    "qty": "8.00",
-    "units": "hours",
-    "description": "CAD drawings and technical documentation",
-    "price_currency": "800.00",
+    "qty": "1.00",
+    "units": "each",
+    "description": "Custom Furniture",
+    "price": "2750.00",
     "estimate": 6
   }
 },
 {
   "model": "jobs.estimatelineitem",
-  "pk": 28,
+  "pk": 25,
   "fields": {
-    "task": 2,
+    "task": null,
     "price_list_item": null,
     "line_number": 5,
-    "qty": "300.00",
-    "units": "board feet",
-    "description": "White oak lumber purchase",
-    "price_currency": "2100.00",
+    "qty": "1.00",
+    "units": "each",
+    "description": "Custom Furniture",
+    "price": "800.00",
     "estimate": 6
   }
 }

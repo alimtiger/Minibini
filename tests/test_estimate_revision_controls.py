@@ -192,7 +192,7 @@ class EstimateRevisionTests(TestCase):
             qty=5.0,
             units='hour',
             description='Line Item 1',
-            price_currency=100.00
+            price=100.00
         )
 
         self.line_item2 = EstimateLineItem.objects.create(
@@ -201,7 +201,7 @@ class EstimateRevisionTests(TestCase):
             qty=10.0,
             units='each',
             description='Line Item 2',
-            price_currency=50.00
+            price=50.00
         )
 
     def test_revise_confirmation_page(self):
@@ -287,14 +287,14 @@ class EstimateRevisionTests(TestCase):
         self.assertEqual(new_li1.qty, 5.0)
         self.assertEqual(new_li1.units, 'hour')
         self.assertEqual(new_li1.description, 'Line Item 1')
-        self.assertEqual(new_li1.price_currency, 100.00)
+        self.assertEqual(new_li1.price, 100.00)
 
         new_li2 = new_line_items.filter(line_number=2).first()
         self.assertIsNotNone(new_li2)
         self.assertEqual(new_li2.qty, 10.0)
         self.assertEqual(new_li2.units, 'each')
         self.assertEqual(new_li2.description, 'Line Item 2')
-        self.assertEqual(new_li2.price_currency, 50.00)
+        self.assertEqual(new_li2.price, 50.00)
 
     def test_revise_button_shows_for_non_draft(self):
         """Test that revise button shows for non-draft estimates."""

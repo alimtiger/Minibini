@@ -33,6 +33,8 @@ class NumberGenerationService:
     - invoice_counter: Current counter for invoices
     - po_number_sequence: Pattern for PO numbers
     - po_counter: Current counter for POs
+    - bill_number_sequence: Pattern for bill numbers
+    - bill_counter: Current counter for bills
     """
 
     # Map document types to their configuration key names
@@ -41,6 +43,7 @@ class NumberGenerationService:
         'estimate': 'estimate_number_sequence',
         'invoice': 'invoice_number_sequence',
         'po': 'po_number_sequence',
+        'bill': 'bill_number_sequence',
     }
 
     COUNTER_KEYS = {
@@ -48,6 +51,7 @@ class NumberGenerationService:
         'estimate': 'estimate_counter',
         'invoice': 'invoice_counter',
         'po': 'po_counter',
+        'bill': 'bill_counter',
     }
 
     @classmethod
@@ -56,7 +60,7 @@ class NumberGenerationService:
         Generate the next sequential number for the given document type.
 
         Args:
-            document_type: One of 'job', 'estimate', 'invoice', 'po'
+            document_type: One of 'job', 'estimate', 'invoice', 'po', 'bill'
 
         Returns:
             The next formatted document number
@@ -153,7 +157,7 @@ class NumberGenerationService:
         Reset a counter to a specific value. Use with caution!
 
         Args:
-            document_type: One of 'job', 'estimate', 'invoice', 'po'
+            document_type: One of 'job', 'estimate', 'invoice', 'po', 'bill'
             new_value: The value to reset the counter to (default: 0)
         """
         if document_type not in cls.COUNTER_KEYS:

@@ -163,7 +163,7 @@ class BaseLineItem(models.Model):
     qty = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal('0.00'))
     units = models.CharField(max_length=50, blank=True)
     description = models.TextField(blank=True)
-    price_currency = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal('0.00'))
+    price = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal('0.00'))
 
     class Meta:
         abstract = True
@@ -211,7 +211,7 @@ class BaseLineItem(models.Model):
     @property
     def total_amount(self):
         """Calculate total amount (quantity * price)."""
-        return self.qty * self.price_currency
+        return self.qty * self.price
 
     @property
     def source_name(self):

@@ -13,7 +13,9 @@
             <th>PO Number</th>
             <th>Business</th>
             <th>Job</th>
-            <th>Actions</th>
+            <th>Created Date</th>
+            <th>State</th>
+            <th>Final Date</th>
         </tr>
         {% for po in purchase_orders %}
         <tr>
@@ -32,7 +34,19 @@
                     No job
                 {% endif %}
             </td>
-            <td>Delete</td>
+            <td>{{ po.created_date|date:"Y-m-d H:i" }}</td>
+            <td>{{ po.get_status_display }}</td>
+            <td>
+                {% if po.status == 'cancelled' and po.cancel_date %}
+                    {{ po.cancel_date|date:"Y-m-d H:i" }}
+                {% elif po.status == 'received_in_full' and po.received_date %}
+                    {{ po.received_date|date:"Y-m-d H:i" }}
+                {% elif po.issued_date %}
+                    {{ po.issued_date|date:"Y-m-d H:i" }}
+                {% else %}
+                    -
+                {% endif %}
+            </td>
         </tr>
         {% endfor %}
     </table>

@@ -13,5 +13,8 @@ urlpatterns = [
     path('purchase-orders/<int:po_id>/cancel/', views.purchase_order_cancel, name='purchase_order_cancel'),
     path('purchase-orders/<int:po_id>/add-line-item/', views.purchase_order_add_line_item, name='purchase_order_add_line_item'),
     path('bills/', views.bill_list, name='bill_list'),
+    path('bills/create/', views.bill_create, name='bill_create'),
+    path('bills/create-for-po/<int:po_id>/', views.bill_create_for_po, name='bill_create_for_po'),
     path('bills/<int:bill_id>/', views.bill_detail, name='bill_detail'),
+    path('bills/<int:bill_id>/add-line-item/', views.bill_add_line_item, name='bill_add_line_item'),
 ]

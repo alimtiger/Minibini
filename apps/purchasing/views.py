@@ -1,7 +1,7 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
 from .models import PurchaseOrder, Bill, BillLineItem, PurchaseOrderLineItem
-from .forms import PurchaseOrderForm, PurchaseOrderLineItemForm, PurchaseOrderStatusForm
+from .forms import PurchaseOrderForm, PurchaseOrderLineItemForm, PurchaseOrderStatusForm, BillForm, BillLineItemForm
 
 def purchase_order_list(request):
     purchase_orders = PurchaseOrder.objects.all().order_by('-po_id')
@@ -30,7 +30,7 @@ def purchase_order_detail(request, po_id):
             return redirect('purchasing:purchase_order_detail', po_id=purchase_order.po_id)
 
     bills = Bill.objects.filter(purchase_order=purchase_order).order_by('-bill_id')
-    line_items = PurchaseOrderLineItem.objects.filter(purchase_order=purchase_order).order_by('line_item_id')
+    line_items = PurchaseOrderLineItem.objects.filter(purchase_order=purchase_order).order_by('line_number', 'line_item_id')
     # Calculate total amount
     total_amount = sum(item.total_amount for item in line_items)
 
@@ -93,7 +93,7 @@ def purchase_order_add_line_item(request, po_id):
                 description=price_list_item.description,
                 qty=qty,
                 units=price_list_item.units,
-                price_currency=price_list_item.purchase_price  # Use purchase_price
+                price=price_list_item.purchase_price  # Use purchase_price
             )
 
             messages.success(request, f'Line item "{line_item.description}" added from price list')
@@ -112,7 +112,7 @@ def bill_list(request):
 
 def bill_detail(request, bill_id):
     bill = get_object_or_404(Bill, bill_id=bill_id)
-    line_items = BillLineItem.objects.filter(bill=bill).order_by('line_item_id')
+    line_items = BillLineItem.objects.filter(bill=bill).order_by('line_number', 'line_item_id')
     # Calculate total amount
     total_amount = sum(item.total_amount for item in line_items)
     return render(request, 'purchasing/bill_detail.html', {
@@ -175,4 +175,77 @@ def purchase_order_cancel(request, po_id):
 
     return render(request, 'purchasing/purchase_order_cancel.html', {
         'purchase_order': purchase_order
+    })
+
+def bill_create(request):
+    """Create a new Bill"""
+    if request.method == 'POST':
+        form = BillForm(request.POST)
+        if form.is_valid():
+            bill = form.save()
+            messages.success(request, f'Bill for vendor invoice {bill.vendor_invoice_number} created successfully.')
+            return redirect('purchasing:bill_detail', bill_id=bill.bill_id)
+    else:
+        form = BillForm()
+
+    return render(request, 'purchasing/bill_create.html', {'form': form})
+
+def bill_create_for_po(request, po_id):
+    """Create a new Bill for a specific Purchase Order"""
+    purchase_order = get_object_or_404(PurchaseOrder, po_id=po_id)
+
+    if request.method == 'POST':
+        form = BillForm(request.POST, purchase_order=purchase_order)
+        if form.is_valid():
+            bill = form.save()
+            messages.success(request, f'Bill for vendor invoice {bill.vendor_invoice_number} created successfully for PO {purchase_order.po_number}.')
+            return redirect('purchasing:bill_detail', bill_id=bill.bill_id)
+    else:
+        form = BillForm(purchase_order=purchase_order)
+
+    return render(request, 'purchasing/bill_create.html', {'form': form, 'purchase_order': purchase_order})
+
+def bill_add_line_item(request, bill_id):
+    """Add line item to Bill - either from Price List or manual entry"""
+    bill = get_object_or_404(Bill, bill_id=bill_id)
+
+    if request.method == 'POST':
+        form = BillLineItemForm(request.POST)
+        if form.is_valid():
+            price_list_item = form.cleaned_data['price_list_item']
+            qty = form.cleaned_data['qty']
+
+            if price_list_item:
+                # Create line item from price list item, copying purchase_price
+                line_item = BillLineItem.objects.create(
+                    bill=bill,
+                    price_list_item=price_list_item,
+                    description=price_list_item.description,
+                    qty=qty,
+                    units=price_list_item.units,
+                    price=price_list_item.purchase_price  # Use purchase_price
+                )
+                messages.success(request, f'Line item "{line_item.description}" added from price list')
+            else:
+                # Create line item from manual entry
+                description = form.cleaned_data['description']
+                units = form.cleaned_data['units']
+                price = form.cleaned_data['price']
+
+                line_item = BillLineItem.objects.create(
+                    bill=bill,
+                    description=description,
+                    qty=qty,
+                    units=units,
+                    price=price
+                )
+                messages.success(request, f'Line item "{line_item.description}" added manually')
+
+            return redirect('purchasing:bill_detail', bill_id=bill.bill_id)
+    else:
+        form = BillLineItemForm()
+
+    return render(request, 'purchasing/bill_add_line_item.html', {
+        'form': form,
+        'bill': bill
     })

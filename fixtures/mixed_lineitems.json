@@ -166,7 +166,7 @@
       "qty": "3.00",
       "units": "hours",
       "description": "Assembly work from worksheet",
-      "price_currency": "120.00"
+      "price": "120.00"
     }
   },
   {
@@ -180,7 +180,7 @@
       "qty": "25.00",
       "units": "board_feet",
       "description": "Premium oak lumber",
-      "price_currency": "200.00"
+      "price": "200.00"
     }
   },
   {
@@ -194,7 +194,7 @@
       "qty": "2.00",
       "units": "quart",
       "description": "Polyurethane finish",
-      "price_currency": "50.00"
+      "price": "50.00"
     }
   },
   {
@@ -208,7 +208,7 @@
       "qty": "1.00",
       "units": "each",
       "description": "Custom hardware installation",
-      "price_currency": "75.00"
+      "price": "75.00"
     }
   },
   {
@@ -222,7 +222,7 @@
       "qty": "1.00",
       "units": "each",
       "description": "Delivery and setup",
-      "price_currency": "50.00"
+      "price": "50.00"
     }
   }
 ]
