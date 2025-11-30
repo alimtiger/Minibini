@@ -190,7 +190,6 @@
     "model": "contacts.contact",
     "pk": 1,
     "fields": {
-      "name": "Jane Doe",
       "email": "jane.doe@abcconstruction.com",
       "addr1": "123 Main St",
       "addr2": "",
@@ -202,14 +201,15 @@
       "mobile_number": "555-0101",
       "work_number": "",
       "home_number": "",
-      "business": 2
+      "business": 2,
+      "first_name": "Jane",
+      "last_name": "Doe"
     }
   },
   {
     "model": "contacts.contact",
     "pk": 2,
     "fields": {
-      "name": "John Smith",
       "email": "john.smith@email.com",
       "addr1": "456 Oak Ave",
       "addr2": "",
@@ -221,14 +221,15 @@
       "mobile_number": "",
       "work_number": "",
       "home_number": "555-0202",
-      "business": null
+      "business": null,
+      "first_name": "John",
+      "last_name": "Smith"
     }
   },
   {
     "model": "contacts.contact",
     "pk": 3,
     "fields": {
-      "name": "John Q Public",
       "email": "facilities@metrooffice.com",
       "addr1": "789 Corporate Blvd",
       "addr2": "",
@@ -240,14 +241,15 @@
       "mobile_number": "",
       "work_number": "555-0303",
       "home_number": "",
-      "business": 3
+      "business": 3,
+      "first_name": "John",
+      "last_name": "Q Public"
     }
   },
   {
     "model": "contacts.contact",
     "pk": 4,
     "fields": {
-      "name": "Laura Ingalls",
       "email": "info@greenvalley.com",
       "addr1": "321 Valley Road",
       "addr2": "",
@@ -259,14 +261,15 @@
       "mobile_number": "555-0404",
       "work_number": "",
       "home_number": "",
-      "business": 5
+      "business": 5,
+      "first_name": "Laura",
+      "last_name": "Ingalls"
     }
   },
   {
     "model": "contacts.contact",
     "pk": 5,
     "fields": {
-      "name": "Frank Gehry",
       "email": "projects@industrialsolutions.com",
       "addr1": "654 Industrial Pkwy",
       "addr2": "",
@@ -278,14 +281,15 @@
       "mobile_number": "",
       "work_number": "555-0505",
       "home_number": "",
-      "business": 4
+      "business": 4,
+      "first_name": "Frank",
+      "last_name": "Gehry"
     }
   },
   {
     "model": "contacts.contact",
     "pk": 6,
     "fields": {
-      "name": "Piper Laurie",
       "email": "orders@housingsupply.com",
       "addr1": "888 Supply Drive",
       "addr2": "",
@@ -297,14 +301,15 @@
       "mobile_number": "555-0606",
       "work_number": "",
       "home_number": "",
-      "business": 1
+      "business": 1,
+      "first_name": "Piper",
+      "last_name": "Laurie"
     }
   },
   {
     "model": "contacts.contact",
     "pk": 7,
     "fields": {
-      "name": "Joe Mamma",
       "email": "joe@joespizzeria.com",
       "addr1": "456 Pizza Avenue",
       "addr2": "",
@@ -316,7 +321,9 @@
       "mobile_number": "555-0777",
       "work_number": "",
       "home_number": "",
-      "business": 6
+      "business": 6,
+      "first_name": "Joe",
+      "last_name": "Mamma"
     }
   },
   {
@@ -329,7 +336,8 @@
       "business_phone": "BN-789012",
       "tax_exemption_number": "TEX-456789",
       "website": "",
-      "terms": 1
+      "terms": 1,
+      "default_contact": 6
     }
   },
   {
@@ -342,7 +350,8 @@
       "business_phone": "BN-123456",
       "tax_exemption_number": "TEX-123456",
       "website": "",
-      "terms": 1
+      "terms": 1,
+      "default_contact": 1
     }
   },
   {
@@ -355,7 +364,8 @@
       "business_phone": "BN-345678",
       "tax_exemption_number": "TEX-345678",
       "website": "",
-      "terms": 1
+      "terms": 1,
+      "default_contact": 3
     }
   },
   {
@@ -368,7 +378,8 @@
       "business_phone": "BN-567890",
       "tax_exemption_number": "TEX-567890",
       "website": "",
-      "terms": 1
+      "terms": 1,
+      "default_contact": 5
     }
   },
   {
@@ -381,7 +392,8 @@
       "business_phone": "BN-99999",
       "tax_exemption_number": "TEX-99999",
       "website": "",
-      "terms": 1
+      "terms": 1,
+      "default_contact": 4
     }
   },
   {
@@ -394,7 +406,8 @@
       "business_phone": "BN-777888",
       "tax_exemption_number": "TEX-777888",
       "website": "",
-      "terms": 1
+      "terms": 1,
+      "default_contact": 7
     }
   },
   {

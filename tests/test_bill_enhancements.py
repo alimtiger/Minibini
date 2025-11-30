@@ -17,9 +17,12 @@ class BillNumberGenerationTest(TestCase):
         Configuration.objects.create(key='bill_number_sequence', value='BILL-{year}-{counter:04d}')
         Configuration.objects.create(key='bill_counter', value='0')
 
+        # Create default contact for business
+        self.default_contact = Contact.objects.create(first_name='Default Contact', last_name='', email='default.contact@test.com')
+
         # Create business and contact for bills
-        self.business = Business.objects.create(business_name="Test Vendor Business")
-        self.contact = Contact.objects.create(name="Test Vendor", business=self.business)
+        self.business = Business.objects.create(business_name="Test Vendor Business", default_contact=self.default_contact)
+        self.contact = Contact.objects.create(first_name='Test Vendor', last_name='', email='test.vendor@test.com', business=self.business)
 
     def test_bill_number_generated_on_form_save(self):
         """Test that bill number is automatically generated when using BillForm."""
@@ -108,9 +111,12 @@ class BillLineItemManualEntryTest(TestCase):
         Configuration.objects.create(key='bill_number_sequence', value='BILL-{counter:04d}')
         Configuration.objects.create(key='bill_counter', value='0')
 
+        # Create default contact for business
+        self.default_contact = Contact.objects.create(first_name='Default Contact', last_name='', email='default.contact@test.com')
+
         # Create business, contact and bill
-        self.business = Business.objects.create(business_name="Test Vendor Business")
-        self.contact = Contact.objects.create(name="Test Vendor", business=self.business)
+        self.business = Business.objects.create(business_name="Test Vendor Business", default_contact=self.default_contact)
+        self.contact = Contact.objects.create(first_name='Test Vendor', last_name='', email='test.vendor@test.com', business=self.business)
         form = BillForm(data={
             'business': self.business.business_id,
             'contact': self.contact.contact_id,
@@ -203,9 +209,12 @@ class BillDraftStateValidationTest(TestCase):
         Configuration.objects.create(key='bill_number_sequence', value='BILL-{counter:04d}')
         Configuration.objects.create(key='bill_counter', value='0')
 
+        # Create default contact for business
+        self.default_contact = Contact.objects.create(first_name='Default Contact', last_name='', email='default.contact@test.com')
+
         # Create business, contact and bill
-        self.business = Business.objects.create(business_name="Test Vendor Business")
-        self.contact = Contact.objects.create(name="Test Vendor", business=self.business)
+        self.business = Business.objects.create(business_name="Test Vendor Business", default_contact=self.default_contact)
+        self.contact = Contact.objects.create(first_name='Test Vendor', last_name='', email='test.vendor@test.com', business=self.business)
         form = BillForm(data={
             'business': self.business.business_id,
             'contact': self.contact.contact_id,

@@ -245,7 +245,8 @@ class LineItemTaskGenerationEdgeCasesTest(TestCase):
 
     def setUp(self):
         self.contact = Contact.objects.create(
-            name='Edge Case Contact',
+            first_name='Edge Case Contact',
+            last_name='',
             email='edge@test.com'
         )
 

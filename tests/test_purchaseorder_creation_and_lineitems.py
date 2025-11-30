@@ -20,16 +20,22 @@ class PurchaseOrderCreationTests(TestCase):
         Configuration.objects.create(key='po_number_sequence', value='PO-{year}-{counter:04d}')
         Configuration.objects.create(key='po_counter', value='0')
 
+        # Create default contacts for businesses
+        self.default_contact1 = Contact.objects.create(first_name='Default Contact 1', last_name='', email='default.contact.1@test.com')
+        self.default_contact2 = Contact.objects.create(first_name='Default Contact 2', last_name='', email='default.contact.2@test.com')
+
         # Create a test business
         self.business = Business.objects.create(
             business_name='Test Vendor Co',
-            our_reference_code='VENDOR001'
+            our_reference_code='VENDOR001',
+            default_contact=self.default_contact1
         )
 
         # Create another business for testing
         self.business2 = Business.objects.create(
             business_name='Another Vendor',
-            our_reference_code='VENDOR002'
+            our_reference_code='VENDOR002',
+            default_contact=self.default_contact2
         )
 
     def test_get_purchase_order_create_page(self):
@@ -135,10 +141,14 @@ class PurchaseOrderLineItemAdditionTests(TestCase):
         Configuration.objects.create(key='po_number_sequence', value='PO-{year}-{counter:04d}')
         Configuration.objects.create(key='po_counter', value='0')
 
+        # Create default contact for business
+        self.default_contact = Contact.objects.create(first_name='Default Contact', last_name='', email='default.contact@test.com')
+
         # Create a test business
         self.business = Business.objects.create(
             business_name='Test Vendor Co',
-            our_reference_code='VENDOR001'
+            our_reference_code='VENDOR001',
+            default_contact=self.default_contact
         )
 
         # Create a purchase order
@@ -383,10 +393,14 @@ class PurchaseOrderModelWithBusinessTests(TestCase):
 
     def setUp(self):
         """Set up test data."""
+        # Create default contact for business
+        self.default_contact = Contact.objects.create(first_name='Default Contact', last_name='', email='default.contact@test.com')
+
         # Create a test business
         self.business = Business.objects.create(
             business_name='Test Vendor',
-            our_reference_code='VENDOR001'
+            our_reference_code='VENDOR001',
+            default_contact=self.default_contact
         )
 
     def test_purchase_order_creation_with_business(self):

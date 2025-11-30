@@ -52,7 +52,7 @@ class PriceListItemModelTest(TestCase):
 
 class InvoiceModelTest(TestCase):
     def setUp(self):
-        self.contact = Contact.objects.create(name="Test Customer")
+        self.contact = Contact.objects.create(first_name='Test Customer', last_name='', email='test.customer@test.com')
         self.job = Job.objects.create(
             job_number="JOB001",
             contact=self.contact,
@@ -94,9 +94,12 @@ class InvoiceModelTest(TestCase):
 
 class InvoiceLineItemModelTest(TestCase):
     def setUp(self):
-        self.business = Business.objects.create(business_name="Test Business")
+        self.default_contact = Contact.objects.create(first_name='Default Contact', last_name='', email='default.contact@test.com')
+        self.business = Business.objects.create(business_name="Test Business", default_contact=self.default_contact)
         self.contact = Contact.objects.create(
-            name="Test Customer",
+            first_name='Test Customer',
+            last_name='',
+            email='test.customer@test.com',
             business=self.business
         )
         self.job = Job.objects.create(

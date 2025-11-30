@@ -7,8 +7,9 @@ from apps.contacts.models import Contact, Business
 
 class PurchaseOrderModelTest(TestCase):
     def setUp(self):
-        self.business = Business.objects.create(business_name="Test Business")
-        self.contact = Contact.objects.create(name="Test Customer")
+        self.default_contact = Contact.objects.create(first_name='Default Contact', last_name='', email='default.contact@test.com')
+        self.business = Business.objects.create(business_name="Test Business", default_contact=self.default_contact)
+        self.contact = Contact.objects.create(first_name='Test Customer', last_name='', email='test.customer@test.com')
         self.job = Job.objects.create(
             job_number="JOB001",
             contact=self.contact,
@@ -52,12 +53,15 @@ class PurchaseOrderModelTest(TestCase):
 
 class BillModelTest(TestCase):
     def setUp(self):
-        self.business = Business.objects.create(business_name="Test Business")
+        self.default_contact = Contact.objects.create(first_name='Default Contact', last_name='', email='default.contact@test.com')
+        self.business = Business.objects.create(business_name="Test Business", default_contact=self.default_contact)
         self.contact = Contact.objects.create(
-            name="Test Vendor",
+            first_name='Test Vendor',
+            last_name='',
+            email='test.vendor@test.com',
             business=self.business
         )
-        self.customer_contact = Contact.objects.create(name="Test Customer")
+        self.customer_contact = Contact.objects.create(first_name='Test Customer', last_name='', email='test.customer@test.com')
         self.job = Job.objects.create(
             job_number="JOB001",
             contact=self.customer_contact,

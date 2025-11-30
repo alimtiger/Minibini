@@ -10,19 +10,27 @@ class BillBusinessAutoAssociationTest(TestCase):
 
     def setUp(self):
         """Set up test data with businesses and contacts."""
+        # Create default contacts for businesses
+        self.default_contact1 = Contact.objects.create(first_name='Default Contact 1', last_name='', email='default.contact.1@test.com')
+        self.default_contact2 = Contact.objects.create(first_name='Default Contact 2', last_name='', email='default.contact.2@test.com')
+
         # Create businesses
-        self.business1 = Business.objects.create(business_name="Vendor Corp")
-        self.business2 = Business.objects.create(business_name="Alternative Vendor Inc")
+        self.business1 = Business.objects.create(business_name="Vendor Corp", default_contact=self.default_contact1)
+        self.business2 = Business.objects.create(business_name="Alternative Vendor Inc", default_contact=self.default_contact2)
 
         # Create contact with business
         self.contact_with_business = Contact.objects.create(
-            name="John Vendor",
+            first_name='John Vendor',
+            last_name='',
+            email='john.vendor@test.com',
             business=self.business1
         )
 
         # Create contact without business
         self.contact_without_business = Contact.objects.create(
-            name="Jane Independent"
+            first_name='Jane Independent',
+            last_name='',
+            email='jane.independent@test.com',
         )
 
     def test_bill_auto_associates_business_from_contact_on_creation(self):

@@ -6,7 +6,7 @@
 <h2>Select New Default Contact</h2>
 
 <div style="background-color: #fff3cd; padding: 15px; margin-bottom: 20px; border-radius: 4px; border-left: 4px solid #ffc107;">
-    <strong>Deleting Default Contact:</strong> {{ contact.name }}
+    <strong>Deleting Default Contact:</strong> {{ contact }}
     <br><strong>Business:</strong> {{ contact.business.business_name }}
 </div>
 
@@ -31,7 +31,7 @@
             <option value="">-- Select a contact --</option>
             {% for other_contact in other_contacts %}
                 <option value="{{ other_contact.contact_id }}">
-                    {{ other_contact.name }} - {{ other_contact.email }}
+                    {{ other_contact }} - {{ other_contact.email }}
                 </option>
             {% endfor %}
         </select>

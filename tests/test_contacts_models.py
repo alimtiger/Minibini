@@ -6,7 +6,8 @@ from apps.contacts.models import Contact, Business, PaymentTerms
 class ContactModelTest(TestCase):
     def test_contact_creation(self):
         contact = Contact.objects.create(
-            name="John Doe",
+            first_name='John Doe',
+            last_name='',
             email="john@example.com",
             addr1="123 Main St",
             city="City",
@@ -20,11 +21,11 @@ class ContactModelTest(TestCase):
         self.assertEqual(contact.mobile_number, "555-123-4567")
 
     def test_contact_str_method(self):
-        contact = Contact.objects.create(name="Jane Smith")
+        contact = Contact.objects.create(first_name='Jane Smith', last_name='', email='jane.smith@test.com')
         self.assertEqual(str(contact), "Jane Smith")
 
     def test_contact_optional_fields(self):
-        contact = Contact.objects.create(name="Basic Contact")
+        contact = Contact.objects.create(first_name='Basic Contact', last_name='', email='basic.contact@test.com')
         self.assertEqual(contact.email, "")
         self.assertEqual(contact.address(), "")
         self.assertEqual(contact.mobile_number, "")
@@ -55,7 +56,8 @@ class BusinessModelTest(TestCase):
     def test_business_creation(self):
         # Create contact first for default_contact
         contact = Contact.objects.create(
-            name="Default Contact",
+            first_name='Default Contact',
+            last_name='',
             email="default@acmecorp.com"
         )
         business = Business.objects.create(
@@ -82,7 +84,8 @@ class BusinessModelTest(TestCase):
     def test_business_str_method(self):
         # Create contact first for default_contact
         contact = Contact.objects.create(
-            name="Default Contact",
+            first_name='Default Contact',
+            last_name='',
             email="default@test.com"
         )
         business = Business.objects.create(
@@ -96,7 +99,8 @@ class BusinessModelTest(TestCase):
     def test_business_optional_fields(self):
         # Create contact first for default_contact
         contact = Contact.objects.create(
-            name="Default Contact",
+            first_name='Default Contact',
+            last_name='',
             email="default@simple.com"
         )
         business = Business.objects.create(
@@ -116,7 +120,8 @@ class BusinessModelTest(TestCase):
     def test_business_with_payment_terms_deletion(self):
         # Create contact first for default_contact
         contact = Contact.objects.create(
-            name="Default Contact",
+            first_name='Default Contact',
+            last_name='',
             email="default@test.com"
         )
         business = Business.objects.create(

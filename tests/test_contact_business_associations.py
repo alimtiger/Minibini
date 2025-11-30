@@ -10,13 +10,16 @@ class PurchaseOrderContactBusinessTest(TestCase):
     """Test Contact and Business associations for PurchaseOrder"""
 
     def setUp(self):
-        self.business = Business.objects.create(business_name="Test Vendor")
-        self.business2 = Business.objects.create(business_name="Another Vendor")
+        self.default_contact = Contact.objects.create(first_name='Default Contact', last_name='', email='default.contact@test.com')
+        self.business = Business.objects.create(business_name="Test Vendor", default_contact=self.default_contact)
+        self.business2 = Business.objects.create(business_name="Another Vendor", default_contact=self.default_contact)
         self.contact_with_business = Contact.objects.create(
-            name="Test Contact",
+            first_name='Test Contact',
+            last_name='',
+            email='test.contact@test.com',
             business=self.business
         )
-        self.contact_without_business = Contact.objects.create(name="Contact No Business")
+        self.contact_without_business = Contact.objects.create(first_name='Contact No Business', last_name='', email='contact.no.business@test.com')
 
     def test_po_creation_with_business_only(self):
         """PO can be created with just a Business"""
@@ -85,13 +88,16 @@ class BillContactBusinessTest(TestCase):
     """Test Contact and Business associations for Bill"""
 
     def setUp(self):
-        self.business = Business.objects.create(business_name="Test Vendor")
-        self.business2 = Business.objects.create(business_name="Another Vendor")
+        self.default_contact = Contact.objects.create(first_name='Default Contact', last_name='', email='default.contact@test.com')
+        self.business = Business.objects.create(business_name="Test Vendor", default_contact=self.default_contact)
+        self.business2 = Business.objects.create(business_name="Another Vendor", default_contact=self.default_contact)
         self.contact_with_business = Contact.objects.create(
-            name="Test Contact",
+            first_name='Test Contact',
+            last_name='',
+            email='test.contact@test.com',
             business=self.business
         )
-        self.contact_without_business = Contact.objects.create(name="Contact No Business")
+        self.contact_without_business = Contact.objects.create(first_name='Contact No Business', last_name='', email='contact.no.business@test.com')
 
     def test_bill_creation_with_business_only(self):
         """Bill can be created with just a Business"""
@@ -168,13 +174,18 @@ class BillFromPurchaseOrderTest(TestCase):
     """Test Bill creation from PurchaseOrder with Contact/Business copying and line items"""
 
     def setUp(self):
-        self.business = Business.objects.create(business_name="Test Vendor")
+        self.default_contact = Contact.objects.create(first_name='Default Contact', last_name='', email='default.contact@test.com')
+        self.business = Business.objects.create(business_name="Test Vendor", default_contact=self.default_contact)
         self.contact = Contact.objects.create(
-            name="Test Contact",
+            first_name='Test Contact',
+            last_name='',
+            email='test.contact@test.com',
             business=self.business
         )
         self.customer_contact = Contact.objects.create(
-            name="Test Customer",
+            first_name='Test Customer',
+            last_name='',
+            email='test.customer@test.com',
             business=self.business
         )
         self.job = Job.objects.create(

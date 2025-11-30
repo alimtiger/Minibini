@@ -170,7 +170,8 @@ class BillModelFixtureTest(TestCase):
         # Create a new vendor contact for this test to avoid affecting other tests
         business = Business.objects.get(pk=2)  # XYZ Industries from fixture
         test_vendor = Contact.objects.create(
-            name="Test Vendor",
+            first_name='Test Vendor',
+            last_name='',
             email="test@vendor.com",
             business=business
         )

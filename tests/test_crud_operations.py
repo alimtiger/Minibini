@@ -18,7 +18,8 @@ class EstWorksheetCRUDTests(TestCase):
 
         # Create a test contact
         self.contact = Contact.objects.create(
-            name='Test Contact',
+            first_name='Test Contact',
+            last_name='',
             email='test@example.com'
         )
 
@@ -87,7 +88,8 @@ class TaskCRUDTests(TestCase):
 
         # Create a test contact
         self.contact = Contact.objects.create(
-            name='Test Contact',
+            first_name='Test Contact',
+            last_name='',
             email='test@example.com'
         )
 
@@ -189,7 +191,8 @@ class EstimateCRUDTests(TestCase):
 
         # Create a test contact
         self.contact = Contact.objects.create(
-            name='Test Contact',
+            first_name='Test Contact',
+            last_name='',
             email='test@example.com'
         )
 
@@ -288,7 +291,8 @@ class NavigationLinksTests(TestCase):
 
         # Create a test contact
         self.contact = Contact.objects.create(
-            name='Test Contact',
+            first_name='Test Contact',
+            last_name='',
             email='test@example.com'
         )
 
@@ -381,7 +385,8 @@ class SupersededStylingTests(TestCase):
 
         # Create a test contact
         self.contact = Contact.objects.create(
-            name='Test Contact',
+            first_name='Test Contact',
+            last_name='',
             email='test@example.com'
         )
 

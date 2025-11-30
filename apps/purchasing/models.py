@@ -47,7 +47,7 @@ class PurchaseOrder(models.Model):
         # Validate that if contact is provided, it must have a business
         if self.contact and not self.contact.business:
             raise ValidationError(
-                f'Contact "{self.contact.name}" does not have a Business associated. '
+                f'Contact "{self.contact}" does not have a Business associated. '
                 'Please assign a Business to this Contact before using it in a Purchase Order.'
             )
 
@@ -57,7 +57,7 @@ class PurchaseOrder(models.Model):
         if is_new and self.contact and self.contact.business and self.business_id:
             if self.business != self.contact.business:
                 raise ValidationError(
-                    f'Contact "{self.contact.name}" is associated with Business "{self.contact.business.business_name}", '
+                    f'Contact "{self.contact}" is associated with Business "{self.contact.business.business_name}", '
                     f'but Purchase Order is set to use Business "{self.business.business_name}". '
                     'The Business must match the Contact\'s Business.'
                 )
@@ -182,7 +182,7 @@ class Bill(models.Model):
         # Validate that if contact is provided, it must have a business
         if self.contact and not self.contact.business:
             raise ValidationError(
-                f'Contact "{self.contact.name}" does not have a Business associated. '
+                f'Contact "{self.contact}" does not have a Business associated. '
                 'Please assign a Business to this Contact before using it in a Bill.'
             )
 
@@ -192,7 +192,7 @@ class Bill(models.Model):
         if is_new and self.contact and self.contact.business and self.business_id:
             if self.business != self.contact.business:
                 raise ValidationError(
-                    f'Contact "{self.contact.name}" is associated with Business "{self.contact.business.business_name}", '
+                    f'Contact "{self.contact}" is associated with Business "{self.contact.business.business_name}", '
                     f'but Bill is set to use Business "{self.business.business_name}". '
                     'The Business must match the Contact\'s Business.'
                 )

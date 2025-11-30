@@ -53,7 +53,7 @@ class PurchaseOrderForm(forms.ModelForm):
 
         if contact and not contact.business:
             raise forms.ValidationError(
-                f'Contact "{contact.name}" does not have a Business associated. '
+                f'Contact "{contact}" does not have a Business associated. '
                 'Please assign a Business to this Contact before using it in a Purchase Order.'
             )
 
@@ -262,7 +262,7 @@ class BillForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
 
         # Customize contact field display to include business name
-        self.fields['contact'].label_from_instance = lambda obj: f"{obj.name} ({obj.business.business_name})" if obj.business else obj.name
+        self.fields['contact'].label_from_instance = lambda obj: f"{obj} ({obj.business.business_name})" if obj.business else str(obj)
 
         # If purchase_order provided, pre-select it and copy Business/Contact
         if purchase_order:
@@ -278,7 +278,7 @@ class BillForm(forms.ModelForm):
 
         if contact and not contact.business:
             raise forms.ValidationError(
-                f'Contact "{contact.name}" does not have a Business associated. '
+                f'Contact "{contact}" does not have a Business associated. '
                 'Please assign a Business to this Contact before using it in a Bill.'
             )
 

@@ -15,14 +15,20 @@ class BillLineItemAdditionTests(TestCase):
         """Set up test data."""
         self.client = Client()
 
+        # Create a test contact (must be created before business for default_contact)
+        self.default_contact = Contact.objects.create(first_name='Default Contact', last_name='', email='default.contact@test.com')
+
         # Create a test business
         self.business = Business.objects.create(
-            business_name='Test Vendor Business'
+            business_name='Test Vendor Business',
+            default_contact=self.default_contact
         )
 
         # Create a test contact
         self.contact = Contact.objects.create(
-            name='Test Vendor',
+            first_name='Test Vendor',
+            last_name='',
+            email='test.vendor@test.com',
             business=self.business
         )
 

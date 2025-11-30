@@ -7,7 +7,7 @@ from apps.contacts.models import Contact
 class EstWorksheetCreateFromJobTest(TestCase):
     def setUp(self):
         self.client = Client()
-        self.contact = Contact.objects.create(name="Test Customer")
+        self.contact = Contact.objects.create(first_name='Test Customer', last_name='', email='test.customer@test.com')
         self.job = Job.objects.create(
             job_number="JOB-2024-TEST",
             contact=self.contact,

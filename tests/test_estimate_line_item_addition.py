@@ -28,7 +28,8 @@ class EstimateLineItemAdditionTests(TestCase):
 
         # Create a test contact
         self.contact = Contact.objects.create(
-            name='Test Contact',
+            first_name='Test Contact',
+            last_name='',
             email='test@example.com'
         )
 
@@ -276,7 +277,8 @@ class EstimateLineItemDeletionTests(TestCase):
 
         # Create a test contact
         self.contact = Contact.objects.create(
-            name='Test Contact',
+            first_name='Test Contact',
+            last_name='',
             email='test@example.com'
         )
 

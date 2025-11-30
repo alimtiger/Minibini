@@ -32,7 +32,8 @@ class SupersededEstimateRestrictionTests(TestCase):
 
         # Create contact
         self.contact = Contact.objects.create(
-            name='Test Contact',
+            first_name='Test Contact',
+            last_name='',
             email='contact@test.com'
         )
 
@@ -207,7 +208,8 @@ class SupersededEstimateModelTests(TestCase):
         """Set up test data."""
         # Create contact
         self.contact = Contact.objects.create(
-            name='Test Contact',
+            first_name='Test Contact',
+            last_name='',
             email='contact@test.com'
         )
 

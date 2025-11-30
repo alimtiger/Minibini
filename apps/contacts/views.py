@@ -77,7 +77,7 @@ def add_contact(request):
                 business=business
             )
 
-            success_msg = f'Contact "{contact.name}" has been added successfully.'
+            success_msg = f'Contact "{contact}" has been added successfully.'
             if business:
                 success_msg += f' Associated with business "{business_name}".'
             messages.success(request, success_msg)
@@ -132,9 +132,9 @@ def add_business_contact(request, business_id):
             if set_as_default:
                 business.default_contact = contact
                 business.save(update_fields=['default_contact'])
-                messages.success(request, f'Contact "{contact.name}" has been added to {business.business_name} and set as the default contact.')
+                messages.success(request, f'Contact "{contact}" has been added to {business.business_name} and set as the default contact.')
             else:
-                messages.success(request, f'Contact "{contact.name}" has been added to {business.business_name}.')
+                messages.success(request, f'Contact "{contact}" has been added to {business.business_name}.')
 
             return redirect('contacts:business_detail', business_id=business.business_id)
         else:
@@ -221,7 +221,7 @@ def add_business(request):
             first_contact.business = business
             first_contact.save()
 
-            created_contacts = [first_contact.name]
+            created_contacts = [first_contact]
 
             # Create remaining contacts
             for i in range(1, len(contacts_data)):
@@ -239,9 +239,9 @@ def add_business(request):
                     postal_code=contact_data['postal_code'].strip() if contact_data['postal_code'] else '',
                     business=business
                 )
-                created_contacts.append(contact.name)
+                created_contacts.append(contact)
 
-            success_msg = f'Business "{business_name}" has been created with {len(created_contacts)} contact(s): {", ".join(created_contacts)}.'
+            success_msg = f'Business "{business_name}" has been created with {len(created_contacts)} contact(s): {", ".join(str(c) for c in created_contacts)}.'
             messages.success(request, success_msg)
             return redirect('contacts:business_list')
 
@@ -333,7 +333,7 @@ def edit_contact(request, contact_id):
                     job_numbers = list(open_jobs.values_list('job_number', flat=True))
                     messages.error(
                         request,
-                        f'Cannot change business association for "{contact.name}" because they have open jobs: {", ".join(job_numbers)}. '
+                        f'Cannot change business association for "{contact}" because they have open jobs: {", ".join(job_numbers)}. '
                         'Complete or reject these jobs before changing the business association.'
                     )
                     existing_businesses = Business.objects.all().order_by('business_name')
@@ -417,7 +417,7 @@ def edit_contact(request, contact_id):
             contact.business = business
             contact.save()
 
-            messages.success(request, f'Contact "{contact.name}" has been updated successfully.')
+            messages.success(request, f'Contact "{contact}" has been updated successfully.')
             return redirect('contacts:contact_detail', contact_id=contact.contact_id)
         else:
             messages.error(request, 'First name and last name are required.')
@@ -439,7 +439,7 @@ def set_default_contact(request, contact_id):
             business = contact.business
             business.default_contact = contact
             business.save(update_fields=['default_contact'])
-            messages.success(request, f'"{contact.name}" has been set as the default contact for {business.business_name}.')
+            messages.success(request, f'"{contact}" has been set as the default contact for {business.business_name}.')
 
         return redirect('contacts:contact_detail', contact_id=contact.contact_id)
 
@@ -472,7 +472,7 @@ def delete_contact(request, contact_id):
         if error_messages:
             messages.error(
                 request,
-                f'Cannot delete contact "{contact.name}" because it is still associated with the following: {"; ".join(error_messages)}. '
+                f'Cannot delete contact "{contact}" because it is still associated with the following: {"; ".join(error_messages)}. '
                 'Please remove these associations before deleting the contact.'
             )
             return redirect('contacts:contact_detail', contact_id=contact.contact_id)
@@ -488,7 +488,7 @@ def delete_contact(request, contact_id):
         if business and other_contacts.count() == 0:
             messages.error(
                 request,
-                f'Cannot delete "{contact.name}" because it is the only contact for {business.business_name}. '
+                f'Cannot delete "{contact}" because it is the only contact for {business.business_name}. '
                 'A business must have at least one contact. Please add another contact first, or delete the entire business.'
             )
             return redirect('contacts:contact_detail', contact_id=contact.contact_id)
@@ -519,7 +519,7 @@ def delete_contact(request, contact_id):
                 })
 
             # Set new default FIRST (before deleting), then delete the contact
-            contact_name = contact.name
+            contact_name = contact
             business_name = business.business_name
 
             # Change default contact before deletion to avoid PROTECT constraint
@@ -531,13 +531,13 @@ def delete_contact(request, contact_id):
 
             messages.success(
                 request,
-                f'Contact "{contact_name}" has been deleted. "{new_default_contact.name}" is now the default contact for {business_name}.'
+                f'Contact "{contact_name}" has been deleted. "{new_default_contact}" is now the default contact for {business_name}.'
             )
             return redirect('contacts:business_detail', business_id=business.business_id)
 
         # If only one other contact, auto-assign as default
         elif was_default and other_contacts.count() == 1:
-            contact_name = contact.name
+            contact_name = contact
             business_name = business.business_name
             new_default = other_contacts.first()
 
@@ -556,7 +556,7 @@ def delete_contact(request, contact_id):
 
         # Non-business contact (no business association)
         else:
-            contact_name = contact.name
+            contact_name = contact
             contact.delete()
             messages.success(request, f'Contact "{contact_name}" has been deleted successfully.')
             return redirect('contacts:contact_list')
@@ -592,7 +592,7 @@ def delete_business(request, business_id):
                     associations.append(f"Bills: {', '.join(map(str, bills))}")
 
                 associated_contacts.append({
-                    'name': contact.name,
+                    'name': contact,
                     'associations': '; '.join(associations)
                 })
 
@@ -643,7 +643,7 @@ def delete_business(request, business_id):
             )
         elif contact_action == 'delete':
             # Delete all contacts along with business
-            contact_names = [c.name for c in contacts[:5]]  # Get first 5 names
+            contact_names = [str(c) for c in contacts[:5]]  # Get first 5 names
             contacts.delete()
             business.delete()
 

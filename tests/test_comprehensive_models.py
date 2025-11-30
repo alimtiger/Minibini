@@ -20,12 +20,15 @@ class ComprehensiveModelIntegrationTest(TestCase):
         self.user = User.objects.create_user(username="testuser", email="test@example.com")
         self.user.groups.add(self.group)
         self.payment_terms = PaymentTerms.objects.create()
+        self.default_contact = Contact.objects.create(first_name='Default Contact', last_name='', email='default.contact@test.com')
         self.business = Business.objects.create(
             business_name="Test Business",
-            terms=self.payment_terms
+            terms=self.payment_terms,
+            default_contact=self.default_contact
         )
         self.contact = Contact.objects.create(
-            name="Test Contact",
+            first_name='Test Contact',
+            last_name='',
             email="contact@example.com",
             addr1="123 Main St",
             city="Test City",
@@ -348,8 +351,9 @@ class LineItemValidationTest(TestCase):
     """Test LineItem validation across all submodel types"""
 
     def setUp(self):
-        self.business = Business.objects.create(business_name="Test Business")
-        self.contact = Contact.objects.create(name="Test Customer", business=self.business)
+        self.default_contact = Contact.objects.create(first_name='Default Contact', last_name='', email='default.contact@test.com')
+        self.business = Business.objects.create(business_name="Test Business", default_contact=self.default_contact)
+        self.contact = Contact.objects.create(first_name='Test Customer', last_name='', email='test.customer@test.com', business=self.business)
         self.job = Job.objects.create(
             job_number="VALID_JOB001",
             contact=self.contact,

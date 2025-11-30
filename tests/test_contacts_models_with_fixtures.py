@@ -51,7 +51,8 @@ class ContactModelFixtureTest(FixtureTestCase):
     def test_create_new_contact(self):
         """Test creating a new contact alongside existing fixture data"""
         new_contact = Contact.objects.create(
-            name="New Customer",
+            first_name='New Customer',
+            last_name='',
             email="new@customer.com",
             mobile_number="555-000-0000"
         )
@@ -129,11 +130,13 @@ class BusinessModelFixtureTest(FixtureTestCase):
     def test_create_new_business(self):
         """Test creating a new business alongside existing fixture data"""
         terms = PaymentTerms.objects.get(pk=1)
+        default_contact = Contact.objects.create(first_name='Default Contact', last_name='', email='default.contact@test.com')
         new_business = Business.objects.create(
             our_reference_code="CUST003",
             business_name="New Business LLC",
             business_address="789 New St, Town, ST 44444",
-            terms=terms
+            terms=terms,
+            default_contact=default_contact
         )
         self.assertEqual(new_business.business_name, "New Business LLC")
         self.assertEqual(Business.objects.count(), 3)  # 2 from fixture + 1 new

@@ -45,7 +45,7 @@
     <tr>
         <td>Contact</td>
         <td>
-            <a href="{% url 'contacts:contact_detail' job.contact.contact_id %}">{{ job.contact.name }}</a>
+            <a href="{% url 'contacts:contact_detail' job.contact.contact_id %}">{{ job.contact }}</a>
             {% if job.contact.business %}
                 - <a href="{% url 'contacts:business_detail' job.contact.business.business_id %}">{{ job.contact.business.business_name }}</a>
             {% endif %}

@@ -33,7 +33,7 @@ class EstimateGenerationDemoTestCase(TestCase):
 
         # Create test data
         # Create contact first for default_contact
-        contact = Contact.objects.create(name='Demo Customer')
+        contact = Contact.objects.create(first_name='Demo Customer', last_name='', email='demo.customer@test.com')
         business = Business.objects.create(
             business_name='Demo Company',
             default_contact=contact

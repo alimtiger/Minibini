@@ -3,7 +3,6 @@
     "model": "contacts.contact",
     "pk": 200,
     "fields": {
-      "name": "Mixed LineItems Test Company",
       "email": "mixed@test.com",
       "addr1": "200 Mixed Street",
       "addr2": "",
@@ -15,7 +14,9 @@
       "mobile_number": "555-0200",
       "work_number": "555-0201",
       "home_number": "",
-      "business": null
+      "business": null,
+      "first_name": "Mixed",
+      "last_name": "LineItems Test Company"
     }
   },
   {

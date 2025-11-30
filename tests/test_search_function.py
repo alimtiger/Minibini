@@ -23,7 +23,8 @@ class SearchViewTests(TestCase):
 
         # Create contact first (needed for business default_contact)
         self.contact1 = Contact.objects.create(
-            name='John Doe',
+            first_name='John Doe',
+            last_name='',
             email='john.doe@example.com',
             mobile_number='555-0001',
             addr1='456 Oak Ave',
@@ -45,7 +46,8 @@ class SearchViewTests(TestCase):
         self.contact1.save()
 
         self.contact2 = Contact.objects.create(
-            name='Jane Smith',
+            first_name='Jane Smith',
+            last_name='',
             email='jane.smith@example.com',
             work_number='555-0002',
             addr1='789 Pine St',

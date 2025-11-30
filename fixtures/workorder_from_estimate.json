@@ -3,7 +3,6 @@
     "model": "contacts.contact",
     "pk": 100,
     "fields": {
-      "name": "WorkOrder Test Company",
       "email": "test@workordertest.com",
       "addr1": "100 Test Street",
       "addr2": "",
@@ -15,7 +14,9 @@
       "mobile_number": "555-0100",
       "work_number": "555-0101",
       "home_number": "",
-      "business": null
+      "business": null,
+      "first_name": "WorkOrder",
+      "last_name": "Test Company"
     }
   },
   {

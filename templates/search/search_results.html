@@ -129,7 +129,7 @@
                             {% elif category_name == "Bills" %}
                                 <strong><a href="{% url 'purchasing:bill_detail' group.parent.bill_id %}">Bill {{ group.parent.bill_id }}</a></strong>
                                 - Vendor Invoice: {{ group.parent.vendor_invoice_number }}
-                                - Contact: {{ group.parent.contact.name }}
+                                - Contact: {{ group.parent.contact }}
                                 {% if group.parent.purchase_order %} - PO: {{ group.parent.purchase_order.po_number }}{% endif %}
 
                             {% elif category_name == "Work Orders" %}
@@ -181,7 +181,7 @@
                     {% for job in category_data.items %}
                     <li>
                         <a href="{% url 'jobs:detail' job.job_id %}">{{ job.job_number }}</a>
-                        - {{ job.status }} - {{ job.contact.name }}
+                        - {{ job.status }} - {{ job.contact }}
                         {% if job.description %}<br><em>{{ job.description|truncatewords:20 }}</em>{% endif %}
                     </li>
                     {% endfor %}
@@ -197,7 +197,7 @@
                 {% elif category_name == "Contacts" %}
                     {% for contact in category_data.items %}
                     <li>
-                        <a href="{% url 'contacts:contact_detail' contact.contact_id %}">{{ contact.name }}</a>
+                        <a href="{% url 'contacts:contact_detail' contact.contact_id %}">{{ contact }}</a>
                         {% if contact.email %} - {{ contact.email }}{% endif %}
                         {% if contact.phone %} - {{ contact.phone }}{% endif %}
                         {% if contact.business %}<br>Business: {{ contact.business.business_name }}{% endif %}
@@ -244,7 +244,7 @@
                     <li>
                         <a href="{% url 'purchasing:bill_detail' bill.bill_id %}">Bill {{ bill.bill_id }}</a>
                         - Vendor Invoice: {{ bill.vendor_invoice_number }}
-                        - Contact: {{ bill.contact.name }}
+                        - Contact: {{ bill.contact }}
                         {% if bill.purchase_order %} - PO: {{ bill.purchase_order.po_number }}{% endif %}
                     </li>
                     {% endfor %}

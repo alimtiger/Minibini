@@ -52,8 +52,8 @@ class JobCreateForm(forms.ModelForm):
     def label_from_instance_with_business(self, contact):
         """Custom label for contact dropdown to include business name"""
         if contact.business:
-            return f"{contact.name} ({contact.business.business_name})"
-        return contact.name
+            return f"{contact} ({contact.business.business_name})"
+        return str(contact)
 
     def save(self, commit=True):
         """Override save to generate job number using NumberGenerationService"""
@@ -155,8 +155,8 @@ class JobEditForm(forms.ModelForm):
     def label_from_instance_with_business(self, contact):
         """Custom label for contact dropdown to include business name"""
         if contact.business:
-            return f"{contact.name} ({contact.business.business_name})"
-        return contact.name
+            return f"{contact} ({contact.business.business_name})"
+        return str(contact)
 
 
 class WorkOrderTemplateForm(forms.ModelForm):

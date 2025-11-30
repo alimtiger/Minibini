@@ -46,7 +46,7 @@
         <td>Default Contact</td>
         <td>
             {% if business.default_contact %}
-                <a href="{% url 'contacts:contact_detail' business.default_contact.contact_id %}">{{ business.default_contact.name }}</a>
+                <a href="{% url 'contacts:contact_detail' business.default_contact.contact_id %}">{{ business.default_contact }}</a>
             {% else %}
                 No default contact
             {% endif %}
@@ -71,7 +71,7 @@
             {% for contact in contacts %}
             <tr{% if business.default_contact and contact.contact_id == business.default_contact.contact_id %} style="background-color: #e3f2fd;"{% endif %}>
                 <td>
-                    {{ contact.name }}
+                    {{ contact }}
                     {% if business.default_contact and contact.contact_id == business.default_contact.contact_id %}
                         <span style="color: #1976d2; font-weight: bold; margin-left: 5px;">[DEFAULT]</span>
                     {% endif %}
