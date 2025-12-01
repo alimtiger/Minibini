@@ -307,7 +307,7 @@ class Bill(models.Model):
         return super().delete(*args, **kwargs)
 
     def __str__(self):
-        return f"Bill {self.pk}"
+        return f"Bill {self.bill_number}"
 
 
 class PurchaseOrderLineItem(BaseLineItem):
@@ -341,4 +341,4 @@ class BillLineItem(BaseLineItem):
         return 'bill'
 
     def __str__(self):
-        return f"Bill Line Item {self.pk} for Bill {self.bill.pk}"
+        return f"Bill Line Item {self.pk} for Bill {self.bill.bill_number}"

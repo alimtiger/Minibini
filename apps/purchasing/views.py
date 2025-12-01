@@ -96,7 +96,7 @@ def purchase_order_add_line_item(request, po_id):
                 description=price_list_item.description,
                 qty=qty,
                 units=price_list_item.units,
-                price=price_list_item.purchase_price  # Use purchase_price
+                price_currency=price_list_item.purchase_price  # Use purchase_price
             )
 
             messages.success(request, f'Line item "{line_item.description}" added from price list')
@@ -244,7 +244,7 @@ def bill_create_for_po(request, po_id):
                     description=po_line_item.description,
                     qty=po_line_item.qty,
                     units=po_line_item.units,
-                    price=po_line_item.price,
+                    price_currency=po_line_item.price_currency,
                     line_number=po_line_item.line_number
                 )
 
@@ -278,7 +278,7 @@ def bill_add_line_item(request, bill_id):
                     description=price_list_item.description,
                     qty=qty,
                     units=price_list_item.units,
-                    price=price_list_item.purchase_price  # Use purchase_price
+                    price_currency=price_list_item.purchase_price  # Use purchase_price
                 )
                 messages.success(request, f'Line item "{line_item.description}" added from price list')
             else:
@@ -292,7 +292,7 @@ def bill_add_line_item(request, bill_id):
                     description=description,
                     qty=qty,
                     units=units,
-                    price=price
+                    price_currency=price
                 )
                 messages.success(request, f'Line item "{line_item.description}" added manually')
 

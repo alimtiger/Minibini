@@ -312,7 +312,7 @@ class ComprehensiveModelIntegrationTest(TestCase):
         )
 
         expected_total = line_item.qty * price_list_item.selling_price
-        self.assertEqual(line_item.price, expected_total)
+        self.assertEqual(line_item.price_currency, expected_total)
 
     def test_unique_constraints(self):
         job = Job.objects.create(job_number="UNIQUE001", contact=self.contact)

@@ -168,8 +168,8 @@ class PurchaseOrderStatusForm(forms.Form):
         # Set valid status choices based on current status
         valid_statuses = self.VALID_TRANSITIONS.get(current_status, [])
         # Convert status codes to display names
-        from .models import PurchaseOrder
-        status_dict = dict(PurchaseOrder.PO_STATUS_CHOICES)
+        from .models import PO_STATUS_CHOICES
+        status_dict = dict(PO_STATUS_CHOICES)
 
         choices = [(current_status, f'{status_dict.get(current_status)} (current)')]
         choices.extend([(s, status_dict.get(s)) for s in valid_statuses])
@@ -207,8 +207,8 @@ class BillStatusForm(forms.Form):
         # Set valid status choices based on current status
         valid_statuses = self.VALID_TRANSITIONS.get(current_status, [])
         # Convert status codes to display names
-        from .models import Bill
-        status_dict = dict(Bill.BILL_STATUS_CHOICES)
+        from .models import BILL_STATUS_CHOICES
+        status_dict = dict(BILL_STATUS_CHOICES)
 
         choices = [(current_status, f'{status_dict.get(current_status)} (current)')]
         choices.extend([(s, status_dict.get(s)) for s in valid_statuses])
