@@ -106,78 +106,89 @@
         {% for category_name, category_data in categories.items %}
         <section style="margin: 30px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px;">
             {% if category_data.grouped_items %}
-                <!-- Categories with grouped line items (Invoices, Estimates, POs, Bills) -->
-                <h3 style="margin-top: 0;">{{ category_name }} ({{ category_data.grouped_items|length }})</h3>
+                <!-- Categories with grouped line items (Invoices, Estimates) -->
+                <h3 style="margin-top: 0;">
+                    {% if category_name == "invoices" %}Invoices
+                    {% elif category_name == "estimates" %}Estimates
+                    {% else %}{{ category_name|title }}
+                    {% endif %}
+                    ({{ category_data.grouped_items|length }})
+                </h3>
 
-                {% for group in category_data.grouped_items %}
+                {% for item in category_data.grouped_items %}
                     <div style="margin-bottom: 25px;">
                         <!-- Parent Item -->
                         <div style="padding: 10px; background-color: #f0f8ff; border-left: 4px solid #007bff;">
-                            {% if category_name == "Invoices" %}
-                                <strong><a href="{% url 'invoicing:invoice_detail' group.parent.invoice_id %}">{{ group.parent.invoice_number }}</a></strong>
-                                - {{ group.parent.status }} - Job: {{ group.parent.job.job_number }}
-                                {% if group.parent.total_amount %} - ${{ group.parent.total_amount }}{% endif %}
+                            {% if category_name == "invoices" %}
+                                <strong><a href="{% url 'invoicing:invoice_detail' item.invoice_id %}">{{ item.invoice_number }}</a></strong>
+                                - {{ item.status }} - Job: {{ item.job.job_number }}
+                                {% if item.total_amount %} - ${{ item.total_amount }}{% endif %}
 
-                            {% elif category_name == "Estimates" %}
-                                <strong><a href="{% url 'jobs:estimate_detail' group.parent.estimate_id %}">{{ group.parent.estimate_number }}</a></strong>
-                                v{{ group.parent.version }} - {{ group.parent.status }} - Job: {{ group.parent.job.job_number }}
+                                {% if item.matching_line_items %}
+                                    <div style="margin-top: 10px; margin-left: 20px;">
+                                        <strong>Matching Line Items:</strong>
+                                        <ul style="margin-top: 5px;">
+                                        {% for line_item in item.matching_line_items %}
+                                            <li style="margin-bottom: 5px;">
+                                                {{ line_item.description }} - Qty: {{ line_item.qty }} {{ line_item.units }} @ ${{ line_item.price_currency }} = ${{ line_item.total_amount_calc }}
+                                            </li>
+                                        {% endfor %}
+                                        </ul>
+                                    </div>
+                                {% endif %}
 
-                            {% elif category_name == "Purchase Orders" %}
-                                <strong><a href="{% url 'purchasing:purchase_order_detail' group.parent.po_id %}">{{ group.parent.po_number }}</a></strong>
-                                {% if group.parent.job %} - Job: {{ group.parent.job.job_number }}{% endif %}
+                            {% elif category_name == "estimates" %}
+                                <strong><a href="{% url 'jobs:estimate_detail' item.estimate_id %}">{{ item.estimate_number }}</a></strong>
+                                v{{ item.version }} - {{ item.status }} - Job: {{ item.job.job_number }}
 
-                            {% elif category_name == "Bills" %}
-                                <strong><a href="{% url 'purchasing:bill_detail' group.parent.bill_id %}">Bill {{ group.parent.bill_id }}</a></strong>
-                                - Vendor Invoice: {{ group.parent.vendor_invoice_number }}
-                                - Contact: {{ group.parent.contact }}
-                                {% if group.parent.purchase_order %} - PO: {{ group.parent.purchase_order.po_number }}{% endif %}
+                                {% if item.matching_line_items %}
+                                    <div style="margin-top: 10px; margin-left: 20px;">
+                                        <strong>Matching Line Items:</strong>
+                                        <ul style="margin-top: 5px;">
+                                        {% for line_item in item.matching_line_items %}
+                                            <li style="margin-bottom: 5px;">
+                                                {{ line_item.description }} - Qty: {{ line_item.qty }} {{ line_item.units }} @ ${{ line_item.price_currency }} = ${{ line_item.total_amount_calc }}
+                                            </li>
+                                        {% endfor %}
+                                        </ul>
+                                    </div>
+                                {% endif %}
 
-                            {% elif category_name == "Work Orders" %}
-                                <strong><a href="{% url 'jobs:work_order_detail' group.parent.work_order_id %}">Work Order {{ group.parent.work_order_id }}</a></strong>
-                                - {{ group.parent.status }} - Job: {{ group.parent.job.job_number }}
+                            {% elif category_name == "purchase_orders" %}
+                                <strong><a href="{% url 'purchasing:purchase_order_detail' item.po_id %}">{{ item.po_number }}</a></strong>
+                                {% if item.job %} - Job: {{ item.job.job_number }}{% endif %}
+
+                            {% elif category_name == "bills" %}
+                                <strong><a href="{% url 'purchasing:bill_detail' item.bill_id %}">Bill {{ item.bill_id }}</a></strong>
+                                - Vendor Invoice: {{ item.vendor_invoice_number }}
+                                - Contact: {{ item.contact }}
+                                {% if item.purchase_order %} - PO: {{ item.purchase_order.po_number }}{% endif %}
+
+                            {% elif category_name == "work_orders" %}
+                                <strong><a href="{% url 'jobs:work_order_detail' item.work_order_id %}">Work Order {{ item.work_order_id }}</a></strong>
+                                - {{ item.status }} - Job: {{ item.job.job_number }}
                             {% endif %}
                         </div>
-
-                        <!-- Associated Line Items or Tasks -->
-                        {% if group.line_items %}
-                        <div style="margin-left: 25px; margin-top: 10px;">
-                            <ul style="list-style-type: circle;">
-                                {% for line_item in group.line_items %}
-                                <li style="margin-bottom: 8px;">
-                                    <strong>{{ line_item.description|truncatewords:15 }}</strong>
-                                    - Qty: {{ line_item.qty }} {% if line_item.units %}{{ line_item.units }}{% endif %}
-                                    - ${{ line_item.price_currency }} each
-                                    - Total: ${{ line_item.total_amount|floatformat:2 }}
-                                </li>
-                                {% endfor %}
-                            </ul>
-                        </div>
-                        {% endif %}
-
-                        {% if group.tasks %}
-                        <div style="margin-left: 25px; margin-top: 10px;">
-                            <ul style="list-style-type: circle;">
-                                {% for task in group.tasks %}
-                                <li style="margin-bottom: 8px;">
-                                    <strong><a href="{% url 'jobs:task_detail' task.task_id %}">{{ task.name }}</a></strong>
-                                    {% if task.assignee %} - Assigned to: {{ task.assignee.username }}{% endif %}
-                                    {% if task.est_qty %} - Qty: {{ task.est_qty }}{% endif %}
-                                    {% if task.units %} {{ task.units }}{% endif %}
-                                    {% if task.rate %} - ${{ task.rate }} each{% endif %}
-                                    {% if task.status %} - Status: {{ task.status }}{% endif %}
-                                </li>
-                                {% endfor %}
-                            </ul>
-                        </div>
-                        {% endif %}
                     </div>
                 {% endfor %}
 
             {% elif category_data.items %}
                 <!-- Categories without line items (Jobs, Contacts, etc.) -->
-                <h3 style="margin-top: 0;">{{ category_name }} ({{ category_data.items|length }})</h3>
+                <h3 style="margin-top: 0;">
+                    {% if category_name == "jobs" %}Jobs
+                    {% elif category_name == "contacts" %}Contacts
+                    {% elif category_name == "businesses" %}Businesses
+                    {% elif category_name == "price_list_items" %}Price List Items
+                    {% elif category_name == "invoices" %}Invoices
+                    {% elif category_name == "estimates" %}Estimates
+                    {% elif category_name == "purchase_orders" %}Purchase Orders
+                    {% elif category_name == "bills" %}Bills
+                    {% else %}{{ category_name|title }}
+                    {% endif %}
+                    ({{ category_data.items|length }})
+                </h3>
                 <ul style="margin-bottom: 20px;">
-                {% if category_name == "Jobs" %}
+                {% if category_name == "jobs" %}
                     {% for job in category_data.items %}
                     <li>
                         <a href="{% url 'jobs:detail' job.job_id %}">{{ job.job_number }}</a>
@@ -186,7 +197,7 @@
                     </li>
                     {% endfor %}
 
-                {% elif category_name == "Estimates" %}
+                {% elif category_name == "estimates" %}
                     {% for estimate in category_data.items %}
                     <li>
                         <a href="{% url 'jobs:estimate_detail' estimate.estimate_id %}">{{ estimate.estimate_number }}</a>
@@ -194,7 +205,7 @@
                     </li>
                     {% endfor %}
 
-                {% elif category_name == "Contacts" %}
+                {% elif category_name == "contacts" %}
                     {% for contact in category_data.items %}
                     <li>
                         <a href="{% url 'contacts:contact_detail' contact.contact_id %}">{{ contact }}</a>
@@ -204,7 +215,7 @@
                     </li>
                     {% endfor %}
 
-                {% elif category_name == "Businesses" %}
+                {% elif category_name == "businesses" %}
                     {% for business in category_data.items %}
                     <li>
                         <a href="{% url 'contacts:business_detail' business.business_id %}">{{ business.business_name }}</a>
@@ -213,7 +224,7 @@
                     </li>
                     {% endfor %}
 
-                {% elif category_name == "Price List Items" %}
+                {% elif category_name == "price_list_items" %}
                     {% for item in category_data.items %}
                     <li>
                         <strong>{{ item.code }}</strong> - {{ item.description|truncatewords:15 }}
@@ -222,7 +233,7 @@
                     </li>
                     {% endfor %}
 
-                {% elif category_name == "Invoices" %}
+                {% elif category_name == "invoices" %}
                     {% for invoice in category_data.items %}
                     <li>
                         <a href="{% url 'invoicing:invoice_detail' invoice.invoice_id %}">{{ invoice.invoice_number }}</a>
@@ -231,7 +242,7 @@
                     </li>
                     {% endfor %}
 
-                {% elif category_name == "Purchase Orders" %}
+                {% elif category_name == "purchase_orders" %}
                     {% for po in category_data.items %}
                     <li>
                         <a href="{% url 'purchasing:purchase_order_detail' po.po_id %}">{{ po.po_number }}</a>
@@ -239,7 +250,7 @@
                     </li>
                     {% endfor %}
 
-                {% elif category_name == "Bills" %}
+                {% elif category_name == "bills" %}
                     {% for bill in category_data.items %}
                     <li>
                         <a href="{% url 'purchasing:bill_detail' bill.bill_id %}">Bill {{ bill.bill_id }}</a>
@@ -249,6 +260,35 @@
                     </li>
                     {% endfor %}
 
+                {% endif %}
+                </ul>
+
+            {% else %}
+                <!-- Flat list categories (work_orders, est_worksheets) -->
+                <h3 style="margin-top: 0;">
+                    {% if category_name == "work_orders" %}Work Orders
+                    {% elif category_name == "est_worksheets" %}Worksheets
+                    {% else %}{{ category_name|title }}
+                    {% endif %}
+                    ({{ category_data|length }})
+                </h3>
+                <ul style="margin-bottom: 20px;">
+                {% if category_name == "work_orders" %}
+                    {% for wo in category_data %}
+                    <li>
+                        <a href="{% url 'jobs:work_order_detail' wo.work_order_id %}">Work Order {{ wo.work_order_id }}</a>
+                        - {{ wo.status }} - Job: {{ wo.job.job_number }}
+                    </li>
+                    {% endfor %}
+
+                {% elif category_name == "est_worksheets" %}
+                    {% for worksheet in category_data %}
+                    <li>
+                        <a href="{% url 'jobs:estworksheet_detail' worksheet.est_worksheet_id %}">Worksheet {{ worksheet.est_worksheet_id }}</a>
+                        - Job: {{ worksheet.job.job_number }}
+                        {% if worksheet.estimate %} - Estimate: {{ worksheet.estimate.estimate_number }}{% endif %}
+                    </li>
+                    {% endfor %}
                 {% endif %}
                 </ul>
             {% endif %}

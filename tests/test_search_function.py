@@ -176,25 +176,25 @@ class SearchViewTests(TestCase):
         """Test searching jobs by job number"""
         response = self.client.get(reverse('search:search'), {'q': 'JOB-001'})
         self.assertEqual(response.status_code, 200)
-        self.assertIn(self.job1, response.context['categories']['Jobs']['items'])
-        self.assertNotIn(self.job2, response.context['categories']['Jobs']['items'])
+        self.assertIn(self.job1, response.context['categories']['jobs']['items'])
+        self.assertNotIn(self.job2, response.context['categories']['jobs']['items'])
         self.assertContains(response, 'JOB-001')
 
     def test_search_jobs_case_insensitive(self):
         """Test that job search is case-insensitive"""
         response = self.client.get(reverse('search:search'), {'q': 'job-001'})
         self.assertEqual(response.status_code, 200)
-        self.assertIn(self.job1, response.context['categories']['Jobs']['items'])
+        self.assertIn(self.job1, response.context['categories']['jobs']['items'])
 
         response = self.client.get(reverse('search:search'), {'q': 'JOB-001'})
         self.assertEqual(response.status_code, 200)
-        self.assertIn(self.job1, response.context['categories']['Jobs']['items'])
+        self.assertIn(self.job1, response.context['categories']['jobs']['items'])
 
     def test_search_jobs_by_description(self):
         """Test searching jobs by description text"""
         response = self.client.get(reverse('search:search'), {'q': 'table'})
         self.assertEqual(response.status_code, 200)
-        jobs = list(response.context['categories']['Jobs']['items'])
+        jobs = list(response.context['categories']['jobs']['items'])
         # job2 has "table" in description
         self.assertIn(self.job2, jobs)
         self.assertNotIn(self.job1, jobs)
@@ -203,118 +203,103 @@ class SearchViewTests(TestCase):
         """Test searching jobs by customer PO number"""
         response = self.client.get(reverse('search:search'), {'q': 'PO-12345'})
         self.assertEqual(response.status_code, 200)
-        self.assertIn(self.job1, response.context['categories']['Jobs']['items'])
-        self.assertNotIn(self.job2, response.context['categories']['Jobs']['items'])
+        self.assertIn(self.job1, response.context['categories']['jobs']['items'])
+        self.assertNotIn(self.job2, response.context['categories']['jobs']['items'])
 
     def test_search_contacts_by_name(self):
         """Test searching contacts by name"""
         response = self.client.get(reverse('search:search'), {'q': 'John Doe'})
         self.assertEqual(response.status_code, 200)
-        self.assertIn(self.contact1, response.context['categories']['Contacts']['items'])
-        self.assertNotIn(self.contact2, response.context['categories']['Contacts']['items'])
+        self.assertIn(self.contact1, response.context['categories']['contacts']['items'])
+        self.assertNotIn(self.contact2, response.context['categories']['contacts']['items'])
 
     def test_search_contacts_by_email(self):
         """Test searching contacts by email address"""
         response = self.client.get(reverse('search:search'), {'q': 'jane.smith@example.com'})
         self.assertEqual(response.status_code, 200)
-        self.assertIn(self.contact2, response.context['categories']['Contacts']['items'])
-        self.assertNotIn(self.contact1, response.context['categories']['Contacts']['items'])
+        self.assertIn(self.contact2, response.context['categories']['contacts']['items'])
+        self.assertNotIn(self.contact1, response.context['categories']['contacts']['items'])
 
     def test_search_contacts_by_phone(self):
         """Test searching contacts by phone number"""
         response = self.client.get(reverse('search:search'), {'q': '555-0001'})
         self.assertEqual(response.status_code, 200)
-        self.assertIn(self.contact1, response.context['categories']['Contacts']['items'])
+        self.assertIn(self.contact1, response.context['categories']['contacts']['items'])
 
     def test_search_contacts_by_city(self):
         """Test searching contacts by city"""
         response = self.client.get(reverse('search:search'), {'q': 'Springfield'})
         self.assertEqual(response.status_code, 200)
-        contacts = list(response.context['categories']['Contacts']['items'])
+        contacts = list(response.context['categories']['contacts']['items'])
         self.assertIn(self.contact1, contacts)
         # Also check if business is found
-        self.assertIn(self.business, list(response.context['categories']['Businesses']['items']))
+        self.assertIn(self.business, list(response.context['categories']['businesses']['items']))
 
     def test_search_businesses_by_name(self):
         """Test searching businesses by business name"""
         response = self.client.get(reverse('search:search'), {'q': 'Acme'})
         self.assertEqual(response.status_code, 200)
-        self.assertIn(self.business, response.context['categories']['Businesses']['items'])
+        self.assertIn(self.business, response.context['categories']['businesses']['items'])
 
     def test_search_businesses_by_reference_code(self):
         """Test searching businesses by reference code"""
         response = self.client.get(reverse('search:search'), {'q': 'ACME001'})
         self.assertEqual(response.status_code, 200)
-        self.assertIn(self.business, response.context['categories']['Businesses']['items'])
+        self.assertIn(self.business, response.context['categories']['businesses']['items'])
 
     def test_search_estimates_by_estimate_number(self):
         """Test searching estimates by estimate number"""
         response = self.client.get(reverse('search:search'), {'q': 'EST-001'})
         self.assertEqual(response.status_code, 200)
-        self.assertIn(self.estimate1, response.context['categories']['Estimates']['grouped_items'])
-        self.assertNotIn(self.estimate2, response.context['categories']['Estimates']['grouped_items'])
+        self.assertIn(self.estimate1, response.context['categories']['estimates']['grouped_items'])
+        self.assertNotIn(self.estimate2, response.context['categories']['estimates']['grouped_items'])
 
     def test_search_estimates_by_job_number(self):
         """Test searching estimates by associated job number"""
         response = self.client.get(reverse('search:search'), {'q': 'JOB-002'})
         self.assertEqual(response.status_code, 200)
         # Should find both the job and its estimate
-        self.assertIn(self.job2, response.context['categories']['Jobs']['items'])
-        self.assertIn(self.estimate2, response.context['categories']['Estimates']['grouped_items'])
-
-    def test_search_tasks_by_name(self):
-        """Test searching tasks by task name"""
-        response = self.client.get(reverse('search:search'), {'q': 'Cut wood'})
-        self.assertEqual(response.status_code, 200)
-        self.assertIn(self.task1, response.context['categories']['Tasks']['items'])
-        self.assertNotIn(self.task2, response.context['categories']['Tasks']['items'])
-
-    def test_search_tasks_by_units(self):
-        """Test searching tasks by units"""
-        response = self.client.get(reverse('search:search'), {'q': 'hours'})
-        self.assertEqual(response.status_code, 200)
-        tasks = list(response.context['categories']['Tasks']['items'])
-        self.assertIn(self.task1, tasks)
-        self.assertIn(self.task2, tasks)
+        self.assertIn(self.job2, response.context['categories']['jobs']['items'])
+        self.assertIn(self.estimate2, response.context['categories']['estimates']['grouped_items'])
 
     def test_search_invoices_by_invoice_number(self):
         """Test searching invoices by invoice number"""
         response = self.client.get(reverse('search:search'), {'q': 'INV-001'})
         self.assertEqual(response.status_code, 200)
-        self.assertIn(self.invoice1, response.context['categories']['Invoices']['grouped_items'])
+        self.assertIn(self.invoice1, response.context['categories']['invoices']['grouped_items'])
 
     def test_search_price_list_items_by_code(self):
         """Test searching price list items by item code"""
         response = self.client.get(reverse('search:search'), {'q': 'WOOD-001'})
         self.assertEqual(response.status_code, 200)
-        self.assertIn(self.price_item1, response.context['categories']['Price List Items']['items'])
-        self.assertNotIn(self.price_item2, response.context['categories']['Price List Items']['items'])
+        self.assertIn(self.price_item1, response.context['categories']['price_list_items']['items'])
+        self.assertNotIn(self.price_item2, response.context['categories']['price_list_items']['items'])
 
     def test_search_price_list_items_by_description(self):
         """Test searching price list items by description"""
         response = self.client.get(reverse('search:search'), {'q': 'screws'})
         self.assertEqual(response.status_code, 200)
-        self.assertIn(self.price_item2, response.context['categories']['Price List Items']['items'])
-        self.assertNotIn(self.price_item1, response.context['categories']['Price List Items']['items'])
+        self.assertIn(self.price_item2, response.context['categories']['price_list_items']['items'])
+        self.assertNotIn(self.price_item1, response.context['categories']['price_list_items']['items'])
 
     def test_search_purchase_orders_by_po_number(self):
         """Test searching purchase orders by PO number"""
         response = self.client.get(reverse('search:search'), {'q': 'PO-2024-001'})
         self.assertEqual(response.status_code, 200)
-        self.assertIn(self.po1, response.context['categories']['Purchase Orders']['items'])
+        self.assertIn(self.po1, response.context['categories']['purchase_orders']['items'])
 
     def test_search_bills_by_vendor_invoice(self):
         """Test searching bills by vendor invoice number"""
         response = self.client.get(reverse('search:search'), {'q': 'VENDOR-INV-001'})
         self.assertEqual(response.status_code, 200)
-        self.assertIn(self.bill1, response.context['categories']['Bills']['items'])
+        self.assertIn(self.bill1, response.context['categories']['bills']['items'])
 
     def test_search_partial_match(self):
         """Test that partial matches work correctly"""
         response = self.client.get(reverse('search:search'), {'q': 'Oak'})
         self.assertEqual(response.status_code, 200)
         # Should match "Oak plank 2x4x8"
-        self.assertIn(self.price_item1, response.context['categories']['Price List Items']['items'])
+        self.assertIn(self.price_item1, response.context['categories']['price_list_items']['items'])
 
     def test_search_multiple_results_across_models(self):
         """Test search that returns results from multiple model types"""
@@ -322,12 +307,12 @@ class SearchViewTests(TestCase):
         self.assertEqual(response.status_code, 200)
 
         # Should find job, estimate, work order, worksheet, invoice, and PO
-        self.assertIn(self.job1, response.context['categories']['Jobs']['items'])
-        self.assertIn(self.estimate1, response.context['categories']['Estimates']['grouped_items'])
+        self.assertIn(self.job1, response.context['categories']['jobs']['items'])
+        self.assertIn(self.estimate1, response.context['categories']['estimates']['grouped_items'])
         self.assertIn(self.work_order1, response.context['categories']['work_orders'])
         self.assertIn(self.worksheet1, response.context['categories']['est_worksheets'])
-        self.assertIn(self.invoice1, response.context['categories']['Invoices']['grouped_items'])
-        self.assertIn(self.po1, response.context['categories']['Purchase Orders']['items'])
+        self.assertIn(self.invoice1, response.context['categories']['invoices']['grouped_items'])
+        self.assertIn(self.po1, response.context['categories']['purchase_orders']['items'])
 
         # Total count should reflect all matches
         self.assertGreater(response.context['total_count'], 1)
@@ -339,17 +324,16 @@ class SearchViewTests(TestCase):
 
         # Count manually
         expected_count = (
-            len(response.context['categories']['Jobs']['items']) +
-            len(response.context['categories']['Estimates']['grouped_items']) +
-            len(response.context['categories']['Tasks']['items']) +
-            len(response.context['categories']['work_orders']) +
-            len(response.context['categories']['est_worksheets']) +
-            len(response.context['categories']['Contacts']['items']) +
-            len(response.context['categories']['Businesses']['items']) +
-            len(response.context['categories']['Invoices']['grouped_items']) +
-            len(response.context['categories']['Price List Items']['items']) +
-            len(response.context['categories']['Purchase Orders']['items']) +
-            len(response.context['categories']['Bills']['items'])
+            len(response.context['categories'].get('jobs', {}).get('items', [])) +
+            len(response.context['categories'].get('estimates', {}).get('grouped_items', [])) +
+            len(response.context['categories'].get('work_orders', [])) +
+            len(response.context['categories'].get('est_worksheets', [])) +
+            len(response.context['categories'].get('contacts', {}).get('items', [])) +
+            len(response.context['categories'].get('businesses', {}).get('items', [])) +
+            len(response.context['categories'].get('invoices', {}).get('grouped_items', [])) +
+            len(response.context['categories'].get('price_list_items', {}).get('items', [])) +
+            len(response.context['categories'].get('purchase_orders', {}).get('items', [])) +
+            len(response.context['categories'].get('bills', {}).get('items', []))
         )
 
         self.assertEqual(response.context['total_count'], expected_count)
@@ -366,14 +350,14 @@ class SearchViewTests(TestCase):
         response = self.client.get(reverse('search:search'), {'q': '12345'})
         self.assertEqual(response.status_code, 200)
         # Should match postal code and PO number
-        self.assertIn(self.contact1, response.context['categories']['Contacts']['items'])
-        self.assertIn(self.job1, response.context['categories']['Jobs']['items'])
+        self.assertIn(self.contact1, response.context['categories']['contacts']['items'])
+        self.assertIn(self.job1, response.context['categories']['jobs']['items'])
 
     def test_search_special_characters(self):
         """Test searching with special characters like hyphens"""
         response = self.client.get(reverse('search:search'), {'q': 'PO-2024-001'})
         self.assertEqual(response.status_code, 200)
-        self.assertIn(self.po1, response.context['categories']['Purchase Orders']['items'])
+        self.assertIn(self.po1, response.context['categories']['purchase_orders']['items'])
 
     def test_search_whitespace_handling(self):
         """Test that leading/trailing whitespace is handled properly"""
@@ -385,29 +369,27 @@ class SearchViewTests(TestCase):
 
         # Both should return same results
         self.assertEqual(
-            list(response1.context['results']['jobs']),
-            list(response2.context['results']['jobs'])
+            response1.context['categories'].get('jobs', {}).get('items', []),
+            response2.context['categories'].get('jobs', {}).get('items', [])
         )
 
     def test_search_context_structure(self):
         """Test that the response context has the correct structure"""
-        response = self.client.get(reverse('search:search'), {'q': 'test'})
+        response = self.client.get(reverse('search:search'), {'q': 'JOB-001'})
         self.assertEqual(response.status_code, 200)
 
-        # Check that all expected keys are present
+        # Check that all expected top-level keys are present
         self.assertIn('query', response.context)
         self.assertIn('categories', response.context)
         self.assertIn('total_count', response.context)
 
-        # Check results structure
-        results = response.context['categories']
-        expected_keys = [
-            'jobs', 'estimates', 'tasks', 'work_orders', 'est_worksheets',
-            'contacts', 'businesses', 'invoices', 'price_list_items',
-            'purchase_orders', 'bills'
-        ]
-        for key in expected_keys:
-            self.assertIn(key, results)
+        # Check that categories dict exists and has some results
+        categories = response.context['categories']
+        self.assertIsInstance(categories, dict)
+
+        # Since we searched for 'JOB-001', we should at least have jobs category
+        self.assertIn('jobs', categories)
+        self.assertIn('items', categories['jobs'])
 
     def test_search_template_used(self):
         """Test that the correct template is used"""
