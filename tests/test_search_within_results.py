@@ -1,6 +1,6 @@
 from django.test import TestCase, Client
 from django.urls import reverse
-from apps.jobs.models import Job
+from apps.jobs.models import Job, Estimate
 from apps.contacts.models import Contact, Business
 from apps.core.models import Configuration
 
@@ -55,6 +55,20 @@ class SearchWithinResultsTest(TestCase):
             job_number="JOB-2025-0003",
             contact=self.contact3,
             description="Office maintenance project"
+        )
+
+        # Create test estimates
+        self.estimate1 = Estimate.objects.create(
+            estimate_number="EST-2025-0001",
+            job=self.job1,
+            version=1,
+            status="draft"
+        )
+        self.estimate2 = Estimate.objects.create(
+            estimate_number="EST-2025-0002",
+            job=self.job2,
+            version=1,
+            status="open"
         )
 
         self.search_url = reverse('search:search')
@@ -155,3 +169,35 @@ class SearchWithinResultsTest(TestCase):
 
         # Should not find Jane Doe (not in original results)
         self.assertNotContains(response2, 'Jane Doe')
+
+    def test_filter_by_estimates_category(self):
+        """Test that filtering by 'estimates' category shows estimates correctly"""
+        # Initial search that will return both jobs and estimates
+        response = self.client.get(self.search_url, {'q': '2025'})
+        self.assertEqual(response.status_code, 200)
+
+        # Should find both jobs and estimates
+        self.assertContains(response, 'JOB-2025-0001')
+        self.assertContains(response, 'EST-2025-0001')
+
+        # Now filter by estimates category only
+        response_filtered = self.client.get(self.search_url, {
+            'q': '2025',
+            'category': 'estimates'
+        })
+        self.assertEqual(response_filtered.status_code, 200)
+
+        # Should have a non-zero total count
+        self.assertGreater(response_filtered.context['total_count'], 0)
+        self.assertEqual(response_filtered.context['total_count'], 2)
+
+        # Should find estimates
+        self.assertContains(response_filtered, 'EST-2025-0001')
+        self.assertContains(response_filtered, 'EST-2025-0002')
+
+        # Verify only estimates category is in the response
+        categories = response_filtered.context['categories']
+        self.assertIn('estimates', categories)
+        self.assertNotIn('jobs', categories)
+        self.assertNotIn('contacts', categories)
+        self.assertNotIn('businesses', categories)

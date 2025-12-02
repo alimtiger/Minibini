@@ -494,7 +494,7 @@ def delete_contact(request, contact_id):
             return redirect('contacts:contact_detail', contact_id=contact.contact_id)
 
         # If deleting default contact with multiple other contacts, require selection
-        if was_default and other_contacts.count() > 1:
+        if was_default and business and other_contacts.count() > 1:
             # Check if user has selected a new default
             new_default_contact_id = request.POST.get('new_default_contact')
 
@@ -536,7 +536,7 @@ def delete_contact(request, contact_id):
             return redirect('contacts:business_detail', business_id=business.business_id)
 
         # If only one other contact, auto-assign as default
-        elif was_default and other_contacts.count() == 1:
+        elif was_default and business and other_contacts.count() == 1:
             contact_name = contact
             business_name = business.business_name
             new_default = other_contacts.first()
@@ -552,6 +552,13 @@ def delete_contact(request, contact_id):
                 request,
                 f'Contact "{contact_name}" has been deleted. "{new_default.name}" is now the default contact for {business_name}.'
             )
+            return redirect('contacts:business_detail', business_id=business.business_id)
+
+        # Non-default contact with business
+        elif business:
+            contact_name = contact
+            contact.delete()
+            messages.success(request, f'Contact "{contact_name}" has been deleted successfully.')
             return redirect('contacts:business_detail', business_id=business.business_id)
 
         # Non-business contact (no business association)
@@ -644,8 +651,13 @@ def delete_business(request, business_id):
         elif contact_action == 'delete':
             # Delete all contacts along with business
             contact_names = [str(c) for c in contacts[:5]]  # Get first 5 names
-            contacts.delete()
+            contact_ids = list(contacts.values_list('contact_id', flat=True))
+
+            # Must delete business first to avoid PROTECT constraint on default_contact
             business.delete()
+
+            # Delete contacts by ID since the queryset relationship is broken after business deletion
+            Contact.objects.filter(contact_id__in=contact_ids).delete()
 
             if contact_count <= 5:
                 messages.success(

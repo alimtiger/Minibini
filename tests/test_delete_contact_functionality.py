@@ -62,14 +62,19 @@ class ContactDeletionValidationTest(TestCase):
 
     def test_cannot_delete_contact_with_bill(self):
         """Contact associated with a Bill cannot be deleted"""
-        # Create a purchase order
-        po = PurchaseOrder.objects.create(po_number='PO-001')
+        # Create a purchase order with issued status
+        po = PurchaseOrder.objects.create(
+            po_number='PO-001',
+            business=self.business,
+            status='issued'
+        )
 
         # Create a bill associated with the contact
         bill = Bill.objects.create(
             purchase_order=po,
             contact=self.contact,
-            vendor_invoice_number='INV-001'
+            vendor_invoice_number='INV-001',
+            bill_number='BILL-001'
         )
 
         url = reverse('contacts:delete_contact', args=[self.contact.contact_id])
@@ -91,11 +96,16 @@ class ContactDeletionValidationTest(TestCase):
             contact=self.contact
         )
 
-        po = PurchaseOrder.objects.create(po_number='PO-001')
+        po = PurchaseOrder.objects.create(
+            po_number='PO-001',
+            business=self.business,
+            status='issued'
+        )
         bill = Bill.objects.create(
             purchase_order=po,
             contact=self.contact,
-            vendor_invoice_number='INV-001'
+            vendor_invoice_number='INV-001',
+            bill_number='BILL-001'
         )
 
         url = reverse('contacts:delete_contact', args=[self.contact.contact_id])
@@ -154,6 +164,15 @@ class ContactDeletionSuccessTest(TestCase):
         contact.business = business
         contact.save()
 
+        # Add a second contact so we can delete the first one
+        contact2 = Contact.objects.create(
+            first_name='Jane',
+            last_name='Smith',
+            email='jane@test.com',
+            work_number='555-0002',
+            business=business
+        )
+
         contact_id = contact.contact_id
         url = reverse('contacts:delete_contact', args=[contact_id])
         response = self.client.post(url)
@@ -181,6 +200,15 @@ class ContactDeletionSuccessTest(TestCase):
         # Link contact to business
         contact.business = business
         contact.save()
+
+        # Add a second contact so we can delete the first one
+        contact2 = Contact.objects.create(
+            first_name='Jane',
+            last_name='Smith',
+            email='jane@test.com',
+            work_number='555-0002',
+            business=business
+        )
 
         url = reverse('contacts:delete_contact', args=[contact.contact_id])
         response = self.client.post(url)
@@ -227,7 +255,8 @@ class DefaultContactReassignmentOnDeletionTest(TestCase):
 
     def setUp(self):
         self.client = Client()
-        # Create initial contact for default_contact
+        # Create initial contact for default_contact (not linked to business)
+        # This allows tests to add their own contacts to the business without interference
         initial_contact = Contact.objects.create(
             first_name='Initial',
             last_name='Contact',
@@ -238,8 +267,8 @@ class DefaultContactReassignmentOnDeletionTest(TestCase):
             business_name='Test Business',
             default_contact=initial_contact
         )
-        initial_contact.business = self.business
-        initial_contact.save()
+        # Note: initial_contact.business is NOT set, so business.contacts.all() is empty
+        # Tests can add contacts to the business as needed
 
     def test_delete_default_contact_shows_selection_form(self):
         """Deleting default contact with multiple others should show selection form"""
@@ -366,8 +395,8 @@ class DefaultContactReassignmentOnDeletionTest(TestCase):
         self.business.refresh_from_db()
         self.assertEqual(self.business.default_contact, contact_bob)
 
-    def test_delete_only_contact_clears_default(self):
-        """Deleting the only contact should clear the default"""
+    def test_delete_only_contact_shows_error(self):
+        """Deleting the only contact of a business should show an error"""
         contact = Contact.objects.create(
             first_name='John',
             last_name='Doe',
@@ -379,18 +408,20 @@ class DefaultContactReassignmentOnDeletionTest(TestCase):
         self.business.refresh_from_db()
         self.assertEqual(self.business.default_contact, contact)
 
-        # Delete the only contact
+        # Try to delete the only contact
         url = reverse('contacts:delete_contact', args=[contact.contact_id])
-        response = self.client.post(url)
+        response = self.client.post(url, follow=True)
 
-        self.assertEqual(response.status_code, 302)
+        # Should show error message
+        self.assertContains(response, 'Cannot delete')
+        self.assertContains(response, 'only contact')
+        self.assertContains(response, 'A business must have at least one contact')
 
-        # Default should be None
-        self.business.refresh_from_db()
-        self.assertIsNone(self.business.default_contact)
+        # Contact should still exist
+        self.assertTrue(Contact.objects.filter(contact_id=contact.contact_id).exists())
 
-        # Business should have no contacts
-        self.assertEqual(self.business.contacts.count(), 0)
+        # Business should still have the contact
+        self.assertEqual(self.business.contacts.count(), 1)
 
     def test_delete_non_default_contact_preserves_default(self):
         """Deleting a non-default contact should not change the default"""
@@ -513,8 +544,8 @@ class DefaultContactReassignmentOnDeletionTest(TestCase):
         # Alice should not be deleted
         self.assertTrue(Contact.objects.filter(contact_id=contact1.contact_id).exists())
 
-    def test_delete_only_contact_success_message_indicates_no_default(self):
-        """Success message should indicate no default when last contact deleted"""
+    def test_delete_only_contact_error_message(self):
+        """Deleting the only contact should show appropriate error message"""
         contact = Contact.objects.create(
             first_name='John',
             last_name='Doe',
@@ -526,9 +557,12 @@ class DefaultContactReassignmentOnDeletionTest(TestCase):
         url = reverse('contacts:delete_contact', args=[contact.contact_id])
         response = self.client.post(url, follow=True)
 
-        # Check success message mentions no default
-        self.assertContains(response, 'has been deleted')
-        self.assertContains(response, 'no longer has a default contact')
+        # Check error message about not being able to delete only contact
+        self.assertContains(response, 'Cannot delete')
+        self.assertContains(response, 'only contact')
+
+        # Contact should still exist
+        self.assertTrue(Contact.objects.filter(contact_id=contact.contact_id).exists())
 
 
 class ContactDetailPageDeleteButtonTest(TestCase):

@@ -23,7 +23,7 @@ class TaskReorderingTestCase(TestCase):
         # Create a business and contact
         self.business = Business.objects.create(
             business_name='Test Company',
-            business_number='12-3456789',
+            business_phone='12-3456789',
             default_contact=self.default_contact
         )
         self.contact = Contact.objects.create(

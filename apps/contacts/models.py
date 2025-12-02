@@ -30,7 +30,8 @@ class Contact(models.Model):
         parts = [self.first_name]
         if self.middle_initial:
             parts.append(self.middle_initial)
-        parts.append(self.last_name)
+        if self.last_name:
+            parts.append(self.last_name)
         return ' '.join(parts)
 
     def clean(self):

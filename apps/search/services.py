@@ -399,8 +399,10 @@ class SearchService:
     def apply_category_filter(categories, filter_category):
         """Apply category filter to results"""
         if filter_category and filter_category != 'all':
-            if filter_category in categories:
-                return {filter_category: categories[filter_category]}
+            # Normalize to lowercase to match category keys
+            normalized_category = filter_category.lower()
+            if normalized_category in categories:
+                return {normalized_category: categories[normalized_category]}
             else:
                 return {}
         return categories
@@ -494,12 +496,17 @@ class SearchService:
             # Handle flat lists (work_orders, est_worksheets)
             if isinstance(category_data, list):
                 total += len(category_data)
-            # Handle dict with 'items' key
-            elif isinstance(category_data, dict) and 'items' in category_data:
-                total += len(category_data['items'])
-                if 'subcategories' in category_data:
-                    for subcategory_items in category_data['subcategories'].values():
-                        total += len(subcategory_items)
+            # Handle dict structures
+            elif isinstance(category_data, dict):
+                # Count grouped_items if present (estimates, invoices)
+                if 'grouped_items' in category_data:
+                    total += len(category_data['grouped_items'])
+                # Otherwise count items (jobs, contacts, businesses, etc.)
+                elif 'items' in category_data:
+                    total += len(category_data['items'])
+                    if 'subcategories' in category_data:
+                        for subcategory_items in category_data['subcategories'].values():
+                            total += len(subcategory_items)
         return total
 
     @staticmethod
@@ -508,9 +515,12 @@ class SearchService:
         result_ids = {}
 
         for category_name, category_data in categories.items():
-            # Handle dict with 'items'
-            if isinstance(category_data, dict) and 'items' in category_data:
+            # Handle dict with 'items' or 'grouped_items'
+            if isinstance(category_data, dict):
                 model_name = None
+                items_list = None
+
+                # Determine model name
                 if category_name == 'jobs':
                     model_name = 'Job'
                 elif category_name == 'contacts':
@@ -528,8 +538,14 @@ class SearchService:
                 elif category_name == 'purchase_orders':
                     model_name = 'PurchaseOrder'
 
-                if model_name:
-                    result_ids[model_name] = [item.pk for item in category_data['items']]
+                # Get items from either 'grouped_items' or 'items'
+                if 'grouped_items' in category_data:
+                    items_list = category_data['grouped_items']
+                elif 'items' in category_data:
+                    items_list = category_data['items']
+
+                if model_name and items_list:
+                    result_ids[model_name] = [item.pk for item in items_list]
 
             # Handle flat lists (work_orders, est_worksheets)
             elif isinstance(category_data, list):

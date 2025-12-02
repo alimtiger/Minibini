@@ -50,12 +50,15 @@ class BusinessDeletionValidationTest(TestCase):
     def test_cannot_delete_business_when_contact_has_bill(self):
         """Cannot delete business if any contact has associated Bills"""
         po = PurchaseOrder.objects.create(
-            po_number='PO001'
+            po_number='PO001',
+            business=self.business,
+            status='issued'
         )
         bill = Bill.objects.create(
             purchase_order=po,
             contact=self.contact,
-            vendor_invoice_number='INV001'
+            vendor_invoice_number='INV001',
+            bill_number='BILL001'
         )
 
         url = reverse('contacts:delete_business', args=[self.business.business_id])
@@ -87,12 +90,15 @@ class BusinessDeletionValidationTest(TestCase):
         )
 
         po = PurchaseOrder.objects.create(
-            po_number='PO001'
+            po_number='PO001',
+            business=self.business,
+            status='issued'
         )
         bill = Bill.objects.create(
             purchase_order=po,
             contact=contact2,
-            vendor_invoice_number='INV001'
+            vendor_invoice_number='INV001',
+            bill_number='BILL001'
         )
 
         url = reverse('contacts:delete_business', args=[self.business.business_id])
@@ -185,13 +191,37 @@ class BusinessDeletionConfirmationFormTest(TestCase):
         self.assertContains(response, '3')
         self.assertContains(response, 'contact(s)')
 
-    def test_no_confirmation_form_when_no_contacts(self):
-        """Business with no contacts should be deleted immediately without confirmation"""
+    def test_delete_business_with_unlink_action_removes_associations(self):
+        """Deleting business with 'unlink' action should remove business associations from contacts"""
+        # Add additional contacts to the business
+        contact2 = Contact.objects.create(
+            first_name='Jane',
+            last_name='Smith',
+            email='jane@test.com',
+            work_number='555-0002',
+            business=self.business
+        )
+
+        # Get contact IDs before deletion
+        initial_contact = self.business.default_contact
+        contact1_id = initial_contact.contact_id
+        contact2_id = contact2.contact_id
+
+        # Verify business has contacts
+        self.assertEqual(self.business.contacts.count(), 2)
+
+        # Delete business with unlink action
         url = reverse('contacts:delete_business', args=[self.business.business_id])
-        response = self.client.post(url, follow=True)
+        response = self.client.post(url, {'contact_action': 'unlink'}, follow=True)
 
         # Business should be deleted
         self.assertFalse(Business.objects.filter(business_id=self.business.business_id).exists())
+
+        # Contacts should still exist but with business=None
+        contact1 = Contact.objects.get(contact_id=contact1_id)
+        contact2 = Contact.objects.get(contact_id=contact2_id)
+        self.assertIsNone(contact1.business)
+        self.assertIsNone(contact2.business)
 
         # Should redirect to business list
         self.assertRedirects(response, reverse('contacts:business_list'))
@@ -200,6 +230,7 @@ class BusinessDeletionConfirmationFormTest(TestCase):
         messages = list(response.context['messages'])
         self.assertEqual(len(messages), 1)
         self.assertIn('has been deleted', str(messages[0]))
+        self.assertIn('2 contact(s) have been unlinked', str(messages[0]))
 
 
 class BusinessDeletionUnlinkActionTest(TestCase):
