@@ -30,6 +30,17 @@ class Invoice(models.Model):
         """Get customer PO number from the associated Job."""
         return self.job.customer_po_number
 
+    def save(self, *args, **kwargs):
+        """Override save to auto-generate invoice_number if not provided."""
+        from apps.core.services import NumberGenerationService
+
+        # Auto-generate invoice_number if not provided
+        if not self.invoice_number:
+            self.invoice_number = NumberGenerationService.generate_next_number('invoice')
+
+        # Call parent save
+        super().save(*args, **kwargs)
+
     def __str__(self):
         return f"Invoice {self.invoice_number}"
 

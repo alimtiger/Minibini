@@ -11,32 +11,32 @@ class ContactModelFixtureTest(FixtureTestCase):
 
     def test_contacts_exist_from_fixture(self):
         """Test that contacts from fixture data exist and have correct properties"""
-        john_doe = Contact.objects.get(name="John Doe")
+        john_doe = Contact.objects.get(first_name="John", last_name="Doe")
         self.assertEqual(john_doe.email, "john.doe@example.com")
         self.assertEqual(john_doe.address(), "123 Main St, Anytown, ST 12345")
         self.assertEqual(john_doe.mobile_number, "555-123-4567")
 
-        jane_smith = Contact.objects.get(name="Jane Smith")
+        jane_smith = Contact.objects.get(first_name="Jane", last_name="Smith")
         self.assertEqual(jane_smith.email, "jane.smith@company.com")
         self.assertEqual(jane_smith.mobile_number, "555-987-6543")
 
-        acme_vendor = Contact.objects.get(name="Acme Vendor")
+        acme_vendor = Contact.objects.get(first_name="Acme", last_name="Vendor")
         self.assertEqual(acme_vendor.email, "vendor@acme.com")
 
     def test_contact_str_method_with_fixture_data(self):
         """Test contact string representation with fixture data"""
-        contact = Contact.objects.get(name="John Doe")
+        contact = Contact.objects.get(first_name="John", last_name="Doe")
         self.assertEqual(str(contact), "John Doe")
 
     def test_contact_relationships_with_users(self):
         """Test that contacts are properly linked to users"""
         from apps.core.models import User
 
-        john_contact = Contact.objects.get(name="John Doe")
+        john_contact = Contact.objects.get(first_name="John", last_name="Doe")
         admin_user = User.objects.get(username="admin")
         self.assertEqual(admin_user.contact, john_contact)
 
-        jane_contact = Contact.objects.get(name="Jane Smith")
+        jane_contact = Contact.objects.get(first_name="Jane", last_name="Smith")
         manager_user = User.objects.get(username="manager1")
         self.assertEqual(manager_user.contact, jane_contact)
 
@@ -44,7 +44,7 @@ class ContactModelFixtureTest(FixtureTestCase):
         """Test that contacts are properly linked to jobs"""
         from apps.jobs.models import Job
 
-        john_contact = Contact.objects.get(name="John Doe")
+        john_contact = Contact.objects.get(first_name="John", last_name="Doe")
         job1 = Job.objects.get(job_number="JOB-2024-0001")
         self.assertEqual(job1.contact, john_contact)
 

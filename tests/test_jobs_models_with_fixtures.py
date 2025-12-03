@@ -34,7 +34,7 @@ class JobModelFixtureTest(FixtureTestCase):
     def test_job_contact_relationships(self):
         """Test that jobs are properly linked to contacts"""
         job1 = Job.objects.get(job_number="JOB-2024-0001")
-        contact1 = Contact.objects.get(name="John Doe")
+        contact1 = Contact.objects.get(first_name="John", last_name="Doe")
         self.assertEqual(job1.contact, contact1)
 
     def test_job_status_progression(self):
@@ -50,7 +50,7 @@ class JobModelFixtureTest(FixtureTestCase):
 
     def test_create_new_job_with_existing_contact(self):
         """Test creating a new job with existing contact from fixtures"""
-        contact = Contact.objects.get(name="John Doe")
+        contact = Contact.objects.get(first_name="John", last_name="Doe")
         new_job = Job.objects.create(
             job_number="JOB-2024-0003",
             contact=contact,

@@ -64,7 +64,7 @@ class PurchaseOrderModelFixtureTest(TestCase):
     def test_purchase_order_set_null_on_job_delete(self):
         """Test purchase order job is set to NULL when related job is deleted"""
         # Create a new job for this test
-        contact = Contact.objects.get(name="John Doe")
+        contact = Contact.objects.get(first_name="John", last_name="Doe")
         test_job = Job.objects.create(
             job_number="JOB-TEST-DELETE",
             contact=contact,
@@ -119,13 +119,13 @@ class BillModelFixtureTest(TestCase):
     def test_bill_contact_relationships(self):
         """Test that bills are properly linked to vendor contacts"""
         bill = Bill.objects.get(vendor_invoice_number="ACME-INV-001")
-        vendor = Contact.objects.get(name="Acme Vendor")
+        vendor = Contact.objects.get(first_name="Acme", last_name="Vendor")
         self.assertEqual(bill.contact, vendor)
 
     def test_create_new_bill_with_existing_relationships(self):
         """Test creating a new bill with existing PO and contact from fixtures"""
         po = PurchaseOrder.objects.get(po_number="PO-2024-0001")
-        vendor = Contact.objects.get(name="Acme Vendor")
+        vendor = Contact.objects.get(first_name="Acme", last_name="Vendor")
         business = Business.objects.get(pk=2)  # XYZ Industries from fixture
 
         new_bill = Bill.objects.create(
@@ -204,5 +204,5 @@ class BillModelFixtureTest(TestCase):
 
         # Verify we can get the customer contact through this relationship
         customer_contact = job_through_po.contact
-        expected_customer = Contact.objects.get(name="John Doe")
+        expected_customer = Contact.objects.get(first_name="John", last_name="Doe")
         self.assertEqual(customer_contact, expected_customer)

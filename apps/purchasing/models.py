@@ -106,9 +106,15 @@ class PurchaseOrder(models.Model):
                 pass
 
     def save(self, *args, **kwargs):
-        """Override save to validate state transitions, set dates, and auto-associate Business from Contact."""
+        """Override save to validate state transitions, set dates, auto-generate po_number, and auto-associate Business from Contact."""
+        from apps.core.services import NumberGenerationService
+
         old_status = None
         is_new = not self.pk
+
+        # Auto-generate po_number if not provided
+        if not self.po_number:
+            self.po_number = NumberGenerationService.generate_next_number('po')
 
         # If contact is provided and has a business, auto-associate the business
         # Only do this on creation and if business is not already explicitly set
@@ -258,9 +264,15 @@ class Bill(models.Model):
                 pass
 
     def save(self, *args, **kwargs):
-        """Override save to validate state transitions, set dates, and auto-associate Business from Contact."""
+        """Override save to validate state transitions, set dates, auto-generate bill_number, and auto-associate Business from Contact."""
+        from apps.core.services import NumberGenerationService
+
         old_status = None
         is_new = not self.pk
+
+        # Auto-generate bill_number if not provided
+        if not self.bill_number:
+            self.bill_number = NumberGenerationService.generate_next_number('bill')
 
         # If contact is provided and has a business, auto-associate the business
         # Only do this on creation and if business is not already explicitly set
