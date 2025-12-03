@@ -18,13 +18,18 @@ class EstimateLineItemReorderingTestCase(TestCase):
             password='testpass123'
         )
 
+        # Create a default contact (must be created before business)
+        self.default_contact = Contact.objects.create(first_name='Default Contact', last_name='', email='default.contact@test.com')
+
         # Create a business and contact
         self.business = Business.objects.create(
             business_name='Test Company',
-            business_number='12-3456789'
+            business_phone='12-3456789',
+            default_contact=self.default_contact
         )
         self.contact = Contact.objects.create(
-            name='John Doe',
+            first_name='John Doe',
+            last_name='',
             email='john@example.com',
             business=self.business
         )
@@ -50,21 +55,21 @@ class EstimateLineItemReorderingTestCase(TestCase):
             estimate=self.estimate,
             description='Line Item 1',
             qty=Decimal('1.00'),
-            price=Decimal('100.00'),
+            price_currency=Decimal('100.00'),
             units='hours'
         )
         self.line_item2 = EstimateLineItem.objects.create(
             estimate=self.estimate,
             description='Line Item 2',
             qty=Decimal('2.00'),
-            price=Decimal('200.00'),
+            price_currency=Decimal('200.00'),
             units='hours'
         )
         self.line_item3 = EstimateLineItem.objects.create(
             estimate=self.estimate,
             description='Line Item 3',
             qty=Decimal('3.00'),
-            price=Decimal('300.00'),
+            price_currency=Decimal('300.00'),
             units='hours'
         )
 

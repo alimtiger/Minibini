@@ -30,9 +30,9 @@
         <td>Associated Job</td>
         <td>
             {% if task.work_order %}
-                <a href="{% url 'jobs:detail' task.work_order.job.pk %}">{{ task.work_order.job.job_number }}{% if task.work_order.job.name %}: {{ task.work_order.job.name }}{% endif %}</a>
+                <a href="{% url 'jobs:detail' task.work_order.job.pk %}">{{ task.work_order.job.job_number }} - {{ task.work_order.job.description|truncatechars:50 }}</a>
             {% elif task.est_worksheet %}
-                <a href="{% url 'jobs:detail' task.est_worksheet.job.pk %}">{{ task.est_worksheet.job.job_number }}{% if task.est_worksheet.job.name %}: {{ task.est_worksheet.job.name }}{% endif %}</a>
+                <a href="{% url 'jobs:detail' task.est_worksheet.job.pk %}">{{ task.est_worksheet.job.job_number }} - {{ task.est_worksheet.job.description|truncatechars:50 }}</a>
             {% else %}
                 No job assigned
             {% endif %}

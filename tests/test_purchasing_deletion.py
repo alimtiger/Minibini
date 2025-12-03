@@ -27,14 +27,20 @@ class PurchaseOrderDeletionTest(TestCase):
         Configuration.objects.create(key='po_number_sequence', value='PO-{year}-{counter:04d}')
         Configuration.objects.create(key='po_counter', value='0')
 
+        # Create a test contact (must be created before business for default_contact)
+        self.default_contact = Contact.objects.create(first_name='Default Contact', last_name='', email='default.contact@test.com')
+
         # Create a test business
         self.business = Business.objects.create(
-            business_name='Test Vendor Business'
+            business_name='Test Vendor Business',
+            default_contact=self.default_contact
         )
 
         # Create a test contact
         self.contact = Contact.objects.create(
-            name='Test Vendor',
+            first_name='Test Vendor',
+            last_name='',
+            email='test.vendor@test.com',
             business=self.business
         )
 
@@ -107,14 +113,20 @@ class BillDeletionTest(TestCase):
         Configuration.objects.create(key='bill_number_sequence', value='BILL-{year}-{counter:04d}')
         Configuration.objects.create(key='bill_counter', value='0')
 
+        # Create a test contact (must be created before business for default_contact)
+        self.default_contact = Contact.objects.create(first_name='Default Contact', last_name='', email='default.contact@test.com')
+
         # Create a test business
         self.business = Business.objects.create(
-            business_name='Test Vendor Business'
+            business_name='Test Vendor Business',
+            default_contact=self.default_contact
         )
 
         # Create a test contact
         self.contact = Contact.objects.create(
-            name='Test Vendor',
+            first_name='Test Vendor',
+            last_name='',
+            email='test.vendor@test.com',
             business=self.business
         )
 
@@ -151,7 +163,7 @@ class BillDeletionTest(TestCase):
             bill=self.received_bill,
             description="Test item",
             qty=Decimal('1.00'),
-            price=Decimal('100.00')
+            price_currency=Decimal('100.00')
         )
         self.received_bill.status = 'received'
         self.received_bill.save()
@@ -205,9 +217,13 @@ class PurchaseOrderLineItemDeletionTest(TestCase):
         """Set up test data."""
         self.client = Client()
 
+        # Create a test contact (must be created before business for default_contact)
+        self.default_contact = Contact.objects.create(first_name='Default Contact', last_name='', email='default.contact@test.com')
+
         # Create a test business
         self.business = Business.objects.create(
-            business_name='Test Vendor Business'
+            business_name='Test Vendor Business',
+            default_contact=self.default_contact
         )
 
         # Create draft PO
@@ -231,21 +247,21 @@ class PurchaseOrderLineItemDeletionTest(TestCase):
             purchase_order=self.draft_po,
             description="Item 1",
             qty=Decimal('1.00'),
-            price=Decimal('10.00'),
+            price_currency=Decimal('10.00'),
             line_number=1
         )
         self.line_item_2 = PurchaseOrderLineItem.objects.create(
             purchase_order=self.draft_po,
             description="Item 2",
             qty=Decimal('2.00'),
-            price=Decimal('20.00'),
+            price_currency=Decimal('20.00'),
             line_number=2
         )
         self.line_item_3 = PurchaseOrderLineItem.objects.create(
             purchase_order=self.draft_po,
             description="Item 3",
             qty=Decimal('3.00'),
-            price=Decimal('30.00'),
+            price_currency=Decimal('30.00'),
             line_number=3
         )
 
@@ -254,7 +270,7 @@ class PurchaseOrderLineItemDeletionTest(TestCase):
             purchase_order=self.issued_po,
             description="Issued item",
             qty=Decimal('1.00'),
-            price=Decimal('100.00'),
+            price_currency=Decimal('100.00'),
             line_number=1
         )
 
@@ -310,9 +326,13 @@ class BillLineItemDeletionTest(TestCase):
         """Set up test data."""
         self.client = Client()
 
+        # Create a test contact (must be created before business for default_contact)
+        self.default_contact = Contact.objects.create(first_name='Default Contact', last_name='', email='default.contact@test.com')
+
         # Create a test business
         self.business = Business.objects.create(
-            business_name='Test Vendor Business'
+            business_name='Test Vendor Business',
+            default_contact=self.default_contact
         )
 
         # Create PO
@@ -347,21 +367,21 @@ class BillLineItemDeletionTest(TestCase):
             bill=self.draft_bill,
             description="Item 1",
             qty=Decimal('1.00'),
-            price=Decimal('10.00'),
+            price_currency=Decimal('10.00'),
             line_number=1
         )
         self.line_item_2 = BillLineItem.objects.create(
             bill=self.draft_bill,
             description="Item 2",
             qty=Decimal('2.00'),
-            price=Decimal('20.00'),
+            price_currency=Decimal('20.00'),
             line_number=2
         )
         self.line_item_3 = BillLineItem.objects.create(
             bill=self.draft_bill,
             description="Item 3",
             qty=Decimal('3.00'),
-            price=Decimal('30.00'),
+            price_currency=Decimal('30.00'),
             line_number=3
         )
 
@@ -370,7 +390,7 @@ class BillLineItemDeletionTest(TestCase):
             bill=self.received_bill,
             description="Received item",
             qty=Decimal('1.00'),
-            price=Decimal('100.00'),
+            price_currency=Decimal('100.00'),
             line_number=1
         )
         self.received_bill.status = 'received'

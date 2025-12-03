@@ -10,7 +10,7 @@ from apps.core.models import User
 
 class JobModelTest(TestCase):
     def setUp(self):
-        self.contact = Contact.objects.create(name="Test Customer")
+        self.contact = Contact.objects.create(first_name='Test Customer', last_name='', email='test.customer@test.com')
 
     def test_job_creation(self):
         job = Job.objects.create(
@@ -128,7 +128,7 @@ class JobModelTest(TestCase):
 
 class EstimateModelTest(TestCase):
     def setUp(self):
-        self.contact = Contact.objects.create(name="Test Customer")
+        self.contact = Contact.objects.create(first_name='Test Customer', last_name='', email='test.customer@test.com')
         self.job = Job.objects.create(
             job_number="JOB001",
             contact=self.contact
@@ -174,7 +174,7 @@ class EstimateModelTest(TestCase):
 
 class WorkOrderModelTest(TestCase):
     def setUp(self):
-        self.contact = Contact.objects.create(name="Test Customer")
+        self.contact = Contact.objects.create(first_name='Test Customer', last_name='', email='test.customer@test.com')
         self.job = Job.objects.create(
             job_number="JOB001",
             contact=self.contact
@@ -214,7 +214,7 @@ class WorkOrderModelTest(TestCase):
 
 class TaskModelTest(TestCase):
     def setUp(self):
-        self.contact = Contact.objects.create(name="Test Customer")
+        self.contact = Contact.objects.create(first_name='Test Customer', last_name='', email='test.customer@test.com')
         self.job = Job.objects.create(
             job_number="JOB001",
             contact=self.contact
@@ -292,7 +292,7 @@ class TaskModelTest(TestCase):
 
 class BlepModelTest(TestCase):
     def setUp(self):
-        self.contact = Contact.objects.create(name="Test Customer")
+        self.contact = Contact.objects.create(first_name='Test Customer', last_name='', email='test.customer@test.com')
         self.job = Job.objects.create(
             job_number="JOB001",
             contact=self.contact
@@ -325,7 +325,7 @@ class BlepModelTest(TestCase):
 
 class TaskMappingModelTest(TestCase):
     def setUp(self):
-        self.contact = Contact.objects.create(name="Test Customer")
+        self.contact = Contact.objects.create(first_name='Test Customer', last_name='', email='test.customer@test.com')
         self.job = Job.objects.create(
             job_number="JOB001",
             contact=self.contact
@@ -417,7 +417,7 @@ class WorkOrderTemplateModelTest(TestCase):
 
 class TaskTemplateModelTest(TestCase):
     def setUp(self):
-        self.contact = Contact.objects.create(name="Test Customer")
+        self.contact = Contact.objects.create(first_name='Test Customer', last_name='', email='test.customer@test.com')
         self.job = Job.objects.create(
             job_number="JOB001",
             contact=self.contact

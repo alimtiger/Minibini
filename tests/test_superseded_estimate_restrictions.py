@@ -32,7 +32,8 @@ class SupersededEstimateRestrictionTests(TestCase):
 
         # Create contact
         self.contact = Contact.objects.create(
-            name='Test Contact',
+            first_name='Test Contact',
+            last_name='',
             email='contact@test.com'
         )
 
@@ -79,7 +80,7 @@ class SupersededEstimateRestrictionTests(TestCase):
             'qty': '5',
             'units': 'each',
             'description': 'Test line item',
-            'price': '20.00'
+            'price_currency': '20.00'
         })
 
         # Should redirect to estimate detail
@@ -207,7 +208,8 @@ class SupersededEstimateModelTests(TestCase):
         """Set up test data."""
         # Create contact
         self.contact = Contact.objects.create(
-            name='Test Contact',
+            first_name='Test Contact',
+            last_name='',
             email='contact@test.com'
         )
 
@@ -249,7 +251,7 @@ class SupersededEstimateModelTests(TestCase):
             qty=Decimal('10'),
             units='each',
             description='Test item',
-            price=Decimal('25.00')
+            price_currency=Decimal('25.00')
         )
 
         # Mark estimate as superseded

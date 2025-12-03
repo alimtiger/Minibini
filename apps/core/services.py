@@ -153,7 +153,7 @@ class NumberGenerationService:
         Reset a counter to a specific value. Use with caution!
 
         Args:
-            document_type: One of 'job', 'estimate', 'invoice', 'po', 'bill'
+            document_type: One of 'job', 'estimate', 'invoice', 'po'
             new_value: The value to reset the counter to (default: 0)
         """
         if document_type not in cls.COUNTER_KEYS:

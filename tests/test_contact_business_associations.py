@@ -4,19 +4,23 @@ from apps.purchasing.models import PurchaseOrder, Bill, BillLineItem, PurchaseOr
 from apps.invoicing.models import PriceListItem
 from apps.jobs.models import Job
 from apps.contacts.models import Contact, Business
+from apps.core.models import Configuration
 
 
 class PurchaseOrderContactBusinessTest(TestCase):
     """Test Contact and Business associations for PurchaseOrder"""
 
     def setUp(self):
-        self.business = Business.objects.create(business_name="Test Vendor")
-        self.business2 = Business.objects.create(business_name="Another Vendor")
+        self.default_contact = Contact.objects.create(first_name='Default Contact', last_name='', email='default.contact@test.com')
+        self.business = Business.objects.create(business_name="Test Vendor", default_contact=self.default_contact)
+        self.business2 = Business.objects.create(business_name="Another Vendor", default_contact=self.default_contact)
         self.contact_with_business = Contact.objects.create(
-            name="Test Contact",
+            first_name='Test Contact',
+            last_name='',
+            email='test.contact@test.com',
             business=self.business
         )
-        self.contact_without_business = Contact.objects.create(name="Contact No Business")
+        self.contact_without_business = Contact.objects.create(first_name='Contact No Business', last_name='', email='contact.no.business@test.com')
 
     def test_po_creation_with_business_only(self):
         """PO can be created with just a Business"""
@@ -85,13 +89,16 @@ class BillContactBusinessTest(TestCase):
     """Test Contact and Business associations for Bill"""
 
     def setUp(self):
-        self.business = Business.objects.create(business_name="Test Vendor")
-        self.business2 = Business.objects.create(business_name="Another Vendor")
+        self.default_contact = Contact.objects.create(first_name='Default Contact', last_name='', email='default.contact@test.com')
+        self.business = Business.objects.create(business_name="Test Vendor", default_contact=self.default_contact)
+        self.business2 = Business.objects.create(business_name="Another Vendor", default_contact=self.default_contact)
         self.contact_with_business = Contact.objects.create(
-            name="Test Contact",
+            first_name='Test Contact',
+            last_name='',
+            email='test.contact@test.com',
             business=self.business
         )
-        self.contact_without_business = Contact.objects.create(name="Contact No Business")
+        self.contact_without_business = Contact.objects.create(first_name='Contact No Business', last_name='', email='contact.no.business@test.com')
 
     def test_bill_creation_with_business_only(self):
         """Bill can be created with just a Business"""
@@ -168,13 +175,22 @@ class BillFromPurchaseOrderTest(TestCase):
     """Test Bill creation from PurchaseOrder with Contact/Business copying and line items"""
 
     def setUp(self):
-        self.business = Business.objects.create(business_name="Test Vendor")
+        # Create Configuration for number generation
+        Configuration.objects.create(key='bill_number_sequence', value='BILL-{year}-{counter:04d}')
+        Configuration.objects.create(key='bill_counter', value='0')
+
+        self.default_contact = Contact.objects.create(first_name='Default Contact', last_name='', email='default.contact@test.com')
+        self.business = Business.objects.create(business_name="Test Vendor", default_contact=self.default_contact)
         self.contact = Contact.objects.create(
-            name="Test Contact",
+            first_name='Test Contact',
+            last_name='',
+            email='test.contact@test.com',
             business=self.business
         )
         self.customer_contact = Contact.objects.create(
-            name="Test Customer",
+            first_name='Test Customer',
+            last_name='',
+            email='test.customer@test.com',
             business=self.business
         )
         self.job = Job.objects.create(
@@ -216,7 +232,7 @@ class BillFromPurchaseOrderTest(TestCase):
             description="Test Item 1",
             qty=5,
             units="ea",
-            price=10.00,
+            price_currency=10.00,
             line_number=1
         )
         PurchaseOrderLineItem.objects.create(
@@ -225,7 +241,7 @@ class BillFromPurchaseOrderTest(TestCase):
             description="Test Item 2",
             qty=3,
             units="kg",
-            price=20.00,
+            price_currency=20.00,
             line_number=2
         )
 
@@ -279,7 +295,7 @@ class BillFromPurchaseOrderTest(TestCase):
                 description=po_line_item.description,
                 qty=po_line_item.qty,
                 units=po_line_item.units,
-                price=po_line_item.price,
+                price_currency=po_line_item.price_currency,
                 line_number=po_line_item.line_number
             )
 
@@ -290,12 +306,12 @@ class BillFromPurchaseOrderTest(TestCase):
         # Verify first line item
         self.assertEqual(bill_line_items[0].description, "Test Item 1")
         self.assertEqual(bill_line_items[0].qty, 5)
-        self.assertEqual(bill_line_items[0].price, 10.00)
+        self.assertEqual(bill_line_items[0].price_currency, 10.00)
 
         # Verify second line item
         self.assertEqual(bill_line_items[1].description, "Test Item 2")
         self.assertEqual(bill_line_items[1].qty, 3)
-        self.assertEqual(bill_line_items[1].price, 20.00)
+        self.assertEqual(bill_line_items[1].price_currency, 20.00)
 
     def test_bill_line_items_can_be_modified_after_creation(self):
         """Bill line items can be modified after creation from PO"""
@@ -316,7 +332,7 @@ class BillFromPurchaseOrderTest(TestCase):
                 description=po_line_item.description,
                 qty=po_line_item.qty,
                 units=po_line_item.units,
-                price=po_line_item.price,
+                price_currency=po_line_item.price_currency,
                 line_number=po_line_item.line_number
             )
 
@@ -335,7 +351,7 @@ class BillFromPurchaseOrderTest(TestCase):
             description="New Item",
             qty=1,
             units="ea",
-            price=5.00,
+            price_currency=5.00,
             line_number=3
         )
 

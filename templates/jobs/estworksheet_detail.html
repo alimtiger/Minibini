@@ -6,7 +6,7 @@
 <h2{% if worksheet.status == 'superseded' %} class="superseded"{% endif %}>Estimate Worksheet #{{ worksheet.est_worksheet_id }}</h2>
 
 <table border="1"{% if worksheet.status == 'superseded' %} class="superseded"{% endif %}>
-    <tr><th>Job</th><td><a href="{% url 'jobs:detail' worksheet.job.job_id %}">{{ worksheet.job.job_number }}{% if worksheet.job.name %}: {{ worksheet.job.name }}{% endif %}</a></td></tr>
+    <tr><th>Job</th><td><a href="{% url 'jobs:detail' worksheet.job.job_id %}">{{ worksheet.job.job_number }} - {{ worksheet.job.description }}</a></td></tr>
     <tr><th>Status</th><td>{{ worksheet.get_status_display }}</td></tr>
     <tr><th>Version</th><td>{{ worksheet.version }}</td></tr>
     <tr><th>Created</th><td>{{ worksheet.created_date }}</td></tr>

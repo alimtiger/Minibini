@@ -1,18 +1,30 @@
 from django.db import models
-from django.utils import timezone
 from django.core.exceptions import ValidationError
+from django.utils import timezone
 from apps.core.models import BaseLineItem
 
 
-class PurchaseOrder(models.Model):
-    PO_STATUS_CHOICES = [
-        ('draft', 'Draft'),
-        ('issued', 'Issued'),
-        ('partly_received', 'Partly Received'),
-        ('received_in_full', 'Received in Full'),
-        ('cancelled', 'Cancelled'),
-    ]
+# Status choices for PurchaseOrder
+PO_STATUS_CHOICES = [
+    ('draft', 'Draft'),
+    ('issued', 'Issued'),
+    ('partly_received', 'Partly Received'),
+    ('received_in_full', 'Received in Full'),
+    ('cancelled', 'Cancelled'),
+]
 
+# Status choices for Bill
+BILL_STATUS_CHOICES = [
+    ('draft', 'Draft'),
+    ('received', 'Received'),
+    ('partly_paid', 'Partly Paid'),
+    ('paid_in_full', 'Paid in Full'),
+    ('cancelled', 'Cancelled'),
+    ('refunded', 'Refunded'),
+]
+
+
+class PurchaseOrder(models.Model):
     po_id = models.AutoField(primary_key=True)
     # Business is required; Contact is optional but if provided, must have a Business
     business = models.ForeignKey('contacts.Business', on_delete=models.PROTECT)
@@ -35,7 +47,7 @@ class PurchaseOrder(models.Model):
         # Validate that if contact is provided, it must have a business
         if self.contact and not self.contact.business:
             raise ValidationError(
-                f'Contact "{self.contact.name}" does not have a Business associated. '
+                f'Contact "{self.contact}" does not have a Business associated. '
                 'Please assign a Business to this Contact before using it in a Purchase Order.'
             )
 
@@ -45,7 +57,7 @@ class PurchaseOrder(models.Model):
         if is_new and self.contact and self.contact.business and self.business_id:
             if self.business != self.contact.business:
                 raise ValidationError(
-                    f'Contact "{self.contact.name}" is associated with Business "{self.contact.business.business_name}", '
+                    f'Contact "{self.contact}" is associated with Business "{self.contact.business.business_name}", '
                     f'but Purchase Order is set to use Business "{self.business.business_name}". '
                     'The Business must match the Contact\'s Business.'
                 )
@@ -94,9 +106,15 @@ class PurchaseOrder(models.Model):
                 pass
 
     def save(self, *args, **kwargs):
-        """Override save to validate state transitions, set dates, and auto-associate Business from Contact."""
+        """Override save to validate state transitions, set dates, auto-generate po_number, and auto-associate Business from Contact."""
+        from apps.core.services import NumberGenerationService
+
         old_status = None
         is_new = not self.pk
+
+        # Auto-generate po_number if not provided
+        if not self.po_number:
+            self.po_number = NumberGenerationService.generate_next_number('po')
 
         # If contact is provided and has a business, auto-associate the business
         # Only do this on creation and if business is not already explicitly set
@@ -147,15 +165,6 @@ class PurchaseOrder(models.Model):
 
 
 class Bill(models.Model):
-    BILL_STATUS_CHOICES = [
-        ('draft', 'Draft'),
-        ('received', 'Received'),
-        ('partly_paid', 'Partly Paid'),
-        ('paid_in_full', 'Paid in Full'),
-        ('cancelled', 'Cancelled'),
-        ('refunded', 'Refunded'),
-    ]
-
     bill_id = models.AutoField(primary_key=True)
     bill_number = models.CharField(max_length=50, unique=True)
     purchase_order = models.ForeignKey(PurchaseOrder, on_delete=models.PROTECT, null=True, blank=True)
@@ -179,7 +188,7 @@ class Bill(models.Model):
         # Validate that if contact is provided, it must have a business
         if self.contact and not self.contact.business:
             raise ValidationError(
-                f'Contact "{self.contact.name}" does not have a Business associated. '
+                f'Contact "{self.contact}" does not have a Business associated. '
                 'Please assign a Business to this Contact before using it in a Bill.'
             )
 
@@ -189,7 +198,7 @@ class Bill(models.Model):
         if is_new and self.contact and self.contact.business and self.business_id:
             if self.business != self.contact.business:
                 raise ValidationError(
-                    f'Contact "{self.contact.name}" is associated with Business "{self.contact.business.business_name}", '
+                    f'Contact "{self.contact}" is associated with Business "{self.contact.business.business_name}", '
                     f'but Bill is set to use Business "{self.business.business_name}". '
                     'The Business must match the Contact\'s Business.'
                 )
@@ -255,9 +264,15 @@ class Bill(models.Model):
                 pass
 
     def save(self, *args, **kwargs):
-        """Override save to validate state transitions, set dates, and auto-associate Business from Contact."""
+        """Override save to validate state transitions, set dates, auto-generate bill_number, and auto-associate Business from Contact."""
+        from apps.core.services import NumberGenerationService
+
         old_status = None
         is_new = not self.pk
+
+        # Auto-generate bill_number if not provided
+        if not self.bill_number:
+            self.bill_number = NumberGenerationService.generate_next_number('bill')
 
         # If contact is provided and has a business, auto-associate the business
         # Only do this on creation and if business is not already explicitly set
@@ -338,4 +353,4 @@ class BillLineItem(BaseLineItem):
         return 'bill'
 
     def __str__(self):
-        return f"Bill Line Item {self.pk} for Bill {self.bill.pk}"
+        return f"Bill Line Item {self.pk} for Bill {self.bill.bill_number}"

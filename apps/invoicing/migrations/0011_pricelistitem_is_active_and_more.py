@@ -7,7 +7,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('invoicing', '0010_rename_price_currency_invoicelineitem_price'),
+        ('invoicing', '0009_invoice_closed_date_invoice_created_date_and_more'),
         ('jobs', '0017_task_line_number'),
     ]
 

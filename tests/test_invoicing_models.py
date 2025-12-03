@@ -5,6 +5,7 @@ from apps.invoicing.models import Invoice, InvoiceLineItem, PriceListItem
 from apps.jobs.models import Job, Estimate, Task, WorkOrder
 from apps.purchasing.models import PurchaseOrder, Bill
 from apps.contacts.models import Contact, Business
+from apps.core.models import Configuration
 
 
 
@@ -52,7 +53,7 @@ class PriceListItemModelTest(TestCase):
 
 class InvoiceModelTest(TestCase):
     def setUp(self):
-        self.contact = Contact.objects.create(name="Test Customer")
+        self.contact = Contact.objects.create(first_name='Test Customer', last_name='', email='test.customer@test.com')
         self.job = Job.objects.create(
             job_number="JOB001",
             contact=self.contact,
@@ -94,9 +95,16 @@ class InvoiceModelTest(TestCase):
 
 class InvoiceLineItemModelTest(TestCase):
     def setUp(self):
-        self.business = Business.objects.create(business_name="Test Business")
+        # Create Configuration for number generation
+        Configuration.objects.create(key='bill_number_sequence', value='BILL-{year}-{counter:04d}')
+        Configuration.objects.create(key='bill_counter', value='0')
+
+        self.default_contact = Contact.objects.create(first_name='Default Contact', last_name='', email='default.contact@test.com')
+        self.business = Business.objects.create(business_name="Test Business", default_contact=self.default_contact)
         self.contact = Contact.objects.create(
-            name="Test Customer",
+            first_name='Test Customer',
+            last_name='',
+            email='test.customer@test.com',
             business=self.business
         )
         self.job = Job.objects.create(
@@ -121,13 +129,9 @@ class InvoiceLineItemModelTest(TestCase):
             business=self.business,
             job=self.job,
             po_number="PO001",
-            status='draft'
+            status='issued'
         )
-        self.purchase_order.status = 'issued'
-        self.purchase_order.save()
-
         self.bill = Bill.objects.create(
-            bill_number="BILL-INV-001",
             purchase_order=self.purchase_order,
             contact=self.contact,
             vendor_invoice_number="VIN001"
@@ -145,7 +149,7 @@ class InvoiceLineItemModelTest(TestCase):
             qty=Decimal('5.00'),
             units="hours",
             description="Test line item",
-            price=Decimal('50.00')
+            price_currency=Decimal('50.00')
         )
         self.assertEqual(line_item.invoice, self.invoice)
         self.assertEqual(line_item.task, self.task)
@@ -154,7 +158,7 @@ class InvoiceLineItemModelTest(TestCase):
         self.assertEqual(line_item.qty, Decimal('5.00'))
         self.assertEqual(line_item.units, "hours")
         self.assertEqual(line_item.description, "Test line item")
-        self.assertEqual(line_item.price, Decimal('50.00'))
+        self.assertEqual(line_item.price_currency, Decimal('50.00'))
         
     def test_invoice_line_item_str_method(self):
         line_item = InvoiceLineItem.objects.create(invoice=self.invoice, task=self.task)
@@ -163,7 +167,7 @@ class InvoiceLineItemModelTest(TestCase):
     def test_invoice_line_item_defaults(self):
         line_item = InvoiceLineItem.objects.create(invoice=self.invoice, task=self.task)
         self.assertEqual(line_item.qty, Decimal('0.00'))
-        self.assertEqual(line_item.price, Decimal('0.00'))
+        self.assertEqual(line_item.price_currency, Decimal('0.00'))
         
     def test_invoice_line_item_optional_relationships(self):
         line_item = InvoiceLineItem.objects.create(

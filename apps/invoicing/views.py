@@ -9,7 +9,7 @@ def invoice_list(request):
 
 def invoice_detail(request, invoice_id):
     invoice = get_object_or_404(Invoice, invoice_id=invoice_id)
-    line_items = InvoiceLineItem.objects.filter(invoice=invoice).order_by('line_number', 'line_item_id')
+    line_items = InvoiceLineItem.objects.filter(invoice=invoice).order_by('line_item_id')
     # Calculate total amount
     total_amount = sum(item.total_amount for item in line_items)
     return render(request, 'invoicing/invoice_detail.html', {

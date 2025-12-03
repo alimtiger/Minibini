@@ -16,14 +16,20 @@ class BillDetailViewTest(TestCase):
         """Set up test data."""
         self.client = Client()
 
+        # Create default contact for business
+        self.default_contact = Contact.objects.create(first_name='Default Contact', last_name='', email='default.contact@test.com')
+
         # Create a test business
         self.business = Business.objects.create(
-            business_name='Test Vendor Business'
+            business_name='Test Vendor Business',
+            default_contact=self.default_contact
         )
 
         # Create a test contact
         self.contact = Contact.objects.create(
-            name='Test Vendor',
+            first_name='Test Vendor',
+            last_name='',
+            email='test.vendor@test.com',
             business=self.business
         )
 
@@ -51,7 +57,7 @@ class BillDetailViewTest(TestCase):
             bill=self.bill,
             description="Test item",
             qty=Decimal('1.00'),
-            price=Decimal('100.00')
+            price_currency=Decimal('100.00')
         )
 
     def test_bill_detail_view_displays_status_form_for_non_terminal_status(self):

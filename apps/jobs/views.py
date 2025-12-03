@@ -76,7 +76,7 @@ def job_detail(request, job_id):
     current_estimate_line_items = []
     current_estimate_total = 0
     if current_estimate:
-        current_estimate_line_items = EstimateLineItem.objects.filter(estimate=current_estimate).order_by('line_number', 'line_item_id')
+        current_estimate_line_items = EstimateLineItem.objects.filter(estimate=current_estimate).order_by('line_item_id')
         current_estimate_total = sum(item.total_amount for item in current_estimate_line_items)
 
     work_orders = WorkOrder.objects.filter(job=job).order_by('-work_order_id')
@@ -98,8 +98,6 @@ def job_detail(request, job_id):
         'current_estimate_total': current_estimate_total,
         'superseded_estimates': superseded_estimates,
         'work_orders': work_orders,
-        'current_work_order': current_work_order,
-        'current_work_order_tasks': current_work_order_tasks,
         'worksheets': worksheets,
         'purchase_orders': purchase_orders,
         'invoices': invoices
@@ -181,7 +179,7 @@ def estimate_detail(request, estimate_id):
             return redirect('jobs:estimate_detail', estimate_id=estimate.estimate_id)
 
     # Get line items and calculate total
-    line_items = EstimateLineItem.objects.filter(estimate=estimate).order_by('line_number', 'line_item_id')
+    line_items = EstimateLineItem.objects.filter(estimate=estimate).order_by('line_item_id')
     total_amount = sum(item.total_amount for item in line_items)
 
     # Check for associated worksheet
@@ -343,7 +341,7 @@ def work_order_template_list(request):
 
 def work_order_template_detail(request, template_id):
     template = get_object_or_404(WorkOrderTemplate, template_id=template_id)
-
+    
     # Handle TaskTemplate association
     if request.method == 'POST' and 'associate_task' in request.POST:
         task_template_id = request.POST.get('task_template_id')
@@ -368,7 +366,7 @@ def work_order_template_detail(request, template_id):
             else:
                 messages.warning(request, f'Task Template "{task_template.template_name}" is already associated.')
         return redirect('jobs:work_order_template_detail', template_id=template_id)
-
+    
     # Handle TaskTemplate disassociation
     if request.method == 'POST' and 'remove_task' in request.POST:
         task_template_id = request.POST.get('task_template_id')
@@ -381,18 +379,18 @@ def work_order_template_detail(request, template_id):
             ).delete()
             messages.success(request, f'Task Template "{task_template.template_name}" removed successfully.')
         return redirect('jobs:work_order_template_detail', template_id=template_id)
-
+    
     # Get task template associations
     from .models import TemplateTaskAssociation
     associations = TemplateTaskAssociation.objects.filter(
         work_order_template=template,
         task_template__is_active=True
     ).select_related('task_template').order_by('sort_order', 'task_template__template_name')
-
+    
     # Get available task templates (not yet associated)
     associated_task_ids = associations.values_list('task_template_id', flat=True)
     available_templates = TaskTemplate.objects.filter(is_active=True).exclude(template_id__in=associated_task_ids)
-
+    
     return render(request, 'jobs/work_order_template_detail.html', {
         'template': template,
         'associations': associations,
@@ -454,17 +452,17 @@ def estworksheet_generate_estimate(request, worksheet_id):
 
             messages.success(request, f'Estimate {estimate.estimate_number} generated successfully!')
             return redirect('jobs:estimate_detail', estimate_id=estimate.estimate_id)
-
+            
         except Exception as e:
             messages.error(request, f'Error generating estimate: {str(e)}')
             return redirect('jobs:estworksheet_detail', worksheet_id=worksheet_id)
-
+    
     # Show confirmation page
     tasks = Task.objects.filter(est_worksheet=worksheet).select_related(
         'template', 'template__task_mapping'
     )
     total_cost = sum(task.rate * task.est_qty for task in tasks if task.rate and task.est_qty)
-
+    
     return render(request, 'jobs/estworksheet_generate_estimate.html', {
         'worksheet': worksheet,
         'tasks': tasks,
@@ -761,7 +759,7 @@ def estimate_add_line_item(request, estimate_id):
                     description=price_list_item.description,
                     qty=qty,
                     units=price_list_item.units,
-                    price=price_list_item.selling_price
+                    price_currency=price_list_item.selling_price
                 )
 
                 messages.success(request, f'Line item "{line_item.description}" added from price list')
@@ -867,7 +865,7 @@ def estimate_revise(request, estimate_id):
                     qty=line_item.qty,
                     units=line_item.units,
                     description=line_item.description,
-                    price=line_item.price
+                    price_currency=line_item.price_currency
                 )
 
             # Mark parent as superseded

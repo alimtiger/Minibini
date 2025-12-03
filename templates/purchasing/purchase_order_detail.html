@@ -34,7 +34,7 @@
         <td>Contact</td>
         <td>
             {% if purchase_order.contact %}
-                {{ purchase_order.contact.name }}
+                {{ purchase_order.contact }}
             {% else %}
                 Not specified
             {% endif %}
@@ -122,7 +122,7 @@
                 <td>{{ bill.business.business_name }}</td>
                 <td>
                     {% if bill.contact %}
-                        {{ bill.contact.name }}
+                        {{ bill.contact }}
                     {% else %}
                         Not specified
                     {% endif %}

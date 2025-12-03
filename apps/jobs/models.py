@@ -100,8 +100,6 @@ class Job(models.Model):
         super().save(*args, **kwargs)
 
     def __str__(self):
-        if self.name:
-            return f"{self.job_number}: {self.name}"
         return f"{self.job_number}"
 
 

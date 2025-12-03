@@ -1,6 +1,7 @@
 from django import forms
-from .models import PurchaseOrder, PurchaseOrderLineItem, Bill
-from apps.contacts.models import Business, Contact
+from django.core.exceptions import ValidationError
+from .models import PurchaseOrder, Bill
+from apps.contacts.models import Contact, Business
 from apps.jobs.models import Job
 from apps.invoicing.models import PriceListItem
 from apps.core.services import NumberGenerationService
@@ -40,15 +41,8 @@ class PurchaseOrderForm(forms.ModelForm):
         job = kwargs.pop('job', None)
         super().__init__(*args, **kwargs)
 
-        # Only show help text for job field on create (not edit)
-        if self.instance and self.instance.pk:
-            # Editing existing PO - no help text needed
-            self.fields['job'].help_text = ''
-        else:
-            # Creating new PO
-            self.fields['job'].help_text = 'PO number will be assigned automatically on save.'
-
-        # If job provided, pre-select it
+        # Job is optional, but if provided, pre-select it
+        self.fields['job'].required = False
         if job:
             self.fields['job'].initial = job
 
@@ -59,7 +53,7 @@ class PurchaseOrderForm(forms.ModelForm):
 
         if contact and not contact.business:
             raise forms.ValidationError(
-                f'Contact "{contact.name}" does not have a Business associated. '
+                f'Contact "{contact}" does not have a Business associated. '
                 'Please assign a Business to this Contact before using it in a Purchase Order.'
             )
 
@@ -69,9 +63,8 @@ class PurchaseOrderForm(forms.ModelForm):
         """Override save to generate PO number using NumberGenerationService"""
         instance = super().save(commit=False)
 
-        # Generate the actual PO number only for new POs (increments counter)
-        if not instance.pk:
-            instance.po_number = NumberGenerationService.generate_next_number('po')
+        # Generate the actual PO number (increments counter)
+        instance.po_number = NumberGenerationService.generate_next_number('po')
 
         if commit:
             instance.save()
@@ -175,8 +168,8 @@ class PurchaseOrderStatusForm(forms.Form):
         # Set valid status choices based on current status
         valid_statuses = self.VALID_TRANSITIONS.get(current_status, [])
         # Convert status codes to display names
-        from .models import PurchaseOrder
-        status_dict = dict(PurchaseOrder.PO_STATUS_CHOICES)
+        from .models import PO_STATUS_CHOICES
+        status_dict = dict(PO_STATUS_CHOICES)
 
         choices = [(current_status, f'{status_dict.get(current_status)} (current)')]
         choices.extend([(s, status_dict.get(s)) for s in valid_statuses])
@@ -214,8 +207,8 @@ class BillStatusForm(forms.Form):
         # Set valid status choices based on current status
         valid_statuses = self.VALID_TRANSITIONS.get(current_status, [])
         # Convert status codes to display names
-        from .models import Bill
-        status_dict = dict(Bill.BILL_STATUS_CHOICES)
+        from .models import BILL_STATUS_CHOICES
+        status_dict = dict(BILL_STATUS_CHOICES)
 
         choices = [(current_status, f'{status_dict.get(current_status)} (current)')]
         choices.extend([(s, status_dict.get(s)) for s in valid_statuses])
@@ -234,13 +227,7 @@ class BillStatusForm(forms.Form):
 
 
 class BillForm(forms.ModelForm):
-    """Form for creating/editing Bill"""
-    purchase_order = forms.ModelChoiceField(
-        queryset=PurchaseOrder.objects.all(),
-        required=False,
-        widget=forms.Select(attrs={'class': 'form-control'}),
-        empty_label="-- Select Purchase Order (optional) --"
-    )
+    """Form for creating a new Bill with business or contact selection"""
     business = forms.ModelChoiceField(
         queryset=Business.objects.all(),
         required=True,
@@ -262,8 +249,8 @@ class BillForm(forms.ModelForm):
     )
     due_date = forms.DateField(
         required=False,
-        widget=forms.DateInput(attrs={'type': 'date'}),
-        help_text='Optional payment due date'
+        widget=forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
+        help_text='Optional due date for payment'
     )
 
     class Meta:
@@ -274,13 +261,8 @@ class BillForm(forms.ModelForm):
         purchase_order = kwargs.pop('purchase_order', None)
         super().__init__(*args, **kwargs)
 
-        # Only show help text for vendor invoice number on create (not edit)
-        if self.instance and self.instance.pk:
-            # Editing existing Bill - no help text needed
-            self.fields['vendor_invoice_number'].help_text = 'The invoice number from the vendor'
-        else:
-            # Creating new Bill
-            self.fields['vendor_invoice_number'].help_text = 'The invoice number from the vendor. Bill number will be assigned automatically on save.'
+        # Customize contact field display to include business name
+        self.fields['contact'].label_from_instance = lambda obj: f"{obj} ({obj.business.business_name})" if obj.business else str(obj)
 
         # If purchase_order provided, pre-select it and copy Business/Contact
         if purchase_order:
@@ -296,19 +278,18 @@ class BillForm(forms.ModelForm):
 
         if contact and not contact.business:
             raise forms.ValidationError(
-                f'Contact "{contact.name}" does not have a Business associated. '
+                f'Contact "{contact}" does not have a Business associated. '
                 'Please assign a Business to this Contact before using it in a Bill.'
             )
 
         return cleaned_data
 
     def save(self, commit=True):
-        """Override save to generate Bill number using NumberGenerationService"""
+        """Override save to set contact from cleaned_data"""
         instance = super().save(commit=False)
 
-        # Generate the actual Bill number only for new Bills (increments counter)
-        if not instance.pk:
-            instance.bill_number = NumberGenerationService.generate_next_number('bill')
+        # Set the contact from cleaned_data (may have been set from business)
+        instance.contact = self.cleaned_data['contact']
 
         if commit:
             instance.save()

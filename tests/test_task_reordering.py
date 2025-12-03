@@ -17,13 +17,18 @@ class TaskReorderingTestCase(TestCase):
             password='testpass123'
         )
 
+        # Create a default contact (must be created before business)
+        self.default_contact = Contact.objects.create(first_name='Default Contact', last_name='', email='default.contact@test.com')
+
         # Create a business and contact
         self.business = Business.objects.create(
             business_name='Test Company',
-            business_number='12-3456789'
+            business_phone='12-3456789',
+            default_contact=self.default_contact
         )
         self.contact = Contact.objects.create(
-            name='John Doe',
+            first_name='John Doe',
+            last_name='',
             email='john@example.com',
             business=self.business
         )
