@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block title %}Add Line Item to PO {{ purchase_order.po_number }} - Minibini{% endblock %}
+
+{% block content %}
+<h1>Add Line Item to Purchase Order</h1>
+<h2>PO: {{ purchase_order.po_number }}</h2>
+
+<form method="post">
+    {% csrf_token %}
+    <fieldset>
+        <legend><strong>Select from Price List</strong></legend>
+        <p>
+            <label for="id_price_list_item"><strong>Price List Item *</strong></label><br>
+            {{ form.price_list_item }}
+        </p>
+        <p>
+            <label for="id_qty"><strong>Quantity *</strong></label><br>
+            {{ form.qty }}
+        </p>
+    </fieldset>
+    <p>
+        <button type="submit">Add Line Item</button>
+        <a href="{% url 'purchasing:purchase_order_detail' purchase_order.po_id %}">Cancel</a>
+    </p>
+</form>
+
+<p><em>Note: The purchase price from the Price List Item will be copied to the line item.</em></p>
+{% endblock %}
