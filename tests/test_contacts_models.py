@@ -34,7 +34,8 @@ class ContactModelTest(TestCase):
 
     def test_contact_email_validation(self):
         contact = Contact(
-            name="Test User",
+            first_name="Test",
+            last_name="User",
             email="invalid-email"
         )
         with self.assertRaises(ValidationError):

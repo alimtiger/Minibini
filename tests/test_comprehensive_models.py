@@ -16,6 +16,10 @@ from apps.purchasing.models import PurchaseOrder, Bill
 
 class ComprehensiveModelIntegrationTest(TestCase):
     def setUp(self):
+        # Create Configuration for number generation
+        Configuration.objects.create(key='bill_number_sequence', value='BILL-{year}-{counter:04d}')
+        Configuration.objects.create(key='bill_counter', value='0')
+
         self.group = Group.objects.create(name="Manager")
         self.user = User.objects.create_user(username="testuser", email="test@example.com")
         self.user.groups.add(self.group)
@@ -104,7 +108,7 @@ class ComprehensiveModelIntegrationTest(TestCase):
             price_list_item=price_list_item,
             qty=Decimal('5.00'),
             description="Test estimate line item",
-            price=Decimal('75.00')
+            price_currency=Decimal('75.00')
         )
 
         invoice_line_item = InvoiceLineItem.objects.create(
@@ -112,7 +116,7 @@ class ComprehensiveModelIntegrationTest(TestCase):
             price_list_item=price_list_item,
             qty=Decimal('5.00'),
             description="Test invoice line item",
-            price=Decimal('75.00')
+            price_currency=Decimal('75.00')
         )
 
         self.assertEqual(estimate_line_item.estimate, estimate)
@@ -158,7 +162,7 @@ class ComprehensiveModelIntegrationTest(TestCase):
             price_list_item=price_item,
             qty=Decimal('2.00'),
             description="Purchase order item",
-            price=Decimal('50.00')
+            price_currency=Decimal('50.00')
         )
 
         bill_line_item = BillLineItem.objects.create(
@@ -166,7 +170,7 @@ class ComprehensiveModelIntegrationTest(TestCase):
             price_list_item=price_item,
             qty=Decimal('2.00'),
             description="Bill item",
-            price=Decimal('50.00')
+            price_currency=Decimal('50.00')
         )
 
         self.assertEqual(bill.purchase_order, purchase_order)
@@ -308,7 +312,7 @@ class ComprehensiveModelIntegrationTest(TestCase):
             invoice=invoice,
             price_list_item=price_list_item,
             qty=Decimal('10.00'),
-            price=Decimal('22.50')
+            price_currency=Decimal('22.50')
         )
 
         expected_total = line_item.qty * price_list_item.selling_price

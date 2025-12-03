@@ -27,6 +27,8 @@ class JobEditDraftStatusTest(TestCase):
         Configuration.objects.create(key='po_counter', value='0')
 
         # Create two contacts
+        self.contact1 = Contact.objects.create(first_name='Test Customer 1', last_name='', email='test.customer1@test.com')
+        self.contact2 = Contact.objects.create(first_name='Test Customer 2', last_name='', email='test.customer2@test.com')
 
         # Create a draft job
         self.job = Job.objects.create(
@@ -165,6 +167,9 @@ class JobEditApprovedStatusTest(TestCase):
         Configuration.objects.create(key='po_number_sequence', value='PO-{year}-{counter:04d}')
         Configuration.objects.create(key='po_counter', value='0')
 
+        # Create two contacts
+        self.contact1 = Contact.objects.create(first_name='Test Customer 1', last_name='', email='test.customer1@test.com')
+        self.contact2 = Contact.objects.create(first_name='Test Customer 2', last_name='', email='test.customer2@test.com')
 
         # Create an approved job
         self.job = Job.objects.create(
@@ -304,6 +309,9 @@ class JobEditRejectedStatusTest(TestCase):
         Configuration.objects.create(key='po_number_sequence', value='PO-{year}-{counter:04d}')
         Configuration.objects.create(key='po_counter', value='0')
 
+        # Create two contacts
+        self.contact1 = Contact.objects.create(first_name='Test Customer 1', last_name='', email='test.customer1@test.com')
+        self.contact2 = Contact.objects.create(first_name='Test Customer 2', last_name='', email='test.customer2@test.com')
 
         # Create a rejected job
         self.job = Job.objects.create(
@@ -406,6 +414,8 @@ class JobEditCompleteStatusTest(TestCase):
         Configuration.objects.create(key='po_number_sequence', value='PO-{year}-{counter:04d}')
         Configuration.objects.create(key='po_counter', value='0')
 
+        # Create contact
+        self.contact1 = Contact.objects.create(first_name='Test Customer 1', last_name='', email='test.customer1@test.com')
 
         # Create a completed job
         self.job = Job.objects.create(

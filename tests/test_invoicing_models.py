@@ -5,6 +5,7 @@ from apps.invoicing.models import Invoice, InvoiceLineItem, PriceListItem
 from apps.jobs.models import Job, Estimate, Task, WorkOrder
 from apps.purchasing.models import PurchaseOrder, Bill
 from apps.contacts.models import Contact, Business
+from apps.core.models import Configuration
 
 
 
@@ -94,6 +95,10 @@ class InvoiceModelTest(TestCase):
 
 class InvoiceLineItemModelTest(TestCase):
     def setUp(self):
+        # Create Configuration for number generation
+        Configuration.objects.create(key='bill_number_sequence', value='BILL-{year}-{counter:04d}')
+        Configuration.objects.create(key='bill_counter', value='0')
+
         self.default_contact = Contact.objects.create(first_name='Default Contact', last_name='', email='default.contact@test.com')
         self.business = Business.objects.create(business_name="Test Business", default_contact=self.default_contact)
         self.contact = Contact.objects.create(
@@ -123,7 +128,8 @@ class InvoiceLineItemModelTest(TestCase):
         self.purchase_order = PurchaseOrder.objects.create(
             business=self.business,
             job=self.job,
-            po_number="PO001"
+            po_number="PO001",
+            status='issued'
         )
         self.bill = Bill.objects.create(
             purchase_order=self.purchase_order,

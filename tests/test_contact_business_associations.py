@@ -4,6 +4,7 @@ from apps.purchasing.models import PurchaseOrder, Bill, BillLineItem, PurchaseOr
 from apps.invoicing.models import PriceListItem
 from apps.jobs.models import Job
 from apps.contacts.models import Contact, Business
+from apps.core.models import Configuration
 
 
 class PurchaseOrderContactBusinessTest(TestCase):
@@ -174,6 +175,10 @@ class BillFromPurchaseOrderTest(TestCase):
     """Test Bill creation from PurchaseOrder with Contact/Business copying and line items"""
 
     def setUp(self):
+        # Create Configuration for number generation
+        Configuration.objects.create(key='bill_number_sequence', value='BILL-{year}-{counter:04d}')
+        Configuration.objects.create(key='bill_counter', value='0')
+
         self.default_contact = Contact.objects.create(first_name='Default Contact', last_name='', email='default.contact@test.com')
         self.business = Business.objects.create(business_name="Test Vendor", default_contact=self.default_contact)
         self.contact = Contact.objects.create(
@@ -227,7 +232,7 @@ class BillFromPurchaseOrderTest(TestCase):
             description="Test Item 1",
             qty=5,
             units="ea",
-            price=10.00,
+            price_currency=10.00,
             line_number=1
         )
         PurchaseOrderLineItem.objects.create(
@@ -236,7 +241,7 @@ class BillFromPurchaseOrderTest(TestCase):
             description="Test Item 2",
             qty=3,
             units="kg",
-            price=20.00,
+            price_currency=20.00,
             line_number=2
         )
 
@@ -290,7 +295,7 @@ class BillFromPurchaseOrderTest(TestCase):
                 description=po_line_item.description,
                 qty=po_line_item.qty,
                 units=po_line_item.units,
-                price=po_line_item.price_currency,
+                price_currency=po_line_item.price_currency,
                 line_number=po_line_item.line_number
             )
 
@@ -327,7 +332,7 @@ class BillFromPurchaseOrderTest(TestCase):
                 description=po_line_item.description,
                 qty=po_line_item.qty,
                 units=po_line_item.units,
-                price=po_line_item.price_currency,
+                price_currency=po_line_item.price_currency,
                 line_number=po_line_item.line_number
             )
 
@@ -346,7 +351,7 @@ class BillFromPurchaseOrderTest(TestCase):
             description="New Item",
             qty=1,
             units="ea",
-            price=5.00,
+            price_currency=5.00,
             line_number=3
         )
 
