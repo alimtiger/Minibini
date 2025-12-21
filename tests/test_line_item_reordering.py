@@ -89,7 +89,7 @@ class EstimateLineItemReorderingTestCase(TestCase):
             'line_item_id': self.line_item1.line_item_id,
             'direction': 'down'
         })
-        response = self.client.get(url)
+        response = self.client.post(url)
 
         # Should redirect back to estimate detail
         self.assertEqual(response.status_code, 302)
@@ -109,7 +109,7 @@ class EstimateLineItemReorderingTestCase(TestCase):
             'line_item_id': self.line_item2.line_item_id,
             'direction': 'up'
         })
-        response = self.client.get(url)
+        response = self.client.post(url)
 
         # Should redirect back to estimate detail
         self.assertEqual(response.status_code, 302)
@@ -129,7 +129,7 @@ class EstimateLineItemReorderingTestCase(TestCase):
             'line_item_id': self.line_item1.line_item_id,
             'direction': 'up'
         })
-        response = self.client.get(url)
+        response = self.client.post(url)
 
         # Should redirect back
         self.assertEqual(response.status_code, 302)
@@ -147,7 +147,7 @@ class EstimateLineItemReorderingTestCase(TestCase):
             'line_item_id': self.line_item3.line_item_id,
             'direction': 'down'
         })
-        response = self.client.get(url)
+        response = self.client.post(url)
 
         # Should redirect back
         self.assertEqual(response.status_code, 302)
@@ -169,7 +169,7 @@ class EstimateLineItemReorderingTestCase(TestCase):
             'line_item_id': self.line_item1.line_item_id,
             'direction': 'down'
         })
-        response = self.client.get(url)
+        response = self.client.post(url)
 
         # Should redirect back
         self.assertEqual(response.status_code, 302)
@@ -188,10 +188,10 @@ class EstimateLineItemReorderingTestCase(TestCase):
             'line_item_id': self.line_item1.line_item_id,
             'direction': 'down'
         })
-        self.client.get(url)
+        self.client.post(url)
 
         # Move item 1 down again
-        self.client.get(url)
+        self.client.post(url)
 
         # Refresh all line items
         self.line_item1.refresh_from_db()

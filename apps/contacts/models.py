@@ -127,24 +127,42 @@ class Business(models.Model):
         return self.business_name
 
     def save(self, *args, **kwargs):
-        # Auto-generate reference code if not provided
-        if not self.our_reference_code:
+        from django.db import IntegrityError, transaction
+
+        # If reference code is provided, just save normally
+        if self.our_reference_code:
+            super().save(*args, **kwargs)
+            return
+
+        # Auto-generate reference code with retry logic for race conditions
+        max_attempts = 10
+        for attempt in range(max_attempts):
             # Get the latest business to determine the next number
             last_business = Business.objects.order_by('-business_id').first()
             if last_business and last_business.business_id:
-                next_id = last_business.business_id + 1
+                next_id = last_business.business_id + 1 + attempt
             else:
-                next_id = 1
+                next_id = 1 + attempt
 
             # Generate reference code in format BUS-0001, BUS-0002, etc.
             self.our_reference_code = f"BUS-{next_id:04d}"
 
-            # Check if this reference code already exists (race condition protection)
+            # Check if this reference code already exists
             while Business.objects.filter(our_reference_code=self.our_reference_code).exists():
                 next_id += 1
                 self.our_reference_code = f"BUS-{next_id:04d}"
 
-        super().save(*args, **kwargs)
+            try:
+                with transaction.atomic():
+                    super().save(*args, **kwargs)
+                return  # Success
+            except IntegrityError as e:
+                if 'our_reference_code' in str(e) and attempt < max_attempts - 1:
+                    # Race condition - another request got the same code, retry
+                    continue
+                raise  # Re-raise if not a reference code issue or max attempts reached
+
+        raise ValueError("Could not generate unique reference code after maximum attempts")
 
     def validate_and_fix_default_contact(self):
         """

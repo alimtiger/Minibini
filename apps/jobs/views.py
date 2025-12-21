@@ -4,6 +4,7 @@ from django.urls import reverse
 from django import forms
 from django.utils import timezone
 from django.db import models
+from django.views.decorators.http import require_POST
 from .models import Job, Estimate, EstimateLineItem, Task, WorkOrder, WorkOrderTemplate, TaskTemplate, EstWorksheet, TaskMapping, TaskInstanceMapping
 from .forms import (
     JobCreateForm, JobEditForm, WorkOrderTemplateForm, TaskTemplateForm, EstWorksheetForm,
@@ -883,6 +884,7 @@ def estimate_revise(request, estimate_id):
     })
 
 
+@require_POST
 def task_reorder_worksheet(request, worksheet_id, task_id, direction):
     """Reorder tasks within an EstWorksheet by swapping line numbers."""
     worksheet = get_object_or_404(EstWorksheet, est_worksheet_id=worksheet_id)
@@ -923,6 +925,7 @@ def task_reorder_worksheet(request, worksheet_id, task_id, direction):
     return redirect('jobs:estworksheet_detail', worksheet_id=worksheet_id)
 
 
+@require_POST
 def task_reorder_work_order(request, work_order_id, task_id, direction):
     """Reorder tasks within a WorkOrder by swapping line numbers."""
     work_order = get_object_or_404(WorkOrder, work_order_id=work_order_id)
@@ -958,6 +961,7 @@ def task_reorder_work_order(request, work_order_id, task_id, direction):
     return redirect('jobs:work_order_detail', work_order_id=work_order_id)
 
 
+@require_POST
 def estimate_reorder_line_item(request, estimate_id, line_item_id, direction):
     """Reorder line items within an Estimate by swapping line numbers."""
     from apps.core.services import LineItemService

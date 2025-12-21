@@ -125,7 +125,7 @@ class TaskReorderingTestCase(TestCase):
             'task_id': self.task1.task_id,
             'direction': 'down'
         })
-        response = self.client.get(url)
+        response = self.client.post(url)
 
         # Should redirect back to worksheet detail
         self.assertEqual(response.status_code, 302)
@@ -145,7 +145,7 @@ class TaskReorderingTestCase(TestCase):
             'task_id': self.task2.task_id,
             'direction': 'up'
         })
-        response = self.client.get(url)
+        response = self.client.post(url)
 
         # Should redirect back to worksheet detail
         self.assertEqual(response.status_code, 302)
@@ -165,7 +165,7 @@ class TaskReorderingTestCase(TestCase):
             'task_id': self.task1.task_id,
             'direction': 'up'
         })
-        response = self.client.get(url)
+        response = self.client.post(url)
 
         # Should redirect back
         self.assertEqual(response.status_code, 302)
@@ -183,7 +183,7 @@ class TaskReorderingTestCase(TestCase):
             'task_id': self.task3.task_id,
             'direction': 'down'
         })
-        response = self.client.get(url)
+        response = self.client.post(url)
 
         # Should redirect back
         self.assertEqual(response.status_code, 302)
@@ -205,7 +205,7 @@ class TaskReorderingTestCase(TestCase):
             'task_id': self.task1.task_id,
             'direction': 'down'
         })
-        response = self.client.get(url)
+        response = self.client.post(url)
 
         # Should redirect back
         self.assertEqual(response.status_code, 302)
@@ -223,7 +223,7 @@ class TaskReorderingTestCase(TestCase):
             'task_id': self.wo_task1.task_id,
             'direction': 'down'
         })
-        response = self.client.get(url)
+        response = self.client.post(url)
 
         # Should redirect back to work order detail
         self.assertEqual(response.status_code, 302)
@@ -243,7 +243,7 @@ class TaskReorderingTestCase(TestCase):
             'task_id': self.wo_task3.task_id,
             'direction': 'up'
         })
-        response = self.client.get(url)
+        response = self.client.post(url)
 
         # Should redirect back to work order detail
         self.assertEqual(response.status_code, 302)

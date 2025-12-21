@@ -21,10 +21,16 @@
                 {% if show_reorder %}
                 <td>
                     {% if not forloop.first %}
-                        <a href="{% url reorder_url_name container_id item.task.task_id 'up' %}">↑</a>
+                        <form method="post" action="{% url reorder_url_name container_id item.task.task_id 'up' %}" style="display:inline;">
+                            {% csrf_token %}
+                            <button type="submit" style="background:none;border:none;cursor:pointer;" title="Move up">↑</button>
+                        </form>
                     {% endif %}
                     {% if not forloop.last %}
-                        <a href="{% url reorder_url_name container_id item.task.task_id 'down' %}">↓</a>
+                        <form method="post" action="{% url reorder_url_name container_id item.task.task_id 'down' %}" style="display:inline;">
+                            {% csrf_token %}
+                            <button type="submit" style="background:none;border:none;cursor:pointer;" title="Move down">↓</button>
+                        </form>
                     {% endif %}
                 </td>
                 {% endif %}

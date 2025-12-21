@@ -1,5 +1,6 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
+from django.views.decorators.http import require_POST
 from .models import Invoice, InvoiceLineItem, PriceListItem
 from .forms import PriceListItemForm
 
@@ -69,6 +70,7 @@ def price_list_item_edit(request, item_id):
     })
 
 
+@require_POST
 def invoice_reorder_line_item(request, invoice_id, line_item_id, direction):
     """Reorder line items within an Invoice by swapping line numbers."""
     invoice = get_object_or_404(Invoice, invoice_id=invoice_id)

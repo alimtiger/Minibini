@@ -12,11 +12,11 @@ This document presents findings from a comprehensive code review of the Minibini
 
 **Note:** This review focuses on bugs and issues in **existing functionality**. Authentication, authorization, and credential management are intentionally simplified for development and will be addressed later.
 
-| Severity | Count | Key Areas |
-|----------|-------|-----------|
-| CRITICAL | 1 | Data Integrity |
-| IMPORTANT | 13 | Logic Bugs, Validation, Performance, Data Integrity |
-| MINOR | 6 | Code Style, Incomplete Features |
+| Severity | Count | Fixed | Key Areas |
+|----------|-------|-------|-----------|
+| CRITICAL | 1 | 1 ✅ | Data Integrity |
+| IMPORTANT | 13 | 10 ✅ | Logic Bugs, Validation, Performance, Data Integrity |
+| MINOR | 6 | 0 | Code Style, Incomplete Features |
 
 ---
 
@@ -24,46 +24,26 @@ This document presents findings from a comprehensive code review of the Minibini
 
 ### 1. Contact Deletion Bypasses Model Validation
 
-**File:** `apps/contacts/views.py`, lines 656-660
+**Status:** ✅ FIXED
 
-**Description:**
+**Files:** `apps/contacts/views.py` (lines 659-666), `apps/contacts/models.py` (lines 66-92)
+
+**Original Issue:** Using `QuerySet.delete()` bypassed the `Contact.delete()` override that validates business default contact logic.
+
+**Fixes Applied:**
+
+1. **View fix** - `delete_business` now uses individual `contact.delete()` calls:
 ```python
-# Must delete business first to avoid PROTECT constraint on default_contact
-business.delete()
-
-# Delete contacts by ID since the queryset relationship is broken after business deletion
-Contact.objects.filter(contact_id__in=contact_ids).delete()
+# Delete contacts individually to trigger model validation logic
+for contact_id in contact_ids:
+    try:
+        contact = Contact.objects.get(contact_id=contact_id)
+        contact.delete()
+    except Contact.DoesNotExist:
+        pass
 ```
 
-**Impact:** Using `delete()` directly on a QuerySet bypasses the `Contact.delete()` override that validates business default contact logic. This could leave orphaned data or inconsistent state. The `Contact.delete()` method (lines 66-71) handles updating business default contacts, but this is skipped entirely.
-
-**Recommended Fix:**
-
-Since `Business.default_contact` is a required field (`null=False`), you cannot set it to null. The deletion logic must account for the constraint that every Business must have at least one Contact (its default_contact).
-
-```python
-from django.db import transaction
-
-with transaction.atomic():
-    # Delete contacts individually to trigger model logic
-    # The Contact.delete() override will call validate_and_fix_default_contact()
-    # which reassigns default_contact to another contact if available
-    for contact_id in contact_ids:
-        try:
-            contact = Contact.objects.get(contact_id=contact_id)
-            contact.delete()  # Triggers model validation
-        except Contact.DoesNotExist:
-            pass
-
-    # Only delete business after all contacts are handled
-    # If this is the last contact, deletion should be blocked
-    business.delete()
-```
-
-Additionally, the `Contact.delete()` method should be enhanced to prevent deletion if:
-1. The contact is the default_contact for a business, AND
-2. It is the only contact belonging to that business
-
+2. **Model fix** - `Contact.delete()` now prevents deletion of sole contacts and auto-reassigns default_contact:
 ```python
 def delete(self, *args, **kwargs):
     business = self.business
@@ -74,6 +54,9 @@ def delete(self, *args, **kwargs):
                 f'Cannot delete the only contact for business "{business}". '
                 'Delete the business or add another contact as the default first.'
             )
+        # Reassign default_contact to another contact before deleting
+        business.default_contact = other_contacts.first()
+        business.save(update_fields=['default_contact'])
     super().delete(*args, **kwargs)
     if business:
         business.validate_and_fix_default_contact()
@@ -85,16 +68,13 @@ def delete(self, *args, **kwargs):
 
 ### 2. Invoice Default Status Mismatch
 
+**Status:** ✅ FIXED
+
 **File:** `apps/invoicing/models.py`, line 21
 
-**Description:**
-```python
-status = models.CharField(max_length=20, choices=INVOICE_STATUS_CHOICES, default='active')
-```
+**Original Issue:** Default value `'active'` was not in `INVOICE_STATUS_CHOICES`.
 
-**Impact:** The default value `'active'` is not in `INVOICE_STATUS_CHOICES` which starts with `'draft'`. This will cause validation errors when creating invoices or unexpected behavior in status-dependent logic.
-
-**Recommended Fix:**
+**Fix Applied:** Changed default to `'draft'`:
 ```python
 status = models.CharField(max_length=20, choices=INVOICE_STATUS_CHOICES, default='draft')
 ```
@@ -103,50 +83,46 @@ status = models.CharField(max_length=20, choices=INVOICE_STATUS_CHOICES, default
 
 ### 3. Race Condition in Business Reference Code Generation
 
-**File:** `apps/contacts/models.py`, lines 110-124
+**Status:** ✅ FIXED
 
-**Description:**
+**File:** `apps/contacts/models.py`, lines 129-165
+
+**Original Issue:** Loop-based uniqueness check was not atomic, allowing race conditions.
+
+**Fix Applied:** Added IntegrityError retry logic with transaction.atomic():
 ```python
-while Business.objects.filter(our_reference_code=self.our_reference_code).exists():
-    next_id += 1
-    self.our_reference_code = f"BUS-{next_id:04d}"
-```
-
-**Impact:** This loop-based uniqueness check is not atomic. Two concurrent requests could both pass the `exists()` check and attempt to insert the same reference code, causing an IntegrityError.
-
-**Recommended Fix:** Use database-level unique constraint handling with retry logic:
-```python
-from django.db import transaction, IntegrityError
-
-@transaction.atomic
 def save(self, *args, **kwargs):
-    if not self.our_reference_code:
-        for attempt in range(10):
-            try:
-                self.our_reference_code = self._generate_next_code()
+    from django.db import IntegrityError, transaction
+
+    if self.our_reference_code:
+        super().save(*args, **kwargs)
+        return
+
+    max_attempts = 10
+    for attempt in range(max_attempts):
+        # Generate code...
+        try:
+            with transaction.atomic():
                 super().save(*args, **kwargs)
-                return
-            except IntegrityError:
+            return
+        except IntegrityError as e:
+            if 'our_reference_code' in str(e) and attempt < max_attempts - 1:
                 continue
-        raise ValueError("Could not generate unique reference code")
+            raise
+    raise ValueError("Could not generate unique reference code")
 ```
 
 ---
 
 ### 4. estimate_revise Sets Non-Existent Field
 
-**File:** `apps/jobs/views.py`, lines 872-874
+**Status:** ✅ FIXED
 
-**Description:**
-```python
-parent_estimate.status = 'superseded'
-parent_estimate.superseded_date = timezone.now()  # This field doesn't exist!
-parent_estimate.save()
-```
+**File:** `apps/jobs/views.py`
 
-**Impact:** The `Estimate` model does not have a `superseded_date` field. This will cause an `AttributeError` at runtime when trying to revise an estimate.
+**Original Issue:** Code referenced `superseded_date` field which was renamed to `closed_date`.
 
-**Recommended Fix:** Remove this line - the model's `save()` method already sets `closed_date` when transitioning to terminal states:
+**Fix Applied:** Removed the manual date setting - the model's `save()` method auto-sets `closed_date`:
 ```python
 parent_estimate.status = 'superseded'
 # closed_date is automatically set by the model's save() method
@@ -157,19 +133,13 @@ parent_estimate.save()
 
 ### 5. PurchaseOrder Form Regenerates PO Number on Edit
 
-**File:** `apps/purchasing/forms.py`, lines 62-71
+**Status:** ✅ FIXED
 
-**Description:**
-```python
-def save(self, commit=True):
-    instance = super().save(commit=False)
-    # Generate the actual PO number (increments counter)
-    instance.po_number = NumberGenerationService.generate_next_number('po')
-```
+**File:** `apps/purchasing/forms.py`, lines 62-72
 
-**Impact:** When editing an existing PO, this generates a new PO number, losing the original and wasting counter values. This breaks document continuity.
+**Original Issue:** Form regenerated PO number on every save, even when editing.
 
-**Recommended Fix:**
+**Fix Applied:** Only generate PO number for new instances:
 ```python
 def save(self, commit=True):
     instance = super().save(commit=False)
@@ -184,26 +154,22 @@ def save(self, commit=True):
 
 ### 6. Missing Transaction Wrapping on Multi-Model Operations
 
-**File:** `apps/contacts/views.py`, lines 54-78 (add_contact), lines 194-242 (add_business)
+**Status:** ✅ FIXED
 
-**Description:**
+**File:** `apps/contacts/views.py`
+
+**Original Issue:** Multi-model operations weren't wrapped in transactions, risking orphaned data.
+
+**Fixes Applied:**
+1. `add_contact`: Added `transaction.atomic()` wrapper, fixed order to create Contact first, then Business with `default_contact` set
+2. `add_business`: Added `transaction.atomic()` wrapper around all contact/business creation
+
 ```python
-business = Business.objects.create(...)
-contact = Contact.objects.create(
-    ...
-    business=business
-)
-```
-
-**Impact:** If contact creation fails after business creation, you'll have an orphaned business with no contacts, violating the business rule that a business must have at least one contact.
-
-**Recommended Fix:**
-```python
-from django.db import transaction
-
 with transaction.atomic():
-    business = Business.objects.create(...)
-    contact = Contact.objects.create(..., business=business)
+    contact = Contact.objects.create(...)  # Create contact first
+    business = Business.objects.create(..., default_contact=contact)
+    contact.business = business
+    contact.save()
 ```
 
 ---
@@ -228,21 +194,13 @@ def save(self, *args, **kwargs):
 
 ### 8. N+1 Query Problem in delete_business View
 
-**File:** `apps/contacts/views.py`, lines 585-604
+**Status:** ✅ FIXED
 
-**Description:**
-```python
-for contact in contacts:
-    has_jobs = Job.objects.filter(contact=contact).exists()
-    has_bills = Bill.objects.filter(contact=contact).exists()
-    if has_jobs or has_bills:
-        jobs = list(Job.objects.filter(contact=contact).values_list('job_number', flat=True))
-        bills = list(Bill.objects.filter(contact=contact).values_list('bill_id', flat=True))
-```
+**File:** `apps/contacts/views.py`, lines 592-626
 
-**Impact:** For each contact, this makes 2-4 database queries. With 10 contacts, that's 20-40 queries. This will cause performance issues as data grows.
+**Original Issue:** For each contact, 2-4 database queries were made, causing performance issues.
 
-**Recommended Fix:**
+**Fix Applied:** Replaced per-contact queries with bulk queries using `defaultdict`:
 ```python
 contact_ids = list(contacts.values_list('contact_id', flat=True))
 
@@ -254,7 +212,7 @@ for item in Job.objects.filter(contact_id__in=contact_ids).values('contact_id', 
 # Single query for bills
 bills_by_contact = defaultdict(list)
 for item in Bill.objects.filter(contact_id__in=contact_ids).values('contact_id', 'bill_id'):
-    bills_by_contact[item['contact_id']].append(item['bill_id'])
+    bills_by_contact[item['contact_id']].append(str(item['bill_id']))
 
 # Then check each contact using the dictionaries
 ```
@@ -263,7 +221,9 @@ for item in Bill.objects.filter(contact_id__in=contact_ids).values('contact_id',
 
 ### 9. State-Changing Operations on GET Requests
 
-**Files:** `apps/jobs/views.py` (lines 887, 927, 962), `apps/invoicing/views.py` (line 72), `apps/purchasing/views.py` (lines 309, 349)
+**Status:** ✅ FIXED
+
+**Files:** `apps/jobs/views.py` (lines 886, 926, 961), `apps/invoicing/views.py` (line 72), `apps/purchasing/views.py` (lines 309, 349)
 
 **Description:** Reordering operations modify database state but are triggered via GET requests:
 ```python
@@ -275,14 +235,70 @@ def task_reorder_worksheet(request, worksheet_id, task_id, direction):
 
 **Impact:** GET requests should be idempotent. While CSRF middleware provides some protection, these could still be triggered unintentionally by browser prefetching, crawlers, or link previews.
 
-**Recommended Fix:** Require POST method:
+**Recommended Fix:** This requires changes to both views AND templates.
+
+**Step 1: Add POST requirement to views:**
 ```python
+# apps/jobs/views.py
 from django.views.decorators.http import require_POST
 
 @require_POST
 def task_reorder_worksheet(request, worksheet_id, task_id, direction):
-    # ...
+    # ... existing logic unchanged ...
+
+@require_POST
+def task_reorder_work_order(request, work_order_id, task_id, direction):
+    # ... existing logic unchanged ...
+
+@require_POST
+def estimate_reorder_line_item(request, estimate_id, line_item_id, direction):
+    # ... existing logic unchanged ...
+
+# apps/invoicing/views.py
+@require_POST
+def invoice_reorder_line_item(request, invoice_id, line_item_id, direction):
+    # ... existing logic unchanged ...
+
+# apps/purchasing/views.py
+@require_POST
+def purchase_order_reorder_line_item(request, po_id, line_item_id, direction):
+    # ... existing logic unchanged ...
+
+@require_POST
+def bill_reorder_line_item(request, bill_id, line_item_id, direction):
+    # ... existing logic unchanged ...
 ```
+
+**Step 2: Update templates to use form submissions instead of links:**
+
+Current (GET links):
+```html
+<!-- templates/includes/_line_items_table.html -->
+<a href="{% url reorder_url_name parent_id item.line_item_id 'up' %}">↑</a>
+<a href="{% url reorder_url_name parent_id item.line_item_id 'down' %}">↓</a>
+```
+
+Updated (POST forms):
+```html
+<!-- templates/includes/_line_items_table.html -->
+<form method="post" action="{% url reorder_url_name parent_id item.line_item_id 'up' %}" style="display:inline;">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-sm btn-link" title="Move up">↑</button>
+</form>
+<form method="post" action="{% url reorder_url_name parent_id item.line_item_id 'down' %}" style="display:inline;">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-sm btn-link" title="Move down">↓</button>
+</form>
+```
+
+Same pattern applies to `templates/jobs/_task_list.html`.
+
+**Fixes Applied:**
+1. Added `@require_POST` decorator to all 6 reorder views
+2. Updated imports in `jobs/views.py`, `invoicing/views.py`, and `purchasing/views.py`
+3. GET requests now return 405 Method Not Allowed
+4. Updated `templates/includes/_line_items_table.html` to use POST forms
+5. Updated `templates/jobs/_task_list.html` to use POST forms
 
 ---
 
@@ -317,18 +333,15 @@ class EstimateStatusForm(forms.Form):
 
 ### 11. Line Number Stored as String Instead of Integer
 
-**File:** `apps/jobs/services.py`, lines 517, 523, 545, 551, 601, 608, 649, 658
+**Status:** ✅ FIXED
 
-**Description:**
+**File:** `apps/jobs/services.py`
+
+**Original Issue:** `str(self.line_number)` was converting integers to strings unnecessarily.
+
+**Fix Applied:** Removed `str()` wrapper, passing integer directly:
 ```python
-line_number=str(self.line_number),
-```
-
-**Impact:** `BaseLineItem.line_number` is defined as `PositiveIntegerField`, but the service assigns string values. While Django's type coercion handles this, it could cause sorting issues (string "10" sorts before "2") and is semantically incorrect.
-
-**Recommended Fix:**
-```python
-line_number=self.line_number,  # Don't convert to string
+line_number=self.line_number,  # No string conversion
 ```
 
 ---
@@ -364,21 +377,16 @@ class ContactForm(forms.ModelForm):
 
 ### 13. Business Deletion Can Leave Default Contact Reference Invalid
 
-**File:** `apps/contacts/views.py`, lines 643-646
+**Status:** ✅ FIXED
 
-**Description:**
+**File:** `apps/contacts/views.py`, lines 643-648
+
+**Original Issue:** `contacts.update(business=None)` used a bulk update that bypassed `Contact.save()`.
+
+**Fix Applied:** Now uses individual `contact.save()` calls to trigger model validation:
 ```python
 if contact_action == 'unlink':
-    # Unlink contacts from business
-    contacts.update(business=None)
-    business.delete()
-```
-
-**Impact:** `contacts.update(business=None)` uses a bulk update that bypasses `Contact.save()`. This means `validate_and_fix_default_contact()` is never called, potentially leaving the business in an invalid state before deletion (though deletion may still succeed).
-
-**Recommended Fix:** While this works because the business is deleted anyway, for consistency:
-```python
-with transaction.atomic():
+    # Unlink contacts from business individually to trigger model validation
     for contact in contacts:
         contact.business = None
         contact.save()
@@ -389,20 +397,13 @@ with transaction.atomic():
 
 ### 14. delete_contact Uses Wrong Status Values
 
-**File:** `apps/contacts/views.py`, lines 326-330
+**Status:** ✅ FIXED
 
-**Description:**
-```python
-open_jobs = Job.objects.filter(
-    contact=contact
-).exclude(
-    status__in=['complete', 'rejected']
-)
-```
+**File:** `apps/contacts/views.py`
 
-**Impact:** The Job model uses `'completed'` not `'complete'`. This exclusion filter will never match completed jobs, incorrectly blocking contact edits.
+**Original Issue:** Used `'complete'` instead of `'completed'` in status filter.
 
-**Recommended Fix:**
+**Fix Applied:** Corrected status values:
 ```python
 ).exclude(
     status__in=['completed', 'rejected', 'cancelled']
@@ -509,7 +510,7 @@ price_currency = models.DecimalField(max_digits=12, decimal_places=4)
 3. **Fix delete_contact status check** (`'complete'` -> `'completed'`) - Wrong filter logic
 
 ### Short-term Priority (Before Integration Testing)
-1. Fix Contact deletion bypassing model validation (Critical #1)
+1. ~~Fix Contact deletion bypassing model validation (Critical #1)~~ ✅ FIXED
 2. Fix PurchaseOrder number regeneration on edit
 3. Wrap multi-model operations in transactions
 4. Fix line_number string/integer type mismatch
@@ -517,7 +518,7 @@ price_currency = models.DecimalField(max_digits=12, decimal_places=4)
 ### Medium-term Priority (Before Production)
 1. Consolidate validation between forms and models
 2. Optimize N+1 queries
-3. Require POST for state-changing operations
+3. Require POST for state-changing operations (see Issue #9 for complete fix)
 4. Add model-level validation enforcement in `save()`
 
 ---

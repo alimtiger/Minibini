@@ -1,5 +1,6 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
+from django.views.decorators.http import require_POST
 from .models import PurchaseOrder, Bill, BillLineItem, PurchaseOrderLineItem
 from .forms import PurchaseOrderForm, PurchaseOrderLineItemForm, PurchaseOrderStatusForm, BillForm, BillLineItemForm, BillStatusForm
 
@@ -306,6 +307,7 @@ def bill_add_line_item(request, bill_id):
     })
 
 
+@require_POST
 def purchase_order_reorder_line_item(request, po_id, line_item_id, direction):
     """Reorder line items within a PurchaseOrder by swapping line numbers."""
     purchase_order = get_object_or_404(PurchaseOrder, po_id=po_id)
@@ -346,6 +348,7 @@ def purchase_order_reorder_line_item(request, po_id, line_item_id, direction):
     return redirect('purchasing:purchase_order_detail', po_id=po_id)
 
 
+@require_POST
 def bill_reorder_line_item(request, bill_id, line_item_id, direction):
     """Reorder line items within a Bill by swapping line numbers."""
     bill = get_object_or_404(Bill, bill_id=bill_id)
