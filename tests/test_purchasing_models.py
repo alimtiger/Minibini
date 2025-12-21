@@ -106,6 +106,9 @@ class BillModelTest(TestCase):
     def setUp(self):
         self.default_contact = Contact.objects.create(first_name='Default Contact', last_name='', email='default.contact@test.com')
         self.business = Business.objects.create(business_name="Test Business", default_contact=self.default_contact)
+        # Associate default_contact with business so it's not the sole contact
+        self.default_contact.business = self.business
+        self.default_contact.save()
         self.contact = Contact.objects.create(
             first_name='Test Vendor',
             last_name='',

@@ -18,6 +18,6 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='business',
             name='business_phone',
-            field=models.CharField(blank=True, max_length=20),
+            field=models.CharField(blank=True, max_length=50),
         ),
     ]

@@ -641,8 +641,10 @@ def delete_business(request, business_id):
         contact_count = contacts.count()
 
         if contact_action == 'unlink':
-            # Unlink contacts from business
-            contacts.update(business=None)
+            # Unlink contacts from business individually to trigger model validation
+            for contact in contacts:
+                contact.business = None
+                contact.save()
             business.delete()
             messages.success(
                 request,
@@ -656,8 +658,14 @@ def delete_business(request, business_id):
             # Must delete business first to avoid PROTECT constraint on default_contact
             business.delete()
 
-            # Delete contacts by ID since the queryset relationship is broken after business deletion
-            Contact.objects.filter(contact_id__in=contact_ids).delete()
+            # Delete contacts individually to trigger model validation logic
+            # (contacts are now orphaned since business was deleted first)
+            for contact_id in contact_ids:
+                try:
+                    contact = Contact.objects.get(contact_id=contact_id)
+                    contact.delete()
+                except Contact.DoesNotExist:
+                    pass
 
             if contact_count <= 5:
                 messages.success(

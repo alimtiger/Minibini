@@ -64,9 +64,30 @@ class Contact(models.Model):
             old_business.validate_and_fix_default_contact()
 
     def delete(self, *args, **kwargs):
-        """Override delete to update business default contact"""
+        """Override delete to update business default contact.
+
+        Raises PermissionDenied if this is the sole contact for a business,
+        since Business.default_contact is required.
+        """
+        from django.core.exceptions import PermissionDenied
+
         business = self.business
+
+        # Check if this contact is the default_contact for its business
+        if business and business.default_contact == self:
+            other_contacts = business.contacts.exclude(pk=self.pk)
+            if not other_contacts.exists():
+                raise PermissionDenied(
+                    f'Cannot delete the only contact for business "{business}". '
+                    'Delete the business or add another contact as the default first.'
+                )
+            # Reassign default_contact to another contact before deleting
+            business.default_contact = other_contacts.first()
+            business.save(update_fields=['default_contact'])
+
         super().delete(*args, **kwargs)
+
+        # Validate and fix default contact for the business (handles edge cases)
         if business:
             business.validate_and_fix_default_contact()
 

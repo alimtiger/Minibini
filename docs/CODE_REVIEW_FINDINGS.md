@@ -38,23 +38,45 @@ Contact.objects.filter(contact_id__in=contact_ids).delete()
 **Impact:** Using `delete()` directly on a QuerySet bypasses the `Contact.delete()` override that validates business default contact logic. This could leave orphaned data or inconsistent state. The `Contact.delete()` method (lines 66-71) handles updating business default contacts, but this is skipped entirely.
 
 **Recommended Fix:**
+
+Since `Business.default_contact` is a required field (`null=False`), you cannot set it to null. The deletion logic must account for the constraint that every Business must have at least one Contact (its default_contact).
+
 ```python
 from django.db import transaction
 
 with transaction.atomic():
-    # Clear default_contact first to allow deletion
-    business.default_contact = None
-    business.save(update_fields=['default_contact'])
-
     # Delete contacts individually to trigger model logic
+    # The Contact.delete() override will call validate_and_fix_default_contact()
+    # which reassigns default_contact to another contact if available
     for contact_id in contact_ids:
         try:
             contact = Contact.objects.get(contact_id=contact_id)
-            contact.delete()
+            contact.delete()  # Triggers model validation
         except Contact.DoesNotExist:
             pass
 
+    # Only delete business after all contacts are handled
+    # If this is the last contact, deletion should be blocked
     business.delete()
+```
+
+Additionally, the `Contact.delete()` method should be enhanced to prevent deletion if:
+1. The contact is the default_contact for a business, AND
+2. It is the only contact belonging to that business
+
+```python
+def delete(self, *args, **kwargs):
+    business = self.business
+    if business and business.default_contact == self:
+        other_contacts = business.contacts.exclude(pk=self.pk)
+        if not other_contacts.exists():
+            raise PermissionDenied(
+                f'Cannot delete the only contact for business "{business}". '
+                'Delete the business or add another contact as the default first.'
+            )
+    super().delete(*args, **kwargs)
+    if business:
+        business.validate_and_fix_default_contact()
 ```
 
 ---

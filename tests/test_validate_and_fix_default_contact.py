@@ -272,8 +272,8 @@ class AutomaticDefaultContactFixingTest(TestCase):
         business1.refresh_from_db()
         self.assertEqual(business1.default_contact, contact2)
 
-    def test_validate_and_fix_prevents_deletion_of_default_contact(self):
-        """Cannot delete a contact that is set as default (PROTECT constraint)"""
+    def test_delete_default_contact_auto_reassigns(self):
+        """Deleting the default contact when other contacts exist should auto-reassign."""
         # Create contacts
         contact1 = Contact.objects.create(
             first_name='Alice',
@@ -298,21 +298,13 @@ class AutomaticDefaultContactFixingTest(TestCase):
         contact2.business = business
         contact2.save()
 
-        # Try to delete contact1 (current default) - should be protected
-        from django.db.models.deletion import ProtectedError
-        with self.assertRaises(ProtectedError):
-            contact1.delete()
-
-        # Change default to contact2 first
-        business.default_contact = contact2
-        business.save()
-
-        # Now we can delete contact1
+        # Deleting the default contact when other contacts exist should succeed
+        # The default_contact should auto-reassign to another contact
         contact1.delete()
 
         # Verify deletion worked
         self.assertFalse(Contact.objects.filter(contact_id=contact1.contact_id).exists())
 
-        # Business should still have contact2 as default
+        # Business should now have contact2 as default (auto-reassigned)
         business.refresh_from_db()
         self.assertEqual(business.default_contact, contact2)
