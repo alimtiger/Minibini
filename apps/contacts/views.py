@@ -322,11 +322,11 @@ def edit_contact(request, contact_id):
             )
 
             if business_changing:
-                # Check for open jobs (not complete or rejected)
+                # Check for open jobs (not completed, rejected, or cancelled)
                 open_jobs = Job.objects.filter(
                     contact=contact
                 ).exclude(
-                    status__in=['complete', 'rejected']
+                    status__in=['completed', 'rejected', 'cancelled']
                 )
 
                 if open_jobs.exists():
@@ -451,7 +451,7 @@ def delete_contact(request, contact_id):
     contact = get_object_or_404(Contact, contact_id=contact_id)
 
     if request.method == 'POST':
-        # Check for associated Jobs
+        # Check for associated Jobs (PROTECT constraint prevents deletion regardless of status)
         from apps.jobs.models import Job
         associated_jobs = Job.objects.filter(contact=contact)
 

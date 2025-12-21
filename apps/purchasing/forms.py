@@ -63,8 +63,9 @@ class PurchaseOrderForm(forms.ModelForm):
         """Override save to generate PO number using NumberGenerationService"""
         instance = super().save(commit=False)
 
-        # Generate the actual PO number (increments counter)
-        instance.po_number = NumberGenerationService.generate_next_number('po')
+        # Only generate PO number for new instances (not when editing)
+        if not instance.pk:
+            instance.po_number = NumberGenerationService.generate_next_number('po')
 
         if commit:
             instance.save()

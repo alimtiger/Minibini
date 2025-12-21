@@ -389,9 +389,8 @@ class EstimateGenerationService:
             estimate_number = parent_estimate.estimate_number
             version = parent_estimate.version + 1
 
-            # Mark parent as superseded
+            # Mark parent as superseded (closed_date is set automatically by model.save())
             parent_estimate.status = 'superseded'
-            parent_estimate.superseded_date = timezone.now()
             parent_estimate.save()
         else:
             # Generate new estimate number using centralized service
@@ -513,7 +512,7 @@ class EstimateGenerationService:
             
             line_item = EstimateLineItem(
                 estimate=estimate,
-                line_number=str(self.line_number),
+                line_number=self.line_number,
                 description=f"{service_type.replace('_', ' ').title()} Services:\n" + "\n".join(descriptions),
                 qty=total_hours,
                 units='hours',
@@ -545,7 +544,7 @@ class EstimateGenerationService:
             line_item = EstimateLineItem(
                 estimate=estimate,
                 task=task,
-                line_number=str(self.line_number),
+                line_number=self.line_number,
                 description=description,
                 qty=qty,
                 units=task.units or 'each',
@@ -598,7 +597,7 @@ class EstimateGenerationService:
         
         line_item = EstimateLineItem(
             estimate=estimate,
-            line_number=str(self.line_number),
+            line_number=self.line_number,
             description=description,
             qty=Decimal('1.00'),
             units='each',
@@ -648,7 +647,7 @@ class EstimateGenerationService:
         
         line_item = EstimateLineItem(
             estimate=estimate,
-            line_number=str(self.line_number),
+            line_number=self.line_number,
             description=description,
             qty=Decimal(str(quantity)),
             units='each',

@@ -199,12 +199,12 @@ class ComprehensiveModelIntegrationTest(TestCase):
         )
 
         original_estimate.status = 'superseded'
-        original_estimate.superseded_date = timezone.now()
-        original_estimate.save()
+        original_estimate.save()  # closed_date is set automatically by model.save()
 
+        original_estimate.refresh_from_db()
         self.assertEqual(original_estimate.status, 'superseded')
         self.assertEqual(superseding_estimate.parent, original_estimate)
-        self.assertIsNotNone(original_estimate.superseded_date)
+        self.assertIsNotNone(original_estimate.closed_date)
 
     def test_task_workflow(self):
         job = Job.objects.create(

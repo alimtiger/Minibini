@@ -64,11 +64,11 @@ class InvoiceModelTest(TestCase):
         invoice = Invoice.objects.create(
             job=self.job,
             invoice_number="INV001",
-            status='active'
+            status='open'  # Use valid status from INVOICE_STATUS_CHOICES
         )
         self.assertEqual(invoice.job, self.job)
         self.assertEqual(invoice.invoice_number, "INV001")
-        self.assertEqual(invoice.status, 'active')
+        self.assertEqual(invoice.status, 'open')
         
     def test_invoice_str_method(self):
         invoice = Invoice.objects.create(
@@ -78,11 +78,23 @@ class InvoiceModelTest(TestCase):
         self.assertEqual(str(invoice), "Invoice INV002")
         
     def test_invoice_default_status(self):
+        """Test that Invoice default status is 'draft' (a valid choice)."""
         invoice = Invoice.objects.create(
             job=self.job,
             invoice_number="INV003"
         )
-        self.assertEqual(invoice.status, 'active')
+        # Default status must be 'draft' - a valid choice in INVOICE_STATUS_CHOICES
+        self.assertEqual(invoice.status, 'draft')
+
+    def test_invoice_default_status_is_valid_choice(self):
+        """Test that the default status is in the valid choices list."""
+        invoice = Invoice.objects.create(
+            job=self.job,
+            invoice_number="INV_VALID_DEFAULT"
+        )
+        valid_statuses = [choice[0] for choice in Invoice.INVOICE_STATUS_CHOICES]
+        self.assertIn(invoice.status, valid_statuses,
+            f"Default status '{invoice.status}' is not in valid choices: {valid_statuses}")
         
     def test_invoice_status_choices(self):
         invoice = Invoice.objects.create(

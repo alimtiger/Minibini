@@ -868,9 +868,8 @@ def estimate_revise(request, estimate_id):
                     price_currency=line_item.price_currency
                 )
 
-            # Mark parent as superseded
+            # Mark parent as superseded (closed_date is set automatically by model.save())
             parent_estimate.status = 'superseded'
-            parent_estimate.superseded_date = timezone.now()
             parent_estimate.save()
 
             messages.success(request, f'Created new revision of estimate {new_estimate.estimate_number} (v{new_estimate.version})')

@@ -18,7 +18,7 @@ class Invoice(models.Model):
     invoice_id = models.AutoField(primary_key=True)
     job = models.ForeignKey('jobs.Job', on_delete=models.CASCADE)
     invoice_number = models.CharField(max_length=50, unique=True)
-    status = models.CharField(max_length=20, choices=INVOICE_STATUS_CHOICES, default='active')
+    status = models.CharField(max_length=20, choices=INVOICE_STATUS_CHOICES, default='draft')
     created_date = models.DateTimeField(default=timezone.now)
     # date the invoice was sent to the customer and stopped being editable
     sent_date = models.DateTimeField(null=True, blank=True)

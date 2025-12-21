@@ -87,6 +87,31 @@ class ContactDeletionValidationTest(TestCase):
         # Contact should still exist
         self.assertTrue(Contact.objects.filter(contact_id=self.contact.contact_id).exists())
 
+    def test_cannot_delete_contact_with_completed_job(self):
+        """Contact cannot be deleted even if job is completed.
+
+        Due to PROTECT foreign key constraint, contacts with ANY jobs cannot be deleted
+        regardless of job status.
+        """
+        # Create a completed job - still blocks deletion due to PROTECT
+        job = Job.objects.create(
+            job_number='TEST-COMPLETED',
+            name='Completed Test Job',
+            contact=self.contact,
+            status='completed'
+        )
+
+        url = reverse('contacts:delete_contact', args=[self.contact.contact_id])
+        response = self.client.post(url, follow=True)
+
+        # Should show error
+        self.assertContains(response, 'Cannot delete contact')
+        self.assertContains(response, 'Jobs:')
+        self.assertContains(response, 'TEST-COMPLETED')
+
+        # Contact should still exist
+        self.assertTrue(Contact.objects.filter(contact_id=self.contact.contact_id).exists())
+
     def test_cannot_delete_contact_with_multiple_associations(self):
         """Contact with multiple associations should show all in error message"""
         # Create both a job and a bill
@@ -602,3 +627,121 @@ class ContactDetailPageDeleteButtonTest(TestCase):
         # Check for confirmation dialog
         self.assertContains(response, 'confirmDelete')
         self.assertContains(response, 'Are you sure')
+
+
+class EditContactWithJobStatusTest(TestCase):
+    """Test that edit_contact correctly handles job status checks.
+
+    The view should use 'completed' (not 'complete') when checking if a contact's
+    business can be changed.
+    """
+
+    def setUp(self):
+        self.client = Client()
+        # Create contact first for default_contact
+        self.contact = Contact.objects.create(
+            first_name='John',
+            last_name='Doe',
+            email='john@test.com',
+            work_number='555-0001'
+        )
+        # Create business with default_contact
+        self.business = Business.objects.create(
+            business_name='Test Business',
+            default_contact=self.contact
+        )
+        # Link contact to business
+        self.contact.business = self.business
+        self.contact.save()
+
+        # Create another business for transfer tests
+        self.other_contact = Contact.objects.create(
+            first_name='Other',
+            last_name='Contact',
+            email='other@test.com',
+            work_number='555-0002'
+        )
+        self.other_business = Business.objects.create(
+            business_name='Other Business',
+            default_contact=self.other_contact
+        )
+        self.other_contact.business = self.other_business
+        self.other_contact.save()
+
+    def test_can_change_business_with_completed_job(self):
+        """Contact with completed job can have business changed.
+
+        Uses 'completed' status (not 'complete') to allow business changes.
+        """
+        # Create a completed job
+        job = Job.objects.create(
+            job_number='COMPLETED-001',
+            name='Completed Job',
+            contact=self.contact,
+            status='completed'
+        )
+
+        # Add second contact to business so first can be moved
+        other_contact = Contact.objects.create(
+            first_name='Jane',
+            last_name='Smith',
+            email='jane@test.com',
+            work_number='555-0003',
+            business=self.business
+        )
+
+        # Try to change business association
+        url = reverse('contacts:edit_contact', args=[self.contact.contact_id])
+        response = self.client.post(url, {
+            'first_name': 'John',
+            'last_name': 'Doe',
+            'email': 'john@test.com',
+            'work_number': '555-0001',
+            'business_selection_mode': 'existing',
+            'existing_business_id': self.other_business.business_id
+        })
+
+        # Should succeed (redirect)
+        self.assertEqual(response.status_code, 302)
+
+        # Contact should now belong to other business
+        self.contact.refresh_from_db()
+        self.assertEqual(self.contact.business, self.other_business)
+
+    def test_cannot_change_business_with_open_job(self):
+        """Contact with open (non-terminal) job cannot have business changed."""
+        # Create an approved (open) job
+        job = Job.objects.create(
+            job_number='OPEN-001',
+            name='Open Job',
+            contact=self.contact,
+            status='approved'
+        )
+
+        # Add second contact to business so first could potentially be moved
+        other_contact = Contact.objects.create(
+            first_name='Jane',
+            last_name='Smith',
+            email='jane@test.com',
+            work_number='555-0003',
+            business=self.business
+        )
+
+        # Try to change business association
+        url = reverse('contacts:edit_contact', args=[self.contact.contact_id])
+        response = self.client.post(url, {
+            'first_name': 'John',
+            'last_name': 'Doe',
+            'email': 'john@test.com',
+            'work_number': '555-0001',
+            'business_selection_mode': 'existing',
+            'existing_business_id': self.other_business.business_id
+        }, follow=True)
+
+        # Should show error
+        self.assertContains(response, 'Cannot change business association')
+        self.assertContains(response, 'OPEN-001')
+
+        # Contact should still belong to original business
+        self.contact.refresh_from_db()
+        self.assertEqual(self.contact.business, self.business)

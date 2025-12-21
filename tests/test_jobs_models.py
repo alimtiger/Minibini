@@ -171,6 +171,35 @@ class EstimateModelTest(TestCase):
             )
             self.assertEqual(estimate.status, status)
 
+    def test_estimate_superseded_sets_closed_date_not_superseded_date(self):
+        """
+        Test that when an estimate is superseded, closed_date is set.
+        The field 'superseded_date' was renamed to 'closed_date' in migration 0014.
+        Code should use 'closed_date', not the old 'superseded_date' field name.
+        """
+        estimate = Estimate.objects.create(
+            job=self.job,
+            estimate_number="EST_SUPERSEDE_TEST",
+            status='open'
+        )
+
+        # Verify the model doesn't have superseded_date as a DB field
+        field_names = [f.name for f in Estimate._meta.get_fields()]
+        self.assertNotIn('superseded_date', field_names,
+            "Estimate model should not have 'superseded_date' field - it was renamed to 'closed_date'")
+        self.assertIn('closed_date', field_names,
+            "Estimate model should have 'closed_date' field")
+
+        # Transition to superseded
+        estimate.status = 'superseded'
+        estimate.save()
+
+        # Reload and verify closed_date is set
+        estimate.refresh_from_db()
+        self.assertEqual(estimate.status, 'superseded')
+        self.assertIsNotNone(estimate.closed_date,
+            "closed_date should be set when estimate is superseded")
+
 
 class WorkOrderModelTest(TestCase):
     def setUp(self):

@@ -230,18 +230,15 @@ class SupersededEstimateModelTests(TestCase):
 
     def test_estimate_can_be_marked_superseded(self):
         """Test that an estimate can be properly marked as superseded."""
-        from django.utils import timezone
-
-        # Mark estimate as superseded
+        # Mark estimate as superseded (closed_date is set automatically by model.save())
         self.estimate.status = 'superseded'
-        self.estimate.superseded_date = timezone.now()
         self.estimate.save()
 
         # Reload from database
         self.estimate.refresh_from_db()
 
         self.assertEqual(self.estimate.status, 'superseded')
-        self.assertIsNotNone(self.estimate.superseded_date)
+        self.assertIsNotNone(self.estimate.closed_date)
 
     def test_superseded_estimate_preserves_data(self):
         """Test that superseded estimates preserve their data for historical reference."""
